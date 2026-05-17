@@ -675,9 +675,8 @@ body::after {
 .dict-entry-head { text-align: center; margin-bottom: 0.4rem; }
 .dict-headword-large {
   font-family: 'Fraunces', serif;
-  font-weight: 500;
-  font-style: italic;
-  font-variation-settings: "opsz" 144, "SOFT" 60;
+  font-weight: 600;
+  font-variation-settings: "opsz" 144, "SOFT" 30;
   font-size: clamp(2.4rem, 7vw, 3.6rem);
   line-height: 1.02;
   letter-spacing: -0.01em;
@@ -687,24 +686,24 @@ body::after {
 .dict-headword-large .dict-sep {
   color: var(--ink-ghost);
   font-weight: 300;
-  font-style: normal;
   margin: 0 2px;
 }
 .dict-pron {
   font-family: 'Newsreader', serif;
-  font-style: italic;
   font-size: clamp(0.78rem, 1vw, 0.92rem);
   color: var(--ink-faint);
   margin-bottom: 0.4rem;
 }
+.dict-pron-pos {
+  font-style: italic;
+  margin-right: 0.15rem;
+}
 .dict-pron-ipa {
-  font-style: normal;
   letter-spacing: 0.02em;
   color: var(--ink-soft);
 }
 .dict-tagline {
   font-family: 'Newsreader', serif;
-  font-style: italic;
   font-size: clamp(0.72rem, 0.95vw, 0.85rem);
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -720,8 +719,7 @@ body::after {
 .rules-row:last-child { margin-bottom: 0; }
 .rules-num {
   font-family: 'Fraunces', serif;
-  font-style: italic;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--accent);
   flex-shrink: 0;
   min-width: 1.2rem;
@@ -735,14 +733,13 @@ body::after {
 
 .intro-rules {
   font-family: 'Newsreader', serif;
-  font-style: italic;
   font-size: 0.95rem;
   line-height: 1.65;
   color: var(--ink-soft);
   max-width: 360px;
   margin-bottom: 1.3rem;
 }
-.intro-rules b { font-style: normal; font-weight: 500; color: var(--accent); }
+.intro-rules b { font-weight: 600; color: var(--accent); }
 .legend {
   display: grid;
   grid-template-columns: repeat(2, auto);
@@ -750,13 +747,11 @@ body::after {
   margin-bottom: 1.6rem;
   text-align: left;
   font-family: 'Newsreader', serif;
-  font-style: italic;
   font-size: 0.78rem;
   color: var(--ink-soft);
 }
-.legend .sym { color: var(--accent); font-style: normal; margin-right: 0.3rem; }
+.legend .sym { color: var(--accent); margin-right: 0.3rem; }
 .legend .lbl {
-  font-style: normal;
   font-family: 'Fraunces', serif;
   font-size: 0.68rem;
   font-weight: 500;
@@ -807,7 +802,6 @@ body::after {
 .btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--accent); }
 .intro-practice-btn {
   font-family: 'Newsreader', serif;
-  font-style: italic;
   font-size: 0.76rem;
   color: var(--ink-faint);
   background: none;
@@ -1135,7 +1129,7 @@ html, body { transition: background 0.25s, color 0.25s; }
   <div class="overlay" id="intro">
     <div class="dict-entry-head">
       <div class="dict-headword-large">Con<span class="dict-sep">·</span>cord<span class="dict-sep">·</span>ance</div>
-      <div class="dict-pron">n.&nbsp; <span class="dict-pron-ipa">/kən-ˈkȯr-dən(t)s/</span></div>
+      <div class="dict-pron"><span class="dict-pron-pos">n.</span>&nbsp; <span class="dict-pron-ipa">/kən-ˈkȯr-dən(t)s/</span></div>
       <div class="dict-tagline">a daily word puzzle</div>
     </div>
     <div class="go-rule"></div>
