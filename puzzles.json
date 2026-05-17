@@ -1,0 +1,522 @@
+[
+  {
+    "name": "Fault & Faithlessness",
+    "sets": [
+      {
+        "type": "definition",
+        "clue": "Guilty of faithlessness or disloyalty; deceitfully treacherous",
+        "parts": [
+          "per",
+          "fid",
+          "ious"
+        ],
+        "pos": "adj.",
+        "definition": "Guilty of faithlessness or disloyalty; deceitfully treacherous.",
+        "etymology": "Latin <em>per-</em> (through, thoroughly) + <em>fides</em> (faith) + <em>-ious</em>",
+        "example": "The <em>perfidious</em> advisor leaked the queen's plans to her enemies.",
+        "synonyms": "treacherous, disloyal, duplicitous, faithless",
+        "antonyms": "loyal, faithful, trustworthy, steadfast"
+      },
+      {
+        "type": "etymology",
+        "clue": "From Latin <em>mis-</em> (wrongly) + <em>credere</em> (to believe) + <em>-ant</em>",
+        "parts": [
+          "mis",
+          "cre",
+          "ant"
+        ],
+        "pos": "n.",
+        "definition": "A person who behaves badly or in a way that breaks the law; a villain.",
+        "etymology": "Old French <em>mescreant</em> — Latin <em>mis-</em> (wrongly) + <em>credere</em> (to believe) + <em>-ant</em> (agent suffix)",
+        "example": "The magistrate sentenced the <em>miscreant</em> to three months in the gaol.",
+        "synonyms": "villain, wrongdoer, criminal, reprobate",
+        "antonyms": "innocent, upright, law-abiding"
+      },
+      {
+        "type": "synonym",
+        "clue": "outrageous, monstrous, flagrant, shocking",
+        "parts": [
+          "e",
+          "gre",
+          "gious"
+        ],
+        "pos": "adj.",
+        "definition": "Outstandingly bad; shockingly conspicuous.",
+        "etymology": "Latin <em>e-</em> (out of) + <em>grex</em> (flock, herd) + <em>-ious</em> — originally 'standing out from the flock' (in a good sense; later ironic)",
+        "example": "The report detailed an <em>egregious</em> failure of oversight at every level.",
+        "synonyms": "outrageous, monstrous, flagrant, glaring",
+        "antonyms": "minor, trivial, slight, unremarkable"
+      },
+      {
+        "type": "example",
+        "clue": "The <span class=\"blank-mark\">_____</span> comparison drew complaints from workers who felt singled out.",
+        "parts": [
+          "in",
+          "vid",
+          "ious"
+        ],
+        "pos": "adj.",
+        "definition": "Likely to arouse resentment because of perceived unfairness or discrimination.",
+        "etymology": "Latin <em>in-</em> (upon/against) + <em>vidēre</em> (to see, to envy) + <em>-ious</em>",
+        "example": "The <em>invidious</em> comparison drew complaints from workers who felt singled out.",
+        "synonyms": "discriminatory, unjust, offensive, provocative",
+        "antonyms": "fair, impartial, equitable, just"
+      }
+    ]
+  },
+  {
+    "name": "Mind & Motive",
+    "sets": [
+      {
+        "type": "etymology",
+        "clue": "From Latin <em>pre-</em> (before) + <em>coquere</em> (to cook/ripen) + <em>-ious</em>",
+        "parts": [
+          "pre",
+          "coc",
+          "ious"
+        ],
+        "pos": "adj.",
+        "definition": "Having developed certain abilities or inclinations at an earlier age than is usual.",
+        "etymology": "Latin <em>prae-</em> (before) + <em>coquere</em> (to cook, to ripen) + <em>-ious</em> — 'ripened before its time'",
+        "example": "The <em>precocious</em> child was reading chapter books by the age of four.",
+        "synonyms": "advanced, gifted, ahead of one's time, prodigious",
+        "antonyms": "backward, slow-developing, late-blooming"
+      },
+      {
+        "type": "definition",
+        "clue": "Feeling or showing deep regret or guilt for wrongdoing",
+        "parts": [
+          "re",
+          "morse",
+          "ful"
+        ],
+        "pos": "adj.",
+        "definition": "Filled with deep regret or guilt for a wrong committed.",
+        "etymology": "Latin <em>re-</em> (again) + <em>mordēre</em> (to bite) → <em>remorsus</em> + <em>-ful</em> — 'biting again' (of conscience)",
+        "example": "He was genuinely <em>remorseful</em> and wrote letters of apology to all concerned.",
+        "synonyms": "penitent, contrite, guilt-ridden, rueful",
+        "antonyms": "unrepentant, shameless, indifferent, callous"
+      },
+      {
+        "type": "antonym",
+        "clue": "timid, discouraged, daunted, cowed",
+        "parts": [
+          "un",
+          "daunt",
+          "ed"
+        ],
+        "pos": "adj.",
+        "definition": "Not intimidated or discouraged by difficulty, danger, or disappointment.",
+        "etymology": "Old English <em>un-</em> (not) + Old French <em>danter</em> (to tame, subdue) + <em>-ed</em>",
+        "example": "She remained <em>undaunted</em> by the scale of the task before her.",
+        "synonyms": "fearless, resolute, intrepid, indomitable",
+        "antonyms": "timid, discouraged, daunted, cowed"
+      },
+      {
+        "type": "synonym",
+        "clue": "belittle, denigrate, deprecate, diminish",
+        "parts": [
+          "dis",
+          "par",
+          "age"
+        ],
+        "pos": "v.",
+        "definition": "To regard or represent as being of little worth; to speak slightingly of.",
+        "etymology": "Old French <em>des-</em> (away from) + <em>parage</em> (rank, equality of birth) + <em>-age</em> — 'to lower in rank'",
+        "example": "He was careful never to <em>disparage</em> his rivals in public.",
+        "synonyms": "belittle, denigrate, deprecate, diminish",
+        "antonyms": "praise, extol, commend, celebrate"
+      }
+    ]
+  },
+  {
+    "name": "Force & Form",
+    "sets": [
+      {
+        "type": "definition",
+        "clue": "Difficult to control or deal with; stubbornly resistant to authority",
+        "parts": [
+          "in",
+          "tract",
+          "able"
+        ],
+        "pos": "adj.",
+        "definition": "Difficult to control or deal with; stubbornly resistant to persuasion or authority.",
+        "etymology": "Latin <em>in-</em> (not) + <em>trahere</em> (to draw, pull) + <em>-able</em> — 'unable to be drawn along'",
+        "example": "The <em>intractable</em> dispute had resisted every attempt at mediation.",
+        "synonyms": "stubborn, obdurate, unmanageable, refractory",
+        "antonyms": "manageable, compliant, amenable, tractable"
+      },
+      {
+        "type": "example",
+        "clue": "Her <span class=\"blank-mark\">_____</span> behavior during the meeting shocked everyone present.",
+        "parts": [
+          "ob",
+          "strep",
+          "erous"
+        ],
+        "pos": "adj.",
+        "definition": "Noisy and difficult to control; aggressively defiant.",
+        "etymology": "Latin <em>ob-</em> (against) + <em>strepere</em> (to make a noise) + <em>-ous</em>",
+        "example": "Her <em>obstreperous</em> behavior during the meeting shocked everyone present.",
+        "synonyms": "rowdy, unruly, boisterous, vociferous",
+        "antonyms": "quiet, docile, restrained, orderly"
+      },
+      {
+        "type": "etymology",
+        "clue": "From Latin <em>e-</em> (out) + <em>lucidus</em> (light, clear) + <em>-ate</em>",
+        "parts": [
+          "e",
+          "lucid",
+          "ate"
+        ],
+        "pos": "v.",
+        "definition": "To make clear; to explain or clarify.",
+        "etymology": "Latin <em>e-</em> (out) + <em>lucidus</em> (clear, bright) + <em>-ate</em> — 'to bring out into the light'",
+        "example": "The professor paused to <em>elucidate</em> the distinction between the two theories.",
+        "synonyms": "clarify, explain, illuminate, expound",
+        "antonyms": "obscure, confuse, muddle, obfuscate"
+      },
+      {
+        "type": "antonym",
+        "clue": "accept, uphold, acknowledge, embrace",
+        "parts": [
+          "re",
+          "pudi",
+          "ate"
+        ],
+        "pos": "v.",
+        "definition": "To refuse to accept; to reject the authority or validity of.",
+        "etymology": "Latin <em>re-</em> (back) + <em>pudium</em> (shame, from <em>pudere</em>, to be ashamed) + <em>-ate</em>",
+        "example": "She was quick to <em>repudiate</em> the claims made on her behalf.",
+        "synonyms": "reject, disown, renounce, disavow",
+        "antonyms": "accept, uphold, acknowledge, embrace"
+      }
+    ]
+  },
+  {
+    "name": "Power & Pretence",
+    "sets": [
+      {
+        "type": "synonym",
+        "clue": "servile, fawning, subservient, groveling",
+        "parts": [
+          "ob",
+          "sequi",
+          "ous"
+        ],
+        "pos": "adj.",
+        "definition": "Obedient or attentive to an excessive or servile degree.",
+        "etymology": "Latin <em>ob-</em> (towards) + <em>sequi</em> (to follow) + <em>-ous</em> — 'following along closely'",
+        "example": "The courtiers were <em>obsequious</em> in a manner that embarrassed even the king.",
+        "synonyms": "servile, fawning, subservient, sycophantic",
+        "antonyms": "assertive, independent, forthright, defiant"
+      },
+      {
+        "type": "definition",
+        "clue": "Wrongdoing, especially by a public official or in a professional capacity",
+        "parts": [
+          "mal",
+          "feas",
+          "ance"
+        ],
+        "pos": "n.",
+        "definition": "Wrongdoing, especially by a public official or in a professional capacity.",
+        "etymology": "Old French <em>mal-</em> (badly) + <em>faisance</em> (doing, from <em>faire</em>, to do) + <em>-ance</em>",
+        "example": "The inquiry uncovered widespread <em>malfeasance</em> in the awarding of contracts.",
+        "synonyms": "misconduct, wrongdoing, dereliction, corruption",
+        "antonyms": "integrity, probity, rectitude, honesty"
+      },
+      {
+        "type": "etymology",
+        "clue": "From Latin <em>im-</em> (not) + <em>pudor</em> (shame) + <em>-ent</em>",
+        "parts": [
+          "im",
+          "pud",
+          "ent"
+        ],
+        "pos": "adj.",
+        "definition": "Not showing due respect for another person; insolent; shamelessly bold.",
+        "etymology": "Latin <em>im-</em> (not) + <em>pudor</em> (shame, modesty) + <em>-ent</em>",
+        "example": "The student's <em>impudent</em> reply silenced the entire classroom.",
+        "synonyms": "insolent, brazen, presumptuous, impertinent",
+        "antonyms": "respectful, deferential, polite, modest"
+      },
+      {
+        "type": "example",
+        "clue": "He continued to <span class=\"blank-mark\">_____</span>, offering polite answers that revealed nothing of his true intent.",
+        "parts": [
+          "dis",
+          "sem",
+          "ble"
+        ],
+        "pos": "v.",
+        "definition": "To conceal one's true motives, feelings, or beliefs; to speak or act hypocritically.",
+        "etymology": "Old French <em>dis-</em> (away) + <em>sembler</em> (to seem, resemble) — 'to appear different from what one is'",
+        "example": "He continued to <em>dissemble</em>, offering polite answers that revealed nothing of his true intent.",
+        "synonyms": "dissimulate, feign, pretend, mask",
+        "antonyms": "reveal, disclose, be candid, be forthright"
+      }
+    ]
+  },
+  {
+    "name": "Loss & Lack",
+    "sets": [
+      {
+        "type": "definition",
+        "clue": "Having very little or no money; penniless",
+        "parts": [
+          "im",
+          "pecun",
+          "ious"
+        ],
+        "pos": "adj.",
+        "definition": "Having very little or no money; penniless.",
+        "etymology": "Latin <em>im-</em> (not) + <em>pecunia</em> (money, from <em>pecus</em>, cattle — cattle being early currency) + <em>-ious</em>",
+        "example": "The once-wealthy merchant died <em>impecunious</em>, leaving nothing to his heirs.",
+        "synonyms": "penniless, destitute, impoverished, indigent",
+        "antonyms": "wealthy, affluent, prosperous, flush"
+      },
+      {
+        "type": "synonym",
+        "clue": "fruitless, pointless, futile, unavailing",
+        "parts": [
+          "un",
+          "avail",
+          "ing"
+        ],
+        "pos": "adj.",
+        "definition": "Achieving little or nothing; ineffective; producing no result.",
+        "etymology": "Old English <em>un-</em> (not) + Old French <em>valoir</em> (to be worth) → <em>avail</em> + <em>-ing</em>",
+        "example": "All her protests proved <em>unavailing</em> against the committee's decision.",
+        "synonyms": "fruitless, futile, ineffectual, vain",
+        "antonyms": "effective, productive, successful, fruitful"
+      },
+      {
+        "type": "etymology",
+        "clue": "From Latin <em>de-</em> (down from) + <em>ficere</em> (to fail, from <em>facere</em>) + <em>-ent</em>",
+        "parts": [
+          "de",
+          "fici",
+          "ent"
+        ],
+        "pos": "adj.",
+        "definition": "Not having enough of a specified quality or ingredient; lacking.",
+        "etymology": "Latin <em>de-</em> (down from, away) + <em>facere</em> (to do, make) → <em>deficere</em> (to fail) + <em>-ent</em>",
+        "example": "The soil was <em>deficient</em> in the minerals needed to sustain the crop.",
+        "synonyms": "lacking, inadequate, insufficient, wanting",
+        "antonyms": "sufficient, adequate, ample, plentiful"
+      },
+      {
+        "type": "antonym",
+        "clue": "fulfillment, gratification, achievement, completion",
+        "parts": [
+          "frus",
+          "trat",
+          "ion"
+        ],
+        "pos": "n.",
+        "definition": "The feeling of being upset or annoyed as a result of being unable to change or achieve something.",
+        "etymology": "Latin <em>frustrare</em> (to disappoint, deceive) → <em>frustratio</em> + <em>-ion</em> — from <em>frustra</em> (in vain)",
+        "example": "The engineer expressed her <em>frustration</em> with the repeated system failures.",
+        "synonyms": "exasperation, annoyance, dissatisfaction, thwarting",
+        "antonyms": "fulfillment, satisfaction, achievement, gratification"
+      }
+    ]
+  },
+  {
+    "name": "Judgment & Wit",
+    "sets": [
+      {
+        "type": "definition",
+        "clue": "Wary and unwilling to take risks; prudent and circumspect",
+        "parts": [
+          "cir",
+          "cum",
+          "spect"
+        ],
+        "pos": "adj.",
+        "definition": "Wary and unwilling to take risks; carefully considering all circumstances.",
+        "etymology": "Latin <em>circum-</em> (around) + <em>specere</em> (to look) + <em>-spect</em> — 'looking around on all sides'",
+        "example": "A <em>circumspect</em> investor, she refused to commit until all risks were understood.",
+        "synonyms": "cautious, prudent, wary, guarded",
+        "antonyms": "rash, reckless, impulsive, incautious"
+      },
+      {
+        "type": "synonym",
+        "clue": "sharp, perceptive, shrewd, penetrating",
+        "parts": [
+          "as",
+          "tute",
+          "ly"
+        ],
+        "pos": "adv.",
+        "definition": "In a manner that shows an ability to accurately assess situations and turn them to one's advantage.",
+        "etymology": "Latin <em>astutus</em> (crafty) from <em>astus</em> (craft, cunning) + <em>-ly</em>",
+        "example": "She <em>astutely</em> observed that the contract contained a damaging clause.",
+        "synonyms": "shrewdly, perceptively, cleverly, sagaciously",
+        "antonyms": "naively, obtusely, carelessly, unwittingly"
+      },
+      {
+        "type": "example",
+        "clue": "He gave an <span class=\"blank-mark\">_____</span> account of events, full of vivid detail and telling observation.",
+        "parts": [
+          "in",
+          "cis",
+          "ive"
+        ],
+        "pos": "adj.",
+        "definition": "Intelligently analytical and clear-thinking; having the quality of cutting to the heart of a matter.",
+        "etymology": "Latin <em>in-</em> (into) + <em>caedere</em> (to cut) → <em>incisus</em> + <em>-ive</em>",
+        "example": "He gave an <em>incisive</em> account of events, full of vivid detail and telling observation.",
+        "synonyms": "sharp, penetrating, acute, trenchant",
+        "antonyms": "vague, dull, muddled, superficial"
+      },
+      {
+        "type": "etymology",
+        "clue": "From Latin <em>per-</em> (through) + <em>spicere</em> (to look) + <em>-ous</em>",
+        "parts": [
+          "per",
+          "spic",
+          "uous"
+        ],
+        "pos": "adj.",
+        "definition": "Clearly expressed and easily understood; readily apparent.",
+        "etymology": "Latin <em>per-</em> (through) + <em>specere</em> (to look) + <em>-uous</em> — 'able to be seen through clearly'",
+        "example": "Her argument was so <em>perspicuous</em> that even the most skeptical listener was persuaded.",
+        "synonyms": "clear, lucid, transparent, intelligible",
+        "antonyms": "obscure, opaque, murky, incomprehensible"
+      }
+    ]
+  },
+  {
+    "name": "Time & Change",
+    "sets": [
+      {
+        "type": "definition",
+        "clue": "Having a long-established and unlikely-to-change pattern of behavior",
+        "parts": [
+          "in",
+          "vet",
+          "erate"
+        ],
+        "pos": "adj.",
+        "definition": "Having a particular habit, activity, or interest that is long-established and unlikely to change.",
+        "etymology": "Latin <em>in-</em> (intensifier) + <em>vetus</em> (old) + <em>-ate</em> — 'hardened by long use'",
+        "example": "An <em>inveterate</em> traveler, she had visited forty countries before turning thirty.",
+        "synonyms": "confirmed, habitual, deep-rooted, ingrained",
+        "antonyms": "occasional, sporadic, newly acquired, temporary"
+      },
+      {
+        "type": "antonym",
+        "clue": "modern, novel, contemporary, recent",
+        "parts": [
+          "an",
+          "tique",
+          "d"
+        ],
+        "pos": "adj.",
+        "definition": "Old-fashioned or outdated; belonging to or characteristic of an earlier period.",
+        "etymology": "Latin <em>antiquus</em> (ancient, former) via French <em>antique</em> + <em>-d</em>",
+        "example": "The office ran on an <em>antiqued</em> system that newer staff found baffling.",
+        "synonyms": "archaic, obsolete, outmoded, anachronistic",
+        "antonyms": "modern, novel, current, contemporary"
+      },
+      {
+        "type": "synonym",
+        "clue": "fleeting, brief, momentary, impermanent",
+        "parts": [
+          "e",
+          "phem",
+          "eral"
+        ],
+        "pos": "adj.",
+        "definition": "Lasting for a very short time; transitory.",
+        "etymology": "Greek <em>epi-</em> (on) + <em>hēmera</em> (day) + <em>-al</em> → Latin <em>ephemerus</em> — 'lasting only a day'",
+        "example": "Fame in the age of social media can be frustratingly <em>ephemeral</em>.",
+        "synonyms": "fleeting, transient, momentary, short-lived",
+        "antonyms": "permanent, enduring, lasting, eternal"
+      },
+      {
+        "type": "example",
+        "clue": "The treaty's terms were <span class=\"blank-mark\">_____</span> — valid only so long as both parties saw benefit in them.",
+        "parts": [
+          "pro",
+          "vis",
+          "ional"
+        ],
+        "pos": "adj.",
+        "definition": "Arranged or existing for the present, possibly to be changed later; temporary.",
+        "etymology": "Latin <em>pro-</em> (before, for) + <em>vidēre</em> (to see) → <em>provisio</em> + <em>-al</em>",
+        "example": "The treaty's terms were <em>provisional</em> — valid only so long as both parties saw benefit.",
+        "synonyms": "temporary, interim, tentative, conditional",
+        "antonyms": "permanent, definitive, final, absolute"
+      }
+    ]
+  },
+  {
+    "name": "Speech & Silence",
+    "sets": [
+      {
+        "type": "definition",
+        "clue": "Using many words where few would do; long-winded",
+        "parts": [
+          "ver",
+          "bos",
+          "ity"
+        ],
+        "pos": "n.",
+        "definition": "The use of more words than are needed; the quality of being long-winded.",
+        "etymology": "Latin <em>verbum</em> (word) + <em>-osus</em> (full of) → <em>verbosus</em> + <em>-ity</em>",
+        "example": "The report was admired for its clarity, a welcome change from the committee's usual <em>verbosity</em>.",
+        "synonyms": "wordiness, prolixity, long-windedness, garrulousness",
+        "antonyms": "brevity, conciseness, succinctness, terseness"
+      },
+      {
+        "type": "etymology",
+        "clue": "From Latin <em>e-</em> (out) + <em>loqui</em> (to speak) + <em>-ent</em>",
+        "parts": [
+          "e",
+          "loqu",
+          "ent"
+        ],
+        "pos": "adj.",
+        "definition": "Fluent or persuasive in speaking or writing.",
+        "etymology": "Latin <em>e-</em> (out) + <em>loqui</em> (to speak) + <em>-ent</em> — 'speaking out' with force and clarity",
+        "example": "The barrister delivered an <em>eloquent</em> closing argument that moved several jurors to tears.",
+        "synonyms": "articulate, fluent, persuasive, silver-tongued",
+        "antonyms": "inarticulate, halting, tongue-tied, inexpressive"
+      },
+      {
+        "type": "antonym",
+        "clue": "forthright, candid, transparent, frank",
+        "parts": [
+          "e",
+          "quiv",
+          "ocal"
+        ],
+        "pos": "adj.",
+        "definition": "Open to more than one interpretation; deliberately ambiguous or unclear.",
+        "etymology": "Latin <em>e-</em> (equal) + <em>vox/vocis</em> (voice) + <em>-al</em> — 'of equal voice' (pointing both ways)",
+        "example": "His <em>equivocal</em> reply left reporters unsure whether he would resign.",
+        "synonyms": "ambiguous, evasive, noncommittal, unclear",
+        "antonyms": "unequivocal, forthright, candid, explicit"
+      },
+      {
+        "type": "synonym",
+        "clue": "condemn, censure, vilify, denounce",
+        "parts": [
+          "im",
+          "pugn",
+          "ed"
+        ],
+        "pos": "v. (past)",
+        "definition": "Called into question or challenged the truth, validity, or honesty of.",
+        "etymology": "Latin <em>im-</em> (against) + <em>pugnare</em> (to fight) + <em>-ed</em> — 'to fight against'",
+        "example": "The barrister <em>impugned</em> the witness's credibility with a series of sharp questions.",
+        "synonyms": "challenged, questioned, disputed, contested",
+        "antonyms": "upheld, defended, supported, vindicated"
+      }
+    ]
+  }
+]

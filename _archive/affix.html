@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Affix · Second Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Newsreader:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f1e7cf;
+  --paper-deep: #e6dabb;
+  --paper-shadow: #d9cba8;
+  --ink: #1a1610;
+  --ink-soft: #5a4e3a;
+  --ink-faint: #8a7c63;
+  --ink-ghost: #b8a98a;
+  --accent: #8a1c1c;
+  --accent-bright: #b53030;
+  --accent-deep: #5e1212;
+  --gold: #a87b2d;
+  --gold-bright: #d4a85a;
+  --green: #3d6238;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Newsreader', Georgia, serif;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(168,123,45,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 80% 100%, rgba(138,28,28,0.08) 0%, transparent 60%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.10, 0 0 0 0 0.08, 0 0 0 0 0.06, 0 0 0 0.10 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  pointer-events: none;
+  z-index: 1;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(90,60,30,0.10) 0%, transparent 8%, transparent 92%, rgba(90,60,30,0.12) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.app {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0.9rem 1.1rem 1.1rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 0.55rem;
+  border-bottom: 1.5px solid var(--ink);
+  position: relative;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -4px;
+  height: 0.5px;
+  background: var(--ink);
+}
+.brand { display: flex; align-items: baseline; gap: 0.45rem; }
+.title {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 1.55rem;
+  font-variation-settings: "opsz" 144, "SOFT" 40;
+  line-height: 0.9;
+}
+.title-mark { color: var(--accent); font-style: italic; font-weight: 400; }
+.vol {
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+}
+.stat-row { display: flex; gap: 0.95rem; align-items: flex-end; }
+.stat {
+  font-family: 'Newsreader', serif;
+  font-size: 0.58rem;
+  font-style: italic;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  text-align: right;
+}
+.stat .num {
+  font-family: 'Fraunces', serif;
+  font-style: normal;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: 0;
+  display: block;
+  line-height: 1;
+  margin-bottom: 3px;
+  transition: color 0.3s;
+}
+.stat .num.bump { animation: bump 0.5s; color: var(--accent-bright); }
+@keyframes bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.lives {
+  display: flex; gap: 5px; justify-content: flex-end;
+  height: 1.15rem; align-items: center; margin-bottom: 4px;
+}
+.life {
+  width: 11px; height: 11px;
+  background: var(--accent);
+  border-radius: 50%;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: inset 0 -1.5px 2px rgba(0,0,0,0.25);
+}
+.life.lost {
+  background: transparent;
+  border: 1.5px solid var(--ink-ghost);
+  transform: scale(0.78);
+  box-shadow: none;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0.7rem 0 0.5rem;
+  min-height: 0;
+}
+
+.entry-mark {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.6rem; margin-bottom: 0.5rem;
+}
+.entry-mark .line {
+  flex: 0 0 28px; height: 0.5px;
+  background: var(--accent); opacity: 0.6;
+}
+.entry-mark .label {
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.entry-mark .orn { color: var(--accent); font-size: 0.65rem; opacity: 0.75; }
+
+.definition {
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 1.32rem;
+  line-height: 1.38;
+  text-align: center;
+  color: var(--ink-soft);
+  margin-bottom: 1.4rem;
+  padding: 0 0.4rem;
+  min-height: 1.8rem;
+}
+.definition::before { content: '\201C'; color: var(--accent); margin-right: 0.04em; }
+.definition::after { content: '\201D'; color: var(--accent); margin-left: 0.04em; }
+
+.word-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.15rem;
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 144, "SOFT" 20;
+  margin-bottom: 0.45rem;
+  min-height: 3.6rem;
+  flex-wrap: nowrap;
+}
+.root {
+  font-size: 1.85rem;
+  font-weight: 500;
+  color: var(--ink);
+  padding: 0 0.2rem;
+  white-space: nowrap;
+}
+.dash {
+  color: var(--ink-ghost);
+  font-weight: 300;
+  font-size: 1.5rem;
+}
+.slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.6rem;
+  height: 2.7rem;
+  padding: 0 0.45rem;
+  border: 1.5px dashed var(--accent);
+  border-radius: 3px;
+  background: rgba(138, 28, 28, 0.05);
+  color: var(--accent);
+  font-size: 1.3rem;
+  font-style: italic;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.slot.filled {
+  background: linear-gradient(180deg, var(--paper) 0%, var(--paper-shadow) 100%);
+  border: 1.5px solid var(--ink);
+  border-bottom-width: 2.5px;
+  color: var(--ink);
+  font-style: normal;
+  font-weight: 500;
+  animation: place 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.slot.correct-flash {
+  background: var(--green);
+  color: var(--paper);
+  border-color: var(--green);
+  font-style: normal;
+  font-weight: 500;
+}
+.slot.wrong-flash {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+  animation: shake 0.4s;
+  font-style: normal;
+  font-weight: 500;
+}
+@keyframes place {
+  0% { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+  60% { transform: scale(1.08) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.slot-labels {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: 0.6rem;
+  color: var(--ink-ghost);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 1.1rem;
+}
+.slot-label { width: 4rem; text-align: center; }
+.slot-label-mid { flex: 0 0 auto; min-width: 4rem; text-align: center; }
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+.tile {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  font-size: 1.25rem;
+  font-weight: 500;
+  padding: 0.78rem 0.3rem;
+  background: linear-gradient(180deg, #f5ecd6 0%, #e8dbb8 100%);
+  border: 1.5px solid var(--ink);
+  border-bottom-width: 3.5px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.1s, border-bottom-width 0.1s, opacity 0.25s;
+  color: var(--ink);
+  position: relative;
+  letter-spacing: 0.01em;
+}
+.tile::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 40%);
+  pointer-events: none;
+}
+.tile:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 1.5px;
+}
+.tile:disabled, .tile.placed {
+  opacity: 0.32;
+  cursor: default;
+  background: var(--paper-deep);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 0.55rem;
+}
+.btn-ctrl {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 144;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.85rem 0.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1.5px solid var(--ink);
+  letter-spacing: 0.04em;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-clear {
+  background: transparent;
+  color: var(--ink);
+  box-shadow: 2.5px 2.5px 0 var(--ink-faint);
+}
+.btn-clear:active:not(:disabled) {
+  transform: translate(2.5px, 2.5px);
+  box-shadow: 0 0 0 var(--ink-faint);
+}
+.btn-submit {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 2.5px 2.5px 0 var(--accent);
+}
+.btn-submit:active:not(:disabled) {
+  transform: translate(2.5px, 2.5px);
+  box-shadow: 0 0 0 var(--accent);
+}
+.btn-ctrl:disabled { opacity: 0.4; cursor: default; }
+
+.badge {
+  position: fixed;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-variation-settings: "opsz" 144;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 5;
+  text-align: center;
+  white-space: nowrap;
+}
+.badge.show { animation: badgePop 1.4s ease-out; }
+.badge .big {
+  display: block;
+  font-size: 3.2rem;
+  color: var(--gold);
+  text-shadow: 2px 2px 0 var(--ink);
+  line-height: 1;
+}
+.badge .small {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-style: normal;
+  color: var(--accent);
+  margin-top: 0.4rem;
+}
+@keyframes badgePop {
+  0% { opacity: 0; transform: translate(-50%, -25%) scale(0.4) rotate(-8deg); }
+  15% { opacity: 1; transform: translate(-50%, -55%) scale(1.1) rotate(-2deg); }
+  85% { opacity: 1; transform: translate(-50%, -70%) scale(1) rotate(0); }
+  100% { opacity: 0; transform: translate(-50%, -95%) scale(1) rotate(0); }
+}
+
+.score-pop {
+  position: fixed;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1.15rem;
+  color: var(--green);
+  pointer-events: none;
+  z-index: 6;
+  animation: scorePop 1s ease-out forwards;
+}
+@keyframes scorePop {
+  0% { opacity: 0; transform: translateY(0); }
+  20% { opacity: 1; transform: translateY(-10px); }
+  100% { opacity: 0; transform: translateY(-40px); }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  z-index: 10;
+  text-align: center;
+}
+.overlay.show { display: flex; }
+.overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(168,123,45,0.12) 0%, transparent 60%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.10, 0 0 0 0 0.08, 0 0 0 0 0.06, 0 0 0 0.10 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  pointer-events: none;
+}
+.overlay > * { position: relative; z-index: 1; }
+
+.go-mark {
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+.go-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 3.4rem;
+  line-height: 1;
+  margin-bottom: 0.3rem;
+  font-variation-settings: "opsz" 144, "SOFT" 80;
+}
+.go-rule {
+  width: 80px;
+  height: 1px;
+  background: var(--ink);
+  margin: 1rem auto 1.4rem;
+  position: relative;
+}
+.go-rule::before, .go-rule::after {
+  content: '❦';
+  position: absolute;
+  top: -10px;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+.go-rule::before { left: -20px; }
+.go-rule::after { right: -20px; }
+
+.go-score-label {
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  margin-bottom: 0.2rem;
+}
+.go-score {
+  font-family: 'Fraunces', serif;
+  font-size: 4.6rem;
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 0.3rem;
+  font-variation-settings: "opsz" 144, "SOFT" 0;
+}
+.go-sub {
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  color: var(--ink-faint);
+  font-size: 0.88rem;
+  margin-bottom: 1.5rem;
+}
+.go-stats {
+  display: flex;
+  gap: 1.6rem;
+  margin-bottom: 2.2rem;
+  padding: 0.8rem 1.4rem;
+  border-top: 0.5px solid var(--ink-faint);
+  border-bottom: 0.5px solid var(--ink-faint);
+}
+.go-stat { text-align: center; }
+.go-stat-num {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+}
+.go-stat-label {
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 4px;
+}
+.btn {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 144;
+  font-size: 1.05rem;
+  font-weight: 500;
+  padding: 0.85rem 2rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  box-shadow: 3px 3px 0 var(--accent);
+  transition: all 0.12s;
+}
+.btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--accent);
+}
+
+.intro-rules {
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  max-width: 340px;
+  margin-bottom: 2.2rem;
+}
+.intro-rules b { font-style: normal; font-weight: 500; color: var(--accent); }
+.intro-rules .pill {
+  display: inline-block;
+  font-style: normal;
+  font-family: 'Fraunces', serif;
+  font-size: 0.85rem;
+  padding: 0.1rem 0.5rem;
+  background: var(--paper-deep);
+  border: 1px solid var(--ink-faint);
+  border-radius: 3px;
+  margin: 0 0.1rem;
+  color: var(--ink);
+}
+
+@media (max-height: 720px) {
+  .definition { font-size: 1.18rem; margin-bottom: 1rem; }
+  .word-row { min-height: 3.2rem; }
+  .root { font-size: 1.65rem; }
+  .slot { height: 2.5rem; min-width: 2.4rem; font-size: 1.15rem; }
+  .tile { font-size: 1.15rem; padding: 0.7rem 0.3rem; }
+}
+@media (max-height: 620px) {
+  .app { padding: 0.6rem 0.9rem 0.9rem; }
+  .main { padding: 0.4rem 0 0.3rem; }
+  .definition { font-size: 1.05rem; margin-bottom: 0.7rem; }
+  .root { font-size: 1.45rem; }
+  .slot { height: 2.3rem; font-size: 1.05rem; }
+  .tile { font-size: 1.05rem; padding: 0.6rem 0.3rem; }
+  .entry-mark { margin-bottom: 0.3rem; }
+  .slot-labels { margin-bottom: 0.6rem; font-size: 0.55rem; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="title">Aff<span class="title-mark">·</span>ix</div>
+      <div class="vol">vol.&nbsp;ii</div>
+    </div>
+    <div class="stat-row">
+      <div class="stat">
+        <span class="num" id="score">0</span>
+        score
+      </div>
+      <div class="stat">
+        <span class="num" id="streak">0</span>
+        streak
+      </div>
+      <div class="stat">
+        <div class="lives" id="lives"></div>
+        lives
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="entry-mark">
+      <span class="line"></span>
+      <span class="orn">❦</span>
+      <span class="label">Definition</span>
+      <span class="orn">❦</span>
+      <span class="line"></span>
+    </div>
+    <div class="definition" id="definition">—</div>
+
+    <div class="word-row" id="wordRow"></div>
+    <div class="slot-labels">
+      <div class="slot-label">prefix</div>
+      <div class="slot-label-mid"></div>
+      <div class="slot-label">suffix</div>
+    </div>
+
+    <div class="tiles" id="tiles"></div>
+
+    <div class="controls">
+      <button class="btn-ctrl btn-clear" id="clearBtn" onclick="clearSlots()">Clear</button>
+      <button class="btn-ctrl btn-submit" id="submitBtn" onclick="submitAnswer()">Submit</button>
+    </div>
+  </main>
+
+  <div class="badge" id="badge"></div>
+
+  <div class="overlay show" id="intro">
+    <div class="go-mark">— A Word Game —</div>
+    <div class="go-title">Affix</div>
+    <div class="go-rule"></div>
+    <div class="intro-rules">
+      Each round shows a <b>definition</b> and a <b>root word</b>. Tap the <span class="pill">prefix-</span> and <span class="pill">-suffix</span> tiles needed to spell the word that fits — sometimes one, sometimes both. Tap <b>Submit</b> to commit.
+    </div>
+    <button class="btn" onclick="startGame()">Begin</button>
+  </div>
+
+  <div class="overlay" id="gameOver">
+    <div class="go-mark">— Fin —</div>
+    <div class="go-title">Game Over</div>
+    <div class="go-rule"></div>
+    <div class="go-score-label">Final entry</div>
+    <div class="go-score" id="finalScore">0</div>
+    <div class="go-sub" id="finalSub">a respectable showing.</div>
+    <div class="go-stats">
+      <div class="go-stat">
+        <div class="go-stat-num" id="finalSolved">0</div>
+        <div class="go-stat-label">solved</div>
+      </div>
+      <div class="go-stat">
+        <div class="go-stat-num" id="finalLongest">0</div>
+        <div class="go-stat-label">best streak</div>
+      </div>
+      <div class="go-stat">
+        <div class="go-stat-num" id="finalDoubles">0</div>
+        <div class="go-stat-label">doubles</div>
+      </div>
+    </div>
+    <button class="btn" onclick="startGame()">Begin Again</button>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  // PREFIX ONLY
+  { def: "Not happy", root: "happy", prefix: "un", suffix: null },
+  { def: "To do over again", root: "play", prefix: "re", suffix: null },
+  { def: "Across the ocean", root: "atlantic", prefix: "trans", suffix: null },
+  { def: "Between nations", root: "national", prefix: "inter", suffix: null },
+  { def: "Before recorded history", root: "historic", prefix: "pre", suffix: null },
+  { def: "Beneath the sea", root: "marine", prefix: "sub", suffix: null },
+  { def: "Opposed to war", root: "war", prefix: "anti", suffix: null },
+  { def: "Belonging to a later era", root: "modern", prefix: "post", suffix: null },
+  { def: "Wrongly spelled", root: "spelled", prefix: "mis", suffix: null },
+  { def: "Not visible", root: "visible", prefix: "in", suffix: null },
+  { def: "Below the usual standard", root: "standard", prefix: "sub", suffix: null },
+  { def: "Beyond what is natural", root: "natural", prefix: "super", suffix: null },
+  { def: "Decide ahead of time", root: "decide", prefix: "pre", suffix: null },
+  { def: "Not believable", root: "believable", prefix: "un", suffix: null },
+  { def: "To not approve of", root: "approve", prefix: "dis", suffix: null },
+  { def: "Beyond the active", root: "active", prefix: "hyper", suffix: null },
+
+  // SUFFIX ONLY
+  { def: "Without hope", root: "hope", prefix: null, suffix: "less" },
+  { def: "Full of joy", root: "joy", prefix: null, suffix: "ful" },
+  { def: "One who teaches", root: "teach", prefix: null, suffix: "er" },
+  { def: "One who plays the guitar", root: "guitar", prefix: null, suffix: "ist" },
+  { def: "In a quick manner", root: "quick", prefix: null, suffix: "ly" },
+  { def: "Able to be read", root: "read", prefix: null, suffix: "able" },
+  { def: "The state of being kind", root: "kind", prefix: null, suffix: "ness" },
+  { def: "The act of moving", root: "move", prefix: null, suffix: "ment" },
+  { def: "Resembling a child", root: "child", prefix: null, suffix: "like" },
+  { def: "Made of wood", root: "wood", prefix: null, suffix: "en" },
+  { def: "Full of danger", root: "danger", prefix: null, suffix: "ous" },
+  { def: "Tending to talk", root: "talk", prefix: null, suffix: "ative" },
+  { def: "The years of childhood", root: "child", prefix: null, suffix: "hood" },
+  { def: "A small book", root: "book", prefix: null, suffix: "let" },
+  { def: "The bond of friendship", root: "friend", prefix: null, suffix: "ship" },
+  { def: "To make modern", root: "modern", prefix: null, suffix: "ize" },
+  { def: "Capable of being seen", root: "vis", prefix: null, suffix: "ible" },
+  { def: "Behaving like a wolf", root: "wolf", prefix: null, suffix: "ish" },
+
+  // DOUBLE
+  { def: "The state of being unhappy", root: "happy", prefix: "un", suffix: "ness" },
+  { def: "The condition of having no job", root: "employ", prefix: "un", suffix: "ment" },
+  { def: "Impossible to read", root: "read", prefix: "un", suffix: "able" },
+  { def: "A lack of agreement", root: "agree", prefix: "dis", suffix: "ment" },
+  { def: "Showing no respect", root: "respect", prefix: "dis", suffix: "ful" },
+  { def: "Not friendly in manner", root: "friend", prefix: "un", suffix: "ly" },
+  { def: "Impossible to break", root: "break", prefix: "un", suffix: "able" },
+  { def: "Impossible to imagine", root: "think", prefix: "un", suffix: "able" },
+  { def: "In a dishonest manner", root: "honest", prefix: "dis", suffix: "ly" },
+  { def: "Providing no help", root: "help", prefix: "un", suffix: "ful" },
+  { def: "Lacking interesting events", root: "event", prefix: "un", suffix: "ful" },
+  { def: "Capable of being loaded again", root: "load", prefix: "re", suffix: "able" },
+];
+
+const PREFIXES = ["un","re","dis","in","pre","post","sub","super","anti","mis","non","over","trans","inter","hyper"];
+const SUFFIXES = ["er","or","ist","ful","less","ness","ly","able","ible","ment","ish","ous","like","en","hood","ship","ize","ative","let"];
+
+const SUBTITLES = [
+  "a respectable showing.",
+  "scholarly indeed.",
+  "a fine entry in the ledger.",
+  "well-played, lexicographer.",
+  "the dictionary nods approvingly.",
+  "your prefixes were prudent.",
+  "your suffixes, sublime."
+];
+
+let state = {
+  score: 0, streak: 0, longestStreak: 0, lives: 3,
+  questions: [], current: 0, locked: false,
+  prefixSlot: null, suffixSlot: null,
+  tiles: [], solved: 0, doubles: 0
+};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startGame() {
+  state.score = 0;
+  state.streak = 0;
+  state.longestStreak = 0;
+  state.lives = 3;
+  state.questions = shuffle(QUESTIONS);
+  state.current = 0;
+  state.locked = false;
+  state.solved = 0;
+  state.doubles = 0;
+  document.getElementById('gameOver').classList.remove('show');
+  document.getElementById('intro').classList.remove('show');
+  updateStats();
+  renderQuestion();
+}
+
+function updateStats(bumpScore) {
+  const scoreEl = document.getElementById('score');
+  scoreEl.textContent = state.score;
+  if (bumpScore) {
+    scoreEl.classList.remove('bump');
+    void scoreEl.offsetWidth;
+    scoreEl.classList.add('bump');
+  }
+  document.getElementById('streak').textContent = state.streak;
+  const livesEl = document.getElementById('lives');
+  livesEl.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const l = document.createElement('div');
+    l.className = 'life' + (i >= state.lives ? ' lost' : '');
+    livesEl.appendChild(l);
+  }
+}
+
+function renderQuestion() {
+  if (state.current >= state.questions.length) {
+    state.questions = shuffle(QUESTIONS);
+    state.current = 0;
+  }
+  const q = state.questions[state.current];
+  state.prefixSlot = null;
+  state.suffixSlot = null;
+
+  document.getElementById('definition').textContent = q.def;
+
+  const wr = document.getElementById('wordRow');
+  wr.innerHTML = '';
+
+  const pSlot = document.createElement('span');
+  pSlot.className = 'slot';
+  pSlot.id = 'pSlot';
+  pSlot.textContent = '?';
+  pSlot.onclick = () => clearSlot('prefix');
+  wr.appendChild(pSlot);
+
+  const d1 = document.createElement('span');
+  d1.className = 'dash';
+  d1.textContent = '-';
+  wr.appendChild(d1);
+
+  const root = document.createElement('span');
+  root.className = 'root';
+  root.textContent = q.root;
+  wr.appendChild(root);
+
+  const d2 = document.createElement('span');
+  d2.className = 'dash';
+  d2.textContent = '-';
+  wr.appendChild(d2);
+
+  const sSlot = document.createElement('span');
+  sSlot.className = 'slot';
+  sSlot.id = 'sSlot';
+  sSlot.textContent = '?';
+  sSlot.onclick = () => clearSlot('suffix');
+  wr.appendChild(sSlot);
+
+  // Build tile pool
+  const tilePool = [];
+  if (q.prefix) tilePool.push({ affix: q.prefix, type: 'prefix' });
+  if (q.suffix) tilePool.push({ affix: q.suffix, type: 'suffix' });
+
+  // Want 3 prefix + 3 suffix tiles total (6 tiles)
+  const needPrefixes = 3 - tilePool.filter(t => t.type === 'prefix').length;
+  const needSuffixes = 3 - tilePool.filter(t => t.type === 'suffix').length;
+
+  const used = new Set(tilePool.map(t => t.affix));
+  const prefDistract = shuffle(PREFIXES.filter(p => !used.has(p))).slice(0, needPrefixes);
+  const sufDistract = shuffle(SUFFIXES.filter(s => !used.has(s))).slice(0, needSuffixes);
+
+  prefDistract.forEach(p => tilePool.push({ affix: p, type: 'prefix' }));
+  sufDistract.forEach(s => tilePool.push({ affix: s, type: 'suffix' }));
+
+  state.tiles = shuffle(tilePool);
+
+  const tilesEl = document.getElementById('tiles');
+  tilesEl.innerHTML = '';
+  state.tiles.forEach((t, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'tile';
+    btn.textContent = t.type === 'prefix' ? t.affix + '-' : '-' + t.affix;
+    btn.dataset.idx = idx;
+    btn.dataset.affix = t.affix;
+    btn.dataset.type = t.type;
+    btn.onclick = () => placeTile(t, btn);
+    tilesEl.appendChild(btn);
+  });
+
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('clearBtn').disabled = false;
+}
+
+function placeTile(tile, btnEl) {
+  if (state.locked) return;
+  const slotKey = tile.type === 'prefix' ? 'prefixSlot' : 'suffixSlot';
+  const slotElId = tile.type === 'prefix' ? 'pSlot' : 'sSlot';
+
+  if (state[slotKey]) {
+    const prev = state[slotKey];
+    document.querySelectorAll('.tile').forEach(t => {
+      if (t.dataset.affix === prev && t.dataset.type === tile.type) {
+        t.classList.remove('placed');
+        t.disabled = false;
+      }
+    });
+  }
+
+  state[slotKey] = tile.affix;
+  btnEl.classList.add('placed');
+  btnEl.disabled = true;
+
+  const slotEl = document.getElementById(slotElId);
+  slotEl.classList.add('filled');
+  slotEl.textContent = tile.affix;
+  slotEl.style.animation = 'none';
+  void slotEl.offsetWidth;
+  slotEl.style.animation = '';
+}
+
+function clearSlot(type) {
+  if (state.locked) return;
+  const slotKey = type === 'prefix' ? 'prefixSlot' : 'suffixSlot';
+  const slotElId = type === 'prefix' ? 'pSlot' : 'sSlot';
+  const affix = state[slotKey];
+  if (!affix) return;
+
+  document.querySelectorAll('.tile').forEach(t => {
+    if (t.dataset.affix === affix && t.dataset.type === type) {
+      t.classList.remove('placed');
+      t.disabled = false;
+    }
+  });
+
+  state[slotKey] = null;
+  const slotEl = document.getElementById(slotElId);
+  slotEl.classList.remove('filled');
+  slotEl.textContent = '?';
+}
+
+function clearSlots() {
+  if (state.locked) return;
+  clearSlot('prefix');
+  clearSlot('suffix');
+}
+
+function submitAnswer() {
+  if (state.locked) return;
+  const q = state.questions[state.current];
+  state.locked = true;
+
+  const correctP = state.prefixSlot === q.prefix;
+  const correctS = state.suffixSlot === q.suffix;
+  const allCorrect = correctP && correctS;
+
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('clearBtn').disabled = true;
+
+  if (allCorrect) {
+    document.getElementById('pSlot').classList.add('correct-flash');
+    document.getElementById('sSlot').classList.add('correct-flash');
+
+    state.streak++;
+    state.longestStreak = Math.max(state.longestStreak, state.streak);
+    state.solved++;
+    const isDouble = q.prefix && q.suffix;
+    if (isDouble) state.doubles++;
+
+    const base = isDouble ? 35 : 15;
+    const streakBonus = Math.max(0, state.streak - 1) * 5;
+    const earned = base + streakBonus;
+    state.score += earned;
+
+    showScorePop('+' + earned);
+
+    if (isDouble && state.streak >= 2) {
+      showBadge('Double!', 'compound flourish');
+    } else if (state.streak >= 5) {
+      showBadge('× ' + state.streak, 'streak');
+    } else if (state.streak === 3) {
+      showBadge('Streak', 'three in a row');
+    }
+
+    updateStats(true);
+
+    setTimeout(() => {
+      state.current++;
+      state.locked = false;
+      renderQuestion();
+    }, 1000);
+  } else {
+    const pSlotEl = document.getElementById('pSlot');
+    const sSlotEl = document.getElementById('sSlot');
+
+    if (!correctP) {
+      pSlotEl.classList.add('wrong-flash');
+      setTimeout(() => {
+        pSlotEl.classList.remove('wrong-flash');
+        if (q.prefix) {
+          pSlotEl.classList.add('filled');
+          pSlotEl.textContent = q.prefix;
+        } else {
+          pSlotEl.classList.remove('filled');
+          pSlotEl.textContent = '∅';
+          pSlotEl.style.color = 'var(--ink-faint)';
+          pSlotEl.style.fontStyle = 'italic';
+        }
+      }, 650);
+    } else if (correctP && q.prefix) {
+      pSlotEl.classList.add('correct-flash');
+    }
+
+    if (!correctS) {
+      sSlotEl.classList.add('wrong-flash');
+      setTimeout(() => {
+        sSlotEl.classList.remove('wrong-flash');
+        if (q.suffix) {
+          sSlotEl.classList.add('filled');
+          sSlotEl.textContent = q.suffix;
+        } else {
+          sSlotEl.classList.remove('filled');
+          sSlotEl.textContent = '∅';
+          sSlotEl.style.color = 'var(--ink-faint)';
+          sSlotEl.style.fontStyle = 'italic';
+        }
+      }, 650);
+    } else if (correctS && q.suffix) {
+      sSlotEl.classList.add('correct-flash');
+    }
+
+    state.lives--;
+    state.streak = 0;
+    updateStats();
+
+    setTimeout(() => {
+      pSlotEl.style.color = '';
+      pSlotEl.style.fontStyle = '';
+      sSlotEl.style.color = '';
+      sSlotEl.style.fontStyle = '';
+      if (state.lives <= 0) {
+        gameOver();
+      } else {
+        state.current++;
+        state.locked = false;
+        renderQuestion();
+      }
+    }, 2200);
+  }
+}
+
+function showBadge(big, small) {
+  const b = document.getElementById('badge');
+  b.innerHTML = '<span class="big">' + big + '</span><span class="small">' + small + '</span>';
+  b.classList.remove('show');
+  void b.offsetWidth;
+  b.classList.add('show');
+}
+
+function showScorePop(text) {
+  const el = document.createElement('div');
+  el.className = 'score-pop';
+  el.textContent = text;
+  const score = document.getElementById('score');
+  const r = score.getBoundingClientRect();
+  el.style.left = (r.left + r.width / 2 - 10) + 'px';
+  el.style.top = (r.bottom + 4) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+function gameOver() {
+  document.getElementById('finalScore').textContent = state.score;
+  document.getElementById('finalSub').textContent = SUBTITLES[Math.floor(Math.random() * SUBTITLES.length)];
+  document.getElementById('finalSolved').textContent = state.solved;
+  document.getElementById('finalLongest').textContent = state.longestStreak;
+  document.getElementById('finalDoubles').textContent = state.doubles;
+  document.getElementById('gameOver').classList.add('show');
+}
+
+updateStats();
+</script>
+</body>
+</html>
