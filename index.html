@@ -58,10 +58,10 @@ body {
 }
 .page {
   flex: 1;
-  max-width: 640px;
+  max-width: 780px;
   width: 100%;
   margin: 0 auto;
-  padding: 1.25rem 1.5rem 3rem;
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1.5rem, 4vw, 3rem) clamp(3rem, 6vw, 5rem);
   display: flex;
   flex-direction: column;
 }
@@ -69,46 +69,46 @@ body {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding-bottom: 4rem;
+  padding-bottom: clamp(3rem, 8vw, 6rem);
 }
 .hero {
   text-align: center;
-  margin-bottom: 3.5rem;
+  margin-bottom: clamp(3rem, 7vw, 5.5rem);
 }
 .wordmark {
   font-family: 'Fraunces', Georgia, serif;
   font-weight: 400;
-  font-size: clamp(2.4rem, 8vw, 3.6rem);
+  font-size: clamp(2.6rem, 8.5vw, 5.25rem);
   font-variation-settings: "opsz" 144;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   line-height: 1.05;
-  margin-bottom: 0.75rem;
+  margin-bottom: clamp(0.75rem, 1.5vw, 1.25rem);
 }
 .tagline {
   font-family: 'Fraunces', Georgia, serif;
   font-style: italic;
   font-weight: 400;
-  font-size: 1.05rem;
+  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
   color: var(--fg-muted);
-  max-width: 28rem;
+  max-width: 36rem;
   margin: 0 auto;
   line-height: 1.5;
 }
 .shelf-label {
   font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
+  font-size: clamp(0.7rem, 0.9vw, 0.8rem);
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: var(--fg-faint);
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: clamp(1rem, 1.6vw, 1.5rem);
 }
 .card {
   display: block;
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 6px;
-  padding: 1.25rem 1.4rem;
+  padding: clamp(1.25rem, 2.2vw, 1.8rem) clamp(1.4rem, 2.5vw, 2rem);
   text-decoration: none;
   color: inherit;
   transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s;
@@ -120,16 +120,16 @@ body {
 }
 .card-title {
   font-family: 'Fraunces', Georgia, serif;
-  font-size: 1.35rem;
+  font-size: clamp(1.35rem, 2.1vw, 1.75rem);
   font-weight: 500;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
 }
 .card-desc {
   font-family: 'Fraunces', Georgia, serif;
   font-style: italic;
   color: var(--fg-muted);
-  font-size: 0.95rem;
-  line-height: 1.45;
+  font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+  line-height: 1.5;
 }
 .card-arrow {
   color: var(--accent);
