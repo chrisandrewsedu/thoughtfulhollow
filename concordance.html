@@ -7,12 +7,11 @@
 <script>
   (function () {
     try {
-      var t = localStorage.getItem('th_theme') || 'system';
-      var resolved = t === 'system'
-        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-        : t;
+      var t = localStorage.getItem('th_theme');
+      var resolved = (t === 'light' || t === 'dark')
+        ? t
+        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', resolved);
-      document.documentElement.setAttribute('data-theme-pref', t);
     } catch (e) {}
   })();
 </script>
@@ -1055,10 +1054,8 @@ body::after {
   margin-top: 0.6rem;
 }
 .theme-toggle .theme-icon { display: none; }
-:root[data-theme-pref="light"]  .theme-icon-light  { display: block; }
-:root[data-theme-pref="dark"]   .theme-icon-dark   { display: block; }
-:root[data-theme-pref="system"] .theme-icon-system { display: block; }
-:root:not([data-theme-pref]) .theme-icon-system { display: block; }
+:root[data-theme="light"] .theme-icon-dark { display: block; }
+:root[data-theme="dark"]  .theme-icon-light { display: block; }
 
 /* Dark mode — gradient and overlay tweaks for elements that use hardcoded colors */
 :root[data-theme="dark"] body::before {
@@ -1131,7 +1128,6 @@ html, body { transition: background 0.25s, color 0.25s; }
       <button class="theme-toggle header-icon-btn" id="themeToggle" aria-label="Toggle theme" type="button">
         <svg class="theme-icon theme-icon-light" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
         <svg class="theme-icon theme-icon-dark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-        <svg class="theme-icon theme-icon-system" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>
       </button>
     </div>
   </header>
@@ -2037,19 +2033,16 @@ function showAlreadyPlayed(stored) {
   (function () {
     var btn = document.getElementById('themeToggle');
     if (!btn) return;
-    var order = ['light', 'dark', 'system'];
     btn.addEventListener('click', function () {
-      var cur = document.documentElement.getAttribute('data-theme-pref') || 'system';
-      var next = order[(order.indexOf(cur) + 1) % order.length];
+      var cur = document.documentElement.getAttribute('data-theme') || 'light';
+      var next = cur === 'dark' ? 'light' : 'dark';
       try { localStorage.setItem('th_theme', next); } catch (e) {}
-      document.documentElement.setAttribute('data-theme-pref', next);
-      var resolved = next === 'system'
-        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-        : next;
-      document.documentElement.setAttribute('data-theme', resolved);
+      document.documentElement.setAttribute('data-theme', next);
     });
+    // Follow OS theme changes only until the user makes an explicit choice
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
-      if ((localStorage.getItem('th_theme') || 'system') !== 'system') return;
+      var stored = localStorage.getItem('th_theme');
+      if (stored === 'light' || stored === 'dark') return;
       document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
     });
   })();
