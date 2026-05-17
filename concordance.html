@@ -731,6 +731,48 @@ body::after {
   gap: 0.45rem;
 }
 
+/* Tutorial overlay */
+.tut-intro {
+  font-family: 'Newsreader', serif;
+  font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 420px;
+  margin: 0 auto 1.2rem;
+}
+.tut-intro b { font-weight: 600; color: var(--accent); }
+.tut-section-label { max-width: 420px; margin-left: auto; margin-right: auto; }
+.tut-card-wrap {
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto 0.7rem;
+}
+.tut-card-wrap .clue-card { min-height: 0; }
+.tut-tile-bank {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.42rem;
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto 0.7rem;
+}
+.tut-controls {
+  max-width: 420px;
+  width: 100%;
+  margin: 1rem auto 0.4rem;
+}
+.tut-controls .btn-submit { width: 100%; }
+.tut-success-caption {
+  display: none;
+  font-family: 'Newsreader', serif;
+  font-size: clamp(0.85rem, 1.2vw, 0.98rem);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 420px;
+  margin: 0.8rem auto 0;
+}
+.tut-success-caption.show { display: block; }
+
 .intro-rules {
   font-family: 'Newsreader', serif;
   font-size: 0.95rem;
@@ -1083,7 +1125,7 @@ html, body { transition: background 0.25s, color 0.25s; }
     </div>
     <div class="header-actions">
       <button class="practice-link" id="practiceLink" onclick="startPracticeGame()">Practice</button>
-      <button class="header-icon-btn" id="helpBtn" aria-label="How to play" type="button" onclick="openHelp()">
+      <button class="header-icon-btn" id="helpBtn" aria-label="How to play" type="button" onclick="openTutorial()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
       </button>
       <button class="theme-toggle header-icon-btn" id="themeToggle" aria-label="Toggle theme" type="button">
@@ -1149,7 +1191,6 @@ html, body { transition: background 0.25s, color 0.25s; }
       <button class="btn" id="beginBtn" onclick="startGame()">Begin</button>
       <button class="intro-practice-btn" id="introPracticeBtn" onclick="startPracticeGame()">or try practice mode</button>
     </div>
-    <button class="btn" id="closeHelpBtn" onclick="closeHelp()" style="display:none">Close</button>
   </div>
 
   <!-- REVEAL SCREEN -->
@@ -1158,6 +1199,53 @@ html, body { transition: background 0.25s, color 0.25s; }
     <div class="header-rule"><span>❦</span></div>
     <div id="revealEntries"></div>
     <div id="shareBlock"></div>
+  </div>
+
+  <!-- TUTORIAL -->
+  <div class="overlay" id="tutorial">
+    <div class="dict-entry-head">
+      <div class="dict-headword-large">How to play</div>
+      <div class="dict-tagline">A 30-second walkthrough</div>
+    </div>
+    <div class="go-rule"></div>
+    <div class="tut-intro">
+      Each puzzle has <b>entries</b> and a bank of <b>tiles</b>. Pick <b>one entry</b> and <b>three tiles</b> whose parts build the word the entry defines.
+    </div>
+
+    <div class="tut-section-label section-label">
+      <span class="orn">❦</span>Entry<span class="orn">❦</span>
+      <span class="sel-slots" id="tutEntrySlots" aria-hidden="true"><span class="slot"></span></span>
+    </div>
+    <div class="tut-card-wrap">
+      <div class="clue-card" id="tutClueCard">
+        <div class="clue-head">
+          <span class="clue-symbol">❦</span>
+          <span class="clue-type">Definition</span>
+          <span class="clue-check">✓</span>
+        </div>
+        <div class="clue-text">Not friendly or welcoming.</div>
+      </div>
+    </div>
+
+    <div class="tut-section-label section-label">
+      <span class="orn">❦</span>Tiles<span class="orn">❦</span>
+      <span class="sel-slots" id="tutTileSlots" aria-hidden="true"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span>
+    </div>
+    <div class="tut-tile-bank">
+      <button class="tile" id="tutTile-un" type="button">un</button>
+      <button class="tile" id="tutTile-friend" type="button">friend</button>
+      <button class="tile" id="tutTile-ly" type="button">ly</button>
+    </div>
+
+    <div class="tut-success-caption" id="tutSuccessCaption">
+      Real puzzles have four entries, twelve tiles, and a mix of clue types (≡ synonym, ≠ antonym, ¶ example). The mechanic stays the same: one entry, three tiles.
+    </div>
+
+    <div class="tut-controls">
+      <button class="btn-ctrl btn-submit" id="tutSubmitBtn" type="button" disabled>Submit (0/4)</button>
+    </div>
+
+    <button class="intro-practice-btn" id="tutSkipBtn" type="button">Skip</button>
   </div>
 
   <!-- ALREADY PLAYED TODAY -->
@@ -1188,7 +1276,13 @@ fetch('concordance.json')
   .then(r => { if (!r.ok) throw new Error('Failed to load puzzles'); return r.json(); })
   .then(data => {
     PUZZLES = data;
-    document.getElementById('intro').classList.add('show');
+    let seenTutorial = false;
+    try { seenTutorial = localStorage.getItem('tutorial_seen') === '1'; } catch (e) {}
+    if (seenTutorial) {
+      document.getElementById('intro').classList.add('show');
+    } else {
+      openTutorial();
+    }
   })
   .catch(() => {
     document.getElementById('intro').innerHTML = '<div class="go-title" style="font-size:1.2rem">Could not load puzzles</div><div class="intro-rules" style="margin-top:1rem">Make sure concordance.json is in the same folder as concordance.html</div>';
@@ -1346,16 +1440,123 @@ function loadPuzzle() {
   startTimer();
 }
 
-function openHelp() {
-  document.getElementById('introActions').style.display = 'none';
-  document.getElementById('closeHelpBtn').style.display = '';
-  document.getElementById('intro').classList.add('show');
+// Tutorial — first-time walkthrough using the word "unfriendly"
+let tutState = { clueSelected: false, tilesSelected: new Set(), solved: false };
+
+function openTutorial() {
+  tutState = { clueSelected: false, tilesSelected: new Set(), solved: false };
+
+  const card = document.getElementById('tutClueCard');
+  card.classList.remove('selected', 'solved');
+  card.style.cursor = 'pointer';
+  // Remove any previously injected assembled answer
+  const oldAsm = card.querySelector('.assembled');
+  if (oldAsm) oldAsm.remove();
+  card.onclick = tutClueClick;
+
+  ['un', 'friend', 'ly'].forEach(t => {
+    const el = document.getElementById('tutTile-' + t);
+    el.classList.remove('selected', 'placed');
+    el.onclick = () => tutTileClick(t);
+  });
+
+  document.getElementById('tutSuccessCaption').classList.remove('show');
+
+  const btn = document.getElementById('tutSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submit (0/4)';
+  btn.onclick = tutSubmit;
+
+  const skipBtn = document.getElementById('tutSkipBtn');
+  skipBtn.onclick = closeTutorial;
+  skipBtn.textContent = 'Skip';
+  skipBtn.style.display = '';
+
+  updateTutSlots();
+  document.getElementById('tutorial').classList.add('show');
 }
 
-function closeHelp() {
-  document.getElementById('intro').classList.remove('show');
-  document.getElementById('introActions').style.display = '';
-  document.getElementById('closeHelpBtn').style.display = 'none';
+function closeTutorial() {
+  document.getElementById('tutorial').classList.remove('show');
+  try { localStorage.setItem('tutorial_seen', '1'); } catch (e) {}
+  // If a game is already in progress or another overlay is showing, don't
+  // forcibly start a new flow — just close back to wherever the user was.
+  if (state.timerStart !== null) return;
+  if (document.getElementById('intro').classList.contains('show')) return;
+  if (document.getElementById('alreadyPlayed').classList.contains('show')) return;
+  if (document.getElementById('reveal').classList.contains('show')) return;
+  // First-visit case: tutorial was the only overlay. Trigger normal start.
+  startDailyGame();
+}
+
+function tutClueClick() {
+  if (tutState.solved) return;
+  tutState.clueSelected = !tutState.clueSelected;
+  document.getElementById('tutClueCard').classList.toggle('selected', tutState.clueSelected);
+  updateTutSlots();
+  updateTutSubmit();
+}
+
+function tutTileClick(part) {
+  if (tutState.solved) return;
+  if (tutState.tilesSelected.has(part)) {
+    tutState.tilesSelected.delete(part);
+  } else {
+    if (tutState.tilesSelected.size >= 3) return;
+    tutState.tilesSelected.add(part);
+  }
+  document.getElementById('tutTile-' + part).classList.toggle('selected', tutState.tilesSelected.has(part));
+  updateTutSlots();
+  updateTutSubmit();
+}
+
+function updateTutSlots() {
+  const entrySlot = document.getElementById('tutEntrySlots').querySelector('.slot');
+  entrySlot.classList.toggle('filled', tutState.clueSelected);
+  const tileSlots = document.getElementById('tutTileSlots').querySelectorAll('.slot');
+  tileSlots.forEach((s, i) => s.classList.toggle('filled', i < tutState.tilesSelected.size));
+}
+
+function updateTutSubmit() {
+  const btn = document.getElementById('tutSubmitBtn');
+  const total = (tutState.clueSelected ? 1 : 0) + tutState.tilesSelected.size;
+  if (total === 4) {
+    btn.disabled = false;
+    btn.textContent = 'Submit set';
+  } else {
+    btn.disabled = true;
+    btn.textContent = `Submit (${total}/4)`;
+  }
+}
+
+function tutSubmit() {
+  if (tutState.solved) return;
+  if (!tutState.clueSelected || tutState.tilesSelected.size !== 3) return;
+  tutState.solved = true;
+
+  const card = document.getElementById('tutClueCard');
+  card.classList.remove('selected');
+  card.classList.add('solved');
+  card.style.cursor = 'default';
+  const asm = document.createElement('div');
+  asm.className = 'assembled';
+  asm.innerHTML = '<span class="arrow">→</span>un<span class="part-dot">·</span>friend<span class="part-dot">·</span>ly';
+  card.appendChild(asm);
+
+  ['un', 'friend', 'ly'].forEach(t => {
+    document.getElementById('tutTile-' + t).classList.add('placed');
+  });
+
+  document.getElementById('tutSuccessCaption').classList.add('show');
+
+  const btn = document.getElementById('tutSubmitBtn');
+  btn.disabled = false;
+  btn.textContent = "Continue";
+  btn.onclick = closeTutorial;
+
+  document.getElementById('tutSkipBtn').style.display = 'none';
+
+  showBadge('correct', 'Nicely done', 'tutorial complete');
 }
 
 function renderMistakes() {
