@@ -108,8 +108,6 @@ body::after {
   }
   .title { font-size: 1.6rem; }
   .vol { font-size: 0.72rem; }
-  .puzzle-label { font-size: 0.76rem; }
-  .puzzle-label .num { font-size: 1.05rem; }
   .subbar { padding: 0.55rem 0 0.6rem; }
   .puzzle-name { font-size: 1.15rem; }
   .clue-card { min-height: 6.5rem; padding: 0.6rem 0.65rem 0.65rem; }
@@ -136,8 +134,6 @@ body::after {
   }
   .title { font-size: 1.95rem; }
   .vol { font-size: 0.82rem; }
-  .puzzle-label { font-size: 0.88rem; }
-  .puzzle-label .num { font-size: 1.25rem; }
   .subbar { padding: 0.75rem 0 0.8rem; }
   .puzzle-name { font-size: 1.5rem; }
   .section-label { font-size: 0.66rem; margin: 0.4rem 0 0.7rem; }
@@ -203,38 +199,52 @@ body::after {
   text-underline-offset: 2px;
 }
 .practice-link:hover { color: var(--accent); }
-.puzzle-label {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.68rem;
-  color: var(--ink-faint);
-  text-align: right;
-  letter-spacing: 0.04em;
-  line-height: 1.3;
-}
-.puzzle-label .num {
-  font-family: 'Fraunces', serif;
-  font-style: normal;
-  font-weight: 500;
-  color: var(--ink);
-  font-size: 0.92rem;
-  display: block;
-}
-.dot-progress {
+.header-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 4px;
-  margin-top: 4px;
+  align-items: center;
+  gap: 0.45rem;
 }
-.dot {
-  width: 6px; height: 6px;
+.header-icon-btn {
+  background: transparent;
+  border: 1px solid var(--ink-faint);
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink-faint);
+  padding: 0;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  vertical-align: middle;
+}
+.header-icon-btn:hover {
+  background: rgba(0,0,0,0.05);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+/* selection-progress slot indicators in section labels */
+.sel-slots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 0.55rem;
+  vertical-align: middle;
+}
+.sel-slots .slot {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   border: 1px solid var(--ink-faint);
   background: transparent;
-  transition: all 0.3s;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
 }
-.dot.done { background: var(--accent); border-color: var(--accent); }
-.dot.current { background: var(--ink); border-color: var(--ink); transform: scale(1.3); }
+.sel-slots .slot.filled {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1.1);
+}
 
 /* SUBBAR */
 .subbar {
@@ -661,6 +671,68 @@ body::after {
 .go-rule::before { left: -20px; }
 .go-rule::after { right: -20px; }
 
+/* Dictionary-style intro header */
+.dict-entry-head { text-align: center; margin-bottom: 0.4rem; }
+.dict-headword-large {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 60;
+  font-size: clamp(2.4rem, 7vw, 3.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 0.45rem;
+}
+.dict-headword-large .dict-sep {
+  color: var(--ink-ghost);
+  font-weight: 300;
+  font-style: normal;
+  margin: 0 2px;
+}
+.dict-pron {
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: clamp(0.78rem, 1vw, 0.92rem);
+  color: var(--ink-faint);
+  margin-bottom: 0.4rem;
+}
+.dict-pron-ipa {
+  font-style: normal;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+}
+.dict-tagline {
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: clamp(0.72rem, 0.95vw, 0.85rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.rules-row {
+  display: flex;
+  gap: 0.55rem;
+  align-items: baseline;
+  text-align: left;
+  margin-bottom: 0.5rem;
+}
+.rules-row:last-child { margin-bottom: 0; }
+.rules-num {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--accent);
+  flex-shrink: 0;
+  min-width: 1.2rem;
+}
+.intro-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 .intro-rules {
   font-family: 'Newsreader', serif;
   font-style: italic;
@@ -946,27 +1018,6 @@ body::after {
   color: var(--ink-ghost);
   margin-top: 0.6rem;
 }
-.theme-toggle {
-  background: transparent;
-  border: 1px solid var(--ink-faint);
-  border-radius: 999px;
-  width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--ink-faint);
-  padding: 0;
-  margin-left: 0.5rem;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-  vertical-align: middle;
-}
-.theme-toggle:hover {
-  background: rgba(0,0,0,0.05);
-  color: var(--accent);
-  border-color: var(--accent);
-}
 .theme-toggle .theme-icon { display: none; }
 :root[data-theme-pref="light"]  .theme-icon-light  { display: block; }
 :root[data-theme-pref="dark"]   .theme-icon-dark   { display: block; }
@@ -1036,16 +1087,16 @@ html, body { transition: background 0.25s, color 0.25s; }
       <div class="title">Con<span class="title-mark">·</span>cord<span class="title-mark">·</span>ance</div>
       <div class="vol">daily</div>
     </div>
-    <button class="practice-link" id="practiceLink" onclick="startPracticeGame()">Practice</button>
-<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" type="button">
-  <svg class="theme-icon theme-icon-light" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
-  <svg class="theme-icon theme-icon-dark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-  <svg class="theme-icon theme-icon-system" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>
-</button>
-    <div class="puzzle-label">
-      <span class="num" id="puzzleNum">i</span>
-      <span>of <span id="puzzleTotal">iv</span></span>
-      <div class="dot-progress" id="dotProgress"></div>
+    <div class="header-actions">
+      <button class="practice-link" id="practiceLink" onclick="startPracticeGame()">Practice</button>
+      <button class="header-icon-btn" id="helpBtn" aria-label="How to play" type="button" onclick="openHelp()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      </button>
+      <button class="theme-toggle header-icon-btn" id="themeToggle" aria-label="Toggle theme" type="button">
+        <svg class="theme-icon theme-icon-light" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+        <svg class="theme-icon theme-icon-dark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg class="theme-icon theme-icon-system" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>
+      </button>
     </div>
   </header>
 
@@ -1060,10 +1111,16 @@ html, body { transition: background 0.25s, color 0.25s; }
   </div>
 
   <main class="main">
-    <div class="section-label"><span class="orn">❦</span>Entries<span class="orn">❦</span></div>
+    <div class="section-label">
+      <span class="orn">❦</span>Entries<span class="orn">❦</span>
+      <span class="sel-slots" id="entrySlots" aria-hidden="true"><span class="slot"></span></span>
+    </div>
     <div class="clues-grid" id="cluesGrid"></div>
 
-    <div class="section-label"><span class="orn">❦</span>Tile Bank<span class="orn">❦</span></div>
+    <div class="section-label">
+      <span class="orn">❦</span>Tile Bank<span class="orn">❦</span>
+      <span class="sel-slots" id="tileSlots" aria-hidden="true"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span>
+    </div>
     <div class="tile-bank" id="tileBank"></div>
 
     <div class="controls">
@@ -1074,23 +1131,31 @@ html, body { transition: background 0.25s, color 0.25s; }
 
   <div class="badge" id="badge"></div>
 
-  <!-- INTRO -->
+  <!-- INTRO / HELP -->
   <div class="overlay" id="intro">
-    <div class="go-mark">— A Word Puzzle —</div>
-    <div class="go-title">Concordance</div>
+    <div class="dict-entry-head">
+      <div class="dict-headword-large">Con<span class="dict-sep">·</span>cord<span class="dict-sep">·</span>ance</div>
+      <div class="dict-pron">n.&nbsp; <span class="dict-pron-ipa">/kən-ˈkȯr-dən(t)s/</span></div>
+      <div class="dict-tagline">a daily word puzzle</div>
+    </div>
     <div class="go-rule"></div>
     <div class="intro-rules">
-      Each puzzle has <b>four entries</b> and a bank of <b>twelve tiles</b>. Select <b>four items</b> that form a complete entry: <b>one clue</b> plus the <b>three word parts</b> that build the word it defines. A wrong guess tells you only whether you were <b>one away</b> — nothing more precise. <b>Four mistakes</b> per puzzle.
+      <div class="rules-row"><span class="rules-num">1.</span><span>Each entry is built from <b>one clue</b> and <b>three word parts</b>.</span></div>
+      <div class="rules-row"><span class="rules-num">2.</span><span>Pick <b>one card</b> from the entries above and <b>three tiles</b> from the bank below — the parts must assemble into the word the clue defines.</span></div>
+      <div class="rules-row"><span class="rules-num">3.</span><span>A wrong guess tells you only whether you were <b>one away</b> — nothing more precise.</span></div>
+      <div class="rules-row"><span class="rules-num">4.</span><span>You have <b>four mistakes</b> per puzzle.</span></div>
     </div>
     <div class="legend">
       <div><span class="sym">❦</span><span class="lbl">Definition</span></div>
-      <div><span class="sym">§</span><span class="lbl">Etymology</span></div>
       <div><span class="sym">¶</span><span class="lbl">Example</span></div>
       <div><span class="sym">≡</span><span class="lbl">Synonym</span></div>
       <div><span class="sym">≠</span><span class="lbl">Antonym</span></div>
     </div>
-    <button class="btn" onclick="startGame()">Begin</button>
-    <button class="intro-practice-btn" onclick="startPracticeGame()">or try practice mode</button>
+    <div class="intro-actions" id="introActions">
+      <button class="btn" id="beginBtn" onclick="startGame()">Begin</button>
+      <button class="intro-practice-btn" id="introPracticeBtn" onclick="startPracticeGame()">or try practice mode</button>
+    </div>
+    <button class="btn" id="closeHelpBtn" onclick="closeHelp()" style="display:none">Close</button>
   </div>
 
   <!-- REVEAL SCREEN -->
@@ -1281,24 +1346,22 @@ function loadPuzzle() {
   state.revealedSets = puzzle.sets.map(_ => false);
 
   document.getElementById('puzzleName').textContent = '— ' + puzzle.name;
-  renderProgress();
   renderMistakes();
   renderAll();
   updateSubmit();
   startTimer();
 }
 
-function renderProgress() {
-  const dp = document.getElementById('dotProgress');
-  dp.innerHTML = '';
-  for (let i = 0; i < PUZZLES.length; i++) {
-    const d = document.createElement('div');
-    d.className = 'dot';
-    if (i < state.puzzleIdx) d.classList.add('done');
-    if (i === state.puzzleIdx) d.classList.add('current');
-    dp.appendChild(d);
-  }
-  document.getElementById('puzzleNum').textContent = toRoman(state.puzzleIdx + 1);
+function openHelp() {
+  document.getElementById('introActions').style.display = 'none';
+  document.getElementById('closeHelpBtn').style.display = '';
+  document.getElementById('intro').classList.add('show');
+}
+
+function closeHelp() {
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('introActions').style.display = '';
+  document.getElementById('closeHelpBtn').style.display = 'none';
 }
 
 function renderMistakes() {
@@ -1418,6 +1481,17 @@ function updateSubmit() {
     submitBtn.disabled = true;
     submitBtn.textContent = `Submit (${count}/4)`;
   }
+  updateSlotIndicators();
+}
+
+function updateSlotIndicators() {
+  const sel = [...state.selectedIds].map(id => itemById(id));
+  const clueCount = sel.filter(it => it && it.type === 'clue').length;
+  const tileCount = sel.filter(it => it && it.type === 'tile').length;
+  const entrySlots = document.getElementById('entrySlots').querySelectorAll('.slot');
+  const tileSlots = document.getElementById('tileSlots').querySelectorAll('.slot');
+  entrySlots.forEach((s, i) => s.classList.toggle('filled', i < clueCount));
+  tileSlots.forEach((s, i) => s.classList.toggle('filled', i < tileCount));
 }
 
 // Check selected items against a target set.
