@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Concordance · Daily</title>
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('th_theme') || 'system';
+      var resolved = t === 'system'
+        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : t;
+      document.documentElement.setAttribute('data-theme', resolved);
+      document.documentElement.setAttribute('data-theme-pref', t);
+    } catch (e) {}
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Newsreader:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
@@ -877,6 +889,32 @@ body::after {
   color: var(--ink-ghost);
   margin-top: 0.6rem;
 }
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--ink-faint);
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink-faint);
+  padding: 0;
+  margin-left: 0.5rem;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  vertical-align: middle;
+}
+.theme-toggle:hover {
+  background: rgba(0,0,0,0.05);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.theme-toggle .theme-icon { display: none; }
+:root[data-theme-pref="light"]  .theme-icon-light  { display: block; }
+:root[data-theme-pref="dark"]   .theme-icon-dark   { display: block; }
+:root[data-theme-pref="system"] .theme-icon-system { display: block; }
+:root:not([data-theme-pref]) .theme-icon-system { display: block; }
 </style>
 </head>
 <body>
@@ -887,6 +925,11 @@ body::after {
       <div class="vol">daily</div>
     </div>
     <button class="practice-link" id="practiceLink" onclick="startPracticeGame()">Practice</button>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" type="button">
+  <svg class="theme-icon theme-icon-light" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+  <svg class="theme-icon theme-icon-dark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+  <svg class="theme-icon theme-icon-system" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>
+</button>
     <div class="puzzle-label">
       <span class="num" id="puzzleNum">i</span>
       <span>of <span id="puzzleTotal">iv</span></span>
@@ -1604,6 +1647,27 @@ function showAlreadyPlayed(stored) {
   document.getElementById('practiceLink').style.display = 'inline';
   document.getElementById('alreadyPlayed').classList.add('show');
 }
+</script>
+<script>
+  (function () {
+    var btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    var order = ['light', 'dark', 'system'];
+    btn.addEventListener('click', function () {
+      var cur = document.documentElement.getAttribute('data-theme-pref') || 'system';
+      var next = order[(order.indexOf(cur) + 1) % order.length];
+      try { localStorage.setItem('th_theme', next); } catch (e) {}
+      document.documentElement.setAttribute('data-theme-pref', next);
+      var resolved = next === 'system'
+        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : next;
+      document.documentElement.setAttribute('data-theme', resolved);
+    });
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+      if ((localStorage.getItem('th_theme') || 'system') !== 'system') return;
+      document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+    });
+  })();
 </script>
 </body>
 </html>
