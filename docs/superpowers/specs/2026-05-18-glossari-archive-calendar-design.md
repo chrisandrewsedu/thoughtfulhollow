@@ -57,12 +57,12 @@ DNF (4 mistakes) on a first attempt of an archive day counts in `totalPlayed` bu
 
 ### Migration (one-time, on first load after deploy)
 
-1. Read `glossari_daily_v1`. If absent, write empty `v2` and exit.
-2. If `v2` already present, exit.
+1. If `v2` already present, exit.
+2. Read `glossari_daily_v1`. If absent, exit (v2 will be created lazily on first `saveStorage`).
 3. Build `v2` from `v1`:
-   - `byDate[v1.lastPlayedDate] = { puzzleIdx: v1.lastPlayedIndex, result: v1.lastResult, completedAt: Date.now(), source: "live" }`
+   - `byDate[v1.lastPlayedDate] = { puzzleIdx: v1.lastPlayedIndex, result: v1.lastResult, completedAt: Date.now(), source: "live" }` — only if both `v1.lastPlayedDate` and `v1.lastResult` are present.
    - Copy `streak`, `bestStreak`, `lastPlayedDate`, `totalPlayed`, `totalSolved`, `totalFlawless`
-   - If `v1.lastResult.allSolved`, seed `totalSolveSeconds = v1.lastResult.elapsed`, `solvedTimedCount = 1`. Otherwise both `0`.
+   - If `v1.lastResult.allSolved`, seed `totalSolveSeconds = v1.lastResult.elapsedSeconds`, `solvedTimedCount = 1`. Otherwise both `0`.
 4. Write `v2`. Leave `v1` key in place as a safety net (don't delete).
 
 ## Game-flow changes (in `glossari.html`)
@@ -96,7 +96,7 @@ function recordCompletion() {
   data.totalPlayed = (data.totalPlayed || 0) + 1;
   if (result.allSolved) {
     data.totalSolved = (data.totalSolved || 0) + 1;
-    data.totalSolveSeconds = (data.totalSolveSeconds || 0) + result.elapsed;
+    data.totalSolveSeconds = (data.totalSolveSeconds || 0) + result.elapsedSeconds;
     data.solvedTimedCount = (data.solvedTimedCount || 0) + 1;
     if (result.flawless) data.totalFlawless = (data.totalFlawless || 0) + 1;
   }
