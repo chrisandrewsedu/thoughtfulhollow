@@ -888,6 +888,12 @@ function formatTime(seconds) {
   return m + ':' + String(s).padStart(2, '0');
 }
 
+function formatAvgTime(data) {
+  if (!data || !data.solvedTimedCount) return '—';
+  const avg = Math.round(data.totalSolveSeconds / data.solvedTimedCount);
+  return formatTime(avg);
+}
+
 function startTimer() {
   stopTimer(); state.timerStart = Date.now(); state.elapsed = 0;
   document.getElementById('timer').textContent = '0:00';
@@ -1322,6 +1328,7 @@ function buildShareBlockHTML(stored, puzzle, puzzleNum, result) {
       <div class="share-stat"><div class="share-stat-num">${stored.streak || 0}</div><div class="share-stat-lbl">Streak</div></div>
       <div class="share-stat"><div class="share-stat-num">${stored.totalPlayed || 0}</div><div class="share-stat-lbl">Played</div></div>
       <div class="share-stat"><div class="share-stat-num">${stored.totalFlawless || 0}</div><div class="share-stat-lbl">Flawless</div></div>
+      <div class="share-stat"><div class="share-stat-num">${formatAvgTime(stored)}</div><div class="share-stat-lbl">Avg</div></div>
     </div>
     <div class="share-perf">
       <div class="share-perf-word"><span class="share-sym">❦</span>${perf.word}<span class="share-perf-pos">${perf.pos}</span></div>
@@ -1367,7 +1374,7 @@ function copyResult() {
 function showAlreadyPlayed(stored) {
   document.getElementById('intro').classList.remove('show');
   const statsEl = document.getElementById('alreadyStats'); statsEl.textContent = '';
-  [['Streak', stored.streak || 0], ['Played', stored.totalPlayed || 0], ['Flawless', stored.totalFlawless || 0]].forEach(([label, val]) => {
+  [['Streak', stored.streak || 0], ['Played', stored.totalPlayed || 0], ['Flawless', stored.totalFlawless || 0], ['Avg', formatAvgTime(stored)]].forEach(([label, val]) => {
     const div = document.createElement('div'); div.className = 'go-stat';
     const num = document.createElement('div'); num.className = 'go-stat-num'; num.textContent = val;
     const lbl = document.createElement('div'); lbl.className = 'go-stat-label'; lbl.textContent = label;
