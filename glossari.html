@@ -777,7 +777,7 @@ const CLUE_META = {
 
 let PUZZLES = [];
 
-fetch('concordance.json')
+fetch('glossari.json')
   .then(r => { if (!r.ok) throw new Error('Failed to load puzzles'); return r.json(); })
   .then(data => {
     PUZZLES = data;
@@ -787,11 +787,11 @@ fetch('concordance.json')
     else { openTutorial(); }
   })
   .catch(() => {
-    document.getElementById('intro').innerHTML = '<div class="go-title" style="font-size:1.2rem">Could not load puzzles</div><div class="intro-rules" style="margin-top:1rem">Make sure concordance.json is in the same folder as this file.</div>';
+    document.getElementById('intro').innerHTML = '<div class="go-title" style="font-size:1.2rem">Could not load puzzles</div><div class="intro-rules" style="margin-top:1rem">Make sure glossari.json is in the same folder as this file.</div>';
     document.getElementById('intro').classList.add('show');
   });
 
-const STORAGE_KEY = 'concordance_daily_v1';
+const STORAGE_KEY = 'glossari_daily_v1';
 const LAUNCH_DATE = '2026-05-17';
 
 function dailyIndex(dateStr) {
