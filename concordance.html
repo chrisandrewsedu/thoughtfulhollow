@@ -1222,7 +1222,6 @@ function buildShareBlockHTML(stored, puzzle, puzzleNum, result) {
       <div class="share-perf-def">${perf.def}</div>
     </div>
     <button class="share-copy-btn" onclick="copyResult()">Copy Result</button>
-    <div class="share-url">glossari.game</div>
   </div>`;
 }
 
@@ -1242,8 +1241,6 @@ function generateShareText(puzzle, puzzleNum, result) {
     grid,
     '',
     `${solvedCount} of ${marks.length} · ${timeStr} · ${errStr}`,
-    '',
-    'glossari.game'
   ].join('\n');
 }
 
