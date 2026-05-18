@@ -807,7 +807,8 @@ fetch('glossari.json')
     document.getElementById('intro').classList.add('show');
   });
 
-const STORAGE_KEY = 'glossari_daily_v1';
+const STORAGE_KEY_V1 = 'glossari_daily_v1';
+const STORAGE_KEY = 'glossari_daily_v2';
 const LAUNCH_DATE = '2026-05-17';
 
 function dailyIndex(dateStr) {
@@ -818,7 +819,51 @@ function dailyIndex(dateStr) {
 }
 
 function todayStr() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date()); }
-function loadStorage() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+
+function etDateOffset(dateStr, offsetDays) {
+  const base = Date.parse(dateStr + 'T12:00:00Z');
+  const shifted = new Date(base + offsetDays * 86400000);
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(shifted);
+}
+function prevEtDate(dateStr) { return etDateOffset(dateStr, -1); }
+
+function migrateStorageIfNeeded() {
+  try {
+    if (localStorage.getItem(STORAGE_KEY)) return;
+    const rawV1 = localStorage.getItem(STORAGE_KEY_V1);
+    if (!rawV1) return;
+    const v1 = JSON.parse(rawV1) || {};
+    const v2 = {
+      byDate: {},
+      streak: v1.streak || 0,
+      bestStreak: v1.bestStreak || 0,
+      lastPlayedDate: v1.lastPlayedDate || null,
+      totalPlayed: v1.totalPlayed || 0,
+      totalSolved: v1.totalSolved || 0,
+      totalFlawless: v1.totalFlawless || 0,
+      totalSolveSeconds: 0,
+      solvedTimedCount: 0,
+    };
+    if (v1.lastPlayedDate && v1.lastResult) {
+      v2.byDate[v1.lastPlayedDate] = {
+        puzzleIdx: v1.lastPlayedIndex ?? 0,
+        result: v1.lastResult,
+        completedAt: Date.now(),
+        source: 'live',
+      };
+      if (v1.lastResult.allSolved && typeof v1.lastResult.elapsedSeconds === 'number') {
+        v2.totalSolveSeconds = v1.lastResult.elapsedSeconds;
+        v2.solvedTimedCount = 1;
+      }
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(v2));
+  } catch {}
+}
+
+function loadStorage() {
+  migrateStorageIfNeeded();
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+}
 function saveStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {} }
 
 const MAX_MISTAKES = 4;
