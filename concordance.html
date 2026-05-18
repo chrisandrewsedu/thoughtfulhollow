@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Concordance · Daily</title>
+<title>Glossari · Daily</title>
 <script>
   (function () {
     try {
@@ -17,40 +17,40 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Newsreader:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
 <style>
+/* Carta — stripped-back, typographic precision, modern dictionary */
 :root {
-  --paper: #f1e7cf;
-  --paper-deep: #e6dabb;
-  --paper-shadow: #d9cba8;
-  --ink: #1a1610;
-  --ink-soft: #5a4e3a;
-  --ink-faint: #8a7c63;
-  --ink-ghost: #b8a98a;
-  --accent: #8a1c1c;
-  --accent-bright: #b53030;
-  --accent-deep: #5e1212;
-  --gold: #a87b2d;
-  --gold-bright: #d4a85a;
-  --green: #3d6238;
-  --green-bright: #5a8a52;
+  --paper: #ffffff;
+  --paper-deep: #f7f7f5;
+  --paper-shadow: #e8e8e4;
+  --ink: #111111;
+  --ink-soft: #444444;
+  --ink-faint: #888888;
+  --ink-ghost: #cccccc;
+  --accent: #c01818;
+  --accent-bright: #d83030;
+  --accent-deep: #8a0f0f;
+  --gold: #8a6c18;
+  --gold-bright: #b08c30;
+  --green: #1a6630;
+  --green-bright: #2e8a4a;
 }
-
 :root[data-theme="dark"] {
-  --paper:        #1f1a13;
-  --paper-deep:   #181410;
-  --paper-shadow: #100c08;
-  --ink:          #efe5cd;
-  --ink-soft:     #c9bda0;
-  --ink-faint:    #8e7f63;
-  --ink-ghost:    #5a4e3a;
-  --accent:       #d46a6a;
-  --accent-bright:#e88a8a;
-  --accent-deep:  #8a1c1c;
-  --gold:         #d4a85a;
-  --gold-bright:  #e6c47e;
-  --green:        #7aa872;
-  --green-bright: #9bc594;
+  --paper: #111111;
+  --paper-deep: #181818;
+  --paper-shadow: #222222;
+  --ink: #f0f0ee;
+  --ink-soft: #c0c0bc;
+  --ink-faint: #787878;
+  --ink-ghost: #333333;
+  --accent: #e04040;
+  --accent-bright: #ee6060;
+  --accent-deep: #c01818;
+  --gold: #c09040;
+  --gold-bright: #d4a850;
+  --green: #3a9a58;
+  --green-bright: #58b870;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -59,553 +59,298 @@ html, body {
   height: 100%;
   background: var(--paper);
   color: var(--ink);
-  font-family: 'Newsreader', Georgia, serif;
+  font-family: 'Lora', Georgia, serif;
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(168,123,45,0.10) 0%, transparent 60%),
-    radial-gradient(ellipse 80% 60% at 80% 100%, rgba(138,28,28,0.08) 0%, transparent 60%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.10, 0 0 0 0 0.08, 0 0 0 0 0.06, 0 0 0 0.10 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  pointer-events: none;
-  z-index: 1;
-}
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(90,60,30,0.10) 0%, transparent 8%, transparent 92%, rgba(90,60,30,0.12) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-
 .app {
   position: relative;
-  z-index: 2;
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 0.75rem 0.95rem 0.9rem;
-  max-width: 540px;
+  max-width: 560px;
   margin: 0 auto;
 }
 
-@media (min-width: 580px) {
-  .app {
-    max-width: 640px;
-    padding: 1.1rem 1.6rem 1.2rem;
-    border-left: 0.5px solid var(--paper-shadow);
-    border-right: 0.5px solid var(--paper-shadow);
-    box-shadow: -3px 0 0 var(--ink-ghost), 3px 0 0 var(--ink-ghost);
-  }
-  .title { font-size: 1.6rem; }
-  .vol { font-size: 0.72rem; }
-  .subbar { padding: 0.55rem 0 0.6rem; }
-  .puzzle-name { font-size: 1.15rem; }
-  .clue-card { min-height: 6.5rem; padding: 0.6rem 0.65rem 0.65rem; }
-  .clue-text { font-size: 0.9rem; line-height: 1.45; }
-  .clue-symbol { font-size: 1.05rem; }
-  .clue-type { font-size: 0.62rem; }
-  .tile { font-size: 1.28rem; padding: 0.7rem 0.55rem; }
-  .overlay { padding: 2.2rem 2rem; }
-  .go-mark { font-size: 0.75rem; }
-  .go-title { font-size: 2.8rem; }
-  .intro-rules { font-size: 0.9rem; line-height: 1.7; }
-  .dict-headword { font-size: 1.35rem; }
-  .dict-row { font-size: 0.86rem; }
-  .reveal-title { font-size: 2.4rem; }
-  .share-stat-num { font-size: 1.5rem; }
-  .share-perf-word { font-size: 1rem; }
-  .share-perf-def { font-size: 0.8rem; }
+@media (min-width: 560px) {
+  .app { border-left: 1px solid var(--paper-shadow); border-right: 1px solid var(--paper-shadow); }
+}
+@media (min-width: 700px) {
+  html { font-size: 120%; }
+  .app { max-width: 620px; }
+}
+@media (min-width: 1000px) {
+  html { font-size: 130%; }
+  .app { max-width: 660px; }
 }
 
-@media (min-width: 980px) {
-  .app {
-    max-width: 760px;
-    padding: 1.5rem 2.2rem 1.6rem;
-  }
-  .title { font-size: 1.95rem; }
-  .vol { font-size: 0.82rem; }
-  .subbar { padding: 0.75rem 0 0.8rem; }
-  .puzzle-name { font-size: 1.5rem; }
-  .section-label { font-size: 0.66rem; margin: 0.4rem 0 0.7rem; }
-  .clue-card { min-height: 7.5rem; padding: 0.8rem 0.85rem 0.85rem; }
-  .clue-text { font-size: 1.02rem; line-height: 1.5; }
-  .clue-symbol { font-size: 1.2rem; }
-  .clue-type { font-size: 0.7rem; }
-  .assembled { font-size: 1.22rem; }
-  .tile { font-size: 1.5rem; padding: 0.9rem 0.6rem; }
-  .btn-ctrl { font-size: 1.1rem; padding: 0.95rem 0.6rem; }
-  .overlay { padding: 2.6rem 2.4rem; }
-  .go-mark { font-size: 0.82rem; }
-  .go-title { font-size: 3.4rem; }
-  .intro-rules { font-size: 1.02rem; line-height: 1.75; max-width: 440px; }
-  .dict-headword { font-size: 1.55rem; }
-  .dict-row { font-size: 0.96rem; }
-  .reveal-title { font-size: 2.85rem; }
-  .share-stat-num { font-size: 1.7rem; }
-  .share-perf-word { font-size: 1.15rem; }
-  .share-perf-def { font-size: 0.9rem; }
-}
-
-/* HEADER */
+/* ── HEADER ── */
 .header {
+  padding: 0.9rem 1rem 0.7rem;
+  border-bottom: 1px solid var(--ink);
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  padding-bottom: 0.45rem;
-  border-bottom: 1.5px solid var(--ink);
+  align-items: baseline;
   position: relative;
 }
-.header::after {
-  content: ''; position: absolute;
-  left: 0; right: 0; bottom: -4px;
-  height: 0.5px; background: var(--ink);
-}
-.brand { display: flex; align-items: baseline; gap: 0.4rem; }
+.header::after { display: none; }
+
+.brand { display: flex; align-items: baseline; gap: 0.5rem; }
 .title {
-  font-family: 'Fraunces', serif;
-  font-weight: 500;
-  font-size: 1.4rem;
-  font-variation-settings: "opsz" 144, "SOFT" 40;
-  line-height: 0.9;
-}
-.title-mark { color: var(--accent); font-style: italic; font-weight: 400; }
-.vol {
-  font-family: 'Newsreader', serif;
+  font-family: 'DM Serif Display', serif;
+  font-weight: 400;
   font-style: italic;
-  font-size: 0.64rem;
+  font-size: 1.5rem;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.title-mark { color: var(--accent); font-style: normal; }
+.vol {
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
   color: var(--ink-faint);
 }
 .practice-link {
-  font-family: 'Newsreader', serif;
+  font-family: 'Lora', serif;
   font-style: italic;
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
+  font-size: 0.65rem;
   color: var(--ink-faint);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.2rem 0.4rem;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  background: none; border: none; cursor: pointer;
+  padding: 0; text-decoration: underline; text-underline-offset: 2px;
 }
 .practice-link:hover { color: var(--accent); }
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-}
+.header-actions { display: flex; align-items: center; gap: 0.35rem; }
 .header-icon-btn {
   background: transparent;
-  border: 1px solid var(--ink-faint);
-  border-radius: 999px;
-  width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--ink-faint);
-  padding: 0;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-  vertical-align: middle;
+  border: 1px solid var(--ink-ghost);
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--ink-faint); padding: 0;
+  transition: color 0.15s, border-color 0.15s;
 }
-.header-icon-btn:hover {
-  background: rgba(0,0,0,0.05);
-  color: var(--accent);
-  border-color: var(--accent);
-}
-/* selection-progress slot indicators in section labels */
+.header-icon-btn:hover { color: var(--accent); border-color: var(--accent); }
+
 .sel-slots {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: 0.55rem;
-  vertical-align: middle;
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-left: 0.45rem; vertical-align: middle;
 }
 .sel-slots .slot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
+  width: 5px; height: 5px; border-radius: 50%;
   border: 1px solid var(--ink-faint);
   background: transparent;
-  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  transition: background 0.2s, border-color 0.2s;
 }
-.sel-slots .slot.filled {
-  background: var(--accent);
-  border-color: var(--accent);
-  transform: scale(1.1);
-}
+.sel-slots .slot.filled { background: var(--accent); border-color: var(--accent); }
 
-/* SUBBAR */
+/* ── SUBBAR ── */
 .subbar {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: grid; grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: 0.45rem 0 0.5rem;
+  padding: 0.3rem 1rem 0.32rem;
+  border-bottom: 1px solid var(--paper-shadow);
   gap: 0.5rem;
 }
 .subbar-spacer { min-width: 1px; }
 .puzzle-name {
-  grid-column: 2;
-  justify-self: center;
-  font-family: 'Fraunces', serif;
-  font-style: italic;
-  font-variation-settings: "opsz" 144, "SOFT" 50;
-  font-size: 0.95rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  text-transform: none;
-  color: var(--accent);
-  text-align: center;
-  line-height: 1.15;
+  grid-column: 2; justify-self: center;
+  font-family: 'DM Serif Display', serif;
+  font-style: italic; font-size: 0.85rem;
+  color: var(--ink-soft); text-align: center;
 }
-.puzzle-name .name { color: var(--accent); margin-left: 0; }
-.mistakes-display { grid-column: 3; justify-self: end; }
-.mistakes-display {
-  display: flex;
-  align-items: center;
-  gap: 0.42rem;
-}
-.mistakes-label {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.58rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-.timer {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-  color: var(--ink-faint);
-  min-width: 2.8rem;
-  text-align: right;
-}
+.puzzle-name .name { color: var(--ink-soft); }
+.timer { font-family: 'Lora', serif; font-style: italic; font-size: 0.6rem; color: var(--ink-faint); min-width: 2.4rem; text-align: right; justify-self: end; }
 .mistakes-dots { display: flex; gap: 3px; }
-.mistake-dot {
-  width: 9px; height: 9px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: inset 0 -1px 1.5px rgba(0,0,0,0.2);
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.mistake-dot.spent {
-  background: transparent;
-  border: 1px solid var(--ink-ghost);
-  transform: scale(0.78);
-  box-shadow: none;
-}
+.mistake-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); transition: all 0.3s; }
+.mistake-dot.spent { background: transparent; border: 1px solid var(--ink-ghost); transform: scale(0.8); }
+.preview-mistakes-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; margin-left: 0.3rem; }
+.mistakes-label { font-family: 'Lora', serif; font-style: italic; font-size: 0.44rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
 
-/* MAIN */
+/* ── MAIN ── */
 .main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow-y: auto;
-  padding-top: 0.2rem;
+  flex: 1; display: flex; flex-direction: column;
+  min-height: 0; overflow-y: auto;
+  padding: 0.4rem 1rem 0;
 }
 
+/* ── SECTION LABELS ── */
 .section-label {
-  text-align: center;
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.56rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin: 0.1rem 0 0.45rem;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  display: flex; align-items: center;
+  margin: 0.5rem 0 0.42rem;
+  font-family: 'Lora', serif;
+  font-size: 0.5rem; font-style: italic;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--ink-faint);
+  gap: 0.55rem;
 }
-.section-label::before,
-.section-label::after {
-  content: '';
-  flex: 0 0 24px;
-  height: 0.5px;
-  background: var(--accent);
-  opacity: 0.45;
-}
-.section-label .orn {
-  color: var(--accent);
-  font-size: 0.7rem;
-  opacity: 0.75;
+.section-label .orn { display: none; }
+.section-label::before, .section-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: var(--paper-shadow);
 }
 
-/* CLUE CARDS */
+/* ── CLUE CARDS ── */
 .clues-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-bottom: 0.7rem;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0.5rem; margin-bottom: 0.5rem;
 }
 .clue-card {
   position: relative;
-  background: linear-gradient(180deg, #faf2dc 0%, #ebdfb8 100%);
-  border: 1.5px solid var(--ink);
-  border-bottom-width: 2.5px;
-  border-radius: 4px;
+  background: var(--paper);
+  border: 1px solid var(--ink-ghost);
+  border-radius: 3px;
   padding: 0.5rem 0.55rem 0.55rem;
   cursor: pointer;
-  transition: transform 0.12s, box-shadow 0.18s, border-color 0.18s, background 0.25s;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.2s;
   min-height: 5.5rem;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  display: flex; flex-direction: column;
 }
-.clue-card::before {
-  content: '';
-  position: absolute;
-  inset: 2px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, transparent 35%);
-  pointer-events: none;
+.clue-card::before { display: none; }
+.clue-card:hover:not(.selected):not(.solved):not(.revealed) {
+  border-color: var(--ink-faint);
 }
 .clue-card:active:not(.selected):not(.solved):not(.revealed) {
-  transform: translateY(1.5px);
-  border-bottom-width: 1.5px;
+  background: var(--paper-deep);
 }
 .clue-card.selected {
   border-color: var(--accent);
-  border-bottom-width: 2.5px;
-  background: linear-gradient(180deg, #f5dada 0%, #e8b8b8 100%);
-  box-shadow: 0 0 0 2px rgba(138,28,28,0.18), 0 3px 8px rgba(138,28,28,0.18);
-  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px var(--accent);
+  background: var(--paper);
 }
 .clue-card.solved {
-  background: linear-gradient(180deg, #cfddcc 0%, #b3c5af 100%);
   border-color: var(--green);
+  box-shadow: 0 0 0 1px var(--green);
   cursor: default;
 }
 .clue-card.revealed {
-  background: linear-gradient(180deg, #e6d2a3 0%, #c9ad6a 100%);
   border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
   cursor: default;
 }
+:root[data-theme="dark"] .clue-card { background: var(--paper-deep); }
+:root[data-theme="dark"] .clue-card.selected { background: var(--paper-deep); }
 
-.clue-head {
-  display: flex;
-  align-items: baseline;
-  gap: 0.3rem;
-  margin-bottom: 0.25rem;
-}
-.clue-symbol {
-  color: var(--accent);
-  font-size: 0.88rem;
-  font-family: 'Fraunces', serif;
-}
+.clue-head { display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.2rem; }
+.clue-symbol { color: var(--accent); font-size: 0.8rem; font-family: 'Lora', serif; }
 .clue-type {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.56rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 500;
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.5rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
 }
-.clue-card.solved .clue-symbol,
-.clue-card.solved .clue-type { color: var(--green); }
-.clue-card.revealed .clue-symbol,
-.clue-card.revealed .clue-type { color: var(--gold); }
+.clue-card.solved .clue-symbol, .clue-card.solved .clue-type { color: var(--green); }
+.clue-card.revealed .clue-symbol, .clue-card.revealed .clue-type { color: var(--gold); }
 .clue-check {
-  margin-left: auto;
-  font-family: 'Fraunces', serif;
-  font-size: 0.85rem;
-  color: var(--green);
-  opacity: 0;
-  transform: scale(0);
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin-left: auto; font-family: 'Lora', serif;
+  font-size: 0.72rem; color: var(--green);
+  opacity: 0; transform: scale(0);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .clue-card.solved .clue-check { opacity: 1; transform: scale(1); }
 .clue-card.revealed .clue-check { opacity: 1; transform: scale(1); color: var(--gold); }
 
 .clue-text {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-weight: 300;
-  font-size: 0.82rem;
-  line-height: 1.3;
-  color: var(--ink-soft);
-  flex: 1;
+  font-family: 'Lora', serif; font-style: italic; font-weight: 400;
+  font-size: 0.8rem; line-height: 1.35; color: var(--ink-soft); flex: 1;
 }
-.clue-text em { color: var(--accent); font-style: italic; font-weight: 400; }
-.clue-text .blank-mark {
-  font-style: normal; color: var(--accent); font-weight: 500;
-}
-.clue-card.solved .clue-text em,
-.clue-card.solved .clue-text .blank-mark { color: var(--green); }
-.clue-card.revealed .clue-text em,
-.clue-card.revealed .clue-text .blank-mark { color: var(--gold); }
+.clue-text em { color: var(--accent); font-style: italic; }
+.clue-text .blank-mark { font-style: normal; color: var(--accent); font-weight: 500; }
+.clue-card.solved .clue-text em, .clue-card.solved .clue-text .blank-mark { color: var(--green); }
+.clue-card.revealed .clue-text em, .clue-card.revealed .clue-text .blank-mark { color: var(--gold); }
 
 .assembled {
-  margin-top: 0.3rem;
-  padding-top: 0.3rem;
-  border-top: 0.5px solid rgba(0,0,0,0.15);
-  font-family: 'Fraunces', serif;
-  font-variation-settings: "opsz" 144, "SOFT" 30;
-  font-size: 1.05rem;
-  font-weight: 500;
-  text-align: center;
-  color: var(--ink);
-  font-style: normal;
-  letter-spacing: 0.01em;
+  margin-top: 0.28rem; padding-top: 0.28rem;
+  border-top: 1px solid var(--paper-shadow);
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: 1rem; text-align: center; color: var(--ink);
 }
-.assembled .arrow {
-  color: var(--accent);
-  margin-right: 0.25rem;
-  font-style: italic;
-  font-weight: 400;
-  font-size: 0.85rem;
-}
-.assembled .part-dot {
-  display: inline-block;
-  margin: 0 0.05em;
-  color: var(--ink-faint);
-  font-weight: 300;
-}
+.assembled .arrow { color: var(--accent); margin-right: 0.18rem; font-style: normal; font-size: 0.85rem; }
+.assembled .part-dot { display: inline-block; margin: 0 0.04em; color: var(--ink-faint); }
 .clue-card.solved .assembled .arrow { color: var(--green); }
 .clue-card.revealed .assembled .arrow { color: var(--gold); }
 
-/* TILE BANK */
+/* ── TILE BANK ── */
 .tile-bank {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.42rem;
-  margin-bottom: 0.7rem;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0.42rem; margin-bottom: 0.5rem;
 }
 .tile {
-  font-family: 'Fraunces', serif;
-  font-variation-settings: "opsz" 144, "SOFT" 30;
-  font-size: 1.12rem;
-  font-weight: 500;
-  padding: 0.65rem 0.4rem;
-  background: linear-gradient(180deg, #f5ecd6 0%, #e8dbb8 100%);
-  border: 1.5px solid var(--ink);
-  border-bottom-width: 3px;
-  border-radius: 4px;
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: 1.1rem; font-weight: 400;
+  padding: 0.62rem 0.4rem;
+  background: var(--paper-deep);
+  border: 1px solid var(--ink-ghost);
+  border-radius: 3px;
   cursor: pointer;
-  transition: transform 0.1s, border-bottom-width 0.1s, opacity 0.25s, background 0.2s, box-shadow 0.18s;
-  color: var(--ink);
-  position: relative;
-  text-align: center;
-  letter-spacing: 0.01em;
+  transition: border-color 0.12s, box-shadow 0.12s, opacity 0.2s, background 0.15s;
+  color: var(--ink); text-align: center;
 }
-.tile::before {
-  content: ''; position: absolute; inset: 2px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 40%);
-  pointer-events: none;
-}
-.tile:active:not(.placed):not(.selected) {
-  transform: translateY(2px);
-  border-bottom-width: 1.5px;
-}
+.tile::before { display: none; }
+.tile:hover:not(.placed):not(.selected) { border-color: var(--ink-faint); }
+.tile:active:not(.placed):not(.selected) { background: var(--paper-shadow); }
 .tile.selected {
   border-color: var(--accent);
-  background: linear-gradient(180deg, #f5dada 0%, #e8b8b8 100%);
-  box-shadow: 0 0 0 2px rgba(138,28,28,0.18), 0 3px 8px rgba(138,28,28,0.18);
-  transform: translateY(-2px);
-  color: var(--accent-deep);
+  box-shadow: 0 0 0 1px var(--accent);
+  color: var(--accent);
+  background: var(--paper);
 }
-.tile.placed {
-  opacity: 0; pointer-events: none;
-  transform: scale(0.5);
-}
+.tile.placed { opacity: 0; pointer-events: none; transform: scale(0.5); }
+:root[data-theme="dark"] .tile { background: var(--paper-deep); }
+:root[data-theme="dark"] .tile.selected { background: var(--paper-deep); }
 
-/* CONTROLS */
+/* ── CONTROLS ── */
 .controls {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 0.5rem;
-  margin-top: clamp(1rem, 2.2vw, 1.75rem);
+  display: grid; grid-template-columns: 1fr 2fr;
+  gap: 0.45rem;
+  margin-top: clamp(0.75rem, 2vw, 1.4rem);
 }
 .btn-ctrl {
-  font-family: 'Fraunces', serif;
-  font-variation-settings: "opsz" 144;
-  font-size: 0.95rem;
-  font-weight: 500;
-  padding: 0.75rem 0.4rem;
-  border-radius: 4px;
-  cursor: pointer;
-  border: 1.5px solid var(--ink);
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.85rem; font-weight: 400;
   letter-spacing: 0.04em;
-  transition: transform 0.1s, box-shadow 0.1s;
+  padding: 0.72rem 0.4rem;
+  border-radius: 3px; cursor: pointer;
+  border: 1px solid var(--ink-ghost);
+  transition: border-color 0.12s, background 0.12s;
 }
-.btn-clear {
-  background: transparent;
-  color: var(--ink);
-  box-shadow: 2.5px 2.5px 0 var(--ink-faint);
-}
-.btn-clear:active:not(:disabled) { transform: translate(2.5px, 2.5px); box-shadow: 0 0 0 var(--ink-faint); }
+.btn-clear { background: transparent; color: var(--ink); }
+.btn-clear:hover { border-color: var(--ink-faint); }
+.btn-clear:active:not(:disabled) { background: var(--paper-deep); }
 .btn-submit {
-  background: var(--ink);
-  color: var(--paper);
-  box-shadow: 2.5px 2.5px 0 var(--accent);
+  background: var(--accent); color: var(--paper);
+  border-color: var(--accent);
 }
-.btn-submit:active:not(:disabled) { transform: translate(2.5px, 2.5px); box-shadow: 0 0 0 var(--accent); }
-.btn-ctrl:disabled { opacity: 0.35; cursor: default; }
+.btn-submit:hover { background: var(--accent-bright); border-color: var(--accent-bright); }
+.btn-submit:active:not(:disabled) { background: var(--accent-deep); border-color: var(--accent-deep); }
+.btn-ctrl:disabled { opacity: 0.3; cursor: default; }
+:root[data-theme="dark"] .btn-submit { background: var(--accent); color: var(--paper); border-color: var(--accent); }
 
-/* FEEDBACK */
+/* ── BADGE ── */
 .badge {
-  position: fixed;
-  top: 42%;
-  left: 50%;
+  position: fixed; top: 42%; left: 50%;
   transform: translate(-50%, -50%);
-  font-family: 'Fraunces', serif;
-  font-style: italic;
-  font-weight: 500;
-  font-variation-settings: "opsz" 144;
-  pointer-events: none;
-  opacity: 0;
-  z-index: 5;
-  text-align: center;
-  white-space: nowrap;
+  font-family: 'DM Serif Display', serif; font-style: italic; font-weight: 400;
+  pointer-events: none; opacity: 0; z-index: 5; text-align: center; white-space: nowrap;
 }
 .badge.show { animation: badgePop 1.6s ease-out; }
-.badge .big {
-  display: block;
-  font-size: 2.6rem;
-  text-shadow: 2px 2px 0 var(--ink);
-  line-height: 1.1;
-}
-.badge .small {
-  display: block;
-  font-size: 0.68rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  font-style: normal;
-  margin-top: 0.4rem;
-}
+.badge .big { display: block; font-size: 2.4rem; line-height: 1.1; }
+.badge .small { display: block; font-family: 'Lora', serif; font-style: italic; font-size: 0.6rem; letter-spacing: 0.22em; text-transform: uppercase; margin-top: 0.35rem; }
 .badge.correct .big { color: var(--green-bright); }
 .badge.correct .small { color: var(--green); }
-.badge.partial .big { color: var(--gold-bright); }
-.badge.partial .small { color: var(--gold); }
+.badge.partial .big, .badge.away .big { color: var(--gold-bright); }
+.badge.partial .small, .badge.away .small { color: var(--gold); }
 .badge.wrong .big { color: var(--accent-bright); }
 .badge.wrong .small { color: var(--accent); }
-.badge.away .big { color: var(--gold-bright); }
-.badge.away .small { color: var(--gold); }
 @keyframes badgePop {
-  0% { opacity: 0; transform: translate(-50%, -25%) scale(0.4) rotate(-6deg); }
-  15% { opacity: 1; transform: translate(-50%, -55%) scale(1.1) rotate(-1deg); }
-  85% { opacity: 1; transform: translate(-50%, -72%) scale(1) rotate(0); }
-  100% { opacity: 0; transform: translate(-50%, -90%) scale(1) rotate(0); }
+  0% { opacity: 0; transform: translate(-50%, -25%) scale(0.5); }
+  15% { opacity: 1; transform: translate(-50%, -55%) scale(1.06); }
+  85% { opacity: 1; transform: translate(-50%, -72%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -90%) scale(1); }
 }
-
-/* shake on wrong submit */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   20%, 60% { transform: translateX(-4px); }
@@ -613,547 +358,338 @@ body::after {
 }
 .shaking { animation: shake 0.45s; }
 
-/* OVERLAYS */
+/* ── OVERLAYS ── */
 .overlay {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: var(--paper);
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 1.5rem;
-  z-index: 10;
-  text-align: center;
-  overflow-y: auto;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 1.6rem 1.3rem;
+  z-index: 10; text-align: center; overflow-y: auto;
 }
 .overlay.show { display: flex; }
-.overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(168,123,45,0.12) 0%, transparent 60%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.10, 0 0 0 0 0.08, 0 0 0 0 0.06, 0 0 0 0.10 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  pointer-events: none;
-}
-.overlay > * { position: relative; z-index: 1; }
 
 .go-mark {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.7rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 0.4rem;
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.6rem; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 0.4rem;
 }
 .go-title {
-  font-family: 'Fraunces', serif;
-  font-weight: 400;
-  font-style: italic;
-  font-size: 3rem;
-  line-height: 1;
-  margin-bottom: 0.3rem;
-  font-variation-settings: "opsz" 144, "SOFT" 80;
+  font-family: 'DM Serif Display', serif; font-weight: 400; font-style: italic;
+  font-size: 2.6rem; line-height: 1; margin-bottom: 0.3rem;
 }
 .go-rule {
-  width: 80px; height: 1px;
-  background: var(--ink);
-  margin: 1rem auto 1.4rem;
-  position: relative;
+  width: 32px; height: 1px;
+  background: var(--ink); margin: 0.9rem auto 1.2rem;
 }
-.go-rule::before, .go-rule::after {
-  content: '❦'; position: absolute; top: -10px;
-  font-size: 0.85rem; color: var(--accent);
-}
-.go-rule::before { left: -20px; }
-.go-rule::after { right: -20px; }
+.go-rule::before, .go-rule::after { display: none; }
 
-/* Dictionary-style intro header */
 .dict-entry-head { text-align: center; margin-bottom: 0.4rem; }
 .dict-headword-large {
-  font-family: 'Fraunces', serif;
-  font-weight: 600;
-  font-variation-settings: "opsz" 144, "SOFT" 30;
-  font-size: clamp(2.4rem, 7vw, 3.6rem);
-  line-height: 1.02;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-  margin-bottom: 0.45rem;
+  font-family: 'DM Serif Display', serif; font-weight: 400; font-style: italic;
+  font-size: clamp(2.2rem, 7vw, 3.4rem); line-height: 1;
+  color: var(--ink); margin-bottom: 0.42rem;
 }
-.dict-headword-large .dict-sep {
-  color: var(--ink-ghost);
-  font-weight: 300;
-  margin: 0 2px;
-}
+.dict-headword-large .dict-sep { color: var(--accent); margin: 0 1px; font-style: normal; }
 .dict-pron {
-  font-family: 'Newsreader', serif;
-  font-size: clamp(0.78rem, 1vw, 0.92rem);
-  color: var(--ink-faint);
-  margin-bottom: 0.4rem;
+  font-family: 'Lora', serif; font-size: clamp(0.74rem, 1vw, 0.88rem);
+  color: var(--ink-faint); margin-bottom: 0.32rem;
 }
-.dict-pron-pos {
-  font-style: italic;
-  margin-right: 0.15rem;
-}
-.dict-pron-ipa {
-  letter-spacing: 0.02em;
-  color: var(--ink-soft);
-}
+.dict-pron-pos { font-style: italic; margin-right: 0.1rem; }
+.dict-pron-ipa { letter-spacing: 0.02em; color: var(--ink-soft); }
 .dict-tagline {
-  font-family: 'Newsreader', serif;
-  font-size: clamp(0.72rem, 0.95vw, 0.85rem);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--accent);
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: clamp(0.64rem, 0.9vw, 0.76rem);
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
 }
-.rules-row {
-  display: flex;
-  gap: 0.55rem;
-  align-items: baseline;
-  text-align: left;
-  margin-bottom: 0.5rem;
-}
+.rules-row { display: flex; gap: 0.5rem; align-items: baseline; text-align: left; margin-bottom: 0.42rem; }
 .rules-row:last-child { margin-bottom: 0; }
-.rules-num {
-  font-family: 'Fraunces', serif;
-  font-weight: 600;
-  color: var(--accent);
-  flex-shrink: 0;
-  min-width: 1.2rem;
-}
-.intro-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.45rem;
-}
-
-/* Tutorial overlay */
-.tut-intro {
-  font-family: 'Newsreader', serif;
-  font-size: clamp(0.9rem, 1.3vw, 1.05rem);
-  line-height: 1.55;
-  color: var(--ink-soft);
-  max-width: 420px;
-  margin: 0 auto 1.2rem;
-}
-.tut-intro b { font-weight: 600; color: var(--accent); }
-.tut-section-label { max-width: 420px; margin-left: auto; margin-right: auto; }
-.tut-card-wrap {
-  max-width: 420px;
-  width: 100%;
-  margin: 0 auto 0.7rem;
-}
-.tut-card-wrap .clue-card { min-height: 0; }
-.tut-tile-bank {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.42rem;
-  max-width: 420px;
-  width: 100%;
-  margin: 0 auto 0.7rem;
-}
-.tut-controls {
-  max-width: 420px;
-  width: 100%;
-  margin: 1rem auto 0.4rem;
-}
-.tut-controls .btn-submit { width: 100%; }
-.tut-success-caption {
-  display: none;
-  font-family: 'Newsreader', serif;
-  font-size: clamp(0.85rem, 1.2vw, 0.98rem);
-  line-height: 1.5;
-  color: var(--ink-soft);
-  max-width: 420px;
-  margin: 0.8rem auto 0;
-}
-.tut-success-caption.show { display: block; }
-
+.rules-num { font-family: 'DM Serif Display', serif; font-style: italic; color: var(--accent); flex-shrink: 0; min-width: 1.1rem; font-size: 1.05rem; line-height: 1; }
 .intro-rules {
-  font-family: 'Newsreader', serif;
-  font-size: 0.95rem;
-  line-height: 1.65;
-  color: var(--ink-soft);
-  max-width: 360px;
-  margin-bottom: 1.3rem;
+  font-family: 'Lora', serif; font-size: 0.88rem; line-height: 1.65;
+  color: var(--ink-soft); max-width: 360px; margin-bottom: 1.1rem;
 }
-.intro-rules b { font-weight: 600; color: var(--accent); }
+.intro-rules b { font-weight: 600; color: var(--ink); }
+.intro-actions { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
 .legend {
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  gap: 0.3rem 0.9rem;
-  margin-bottom: 1.6rem;
-  text-align: left;
-  font-family: 'Newsreader', serif;
-  font-size: 0.78rem;
-  color: var(--ink-soft);
+  display: grid; grid-template-columns: repeat(2, auto);
+  gap: 0.25rem 0.9rem; margin-bottom: 1.3rem;
+  text-align: left; font-family: 'Lora', serif;
+  font-size: 0.74rem; color: var(--ink-soft);
 }
-.legend .sym { color: var(--accent); margin-right: 0.3rem; }
-.legend .lbl {
-  font-family: 'Fraunces', serif;
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.go-stats {
-  display: flex;
-  gap: 1.4rem;
-  margin-bottom: 2rem;
-  padding: 0.8rem 1.2rem;
-  border-top: 0.5px solid var(--ink-faint);
-  border-bottom: 0.5px solid var(--ink-faint);
-}
-.go-stat { text-align: center; }
-.go-stat-num {
-  font-family: 'Fraunces', serif;
-  font-size: 1.6rem;
-  font-weight: 500;
-  color: var(--ink);
-  line-height: 1;
-}
-.go-stat-label {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.58rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  margin-top: 4px;
-}
+.legend .sym { color: var(--accent); margin-right: 0.28rem; }
+.legend .lbl { font-family: 'Lora', serif; font-style: italic; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; }
 .btn {
-  font-family: 'Fraunces', serif;
-  font-variation-settings: "opsz" 144;
-  font-size: 1.05rem;
-  font-weight: 500;
-  padding: 0.85rem 2rem;
-  background: var(--ink);
-  color: var(--paper);
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  letter-spacing: 0.04em;
-  box-shadow: 3px 3px 0 var(--accent);
-  transition: all 0.12s;
+  font-family: 'Lora', serif; font-style: italic; font-size: 0.9rem;
+  padding: 0.8rem 2.2rem;
+  background: var(--ink); color: var(--paper);
+  border: none; border-radius: 3px; cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.15s;
 }
-.btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--accent); }
+.btn:hover { background: var(--ink-soft); }
+.btn:active { background: var(--ink); }
 .intro-practice-btn {
-  font-family: 'Newsreader', serif;
-  font-size: 0.76rem;
-  color: var(--ink-faint);
-  background: none;
-  border: none;
-  cursor: pointer;
-  letter-spacing: 0.04em;
-  margin-top: 0.5rem;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.72rem; color: var(--ink-faint);
+  background: none; border: none; cursor: pointer;
+  margin-top: 0.4rem; text-decoration: underline; text-underline-offset: 2px;
 }
 .intro-practice-btn:hover { color: var(--accent); }
 
-/* REVEAL SCREEN */
+/* Tutorial */
+.tut-intro { font-family: 'Lora', serif; font-size: clamp(0.84rem, 1.2vw, 0.98rem); line-height: 1.58; color: var(--ink-soft); max-width: 400px; margin: 0 auto 1.1rem; }
+.tut-intro b { font-weight: 600; color: var(--ink); }
+.tut-section-label { max-width: 400px; margin-left: auto; margin-right: auto; }
+.tut-card-wrap { max-width: 400px; width: 100%; margin: 0 auto 0.62rem; }
+.tut-card-wrap .clue-card { min-height: 0; }
+.tut-tile-bank { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; max-width: 400px; width: 100%; margin: 0 auto 0.62rem; }
+.tut-controls { max-width: 400px; width: 100%; margin: 0.85rem auto 0.38rem; }
+.tut-controls .btn-submit { width: 100%; }
+.tut-success-caption { display: none; font-family: 'Lora', serif; font-size: clamp(0.8rem, 1.12vw, 0.92rem); line-height: 1.55; color: var(--ink-soft); max-width: 400px; margin: 0.65rem auto 0; }
+.tut-success-caption.show { display: block; }
+
+/* Reveal */
 .reveal-header { text-align: center; margin-bottom: 1rem; }
-.reveal-num {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.62rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 0.2rem;
-}
-.reveal-title {
-  font-family: 'Fraunces', serif;
-  font-weight: 400;
-  font-style: italic;
-  font-size: 2rem;
-  line-height: 1;
-  font-variation-settings: "opsz" 144, "SOFT" 70;
-  margin-bottom: 0.15rem;
-}
-.reveal-date {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.68rem;
-  color: var(--ink-faint);
-}
-.dict-entry {
-  margin-bottom: 1.3rem;
-  padding-bottom: 1.2rem;
-  border-bottom: 0.5px solid var(--paper-shadow);
-}
+.reveal-num { font-family: 'Lora', serif; font-style: italic; font-size: 0.58rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.18rem; }
+.reveal-title { font-family: 'DM Serif Display', serif; font-weight: 400; font-style: italic; font-size: 1.85rem; line-height: 1; margin-bottom: 0.12rem; }
+.reveal-date { font-family: 'Lora', serif; font-style: italic; font-size: 0.64rem; color: var(--ink-faint); }
+.header-rule { color: var(--ink-ghost); margin: 0.3rem 0 1rem; font-size: 0.9rem; }
+.dict-entry { margin-bottom: 1.1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--paper-shadow); }
 .dict-entry:last-of-type { border-bottom: none; }
 .dict-entry.revealed .dict-headword { color: var(--gold); }
 .dict-entry.revealed .dict-sym { color: var(--gold); }
-.dict-entry.revealed .dict-badge { background: #f5edd8; color: var(--gold); border-color: var(--gold-bright); }
-.dict-headword {
-  font-family: 'Fraunces', serif;
-  font-weight: 500;
-  font-style: italic;
-  font-size: 1.2rem;
-  font-variation-settings: "opsz" 144, "SOFT" 30;
-  line-height: 1.1;
-  margin-bottom: 0.08rem;
-}
-.dict-headword .dict-sep { color: var(--ink-ghost); font-weight: 300; font-style: normal; margin: 0 1px; }
-.dict-pos {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.7rem;
-  color: var(--ink-faint);
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.dict-badge {
-  font-style: normal;
-  font-size: 0.56rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  padding: 1px 7px;
-  border-radius: 10px;
-  border: 1px solid var(--green);
-  background: #e8f0e6;
-  color: var(--green);
-}
-.dict-row {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.28rem;
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-.dict-sym {
-  color: var(--accent);
-  font-size: 0.8rem;
-  flex-shrink: 0;
-  margin-top: 0.05rem;
-  width: 1rem;
-  text-align: center;
-}
-.dict-text {
-  font-family: 'Newsreader', serif;
-  font-style: normal;
-  color: var(--ink-soft);
-  flex: 1;
-}
+.dict-entry.revealed .dict-badge { color: var(--gold); border-color: var(--gold-bright); background: color-mix(in srgb, var(--paper) 92%, var(--gold) 8%); }
+.dict-headword { font-family: 'DM Serif Display', serif; font-weight: 400; font-style: italic; font-size: 1.12rem; line-height: 1.1; margin-bottom: 0.06rem; }
+.dict-headword .dict-sep { color: var(--ink-ghost); font-style: normal; margin: 0 1px; }
+.dict-pos { font-family: 'Lora', serif; font-style: italic; font-size: 0.68rem; color: var(--ink-faint); margin-bottom: 0.42rem; display: flex; align-items: center; gap: 0.5rem; }
+.dict-badge { font-style: normal; font-family: 'Lora', serif; font-size: 0.52rem; letter-spacing: 0.16em; text-transform: uppercase; padding: 1px 7px; border-radius: 10px; border: 1px solid var(--green); background: color-mix(in srgb, var(--paper) 92%, var(--green) 8%); color: var(--green); }
+:root[data-theme="dark"] .dict-badge { background: #0e2018; }
+:root[data-theme="dark"] .dict-entry.revealed .dict-badge { background: #1e1a0a; }
+.dict-row { display: flex; gap: 0.5rem; margin-bottom: 0.24rem; font-size: 0.78rem; line-height: 1.5; }
+.dict-sym { color: var(--accent); font-size: 0.78rem; flex-shrink: 0; margin-top: 0.04rem; width: 1rem; text-align: center; }
+.dict-text { font-family: 'Lora', serif; font-style: normal; color: var(--ink-soft); flex: 1; }
 .dict-text em { font-style: italic; }
 
-@media (max-height: 780px) {
-  .clue-card { min-height: 5rem; padding: 0.42rem 0.5rem 0.5rem; }
-  .clue-text { font-size: 0.78rem; line-height: 1.28; }
-  .tile { font-size: 1.05rem; padding: 0.55rem 0.4rem; }
-  .assembled { font-size: 0.98rem; margin-top: 0.25rem; padding-top: 0.25rem; }
-}
-@media (max-height: 680px) {
-  .app { padding: 0.55rem 0.85rem 0.7rem; }
-  .clue-card { min-height: 4.5rem; padding: 0.35rem 0.45rem 0.4rem; }
-  .clue-text { font-size: 0.74rem; line-height: 1.22; }
-  .tile { font-size: 0.96rem; padding: 0.45rem 0.35rem; }
-  .clue-symbol { font-size: 0.8rem; }
-  .clue-type { font-size: 0.52rem; }
-  .assembled { font-size: 0.9rem; }
-  .subbar { padding: 0.2rem 0 0.25rem; }
-  .section-label { margin: 0.05rem 0 0.3rem; }
-}
+.go-stats { display: flex; gap: 1.4rem; margin-bottom: 1.8rem; padding: 0.65rem 1.2rem; border-top: 1px solid var(--paper-shadow); border-bottom: 1px solid var(--paper-shadow); }
+.go-stat { text-align: center; }
+.go-stat-num { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 1.55rem; color: var(--ink); line-height: 1; }
+.go-stat-label { font-family: 'Lora', serif; font-style: italic; font-size: 0.54rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); margin-top: 3px; }
 
-/* SHARE BLOCK */
+/* ── SHARE BLOCK ── */
 .share-block {
-  background: var(--paper-deep);
-  border: 1px solid var(--paper-shadow);
-  border-radius: 5px;
-  padding: 1rem 1.1rem;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 4px;
+  padding: 1.3rem 1.2rem 1rem;
   text-align: center;
   margin: 0.5rem 0 1.5rem;
 }
-.share-puzzle-id {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.62rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  margin-bottom: 0.2rem;
-}
-.share-marks {
-  font-size: 1.1rem;
-  letter-spacing: 0.2em;
-  margin: 0.3rem 0 0.12rem;
-}
-.share-time {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.68rem;
-  color: var(--ink-faint);
-  margin-bottom: 0.65rem;
-}
-.share-stats {
-  display: flex;
-  justify-content: center;
-  gap: 1.6rem;
-  margin: 0.8rem 0;
-}
-.share-stat { text-align: center; }
-.share-stat-num {
-  font-family: 'Fraunces', serif;
-  font-size: 1.3rem;
-  font-weight: 500;
-  line-height: 1;
-}
-.share-stat-lbl {
-  font-family: 'Newsreader', serif;
-  font-style: italic;
-  font-size: 0.56rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  margin-top: 3px;
-}
-.share-rule { border: none; border-top: 0.5px solid var(--paper-shadow); margin: 0.6rem 0; }
-.share-perf-word {
-  font-family: 'Fraunces', serif;
-  font-style: italic;
-  font-size: 0.9rem;
-  font-variation-settings: "opsz" 144, "SOFT" 50;
-  margin-bottom: 0.12rem;
-}
-.share-perf-word .share-sym { color: var(--accent); font-style: normal; margin-right: 3px; }
-.share-perf-def {
-  font-family: 'Newsreader', serif;
-  font-style: normal;
-  font-size: 0.72rem;
-  color: var(--ink-soft);
-  margin-bottom: 0.75rem;
-}
-.share-copy-btn {
-  font-family: 'Fraunces', serif;
-  font-variation-settings: "opsz" 144;
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  padding: 0.5rem 1.3rem;
-  background: var(--ink);
-  color: var(--paper);
-  border: 1.5px solid var(--ink);
-  border-radius: 4px;
-  box-shadow: 2px 2px 0 var(--accent);
-  cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s;
-}
-.share-copy-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--accent); }
-.share-url {
-  font-size: 0.56rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-ghost);
-  margin-top: 0.6rem;
-}
-.theme-toggle .theme-icon { display: none; }
-:root[data-theme="light"] .theme-icon-dark { display: block; }
-:root[data-theme="dark"]  .theme-icon-light { display: block; }
+:root[data-theme="dark"] .share-block { border-color: var(--ink-soft); }
 
-/* Dark mode — gradient and overlay tweaks for elements that use hardcoded colors */
-:root[data-theme="dark"] body::before {
-  background-image:
-    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(212,168,90,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 80% 60% at 80% 100%, rgba(212,106,106,0.06) 0%, transparent 60%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.95, 0 0 0 0 0.88, 0 0 0 0 0.75, 0 0 0 0.04 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-}
-:root[data-theme="dark"] body::after {
-  background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 8%, transparent 92%, rgba(0,0,0,0.4) 100%);
-}
-:root[data-theme="dark"] .clue-card {
-  background: linear-gradient(180deg, #2a2218 0%, #1f1a13 100%);
-}
-:root[data-theme="dark"] .clue-card::before {
-  background: linear-gradient(180deg, rgba(255,240,200,0.05) 0%, transparent 35%);
-}
-:root[data-theme="dark"] .clue-card.selected {
-  background: linear-gradient(180deg, #3a2020 0%, #2a1818 100%);
-  box-shadow: 0 0 0 2px rgba(212,106,106,0.25), 0 3px 8px rgba(212,106,106,0.18);
-}
-:root[data-theme="dark"] .clue-card.solved {
-  background: linear-gradient(180deg, #1f2e1d 0%, #18241a 100%);
-}
-:root[data-theme="dark"] .clue-card.revealed {
-  background: linear-gradient(180deg, #2e2418 0%, #241c10 100%);
-}
-:root[data-theme="dark"] .tile {
-  background: linear-gradient(180deg, #2a2218 0%, #1f1a13 100%);
+.share-brand { margin-bottom: 1rem; }
+.share-game-title {
+  font-family: 'DM Serif Display', serif;
+  font-weight: 400; font-style: italic;
+  font-size: 1.55rem; line-height: 1; letter-spacing: -0.01em;
   color: var(--ink);
 }
-:root[data-theme="dark"] .tile::before {
-  background: linear-gradient(180deg, rgba(255,240,200,0.05) 0%, transparent 40%);
+.share-game-title .share-dot { color: var(--accent); font-style: normal; }
+.share-game-sub {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.7rem; color: var(--ink-soft); margin-top: 0.2rem;
 }
-:root[data-theme="dark"] .tile.selected {
-  background: linear-gradient(180deg, #3a2020 0%, #2a1818 100%);
-  box-shadow: 0 0 0 2px rgba(212,106,106,0.25), 0 3px 8px rgba(212,106,106,0.18);
-  color: var(--accent-bright);
+.share-game-date {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.56rem; letter-spacing: 0.05em;
+  color: var(--ink-faint); margin-top: 0.08rem;
 }
-:root[data-theme="dark"] .btn-submit {
-  background: var(--accent);
-  color: var(--paper-deep);
-  box-shadow: 2.5px 2.5px 0 var(--ink-ghost);
+.share-guess-grid {
+  margin: 1rem auto 0.9rem;
+  display: flex; flex-direction: column; gap: 0.22rem; align-items: center;
 }
-:root[data-theme="dark"] .btn-submit:active:not(:disabled) {
-  box-shadow: 0 0 0 var(--ink-ghost);
+.share-guess-header {
+  display: flex; gap: 0.15rem; align-items: center; margin-bottom: 0.1rem;
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.42rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-faint);
 }
-:root[data-theme="dark"] .btn { box-shadow: 3px 3px 0 var(--accent-deep); }
-:root[data-theme="dark"] .btn { background: var(--ink); color: var(--paper); }
-:root[data-theme="dark"] .share-block { background: var(--paper-deep); border-color: var(--ink-ghost); }
-:root[data-theme="dark"] .dict-badge { background: #1d2a1c; color: var(--green-bright); border-color: var(--green); }
-:root[data-theme="dark"] .dict-entry.revealed .dict-badge { background: #2a2418; color: var(--gold-bright); border-color: var(--gold-bright); }
-:root[data-theme="dark"] .mistake-dot { box-shadow: inset 0 -1px 1.5px rgba(0,0,0,0.4); }
-:root[data-theme="dark"] .badge .big { text-shadow: 2px 2px 0 #000; }
+.share-guess-row { display: flex; gap: 0.15rem; align-items: center; }
+.share-guess-col {
+  width: 1.7rem; text-align: center;
+  font-family: 'DM Serif Display', serif; font-style: italic; font-size: 1rem;
+  line-height: 1;
+}
+.share-guess-col.correct { color: var(--green); }
+.share-guess-col.partial { color: var(--gold-bright); }
+.share-guess-col.wrong { color: var(--ink-ghost); }
+.share-guess-sep {
+  width: 1px; height: 0.9rem;
+  background: var(--paper-shadow); flex-shrink: 0;
+}
+.share-summary {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.68rem; color: var(--ink-faint);
+  margin-bottom: 0.9rem;
+}
+.share-divider { border: none; border-top: 1px solid var(--paper-shadow); margin: 0.75rem 0; }
+.share-stats { display: flex; justify-content: center; gap: 2rem; margin-bottom: 0.9rem; }
+.share-stat { text-align: center; }
+.share-stat-num {
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: 1.35rem; color: var(--ink); line-height: 1;
+}
+.share-stat-lbl {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.5rem; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--ink-faint); margin-top: 3px;
+}
+.share-perf {
+  margin-bottom: 1rem; padding: 0.55rem 0.75rem;
+  background: var(--paper-deep); border-radius: 3px; text-align: left;
+}
+.share-perf-word {
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: 0.95rem; color: var(--ink); margin-bottom: 0.1rem;
+}
+.share-perf-word .share-sym { color: var(--accent); font-style: normal; margin-right: 0.2rem; }
+.share-perf-pos { font-family: 'Lora', serif; font-style: italic; font-size: 0.65rem; color: var(--ink-faint); margin-left: 0.2rem; }
+.share-perf-def { font-family: 'Lora', serif; font-size: 0.7rem; line-height: 1.45; color: var(--ink-soft); }
+.share-copy-btn {
+  font-family: 'Lora', serif; font-style: italic; font-size: 0.85rem;
+  padding: 0.6rem 2rem; width: 100%;
+  background: var(--ink); color: var(--paper);
+  border: none; border-radius: 3px; cursor: pointer; transition: background 0.12s;
+}
+.share-copy-btn:hover { background: var(--ink-soft); }
+.share-url {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.5rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--ink-ghost); margin-top: 0.55rem;
+}
+
+.theme-toggle .theme-icon { display: none; }
+:root[data-theme="light"] .theme-icon-light { display: block; }
+:root[data-theme="dark"]  .theme-icon-dark  { display: block; }
 html, body { transition: background 0.25s, color 0.25s; }
+
+/* ── SUBBAR DATE + THEME LABEL ── */
+.subbar-date {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.55rem; color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+.puzzle-name { flex-direction: column; align-items: center; gap: 0.05rem; }
+.puzzle-name-label {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.44rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ── SUBMIT PREVIEW ── */
+.submit-preview {
+  display: flex; align-items: center; gap: 0.55rem;
+  padding: 0.55rem 0.1rem;
+  border-top: 1px solid var(--paper-shadow);
+  border-bottom: 1px solid var(--paper-shadow);
+  margin-top: 0.3rem; margin-bottom: 0.1rem;
+  min-height: 2.6rem;
+}
+.preview-def {
+  flex: 1; font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.68rem; line-height: 1.3;
+  color: var(--ink-ghost);
+  overflow: hidden; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  transition: color 0.15s;
+}
+.preview-def.filled { color: var(--ink-soft); }
+.preview-arrow {
+  font-family: 'Lora', serif; font-size: 0.75rem;
+  color: var(--ink-ghost); flex-shrink: 0;
+  transition: color 0.15s;
+}
+.preview-arrow.filled { color: var(--accent); }
+.preview-tiles { display: flex; gap: 0.28rem; flex-shrink: 0; }
+.preview-tile {
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: 0.82rem; padding: 0.2rem 0.45rem;
+  border: 1px solid var(--ink-ghost); border-radius: 3px;
+  min-width: 2rem; text-align: center;
+  color: var(--ink); background: var(--paper-deep);
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.preview-tile.empty {
+  color: var(--ink-ghost); background: transparent;
+  border-style: dashed;
+}
+
+@media (max-height: 780px) {
+  .clue-card { min-height: 4.8rem; padding: 0.38rem 0.48rem 0.44rem; }
+  .clue-text { font-size: 0.76rem; line-height: 1.28; }
+  .tile { font-size: 1rem; padding: 0.5rem 0.38rem; }
+}
+@media (max-height: 680px) {
+  .clue-card { min-height: 4.2rem; padding: 0.3rem 0.4rem 0.35rem; }
+  .clue-text { font-size: 0.72rem; }
+  .tile { font-size: 0.9rem; padding: 0.4rem 0.3rem; }
+  .subbar { padding: 0.16rem 1rem 0.18rem; }
+  .section-label { margin: 0.3rem 0 0.3rem; }
+}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="header">
     <div class="brand">
-      <div class="title">Con<span class="title-mark">·</span>cord<span class="title-mark">·</span>ance</div>
+      <div class="title">Glos<span class="title-mark">·</span>sa<span class="title-mark">·</span>ri</div>
       <div class="vol">daily</div>
     </div>
     <div class="header-actions">
       <button class="practice-link" id="practiceLink" onclick="startPracticeGame()">Practice</button>
       <button class="header-icon-btn" id="helpBtn" aria-label="How to play" type="button" onclick="openTutorial()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
       </button>
       <button class="theme-toggle header-icon-btn" id="themeToggle" aria-label="Toggle theme" type="button">
-        <svg class="theme-icon theme-icon-light" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
-        <svg class="theme-icon theme-icon-dark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg class="theme-icon theme-icon-light" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+        <svg class="theme-icon theme-icon-dark" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
       </button>
     </div>
   </header>
 
   <div class="subbar">
-    <div class="subbar-spacer"></div>
-    <div class="puzzle-name"><span class="name" id="puzzleName">— —</span></div>
-    <div class="mistakes-display">
-      <div class="mistakes-dots" id="mistakesDots"></div>
-      <div class="mistakes-label">mistakes</div>
-      <div class="timer" id="timer">—</div>
+    <div class="subbar-date" id="subbarDate"></div>
+    <div class="puzzle-name">
+      <span class="puzzle-name-label">today's theme</span>
+      <span class="name" id="puzzleName">— —</span>
     </div>
+    <div class="timer" id="timer">—</div>
   </div>
 
   <main class="main">
     <div class="section-label">
-      <span class="orn">❦</span>Entries<span class="orn">❦</span>
-      <span class="sel-slots" id="entrySlots" aria-hidden="true"><span class="slot"></span></span>
+      <span class="orn"></span>Clues<span class="orn"></span>
     </div>
     <div class="clues-grid" id="cluesGrid"></div>
 
     <div class="section-label">
-      <span class="orn">❦</span>Tile Bank<span class="orn">❦</span>
-      <span class="sel-slots" id="tileSlots" aria-hidden="true"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span>
+      <span class="orn"></span>Word Segments<span class="orn"></span>
     </div>
     <div class="tile-bank" id="tileBank"></div>
+
+    <div class="submit-preview" id="submitPreview">
+      <div class="preview-def" id="previewDef">select a definition…</div>
+      <div class="preview-arrow">→</div>
+      <div class="preview-tiles">
+        <div class="preview-tile empty" id="previewTile0">—</div>
+        <div class="preview-tile empty" id="previewTile1">—</div>
+        <div class="preview-tile empty" id="previewTile2">—</div>
+      </div>
+      <div class="preview-mistakes-wrap">
+        <div class="mistakes-dots" id="mistakesDots"></div>
+        <div class="mistakes-label">mistakes</div>
+      </div>
+    </div>
 
     <div class="controls">
       <button class="btn-ctrl btn-clear" id="clearBtn" onclick="clearSelection()">Clear</button>
@@ -1163,18 +699,17 @@ html, body { transition: background 0.25s, color 0.25s; }
 
   <div class="badge" id="badge"></div>
 
-  <!-- INTRO / HELP -->
   <div class="overlay" id="intro">
     <div class="dict-entry-head">
-      <div class="dict-headword-large">Con<span class="dict-sep">·</span>cord<span class="dict-sep">·</span>ance</div>
-      <div class="dict-pron"><span class="dict-pron-pos">n.</span>&nbsp; <span class="dict-pron-ipa">/kən-ˈkȯr-dən(t)s/</span></div>
+      <div class="dict-headword-large">Glos<span class="dict-sep">·</span>sa<span class="dict-sep">·</span>ri</div>
+      <div class="dict-pron"><span class="dict-pron-pos">n.</span>&nbsp;<span class="dict-pron-ipa">/ˈglä-sə-rē/</span></div>
       <div class="dict-tagline">a daily word puzzle</div>
     </div>
     <div class="go-rule"></div>
     <div class="intro-rules">
-      <div class="rules-row"><span class="rules-num">1.</span><span>Each entry is built from <b>one clue</b> and <b>three word parts</b>.</span></div>
-      <div class="rules-row"><span class="rules-num">2.</span><span>Pick <b>one card</b> from the entries above and <b>three tiles</b> from the bank below — the parts must assemble into the word the clue defines.</span></div>
-      <div class="rules-row"><span class="rules-num">3.</span><span>A wrong guess tells you only whether you were <b>one away</b> — nothing more precise.</span></div>
+      <div class="rules-row"><span class="rules-num">1.</span><span>Each puzzle has four dictionary entries — clues like <b>definitions, synonyms, antonyms,</b> and <b>examples</b>.</span></div>
+      <div class="rules-row"><span class="rules-num">2.</span><span>Pick <b>one clue card</b> and <b>three word segments in order</b> to assemble the headword that entry describes.</span></div>
+      <div class="rules-row"><span class="rules-num">3.</span><span>Right segments, wrong order? <b>You'll be told</b> — like Wordle's yellow.</span></div>
       <div class="rules-row"><span class="rules-num">4.</span><span>You have <b>four mistakes</b> per puzzle.</span></div>
     </div>
     <div class="legend">
@@ -1189,69 +724,43 @@ html, body { transition: background 0.25s, color 0.25s; }
     </div>
   </div>
 
-  <!-- REVEAL SCREEN -->
-  <div class="overlay" id="reveal" style="justify-content:flex-start;padding-top:1.2rem;">
+  <div class="overlay" id="reveal" style="justify-content:flex-start;padding-top:1.1rem;">
     <div class="reveal-header" id="revealHeader"></div>
-    <div class="header-rule"><span>❦</span></div>
+    <div class="header-rule"><span>·</span></div>
     <div id="revealEntries"></div>
     <div id="shareBlock"></div>
   </div>
 
-  <!-- TUTORIAL -->
   <div class="overlay" id="tutorial">
     <div class="dict-entry-head">
       <div class="dict-headword-large">How to play</div>
       <div class="dict-tagline">A 30-second walkthrough</div>
     </div>
     <div class="go-rule"></div>
-    <div class="tut-intro">
-      Each puzzle has <b>entries</b> and a bank of <b>tiles</b>. Pick <b>one entry</b> and <b>three tiles</b> whose parts build the word the entry defines.
-    </div>
-
-    <div class="tut-section-label section-label">
-      <span class="orn">❦</span>Entry<span class="orn">❦</span>
-      <span class="sel-slots" id="tutEntrySlots" aria-hidden="true"><span class="slot"></span></span>
-    </div>
+    <div class="tut-intro">A dictionary entry describes its <b>headword</b> — the word being defined — through clues: definitions, synonyms, antonyms, examples. In Glossari, the headword is missing. Read the clue, then assemble the headword from <b>three word segments in the right order</b>.</div>
+    <div class="tut-section-label section-label"><span class="orn"></span>Definition<span class="orn"></span><span class="sel-slots" id="tutEntrySlots" aria-hidden="true"><span class="slot"></span></span></div>
     <div class="tut-card-wrap">
       <div class="clue-card" id="tutClueCard">
-        <div class="clue-head">
-          <span class="clue-symbol">❦</span>
-          <span class="clue-type">Definition</span>
-          <span class="clue-check">✓</span>
-        </div>
+        <div class="clue-head"><span class="clue-symbol">❦</span><span class="clue-type">Definition</span><span class="clue-check">✓</span></div>
         <div class="clue-text">Not friendly or welcoming.</div>
       </div>
     </div>
-
-    <div class="tut-section-label section-label">
-      <span class="orn">❦</span>Tiles<span class="orn">❦</span>
-      <span class="sel-slots" id="tutTileSlots" aria-hidden="true"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span>
-    </div>
+    <div class="tut-section-label section-label"><span class="orn"></span>Word Segments<span class="orn"></span><span class="sel-slots" id="tutTileSlots" aria-hidden="true"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span></div>
     <div class="tut-tile-bank">
       <button class="tile" id="tutTile-un" type="button">un</button>
       <button class="tile" id="tutTile-friend" type="button">friend</button>
       <button class="tile" id="tutTile-ly" type="button">ly</button>
     </div>
-
-    <div class="tut-success-caption" id="tutSuccessCaption">
-      Real puzzles have four entries, twelve tiles, and a mix of clue types (≡ synonym, ≠ antonym, ¶ example). The mechanic stays the same: one entry, three tiles.
-    </div>
-
-    <div class="tut-controls">
-      <button class="btn-ctrl btn-submit" id="tutSubmitBtn" type="button" disabled>Submit (0/4)</button>
-    </div>
-
+    <div class="tut-success-caption" id="tutSuccessCaption">Each puzzle has four entries and twelve word segments. The mechanic stays the same — read the clue, identify the headword, assemble its three segments in the right order.</div>
+    <div class="tut-controls"><button class="btn-ctrl btn-submit" id="tutSubmitBtn" type="button" disabled>Submit (0/4)</button></div>
     <button class="intro-practice-btn" id="tutSkipBtn" type="button">Skip</button>
   </div>
 
-  <!-- ALREADY PLAYED TODAY -->
   <div class="overlay" id="alreadyPlayed">
     <div class="go-mark">— Daily Complete —</div>
     <div class="go-title">Come Back Tomorrow</div>
     <div class="go-rule"></div>
-    <div class="intro-rules" style="margin-bottom:1.2rem">
-      You've already played today's puzzle. New puzzle at midnight.
-    </div>
+    <div class="intro-rules" style="margin-bottom:1.1rem">You've already played today's puzzle. New puzzle at midnight.</div>
     <div class="go-stats" id="alreadyStats"></div>
     <button class="btn" style="margin-bottom:0.8rem" onclick="startPracticeGame()">Practice Mode</button>
   </div>
@@ -1274,118 +783,71 @@ fetch('concordance.json')
     PUZZLES = data;
     let seenTutorial = false;
     try { seenTutorial = localStorage.getItem('tutorial_seen') === '1'; } catch (e) {}
-    if (seenTutorial) {
-      document.getElementById('intro').classList.add('show');
-    } else {
-      openTutorial();
-    }
+    if (seenTutorial) { document.getElementById('intro').classList.add('show'); }
+    else { openTutorial(); }
   })
   .catch(() => {
-    document.getElementById('intro').innerHTML = '<div class="go-title" style="font-size:1.2rem">Could not load puzzles</div><div class="intro-rules" style="margin-top:1rem">Make sure concordance.json is in the same folder as concordance.html</div>';
+    document.getElementById('intro').innerHTML = '<div class="go-title" style="font-size:1.2rem">Could not load puzzles</div><div class="intro-rules" style="margin-top:1rem">Make sure concordance.json is in the same folder as this file.</div>';
     document.getElementById('intro').classList.add('show');
   });
 
 const STORAGE_KEY = 'concordance_daily_v1';
-
-const LAUNCH_DATE = '2026-05-17'; // puzzle 1 is this date
+const LAUNCH_DATE = '2026-05-17';
 
 function dailyIndex(dateStr) {
   const ms = Date.parse(dateStr + 'T00:00:00Z') - Date.parse(LAUNCH_DATE + 'T00:00:00Z');
   const days = Math.floor(ms / 86400000);
-  if (days < 0) return 0; // before launch — fall back to puzzle 1
+  if (days < 0) return 0;
   return days % PUZZLES.length;
 }
 
-function todayStr() {
-  return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
-}
-
-function loadStorage() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
-}
-
-function saveStorage(data) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
-}
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function loadStorage() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+function saveStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {} }
 
 const MAX_MISTAKES = 4;
 
 let state = {
-  puzzleIdx: 0,
-  mode: 'daily',          // 'daily' | 'practice'
-  puzzleMarksByEntry: [], // per-entry outcome: 'solved' | 'revealed'
-  items: [],          // [{id, type:'clue'|'tile', text/clueObj, setIdx, solved, revealed}]
-  selectedIds: new Set(),
-  solvedSets: [],
-  revealedSets: [],
-  mistakes: 0,
-  puzzlesSolved: 0,
-  flawless: 0,
-  totalMistakes: 0,
-  locked: false,
-  timerStart: null,      // Date.now() when puzzle began
-  timerInterval: null,   // setInterval handle
-  elapsed: 0,            // final elapsed seconds (set when timer stops)
+  puzzleIdx: 0, mode: 'daily', puzzleMarksByEntry: [],
+  items: [], selectedIds: new Set(), solvedSets: [], revealedSets: [],
+  mistakes: 0, puzzlesSolved: 0, flawless: 0, totalMistakes: 0,
+  locked: false, timerStart: null, timerInterval: null, elapsed: 0,
+  guessLog: [],
 };
 
 function shuffle(a) {
   const b = [...a];
-  for (let i = b.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [b[i], b[j]] = [b[j], b[i]];
-  }
+  for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; }
   return b;
 }
 
-function toRoman(n) {
-  const map = ['','i','ii','iii','iv','v','vi','vii','viii','ix','x'];
-  return map[n] || String(n);
-}
-
 function formatTime(seconds) {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
+  const m = Math.floor(seconds / 60); const s = seconds % 60;
   return m + ':' + String(s).padStart(2, '0');
 }
 
 function startTimer() {
-  stopTimer();
-  state.timerStart = Date.now();
-  state.elapsed = 0;
+  stopTimer(); state.timerStart = Date.now(); state.elapsed = 0;
   document.getElementById('timer').textContent = '0:00';
   state.timerInterval = setInterval(() => {
-    const secs = Math.floor((Date.now() - state.timerStart) / 1000);
-    document.getElementById('timer').textContent = formatTime(secs);
+    document.getElementById('timer').textContent = formatTime(Math.floor((Date.now() - state.timerStart) / 1000));
   }, 1000);
 }
 
 function stopTimer() {
-  if (state.timerInterval) {
-    clearInterval(state.timerInterval);
-    state.timerInterval = null;
-  }
-  if (state.timerStart) {
-    state.elapsed = Math.floor((Date.now() - state.timerStart) / 1000);
-  }
+  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+  if (state.timerStart) { state.elapsed = Math.floor((Date.now() - state.timerStart) / 1000); }
 }
 
 function startDailyGame() {
-  const stored = loadStorage();
-  const today = todayStr();
-  if (stored.lastPlayedDate === today) {
-    showAlreadyPlayed(stored);
-    return;
-  }
-  state.mode = 'daily';
-  state.puzzleIdx = dailyIndex(today);
-  resetGameState();
-  document.getElementById('intro').classList.remove('show');
-  loadPuzzle();
+  const stored = loadStorage(); const today = todayStr();
+  if (stored.lastPlayedDate === today) { showAlreadyPlayed(stored); return; }
+  state.mode = 'daily'; state.puzzleIdx = dailyIndex(today);
+  resetGameState(); document.getElementById('intro').classList.remove('show'); loadPuzzle();
 }
 
 function startPracticeGame() {
-  state.mode = 'practice';
-  state.puzzleIdx = Math.floor(Math.random() * PUZZLES.length);
+  state.mode = 'practice'; state.puzzleIdx = Math.floor(Math.random() * PUZZLES.length);
   resetGameState();
   document.getElementById('intro').classList.remove('show');
   document.getElementById('alreadyPlayed').classList.remove('show');
@@ -1393,95 +855,48 @@ function startPracticeGame() {
   loadPuzzle();
 }
 
-function resetGameState() {
-  state.puzzlesSolved = 0;
-  state.flawless = 0;
-  state.totalMistakes = 0;
-  state.puzzleMarksByEntry = [];
-}
-
+function resetGameState() { state.puzzlesSolved = 0; state.flawless = 0; state.totalMistakes = 0; state.puzzleMarksByEntry = []; }
 function startGame() { startDailyGame(); }
 
 function loadPuzzle() {
   document.getElementById('practiceLink').style.display = 'none';
   const puzzle = PUZZLES[state.puzzleIdx];
-  state.mistakes = 0;
-  state.locked = false;
-  state.selectedIds = new Set();
-
-  state.items = [];
-  let id = 0;
-  // clues — keep stable order (clue idx = set idx)
-  puzzle.sets.forEach((s, si) => {
-    state.items.push({ id: id++, type: 'clue', clueObj: s, setIdx: si });
-  });
-  // tiles — collect then shuffle
+  state.mistakes = 0; state.locked = false; state.selectedIds = new Set();
+  state.guessLog = [];
+  state.items = []; let id = 0;
+  puzzle.sets.forEach((s, si) => { state.items.push({ id: id++, type: 'clue', clueObj: s, setIdx: si }); });
   const tileItems = [];
-  puzzle.sets.forEach((s, si) => {
-    s.parts.forEach(p => {
-      tileItems.push({ id: id++, type: 'tile', text: p, setIdx: si });
-    });
-  });
-  // shuffle tile items
-  const shuffled = shuffle(tileItems);
-  state.items.push(...shuffled);
-
-  state.solvedSets = puzzle.sets.map(_ => false);
-  state.revealedSets = puzzle.sets.map(_ => false);
-
-  document.getElementById('puzzleName').textContent = '— ' + puzzle.name;
-  renderMistakes();
-  renderAll();
-  updateSubmit();
-  startTimer();
+  puzzle.sets.forEach((s, si) => { s.parts.forEach(p => { tileItems.push({ id: id++, type: 'tile', text: p, setIdx: si }); }); });
+  state.items.push(...shuffle(tileItems));
+  state.solvedSets = puzzle.sets.map(_ => false); state.revealedSets = puzzle.sets.map(_ => false);
+  document.getElementById('puzzleName').textContent = puzzle.name;
+  const d = new Date();
+  document.getElementById('subbarDate').textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  renderMistakes(); renderAll(); updateSubmit(); startTimer();
 }
 
-// Tutorial — first-time walkthrough using the word "unfriendly"
 let tutState = { clueSelected: false, tilesSelected: new Set(), solved: false };
 
 function openTutorial() {
   tutState = { clueSelected: false, tilesSelected: new Set(), solved: false };
-
   const card = document.getElementById('tutClueCard');
-  card.classList.remove('selected', 'solved');
-  card.style.cursor = 'pointer';
-  // Remove any previously injected assembled answer
-  const oldAsm = card.querySelector('.assembled');
-  if (oldAsm) oldAsm.remove();
+  card.classList.remove('selected', 'solved'); card.style.cursor = 'pointer';
+  const oldAsm = card.querySelector('.assembled'); if (oldAsm) oldAsm.remove();
   card.onclick = tutClueClick;
-
-  ['un', 'friend', 'ly'].forEach(t => {
-    const el = document.getElementById('tutTile-' + t);
-    el.classList.remove('selected', 'placed');
-    el.onclick = () => tutTileClick(t);
-  });
-
+  ['un', 'friend', 'ly'].forEach(t => { const el = document.getElementById('tutTile-' + t); el.classList.remove('selected', 'placed'); el.onclick = () => tutTileClick(t); });
   document.getElementById('tutSuccessCaption').classList.remove('show');
-
-  const btn = document.getElementById('tutSubmitBtn');
-  btn.disabled = true;
-  btn.textContent = 'Submit (0/4)';
-  btn.onclick = tutSubmit;
-
-  const skipBtn = document.getElementById('tutSkipBtn');
-  skipBtn.onclick = closeTutorial;
-  skipBtn.textContent = 'Skip';
-  skipBtn.style.display = '';
-
-  updateTutSlots();
-  document.getElementById('tutorial').classList.add('show');
+  const btn = document.getElementById('tutSubmitBtn'); btn.disabled = true; btn.textContent = 'Submit (0/4)'; btn.onclick = tutSubmit;
+  const skipBtn = document.getElementById('tutSkipBtn'); skipBtn.onclick = closeTutorial; skipBtn.textContent = 'Skip'; skipBtn.style.display = '';
+  updateTutSlots(); document.getElementById('tutorial').classList.add('show');
 }
 
 function closeTutorial() {
   document.getElementById('tutorial').classList.remove('show');
   try { localStorage.setItem('tutorial_seen', '1'); } catch (e) {}
-  // If a game is already in progress or another overlay is showing, don't
-  // forcibly start a new flow — just close back to wherever the user was.
   if (state.timerStart !== null) return;
   if (document.getElementById('intro').classList.contains('show')) return;
   if (document.getElementById('alreadyPlayed').classList.contains('show')) return;
   if (document.getElementById('reveal').classList.contains('show')) return;
-  // First-visit case: tutorial was the only overlay. Trigger normal start.
   startDailyGame();
 }
 
@@ -1489,148 +904,82 @@ function tutClueClick() {
   if (tutState.solved) return;
   tutState.clueSelected = !tutState.clueSelected;
   document.getElementById('tutClueCard').classList.toggle('selected', tutState.clueSelected);
-  updateTutSlots();
-  updateTutSubmit();
+  updateTutSlots(); updateTutSubmit();
 }
 
 function tutTileClick(part) {
   if (tutState.solved) return;
-  if (tutState.tilesSelected.has(part)) {
-    tutState.tilesSelected.delete(part);
-  } else {
-    if (tutState.tilesSelected.size >= 3) return;
-    tutState.tilesSelected.add(part);
-  }
+  if (tutState.tilesSelected.has(part)) { tutState.tilesSelected.delete(part); }
+  else { if (tutState.tilesSelected.size >= 3) return; tutState.tilesSelected.add(part); }
   document.getElementById('tutTile-' + part).classList.toggle('selected', tutState.tilesSelected.has(part));
-  updateTutSlots();
-  updateTutSubmit();
+  updateTutSlots(); updateTutSubmit();
 }
 
 function updateTutSlots() {
-  const entrySlot = document.getElementById('tutEntrySlots').querySelector('.slot');
-  entrySlot.classList.toggle('filled', tutState.clueSelected);
-  const tileSlots = document.getElementById('tutTileSlots').querySelectorAll('.slot');
-  tileSlots.forEach((s, i) => s.classList.toggle('filled', i < tutState.tilesSelected.size));
+  document.getElementById('tutEntrySlots').querySelector('.slot').classList.toggle('filled', tutState.clueSelected);
+  document.getElementById('tutTileSlots').querySelectorAll('.slot').forEach((s, i) => s.classList.toggle('filled', i < tutState.tilesSelected.size));
 }
 
 function updateTutSubmit() {
   const btn = document.getElementById('tutSubmitBtn');
   const total = (tutState.clueSelected ? 1 : 0) + tutState.tilesSelected.size;
-  if (total === 4) {
-    btn.disabled = false;
-    btn.textContent = 'Submit set';
-  } else {
-    btn.disabled = true;
-    btn.textContent = `Submit (${total}/4)`;
-  }
+  if (total === 4) { btn.disabled = false; btn.textContent = 'Submit set'; }
+  else { btn.disabled = true; btn.textContent = `Submit (${total}/4)`; }
 }
 
 function tutSubmit() {
   if (tutState.solved) return;
   if (!tutState.clueSelected || tutState.tilesSelected.size !== 3) return;
   tutState.solved = true;
-
   const card = document.getElementById('tutClueCard');
-  card.classList.remove('selected');
-  card.classList.add('solved');
-  card.style.cursor = 'default';
-  const asm = document.createElement('div');
-  asm.className = 'assembled';
+  card.classList.remove('selected'); card.classList.add('solved'); card.style.cursor = 'default';
+  const asm = document.createElement('div'); asm.className = 'assembled';
   asm.innerHTML = '<span class="arrow">→</span>un<span class="part-dot">·</span>friend<span class="part-dot">·</span>ly';
   card.appendChild(asm);
-
-  ['un', 'friend', 'ly'].forEach(t => {
-    document.getElementById('tutTile-' + t).classList.add('placed');
-  });
-
+  ['un', 'friend', 'ly'].forEach(t => { document.getElementById('tutTile-' + t).classList.add('placed'); });
   document.getElementById('tutSuccessCaption').classList.add('show');
-
-  const btn = document.getElementById('tutSubmitBtn');
-  btn.disabled = false;
-  btn.textContent = "Continue";
-  btn.onclick = closeTutorial;
-
+  const btn = document.getElementById('tutSubmitBtn'); btn.disabled = false; btn.textContent = 'Continue'; btn.onclick = closeTutorial;
   document.getElementById('tutSkipBtn').style.display = 'none';
-
   showBadge('correct', 'Nicely done', 'tutorial complete');
 }
 
 function renderMistakes() {
-  const md = document.getElementById('mistakesDots');
-  md.innerHTML = '';
-  for (let i = 0; i < MAX_MISTAKES; i++) {
-    const d = document.createElement('div');
-    d.className = 'mistake-dot' + (i < state.mistakes ? ' spent' : '');
-    md.appendChild(d);
-  }
+  const md = document.getElementById('mistakesDots'); md.innerHTML = '';
+  for (let i = 0; i < MAX_MISTAKES; i++) { const d = document.createElement('div'); d.className = 'mistake-dot' + (i < state.mistakes ? ' spent' : ''); md.appendChild(d); }
 }
 
-function renderAll() {
-  renderClues();
-  renderBank();
-}
+function renderAll() { renderClues(); renderBank(); }
 
 function renderClues() {
-  const grid = document.getElementById('cluesGrid');
-  grid.innerHTML = '';
-  const puzzle = PUZZLES[state.puzzleIdx];
+  const grid = document.getElementById('cluesGrid'); grid.innerHTML = '';
   state.items.filter(it => it.type === 'clue').forEach(it => {
     const meta = CLUE_META[it.clueObj.type];
-    const card = document.createElement('div');
-    card.className = 'clue-card';
-    card.dataset.id = it.id;
-    const isSolved = state.solvedSets[it.setIdx];
-    const isRevealed = state.revealedSets[it.setIdx];
+    const card = document.createElement('div'); card.className = 'clue-card'; card.dataset.id = it.id;
+    const isSolved = state.solvedSets[it.setIdx]; const isRevealed = state.revealedSets[it.setIdx];
     if (isSolved) card.classList.add('solved');
     if (isRevealed) card.classList.add('revealed');
     if (state.selectedIds.has(it.id)) card.classList.add('selected');
-
-    const head = document.createElement('div');
-    head.className = 'clue-head';
-    head.innerHTML = `
-      <span class="clue-symbol">${meta.sym}</span>
-      <span class="clue-type">${meta.label}</span>
-      <span class="clue-check">${isRevealed ? '◊' : '✓'}</span>
-    `;
+    const head = document.createElement('div'); head.className = 'clue-head';
+    head.innerHTML = `<span class="clue-symbol">${meta.sym}</span><span class="clue-type">${meta.label}</span><span class="clue-check">${isRevealed ? '◊' : '✓'}</span>`;
     card.appendChild(head);
-
-    const text = document.createElement('div');
-    text.className = 'clue-text';
-    text.innerHTML = it.clueObj.clue;
-    card.appendChild(text);
-
+    const text = document.createElement('div'); text.className = 'clue-text'; text.innerHTML = it.clueObj.clue; card.appendChild(text);
     if (isSolved || isRevealed) {
-      const asm = document.createElement('div');
-      asm.className = 'assembled';
-      const partsHtml = it.clueObj.parts.map((p, i) =>
-        (i > 0 ? '<span class="part-dot">·</span>' : '') + p
-      ).join('');
-      asm.innerHTML = '<span class="arrow">→</span>' + partsHtml;
-      card.appendChild(asm);
+      const asm = document.createElement('div'); asm.className = 'assembled';
+      const partsHtml = it.clueObj.parts.map((p, i) => (i > 0 ? '<span class="part-dot">·</span>' : '') + p).join('');
+      asm.innerHTML = '<span class="arrow">→</span>' + partsHtml; card.appendChild(asm);
     }
-
-    if (!isSolved && !isRevealed) {
-      card.onclick = () => onItemClick(it.id);
-    }
+    if (!isSolved && !isRevealed) { card.onclick = () => onItemClick(it.id); }
     grid.appendChild(card);
   });
 }
 
 function renderBank() {
-  const bank = document.getElementById('tileBank');
-  bank.innerHTML = '';
-  // Render tiles in their (shuffled) order, but hide those whose set is solved
+  const bank = document.getElementById('tileBank'); bank.innerHTML = '';
   state.items.filter(it => it.type === 'tile').forEach(it => {
-    const btn = document.createElement('button');
-    btn.className = 'tile';
-    btn.textContent = it.text;
-    btn.dataset.id = it.id;
+    const btn = document.createElement('button'); btn.className = 'tile'; btn.textContent = it.text; btn.dataset.id = it.id;
     if (state.selectedIds.has(it.id)) btn.classList.add('selected');
-    if (state.solvedSets[it.setIdx] || state.revealedSets[it.setIdx]) {
-      btn.classList.add('placed'); // hides via CSS
-    } else {
-      btn.onclick = () => onItemClick(it.id);
-    }
+    if (state.solvedSets[it.setIdx] || state.revealedSets[it.setIdx]) { btn.classList.add('placed'); }
+    else { btn.onclick = () => onItemClick(it.id); }
     bank.appendChild(btn);
   });
 }
@@ -1639,386 +988,279 @@ function itemById(id) { return state.items.find(it => it.id === id); }
 
 function onItemClick(id) {
   if (state.locked) return;
-  const it = itemById(id);
-  if (!it) return;
+  const it = itemById(id); if (!it) return;
   if (state.solvedSets[it.setIdx] || state.revealedSets[it.setIdx]) return;
-
   if (state.selectedIds.has(id)) {
     state.selectedIds.delete(id);
+  } else if (it.type === 'clue') {
+    // Swap: deselect any existing definition, select this one
+    const existing = [...state.selectedIds].find(sid => itemById(sid)?.type === 'clue');
+    if (existing != null) state.selectedIds.delete(existing);
+    state.selectedIds.add(id);
   } else {
-    if (state.selectedIds.size >= 4) return; // cap at 4
+    // Tile: cap at 3
+    const tileCount = [...state.selectedIds].filter(sid => itemById(sid)?.type === 'tile').length;
+    if (tileCount >= 3) return;
     state.selectedIds.add(id);
   }
-  renderAll();
-  updateSubmit();
+  renderAll(); updateSubmit();
 }
 
-function clearSelection() {
-  if (state.locked) return;
-  state.selectedIds.clear();
-  renderAll();
-  updateSubmit();
-}
+function clearSelection() { if (state.locked) return; state.selectedIds.clear(); renderAll(); updateSubmit(); }
 
 function updateSubmit() {
-  const submitBtn = document.getElementById('submitBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const count = state.selectedIds.size;
-  clearBtn.disabled = count === 0;
-  if (count === 4) {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Submit set';
-  } else {
-    submitBtn.disabled = true;
-    submitBtn.textContent = `Submit (${count}/4)`;
-  }
-  updateSlotIndicators();
+  const submitBtn = document.getElementById('submitBtn'); const clearBtn = document.getElementById('clearBtn');
+  const count = state.selectedIds.size; clearBtn.disabled = count === 0;
+  if (count === 4) { submitBtn.disabled = false; submitBtn.textContent = 'Submit set'; }
+  else { submitBtn.disabled = true; submitBtn.textContent = `Submit (${count}/4)`; }
+  updatePreviewRow();
 }
 
-function updateSlotIndicators() {
+function updatePreviewRow() {
   const sel = [...state.selectedIds].map(id => itemById(id));
-  const clueCount = sel.filter(it => it && it.type === 'clue').length;
-  const tileCount = sel.filter(it => it && it.type === 'tile').length;
-  const entrySlots = document.getElementById('entrySlots').querySelectorAll('.slot');
-  const tileSlots = document.getElementById('tileSlots').querySelectorAll('.slot');
-  entrySlots.forEach((s, i) => s.classList.toggle('filled', i < clueCount));
-  tileSlots.forEach((s, i) => s.classList.toggle('filled', i < tileCount));
-}
+  const clue = sel.find(it => it && it.type === 'clue');
+  const tiles = sel.filter(it => it && it.type === 'tile');
 
-// Check selected items against a target set.
-// Returns number of selected items that "belong" to the set:
-//   - The clue, if it's the set's clue, counts as 1
-//   - Each tile counts as 1 if its text matches a still-unmatched part text
-function matchAgainstSet(setIdx) {
-  const puzzle = PUZZLES[state.puzzleIdx];
-  const set = puzzle.sets[setIdx];
-  const selected = [...state.selectedIds].map(id => itemById(id));
+  const defEl = document.getElementById('previewDef');
+  if (clue) {
+    const raw = clue.clueObj.clue.replace(/<[^>]*>/g, '');
+    defEl.textContent = raw.length > 55 ? raw.slice(0, 55) + '…' : raw;
+    defEl.classList.add('filled');
+  } else {
+    defEl.textContent = 'select a clue…';
+    defEl.classList.remove('filled');
+  }
 
-  let matches = 0;
+  const arrowEl = document.querySelector('.preview-arrow');
+  arrowEl.classList.toggle('filled', tiles.length > 0);
 
-  // clue
-  selected.forEach(it => {
-    if (it.type === 'clue' && it.setIdx === setIdx) matches++;
-  });
-
-  // tiles (multiset by text)
-  const need = {};
-  set.parts.forEach(p => need[p] = (need[p] || 0) + 1);
-  selected.forEach(it => {
-    if (it.type === 'tile' && need[it.text] > 0) {
-      matches++;
-      need[it.text]--;
+  [0, 1, 2].forEach(i => {
+    const el = document.getElementById('previewTile' + i);
+    if (tiles[i]) {
+      el.textContent = tiles[i].text;
+      el.classList.remove('empty');
+    } else {
+      el.textContent = '—';
+      el.classList.add('empty');
     }
   });
+}
 
+
+function computeGuessMark(bestSetIdx) {
+  const set = PUZZLES[state.puzzleIdx].sets[bestSetIdx];
+  const sel = [...state.selectedIds].map(id => itemById(id));
+  const clue = sel.find(it => it.type === 'clue');
+  const tiles = sel.filter(it => it.type === 'tile');
+  const clueMark = (clue && clue.setIdx === bestSetIdx) ? 'correct' : 'wrong';
+  const tileMarks = [0, 1, 2].map(i => {
+    const tile = tiles[i];
+    if (!tile || tile.setIdx !== bestSetIdx) return 'wrong';
+    return tile.text === set.parts[i] ? 'correct' : 'partial';
+  });
+  return [clueMark, ...tileMarks];
+}
+
+function tilesMatchOrder(setIdx) {
+  const set = PUZZLES[state.puzzleIdx].sets[setIdx];
+  const sel = [...state.selectedIds].map(id => itemById(id));
+  const tiles = sel.filter(it => it && it.type === 'tile');
+  if (tiles.length !== 3) return false;
+  return tiles.every((t, i) => t.text === set.parts[i]);
+}
+
+function matchAgainstSet(setIdx) {
+  const set = PUZZLES[state.puzzleIdx].sets[setIdx]; const selected = [...state.selectedIds].map(id => itemById(id));
+  let matches = 0;
+  selected.forEach(it => { if (it.type === 'clue' && it.setIdx === setIdx) matches++; });
+  const need = {}; set.parts.forEach(p => need[p] = (need[p] || 0) + 1);
+  selected.forEach(it => { if (it.type === 'tile' && need[it.text] > 0) { matches++; need[it.text]--; } });
   return matches;
 }
 
 function findBestMatch() {
-  const puzzle = PUZZLES[state.puzzleIdx];
-  let best = { setIdx: -1, count: -1 };
+  const puzzle = PUZZLES[state.puzzleIdx]; let best = { setIdx: -1, count: -1 };
   for (let i = 0; i < puzzle.sets.length; i++) {
     if (state.solvedSets[i] || state.revealedSets[i]) continue;
-    const m = matchAgainstSet(i);
-    if (m > best.count) best = { setIdx: i, count: m };
+    const m = matchAgainstSet(i); if (m > best.count) best = { setIdx: i, count: m };
   }
   return best;
 }
 
 function submit() {
-  if (state.locked) return;
-  if (state.selectedIds.size !== 4) return;
-
-  const best = findBestMatch();
-  state.locked = true;
-
-  if (best.count === 4) {
-    // CORRECT — solve that set
-    solveSet(best.setIdx);
-    state.selectedIds.clear();
-    renderAll();
-
-    if (state.solvedSets.every(Boolean)) {
-      // puzzle complete
-      setTimeout(() => finishPuzzle(true), 950);
-    } else {
-      state.locked = false;
-      updateSubmit();
-    }
+  if (state.locked) return; if (state.selectedIds.size !== 4) return;
+  const best = findBestMatch(); state.locked = true;
+  if (best.count === 4 && tilesMatchOrder(best.setIdx)) {
+    state.guessLog.push(['correct', 'correct', 'correct', 'correct']);
+    state.solvedSets[best.setIdx] = true;
+    showBadge('correct', 'Correct', 'headword assembled');
+    state.selectedIds.clear(); renderAll();
+    if (state.solvedSets.every(Boolean)) { setTimeout(() => finishPuzzle(true), 950); }
+    else { state.locked = false; updateSubmit(); }
   } else {
-    // Wrong — feedback
-    state.mistakes++;
-    state.totalMistakes++;
-
-    // shake selected items
-    document.querySelectorAll('.clue-card.selected, .tile.selected').forEach(el => {
-      el.classList.add('shaking');
-      setTimeout(() => el.classList.remove('shaking'), 500);
-    });
-
-    if (best.count === 3) {
-      showBadge('away', 'One Away', 'so close');
-    } else {
-      showBadge('wrong', 'Not quite', 'try again');
-    }
-
+    state.guessLog.push(computeGuessMark(best.setIdx));
+    state.mistakes++; state.totalMistakes++;
+    document.querySelectorAll('.clue-card.selected, .tile.selected').forEach(el => { el.classList.add('shaking'); setTimeout(() => el.classList.remove('shaking'), 500); });
+    if (best.count === 4) showBadge('partial', 'Right Parts', 'wrong order');
+    else if (best.count === 3) showBadge('away', 'One Away', 'so close');
+    else showBadge('wrong', 'Not quite', 'try again');
     setTimeout(() => {
-      state.selectedIds.clear();
-      renderAll();
-      renderMistakes();
-      if (state.mistakes >= MAX_MISTAKES) {
-        finishPuzzle(false);
-      } else {
-        state.locked = false;
-        updateSubmit();
-      }
+      state.selectedIds.clear(); renderAll(); renderMistakes();
+      if (state.mistakes >= MAX_MISTAKES) { finishPuzzle(false); }
+      else { state.locked = false; updateSubmit(); }
     }, 900);
   }
 }
 
-function solveSet(setIdx) {
-  state.solvedSets[setIdx] = true;
-  showBadge('correct', 'Correct', 'entry assembled');
-}
-
 function finishPuzzle(success) {
   stopTimer();
-
-  // Build per-entry marks in play order
-  const clueItems = state.items.filter(it => it.type === 'clue')
-    .sort((a, b) => a.id - b.id);
-  state.puzzleMarksByEntry = clueItems.map(it =>
-    state.solvedSets[it.setIdx] ? 'solved' : 'revealed'
-  );
-
-  if (success) {
-    state.puzzlesSolved++;
-    if (state.mistakes === 0) state.flawless++;
-    showBadge('correct', 'Puzzle Solved', 'on to the next');
-  } else {
-    state.solvedSets.forEach((s, i) => {
-      if (!s) state.revealedSets[i] = true;
-    });
-    renderAll();
-    showBadge('wrong', 'Solutions', 'revealed above');
-  }
+  const clueItems = state.items.filter(it => it.type === 'clue').sort((a, b) => a.id - b.id);
+  state.puzzleMarksByEntry = clueItems.map(it => state.solvedSets[it.setIdx] ? 'solved' : 'revealed');
+  if (success) { state.puzzlesSolved++; if (state.mistakes === 0) state.flawless++; showBadge('correct', 'Puzzle Solved', 'on to the next'); }
+  else { state.solvedSets.forEach((s, i) => { if (!s) state.revealedSets[i] = true; }); renderAll(); showBadge('wrong', 'Solutions', 'revealed above'); }
   state.locked = true;
-
-  // Persist daily result (practice mode does not affect streak or stats)
   if (state.mode === 'daily') {
-    const stored = loadStorage();
-    const allSolved = state.puzzleMarksByEntry.every(m => m === 'solved');
-    const result = {
-      marks: state.puzzleMarksByEntry,
-      elapsedSeconds: state.elapsed,
-      mistakesUsed: state.mistakes,
-      allSolved,
-      flawless: allSolved && state.mistakes === 0,
-    };
+    const stored = loadStorage(); const allSolved = state.puzzleMarksByEntry.every(m => m === 'solved');
+    const result = { marks: state.puzzleMarksByEntry, elapsedSeconds: state.elapsed, mistakesUsed: state.mistakes, allSolved, flawless: allSolved && state.mistakes === 0 };
     const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
     const streakBase = stored.lastPlayedDate === yesterday ? (stored.streak || 0) : 0;
     const newStreak = allSolved ? streakBase + 1 : 0;
-    saveStorage({
-      lastPlayedDate: todayStr(),
-      lastPlayedIndex: state.puzzleIdx,
-      lastResult: result,
-      streak: newStreak,
-      bestStreak: Math.max(newStreak, stored.bestStreak || 0),
-      totalPlayed: (stored.totalPlayed || 0) + 1,
-      totalSolved: (stored.totalSolved || 0) + (allSolved ? 1 : 0),
-      totalFlawless: (stored.totalFlawless || 0) + (result.flawless ? 1 : 0),
-    });
+    saveStorage({ lastPlayedDate: todayStr(), lastPlayedIndex: state.puzzleIdx, lastResult: result, streak: newStreak, bestStreak: Math.max(newStreak, stored.bestStreak || 0), totalPlayed: (stored.totalPlayed || 0) + 1, totalSolved: (stored.totalSolved || 0) + (allSolved ? 1 : 0), totalFlawless: (stored.totalFlawless || 0) + (result.flawless ? 1 : 0) });
   }
-
   setTimeout(() => showReveal(), success ? 1900 : 3500);
 }
 
 function buildCurrentResult() {
-  // Read marks from state (set by finishPuzzle) — works for daily and practice
-  const marks = state.puzzleMarksByEntry;
-  const allSolved = marks.every(m => m === 'solved');
-  return {
-    marks,
-    elapsedSeconds: state.elapsed,
-    mistakesUsed: state.mistakes,
-    allSolved,
-    flawless: allSolved && state.mistakes === 0,
-  };
+  const marks = state.puzzleMarksByEntry; const allSolved = marks.every(m => m === 'solved');
+  return { marks, elapsedSeconds: state.elapsed, mistakesUsed: state.mistakes, allSolved, flawless: allSolved && state.mistakes === 0 };
 }
 
 function showReveal() {
-  const puzzle = PUZZLES[state.puzzleIdx];
-  const stored = loadStorage();
-  const today = new Date();
-  const dateStr = today.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-
-  // Use live result for share block (practice mode has no stored result)
-  const result = state.mode === 'daily'
-    ? (stored.lastResult || buildCurrentResult())
-    : buildCurrentResult();
-
-  // Header — practice mode shows no puzzle number
+  const puzzle = PUZZLES[state.puzzleIdx]; const stored = loadStorage();
+  const dateStr = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const result = state.mode === 'daily' ? (stored.lastResult || buildCurrentResult()) : buildCurrentResult();
   if (state.mode === 'daily') {
     const puzzleNum = dailyIndex(todayStr()) + 1;
-    document.getElementById('revealHeader').innerHTML = `
-      <div class="reveal-num">— Daily No. ${puzzleNum} —</div>
-      <div class="reveal-title">${puzzle.name}</div>
-      <div class="reveal-date">${dateStr}</div>
-    `;
+    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Daily No. ${puzzleNum} —</div><div class="reveal-title">${puzzle.name}</div><div class="reveal-date">${dateStr}</div>`;
   } else {
-    document.getElementById('revealHeader').innerHTML = `
-      <div class="reveal-num">— Practice —</div>
-      <div class="reveal-title">${puzzle.name}</div>
-    `;
+    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Practice —</div><div class="reveal-title">${puzzle.name}</div>`;
   }
-
-  // Entries
-  const clueItems = state.items.filter(it => it.type === 'clue')
-    .sort((a, b) => a.id - b.id);
-  const entriesEl = document.getElementById('revealEntries');
-  entriesEl.innerHTML = '';
+  const clueItems = state.items.filter(it => it.type === 'clue').sort((a, b) => a.id - b.id);
+  const entriesEl = document.getElementById('revealEntries'); entriesEl.innerHTML = '';
   clueItems.forEach(it => {
-    const s = it.clueObj;
-    const isSolved = state.solvedSets[it.setIdx];
-    const partsHtml = s.parts.map((p, i) =>
-      (i > 0 ? '<span class="dict-sep">·</span>' : '') + p
-    ).join('');
-    const div = document.createElement('div');
-    div.className = 'dict-entry' + (isSolved ? '' : ' revealed');
-    div.innerHTML = `
-      <div class="dict-headword">${partsHtml}</div>
-      <div class="dict-pos">${s.pos} <span class="dict-badge">${isSolved ? 'Solved' : 'Revealed'}</span></div>
-      <div class="dict-row"><span class="dict-sym">❦</span><span class="dict-text">${s.definition}</span></div>
-      <div class="dict-row"><span class="dict-sym">§</span><span class="dict-text">${s.etymology}</span></div>
-      <div class="dict-row"><span class="dict-sym">¶</span><span class="dict-text">${s.example}</span></div>
-      <div class="dict-row"><span class="dict-sym">≡</span><span class="dict-text">${s.synonyms}</span></div>
-      <div class="dict-row"><span class="dict-sym">≠</span><span class="dict-text">${s.antonyms}</span></div>
-    `;
+    const s = it.clueObj; const isSolved = state.solvedSets[it.setIdx];
+    const partsHtml = s.parts.map((p, i) => (i > 0 ? '<span class="dict-sep">·</span>' : '') + p).join('');
+    const div = document.createElement('div'); div.className = 'dict-entry' + (isSolved ? '' : ' revealed');
+    div.innerHTML = `<div class="dict-headword">${partsHtml}</div><div class="dict-pos">${s.pos} <span class="dict-badge">${isSolved ? 'Solved' : 'Revealed'}</span></div><div class="dict-row"><span class="dict-sym">❦</span><span class="dict-text">${s.definition}</span></div><div class="dict-row"><span class="dict-sym">§</span><span class="dict-text">${s.etymology}</span></div><div class="dict-row"><span class="dict-sym">¶</span><span class="dict-text">${s.example}</span></div><div class="dict-row"><span class="dict-sym">≡</span><span class="dict-text">${s.synonyms}</span></div><div class="dict-row"><span class="dict-sym">≠</span><span class="dict-text">${s.antonyms}</span></div>`;
     entriesEl.appendChild(div);
   });
-
   const puzzleNum = state.mode === 'daily' ? dailyIndex(todayStr()) + 1 : null;
   const shareStored = state.mode === 'daily' ? stored : {};
   document.getElementById('shareBlock').innerHTML = buildShareBlockHTML(shareStored, puzzle, puzzleNum, result);
-
   document.getElementById('practiceLink').style.display = 'inline';
   document.getElementById('reveal').classList.add('show');
 }
 
 function showBadge(cls, big, small) {
-  const b = document.getElementById('badge');
-  b.className = 'badge ' + cls;
+  const b = document.getElementById('badge'); b.className = 'badge ' + cls;
   b.innerHTML = '<span class="big">' + big + '</span><span class="small">' + small + '</span>';
-  void b.offsetWidth;
-  b.classList.add('show');
-  setTimeout(() => b.classList.remove('show'), 1600);
+  void b.offsetWidth; b.classList.add('show'); setTimeout(() => b.classList.remove('show'), 1600);
 }
 
 const PERF_WORDS = [
-  // Priority order: first match wins
-  {
-    condition: r => !r.allSolved,
-    word: 'un·re·solved', pos: 'adj.',
-    def: 'Not brought to a satisfactory conclusion; still unsettled.'
-  },
-  {
-    condition: r => r.flawless,
-    word: 'un·err·ing', pos: 'adj.',
-    def: 'Incapable of making errors; always accurate.'
-  },
-  {
-    condition: r => r.mistakesUsed === 1,
-    word: 'un·daunt·ed', pos: 'adj.',
-    def: 'Not intimidated or discouraged by difficulty; pressing on despite setback.'
-  },
-  {
-    condition: r => r.mistakesUsed === 2,
-    word: 'per·sist·ent', pos: 'adj.',
-    def: 'Continuing firmly in a course of action despite difficulty or opposition.'
-  },
-  {
-    condition: () => true,
-    word: 're·sil·ient', pos: 'adj.',
-    def: 'Able to recover quickly from difficulties; tending to spring back.'
-  },
+  { condition: r => !r.allSolved, word: 'un·re·solved', pos: 'adj.', def: 'Not brought to a satisfactory conclusion; still unsettled.' },
+  { condition: r => r.flawless, word: 'un·err·ing', pos: 'adj.', def: 'Incapable of making errors; always accurate.' },
+  { condition: r => r.mistakesUsed === 1, word: 'un·daunt·ed', pos: 'adj.', def: 'Not intimidated or discouraged by difficulty; pressing on despite setback.' },
+  { condition: r => r.mistakesUsed === 2, word: 'per·sist·ent', pos: 'adj.', def: 'Continuing firmly in a course of action despite difficulty or opposition.' },
+  { condition: () => true, word: 're·sil·ient', pos: 'adj.', def: 'Able to recover quickly from difficulties; tending to spring back.' },
 ];
 
-function perfWordFor(result) {
-  return PERF_WORDS.find(p => p.condition(result));
-}
+function perfWordFor(result) { return PERF_WORDS.find(p => p.condition(result)); }
 
 function buildShareBlockHTML(stored, puzzle, puzzleNum, result) {
-  const marks = (result.marks || []).map(m => m === 'solved' ? '❧' : '†').join(' ');
+  const marks = result.marks || [];
   const timeStr = result.elapsedSeconds != null ? formatTime(result.elapsedSeconds) : '—';
-  const errStr = result.mistakesUsed === 0 ? 'no errors' : result.mistakesUsed === 1 ? '1 error' : `${result.mistakesUsed} errors`;
+  const errStr = result.mistakesUsed === 0 ? 'no errors' : result.mistakesUsed === 1 ? '1 mistake' : `${result.mistakesUsed} mistakes`;
+  const solvedCount = marks.filter(m => m === 'solved').length;
   const perf = perfWordFor(result);
-  const puzzleLabel = puzzleNum != null
-    ? `Concordance · No. ${puzzleNum} · "${puzzle.name}"`
-    : `Concordance · Practice · "${puzzle.name}"`;
+  const puzzleLabel = puzzleNum != null ? `No. ${puzzleNum}` : 'Practice';
+  const dateStr = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-  return `
-    <div class="share-block" data-puzzle-num="${puzzleNum ?? ''}">
-      <div class="share-puzzle-id">${puzzleLabel}</div>
-      <div class="share-marks">${marks}</div>
-      <div class="share-time">${timeStr} · ${errStr}</div>
-      <div class="share-stats">
-        <div class="share-stat"><div class="share-stat-num">${stored.streak || 0}</div><div class="share-stat-lbl">Streak</div></div>
-        <div class="share-stat"><div class="share-stat-num">${stored.totalPlayed || 0}</div><div class="share-stat-lbl">Played</div></div>
-        <div class="share-stat"><div class="share-stat-num">${stored.totalFlawless || 0}</div><div class="share-stat-lbl">Flawless</div></div>
-      </div>
-      <hr class="share-rule">
-      <div class="share-perf-word"><span class="share-sym">❦</span>${perf.word} (${perf.pos})</div>
-      <div class="share-perf-def">${perf.def}</div>
-      <button class="share-copy-btn" onclick="copyResult()">Copy Result</button>
-      <div class="share-url">concordance.game</div>
+  const SYM = { correct: '❧', partial: '◆', wrong: '·' };
+  const guessLog = state.guessLog || [];
+  const headerCols = ['Clue', '·1', '·2', '·3'];
+  const headerHtml = headerCols.map((h, i) =>
+    (i === 1 ? '<div class="share-guess-sep"></div>' : '') +
+    `<div class="share-guess-col" style="font-family:'Lora',serif;font-size:0.42rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);font-style:italic;">${h}</div>`
+  ).join('');
+  const rowsHtml = guessLog.map(row =>
+    `<div class="share-guess-row">${row.map((m, i) =>
+      (i === 1 ? '<div class="share-guess-sep"></div>' : '') +
+      `<div class="share-guess-col ${m}">${SYM[m]}</div>`
+    ).join('')}</div>`
+  ).join('');
+
+  return `<div class="share-block" data-puzzle-num="${puzzleNum ?? ''}">
+    <div class="share-brand">
+      <div class="share-game-title">Glos<span class="share-dot">·</span>sa<span class="share-dot">·</span>ri</div>
+      <div class="share-game-sub">${puzzleLabel} · <em>"${puzzle.name}"</em></div>
+      ${puzzleNum ? `<div class="share-game-date">${dateStr}</div>` : ''}
     </div>
-  `;
+    <div class="share-guess-grid">
+      <div class="share-guess-row">${headerHtml}</div>
+      ${rowsHtml}
+    </div>
+    <div class="share-summary">${solvedCount} of ${marks.length} · ${timeStr} · ${errStr}</div>
+    <hr class="share-divider">
+    <div class="share-stats">
+      <div class="share-stat"><div class="share-stat-num">${stored.streak || 0}</div><div class="share-stat-lbl">Streak</div></div>
+      <div class="share-stat"><div class="share-stat-num">${stored.totalPlayed || 0}</div><div class="share-stat-lbl">Played</div></div>
+      <div class="share-stat"><div class="share-stat-num">${stored.totalFlawless || 0}</div><div class="share-stat-lbl">Flawless</div></div>
+    </div>
+    <div class="share-perf">
+      <div class="share-perf-word"><span class="share-sym">❦</span>${perf.word}<span class="share-perf-pos">${perf.pos}</span></div>
+      <div class="share-perf-def">${perf.def}</div>
+    </div>
+    <button class="share-copy-btn" onclick="copyResult()">Copy Result</button>
+  </div>`;
 }
 
 function generateShareText(puzzle, puzzleNum, result) {
-  const marks = (result.marks || []).map(m => m === 'solved' ? '❧' : '†').join(' ');
+  const marks = result.marks || [];
   const timeStr = result.elapsedSeconds != null ? formatTime(result.elapsedSeconds) : '—';
-  const errStr = result.mistakesUsed === 0 ? 'no errors' : result.mistakesUsed === 1 ? '1 error' : `${result.mistakesUsed} errors`;
-  const perf = perfWordFor(result);
-  const header = puzzleNum != null
-    ? `Concordance · No. ${puzzleNum} · "${puzzle.name}"`
-    : `Concordance · Practice · "${puzzle.name}"`;
+  const errStr = result.mistakesUsed === 0 ? 'no errors' : result.mistakesUsed === 1 ? '1 mistake' : `${result.mistakesUsed} mistakes`;
+  const solvedCount = marks.filter(m => m === 'solved').length;
+  const header = puzzleNum != null ? `Glos·sa·ri — No. ${puzzleNum}` : 'Glos·sa·ri — Practice';
+  const SYM = { correct: '❧', partial: '◆', wrong: '·' };
+  const guessLog = state.guessLog || [];
+  const grid = guessLog.map(row => row.map(m => SYM[m]).join(' ')).join('\n');
   return [
     header,
-    `${marks}   ${timeStr}`,
+    `"${puzzle.name}"`,
     '',
-    `❦ ${perf.word} (${perf.pos})`,
-    perf.def,
+    grid,
     '',
-    'concordance.game'
+    `${solvedCount} of ${marks.length} · ${timeStr} · ${errStr}`,
   ].join('\n');
 }
 
 function copyResult() {
-  const result = buildCurrentResult();
-  const puzzle = PUZZLES[state.puzzleIdx];
+  const result = buildCurrentResult(); const puzzle = PUZZLES[state.puzzleIdx];
   const raw = document.querySelector('.share-block')?.dataset.puzzleNum;
   const puzzleNum = raw ? parseInt(raw, 10) : null;
   const text = generateShareText(puzzle, puzzleNum, result);
   navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('.share-copy-btn');
-    const orig = btn.textContent;
-    btn.textContent = 'Copied ✓';
-    setTimeout(() => { btn.textContent = orig; }, 1800);
+    const btn = document.querySelector('.share-copy-btn'); const orig = btn.textContent;
+    btn.textContent = 'Copied ✓'; setTimeout(() => { btn.textContent = orig; }, 1800);
   }).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
+    const ta = document.createElement('textarea'); ta.value = text;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
   });
 }
 
 function showAlreadyPlayed(stored) {
   document.getElementById('intro').classList.remove('show');
-  const statsEl = document.getElementById('alreadyStats');
-  statsEl.textContent = '';
+  const statsEl = document.getElementById('alreadyStats'); statsEl.textContent = '';
   [['Streak', stored.streak || 0], ['Played', stored.totalPlayed || 0], ['Flawless', stored.totalFlawless || 0]].forEach(([label, val]) => {
     const div = document.createElement('div'); div.className = 'go-stat';
     const num = document.createElement('div'); num.className = 'go-stat-num'; num.textContent = val;
@@ -2031,15 +1273,13 @@ function showAlreadyPlayed(stored) {
 </script>
 <script>
   (function () {
-    var btn = document.getElementById('themeToggle');
-    if (!btn) return;
+    var btn = document.getElementById('themeToggle'); if (!btn) return;
     btn.addEventListener('click', function () {
       var cur = document.documentElement.getAttribute('data-theme') || 'light';
       var next = cur === 'dark' ? 'light' : 'dark';
       try { localStorage.setItem('th_theme', next); } catch (e) {}
       document.documentElement.setAttribute('data-theme', next);
     });
-    // Follow OS theme changes only until the user makes an explicit choice
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
       var stored = localStorage.getItem('th_theme');
       if (stored === 'light' || stored === 'dark') return;
