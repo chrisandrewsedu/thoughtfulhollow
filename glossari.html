@@ -793,7 +793,10 @@ html, body { transition: background 0.25s, color 0.25s; }
     <div class="go-rule"></div>
     <div class="intro-rules" style="margin-bottom:1.1rem">You've already played today's puzzle. New puzzle at midnight.</div>
     <div class="go-stats" id="alreadyStats"></div>
-    <button class="btn" style="margin-bottom:0.8rem" onclick="startPracticeGame()">Practice Mode</button>
+    <div class="intro-actions-row" style="margin-bottom:0.8rem">
+      <button class="btn-secondary" onclick="startPracticeGame()">Practice</button>
+      <button class="btn-secondary" onclick="openArchive()">Archive</button>
+    </div>
   </div>
 </div>
 
