@@ -436,6 +436,18 @@ html, body {
   margin-top: 0.4rem; text-decoration: underline; text-underline-offset: 2px;
 }
 .intro-practice-btn:hover { color: var(--accent); }
+.intro-actions-row {
+  display: flex; gap: 0.6rem; justify-content: center; align-items: center;
+  flex-wrap: wrap; margin-top: 0.6rem;
+}
+.btn-secondary {
+  font-family: 'Lora', serif; font-style: italic; font-size: 0.85rem;
+  padding: 0.5rem 1.1rem; border-radius: 4px;
+  background: transparent; color: var(--ink-soft);
+  border: 1px solid var(--ink-faint); cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn-secondary:hover { background: var(--paper-shadow); color: var(--ink); border-color: var(--ink-soft); }
 
 /* Tutorial */
 .tut-intro { font-family: 'Lora', serif; font-size: clamp(0.84rem, 1.2vw, 0.98rem); line-height: 1.58; color: var(--ink-soft); max-width: 400px; margin: 0 auto 1.1rem; }
@@ -736,7 +748,10 @@ html, body { transition: background 0.25s, color 0.25s; }
     </div>
     <div class="intro-actions" id="introActions">
       <button class="btn" id="beginBtn" onclick="startGame()">Begin</button>
-      <button class="intro-practice-btn" id="introPracticeBtn" onclick="startPracticeGame()">or try practice mode</button>
+      <div class="intro-actions-row">
+        <button class="btn-secondary" id="introPracticeBtn" onclick="startPracticeGame()">Practice</button>
+        <button class="btn-secondary" id="introArchiveBtn" onclick="openArchive()">Archive</button>
+      </div>
     </div>
   </div>
 
@@ -935,6 +950,11 @@ function startPracticeGame() {
   document.getElementById('alreadyPlayed').classList.remove('show');
   document.getElementById('reveal').classList.remove('show');
   loadPuzzle();
+}
+
+function openArchive() {
+  // Will be implemented in Task 7
+  console.log('archive open (stub)');
 }
 
 function resetGameState() { state.puzzlesSolved = 0; state.flawless = 0; state.totalMistakes = 0; state.puzzleMarksByEntry = []; }
