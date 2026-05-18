@@ -99,7 +99,7 @@
       },
       {
         "type": "antonym",
-        "clue": "timid, discouraged, daunted, cowed",
+        "clue": "timid, discouraged, intimidated, cowed",
         "parts": [
           "un",
           "daunt",
@@ -279,7 +279,7 @@
       },
       {
         "type": "synonym",
-        "clue": "fruitless, pointless, futile, unavailing",
+        "clue": "fruitless, pointless, futile, bootless",
         "parts": [
           "un",
           "avail",
@@ -329,7 +329,7 @@
     "sets": [
       {
         "type": "definition",
-        "clue": "Wary and unwilling to take risks; prudent and circumspect",
+        "clue": "Wary and unwilling to take risks; careful and deliberate",
         "parts": [
           "cir",
           "cum",
