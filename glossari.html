@@ -1198,15 +1198,46 @@ function finishPuzzle(success) {
   if (success) { state.puzzlesSolved++; if (state.mistakes === 0) state.flawless++; showBadge('correct', 'Puzzle Solved', 'on to the next'); }
   else { state.solvedSets.forEach((s, i) => { if (!s) state.revealedSets[i] = true; }); renderAll(); showBadge('wrong', 'Solutions', 'revealed above'); }
   state.locked = true;
-  if (state.mode === 'daily') {
-    const stored = loadStorage(); const allSolved = state.puzzleMarksByEntry.every(m => m === 'solved');
-    const result = { marks: state.puzzleMarksByEntry, elapsedSeconds: state.elapsed, mistakesUsed: state.mistakes, allSolved, flawless: allSolved && state.mistakes === 0 };
-    const yesterday = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(Date.now() - 86400000));
-    const streakBase = stored.lastPlayedDate === yesterday ? (stored.streak || 0) : 0;
-    const newStreak = allSolved ? streakBase + 1 : 0;
-    saveStorage({ lastPlayedDate: todayStr(), lastPlayedIndex: state.puzzleIdx, lastResult: result, streak: newStreak, bestStreak: Math.max(newStreak, stored.bestStreak || 0), totalPlayed: (stored.totalPlayed || 0) + 1, totalSolved: (stored.totalSolved || 0) + (allSolved ? 1 : 0), totalFlawless: (stored.totalFlawless || 0) + (result.flawless ? 1 : 0) });
-  }
+  if (state.mode === 'daily') recordCompletion();
   setTimeout(() => showReveal(), success ? 1900 : 3500);
+}
+
+function recordCompletion() {
+  if (state.replay) return;
+  const playDate = state.playDate || todayStr();
+  const isLive = playDate === todayStr();
+  const allSolved = state.puzzleMarksByEntry.every(m => m === 'solved');
+  const result = {
+    marks: state.puzzleMarksByEntry,
+    elapsedSeconds: state.elapsed,
+    mistakesUsed: state.mistakes,
+    allSolved,
+    flawless: allSolved && state.mistakes === 0,
+  };
+  const data = loadStorage();
+  if (!data.byDate) data.byDate = {};
+  data.byDate[playDate] = {
+    puzzleIdx: state.puzzleIdx,
+    result,
+    completedAt: Date.now(),
+    source: isLive ? 'live' : 'archive',
+  };
+  data.totalPlayed = (data.totalPlayed || 0) + 1;
+  if (allSolved) {
+    data.totalSolved = (data.totalSolved || 0) + 1;
+    data.totalSolveSeconds = (data.totalSolveSeconds || 0) + state.elapsed;
+    data.solvedTimedCount = (data.solvedTimedCount || 0) + 1;
+    if (result.flawless) data.totalFlawless = (data.totalFlawless || 0) + 1;
+  }
+  if (isLive) {
+    const yesterday = prevEtDate(todayStr());
+    const streakBase = data.lastPlayedDate === yesterday ? (data.streak || 0) : 0;
+    const newStreak = allSolved ? streakBase + 1 : 0;
+    data.streak = newStreak;
+    data.bestStreak = Math.max(newStreak, data.bestStreak || 0);
+    data.lastPlayedDate = todayStr();
+  }
+  saveStorage(data);
 }
 
 function buildCurrentResult() {
@@ -1216,10 +1247,12 @@ function buildCurrentResult() {
 
 function showReveal() {
   const puzzle = PUZZLES[state.puzzleIdx]; const stored = loadStorage();
-  const dateStr = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const result = state.mode === 'daily' ? (stored.lastResult || buildCurrentResult()) : buildCurrentResult();
+  const playDate = state.playDate || todayStr();
+  const dateStr = new Date(playDate + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/New_York' });
+  const persisted = stored.byDate && stored.byDate[playDate];
+  const result = state.mode === 'daily' ? (persisted ? persisted.result : buildCurrentResult()) : buildCurrentResult();
   if (state.mode === 'daily') {
-    const puzzleNum = dailyIndex(todayStr()) + 1;
+    const puzzleNum = dailyIndex(playDate) + 1;
     document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Daily No. ${puzzleNum} —</div><div class="reveal-title">${puzzle.name}</div><div class="reveal-date">${dateStr}</div>`;
   } else {
     document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Practice —</div><div class="reveal-title">${puzzle.name}</div>`;
@@ -1233,7 +1266,7 @@ function showReveal() {
     div.innerHTML = `<div class="dict-headword">${partsHtml}</div><div class="dict-pos">${s.pos} <span class="dict-badge">${isSolved ? 'Solved' : 'Revealed'}</span></div><div class="dict-row"><span class="dict-sym">❦</span><span class="dict-text">${s.definition}</span></div><div class="dict-row"><span class="dict-sym">§</span><span class="dict-text">${s.etymology}</span></div><div class="dict-row"><span class="dict-sym">¶</span><span class="dict-text">${s.example}</span></div><div class="dict-row"><span class="dict-sym">≡</span><span class="dict-text">${s.synonyms}</span></div><div class="dict-row"><span class="dict-sym">≠</span><span class="dict-text">${s.antonyms}</span></div>`;
     entriesEl.appendChild(div);
   });
-  const puzzleNum = state.mode === 'daily' ? dailyIndex(todayStr()) + 1 : null;
+  const puzzleNum = state.mode === 'daily' ? dailyIndex(state.playDate || todayStr()) + 1 : null;
   const shareStored = state.mode === 'daily' ? stored : {};
   document.getElementById('shareBlock').innerHTML = buildShareBlockHTML(shareStored, puzzle, puzzleNum, result);
   document.getElementById('practiceLink').style.display = 'inline';
