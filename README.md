@@ -18,7 +18,7 @@ Glossari is a daily dictionary puzzle. Each puzzle contains four dictionary entr
 
 **Share format:** the results screen shows a guess log with four columns (clue + three segments) using ❧ (correct), ◆ (right part, wrong position), and · (wrong). The same symbols appear in the copied share text.
 
-**Puzzle data:** `concordance.json` — an array of puzzle objects, each with a `name`, `sets` array, and per-set `parts`, `pos`, `definition`, `synonyms`, `antonyms`, and `example`.
+**Puzzle data:** `glossari.json` — an array of puzzle objects, each with a `name`, `sets` array, and per-set `parts`, `pos`, `definition`, `synonyms`, `antonyms`, and `example`.
 
 ## Local development
 
@@ -29,12 +29,12 @@ python3 -m http.server 8000
 # then open http://localhost:8000
 ```
 
-Or from the concordance worktree directory directly — the game fetches `concordance.json` from the same folder, so the server root matters.
+Or from the glossari worktree directory directly — the game fetches `glossari.json` from the same folder, so the server root matters.
 
 ## Pages
 
 - `/` — landing
-- `/concordance` — Glossari daily puzzle (`concordance.html` + `concordance.json`)
+- `/glossari` — Glossari daily puzzle (`glossari.html` + `glossari.json`)
 
 ## Deployment
 
