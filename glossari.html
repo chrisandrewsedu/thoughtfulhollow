@@ -817,7 +817,7 @@ function dailyIndex(dateStr) {
   return days % PUZZLES.length;
 }
 
-function todayStr() { return new Date().toISOString().slice(0, 10); }
+function todayStr() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date()); }
 function loadStorage() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
 function saveStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {} }
 
@@ -1138,7 +1138,7 @@ function finishPuzzle(success) {
   if (state.mode === 'daily') {
     const stored = loadStorage(); const allSolved = state.puzzleMarksByEntry.every(m => m === 'solved');
     const result = { marks: state.puzzleMarksByEntry, elapsedSeconds: state.elapsed, mistakesUsed: state.mistakes, allSolved, flawless: allSolved && state.mistakes === 0 };
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const yesterday = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(Date.now() - 86400000));
     const streakBase = stored.lastPlayedDate === yesterday ? (stored.streak || 0) : 0;
     const newStreak = allSolved ? streakBase + 1 : 0;
     saveStorage({ lastPlayedDate: todayStr(), lastPlayedIndex: state.puzzleIdx, lastResult: result, streak: newStreak, bestStreak: Math.max(newStreak, stored.bestStreak || 0), totalPlayed: (stored.totalPlayed || 0) + 1, totalSolved: (stored.totalSolved || 0) + (allSolved ? 1 : 0), totalFlawless: (stored.totalFlawless || 0) + (result.flawless ? 1 : 0) });
