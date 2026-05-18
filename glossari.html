@@ -874,6 +874,7 @@ let state = {
   mistakes: 0, puzzlesSolved: 0, flawless: 0, totalMistakes: 0,
   locked: false, timerStart: null, timerInterval: null, elapsed: 0,
   guessLog: [],
+  playDate: null, replay: false,
 };
 
 function shuffle(a) {
@@ -900,11 +901,25 @@ function stopTimer() {
   if (state.timerStart) { state.elapsed = Math.floor((Date.now() - state.timerStart) / 1000); }
 }
 
-function startDailyGame() {
-  const stored = loadStorage(); const today = todayStr();
-  if (stored.lastPlayedDate === today) { showAlreadyPlayed(stored); return; }
-  state.mode = 'daily'; state.puzzleIdx = dailyIndex(today);
-  resetGameState(); document.getElementById('intro').classList.remove('show'); loadPuzzle();
+function startDailyGame(dateStr, opts) {
+  dateStr = dateStr || todayStr();
+  const replay = !!(opts && opts.replay);
+  const stored = loadStorage();
+  const existing = stored.byDate && stored.byDate[dateStr];
+  if (existing && !replay) {
+    if (dateStr === todayStr()) { showAlreadyPlayed(stored); return; }
+    // shouldn't normally happen — archive cell click for completed day always passes replay:true
+    showAlreadyPlayed(stored); return;
+  }
+  state.mode = 'daily';
+  state.playDate = dateStr;
+  state.replay = replay;
+  state.puzzleIdx = dailyIndex(dateStr);
+  resetGameState();
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  document.getElementById('reveal').classList.remove('show');
+  loadPuzzle();
 }
 
 function startPracticeGame() {
@@ -931,8 +946,11 @@ function loadPuzzle() {
   state.items.push(...shuffle(tileItems));
   state.solvedSets = puzzle.sets.map(_ => false); state.revealedSets = puzzle.sets.map(_ => false);
   document.getElementById('puzzleName').textContent = puzzle.name;
-  const d = new Date();
-  document.getElementById('subbarDate').textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const playDate = state.playDate || todayStr();
+  const isLive = playDate === todayStr();
+  const d = new Date(playDate + 'T12:00:00Z');
+  const dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+  document.getElementById('subbarDate').textContent = isLive ? dateLabel : 'Archive · ' + dateLabel;
   renderMistakes(); renderAll(); updateSubmit(); startTimer();
 }
 
