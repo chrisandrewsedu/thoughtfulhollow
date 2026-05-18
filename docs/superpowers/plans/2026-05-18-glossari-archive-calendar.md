@@ -383,9 +383,22 @@ function recordCompletion() {
 }
 ```
 
-- [ ] **Step 2: Update `showReveal` and `showAlreadyPlayed` to read from `byDate`**
+- [ ] **Step 2: Update `showReveal` to read from `byDate` and use playDate for the date string**
 
-Find line 1157:
+Find the line near the top of `showReveal` (was line 1156 before Task 2 shifts):
+
+```js
+  const dateStr = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+```
+
+Replace with:
+
+```js
+  const playDate = state.playDate || todayStr();
+  const dateStr = new Date(playDate + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/New_York' });
+```
+
+Next, find:
 
 ```js
   const result = state.mode === 'daily' ? (stored.lastResult || buildCurrentResult()) : buildCurrentResult();
@@ -394,12 +407,11 @@ Find line 1157:
 Replace with:
 
 ```js
-  const playDate = state.playDate || todayStr();
   const persisted = stored.byDate && stored.byDate[playDate];
   const result = state.mode === 'daily' ? (persisted ? persisted.result : buildCurrentResult()) : buildCurrentResult();
 ```
 
-Find line 1159:
+Next, find:
 
 ```js
     const puzzleNum = dailyIndex(todayStr()) + 1;
@@ -411,7 +423,7 @@ Replace with:
     const puzzleNum = dailyIndex(playDate) + 1;
 ```
 
-Find line 1173:
+Finally, find (further down in `showReveal`):
 
 ```js
   const puzzleNum = state.mode === 'daily' ? dailyIndex(todayStr()) + 1 : null;
