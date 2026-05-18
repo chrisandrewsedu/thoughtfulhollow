@@ -1206,14 +1206,8 @@ function recordCompletion() {
   if (state.replay) return;
   const playDate = state.playDate || todayStr();
   const isLive = playDate === todayStr();
-  const allSolved = state.puzzleMarksByEntry.every(m => m === 'solved');
-  const result = {
-    marks: state.puzzleMarksByEntry,
-    elapsedSeconds: state.elapsed,
-    mistakesUsed: state.mistakes,
-    allSolved,
-    flawless: allSolved && state.mistakes === 0,
-  };
+  const result = buildCurrentResult();
+  const allSolved = result.allSolved;
   const data = loadStorage();
   if (!data.byDate) data.byDate = {};
   data.byDate[playDate] = {
