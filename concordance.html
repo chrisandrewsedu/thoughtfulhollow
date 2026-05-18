@@ -504,19 +504,29 @@ html, body {
   font-size: 0.56rem; letter-spacing: 0.05em;
   color: var(--ink-faint); margin-top: 0.08rem;
 }
-.share-grid {
-  display: flex; flex-direction: column;
-  gap: 0.3rem; align-items: center;
+.share-guess-grid {
   margin: 1rem auto 0.9rem;
+  display: flex; flex-direction: column; gap: 0.22rem; align-items: center;
 }
-.share-grid-row { display: flex; gap: 0.3rem; }
-.share-seg {
-  width: 2rem; height: 2rem;
-  border-radius: 3px;
-  background: var(--paper-shadow);
-  transition: background 0.2s;
+.share-guess-header {
+  display: flex; gap: 0.15rem; align-items: center; margin-bottom: 0.1rem;
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.42rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-faint);
 }
-.share-seg.solved { background: var(--green); }
+.share-guess-row { display: flex; gap: 0.15rem; align-items: center; }
+.share-guess-col {
+  width: 1.7rem; text-align: center;
+  font-family: 'DM Serif Display', serif; font-style: italic; font-size: 1rem;
+  line-height: 1;
+}
+.share-guess-col.correct { color: var(--green); }
+.share-guess-col.partial { color: var(--gold-bright); }
+.share-guess-col.wrong { color: var(--ink-ghost); }
+.share-guess-sep {
+  width: 1px; height: 0.9rem;
+  background: var(--paper-shadow); flex-shrink: 0;
+}
 .share-summary {
   font-family: 'Lora', serif; font-style: italic;
   font-size: 0.68rem; color: var(--ink-faint);
@@ -802,6 +812,7 @@ let state = {
   items: [], selectedIds: new Set(), solvedSets: [], revealedSets: [],
   mistakes: 0, puzzlesSolved: 0, flawless: 0, totalMistakes: 0,
   locked: false, timerStart: null, timerInterval: null, elapsed: 0,
+  guessLog: [],
 };
 
 function shuffle(a) {
@@ -851,6 +862,7 @@ function loadPuzzle() {
   document.getElementById('practiceLink').style.display = 'none';
   const puzzle = PUZZLES[state.puzzleIdx];
   state.mistakes = 0; state.locked = false; state.selectedIds = new Set();
+  state.guessLog = [];
   state.items = []; let id = 0;
   puzzle.sets.forEach((s, si) => { state.items.push({ id: id++, type: 'clue', clueObj: s, setIdx: si }); });
   const tileItems = [];
@@ -1035,6 +1047,20 @@ function updatePreviewRow() {
 }
 
 
+function computeGuessMark(bestSetIdx) {
+  const set = PUZZLES[state.puzzleIdx].sets[bestSetIdx];
+  const sel = [...state.selectedIds].map(id => itemById(id));
+  const clue = sel.find(it => it.type === 'clue');
+  const tiles = sel.filter(it => it.type === 'tile');
+  const clueMark = (clue && clue.setIdx === bestSetIdx) ? 'correct' : 'wrong';
+  const tileMarks = [0, 1, 2].map(i => {
+    const tile = tiles[i];
+    if (!tile || tile.setIdx !== bestSetIdx) return 'wrong';
+    return tile.text === set.parts[i] ? 'correct' : 'partial';
+  });
+  return [clueMark, ...tileMarks];
+}
+
 function tilesMatchOrder(setIdx) {
   const set = PUZZLES[state.puzzleIdx].sets[setIdx];
   const sel = [...state.selectedIds].map(id => itemById(id));
@@ -1065,12 +1091,14 @@ function submit() {
   if (state.locked) return; if (state.selectedIds.size !== 4) return;
   const best = findBestMatch(); state.locked = true;
   if (best.count === 4 && tilesMatchOrder(best.setIdx)) {
+    state.guessLog.push(['correct', 'correct', 'correct', 'correct']);
     state.solvedSets[best.setIdx] = true;
     showBadge('correct', 'Correct', 'headword assembled');
     state.selectedIds.clear(); renderAll();
     if (state.solvedSets.every(Boolean)) { setTimeout(() => finishPuzzle(true), 950); }
     else { state.locked = false; updateSubmit(); }
   } else {
+    state.guessLog.push(computeGuessMark(best.setIdx));
     state.mistakes++; state.totalMistakes++;
     document.querySelectorAll('.clue-card.selected, .tile.selected').forEach(el => { el.classList.add('shaking'); setTimeout(() => el.classList.remove('shaking'), 500); });
     if (best.count === 4) showBadge('partial', 'Right Parts', 'wrong order');
@@ -1157,16 +1185,31 @@ function buildShareBlockHTML(stored, puzzle, puzzleNum, result) {
   const perf = perfWordFor(result);
   const puzzleLabel = puzzleNum != null ? `No. ${puzzleNum}` : 'Practice';
   const dateStr = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  const gridRows = marks.map(m =>
-    `<div class="share-grid-row"><div class="share-seg ${m === 'solved' ? 'solved' : ''}"></div><div class="share-seg ${m === 'solved' ? 'solved' : ''}"></div><div class="share-seg ${m === 'solved' ? 'solved' : ''}"></div></div>`
+
+  const SYM = { correct: '❧', partial: '◆', wrong: '·' };
+  const guessLog = state.guessLog || [];
+  const headerCols = ['Clue', '·1', '·2', '·3'];
+  const headerHtml = headerCols.map((h, i) =>
+    (i === 1 ? '<div class="share-guess-sep"></div>' : '') +
+    `<div class="share-guess-col" style="font-family:'Lora',serif;font-size:0.42rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);font-style:italic;">${h}</div>`
   ).join('');
+  const rowsHtml = guessLog.map(row =>
+    `<div class="share-guess-row">${row.map((m, i) =>
+      (i === 1 ? '<div class="share-guess-sep"></div>' : '') +
+      `<div class="share-guess-col ${m}">${SYM[m]}</div>`
+    ).join('')}</div>`
+  ).join('');
+
   return `<div class="share-block" data-puzzle-num="${puzzleNum ?? ''}">
     <div class="share-brand">
       <div class="share-game-title">Glos<span class="share-dot">·</span>sa<span class="share-dot">·</span>ri</div>
       <div class="share-game-sub">${puzzleLabel} · <em>"${puzzle.name}"</em></div>
       ${puzzleNum ? `<div class="share-game-date">${dateStr}</div>` : ''}
     </div>
-    <div class="share-grid">${gridRows}</div>
+    <div class="share-guess-grid">
+      <div class="share-guess-row">${headerHtml}</div>
+      ${rowsHtml}
+    </div>
     <div class="share-summary">${solvedCount} of ${marks.length} · ${timeStr} · ${errStr}</div>
     <hr class="share-divider">
     <div class="share-stats">
@@ -1189,7 +1232,9 @@ function generateShareText(puzzle, puzzleNum, result) {
   const errStr = result.mistakesUsed === 0 ? 'no errors' : result.mistakesUsed === 1 ? '1 mistake' : `${result.mistakesUsed} mistakes`;
   const solvedCount = marks.filter(m => m === 'solved').length;
   const header = puzzleNum != null ? `Glos·sa·ri — No. ${puzzleNum}` : 'Glos·sa·ri — Practice';
-  const grid = marks.map(m => m === 'solved' ? '🟩🟩🟩' : '⬛⬛⬛').join('\n');
+  const SYM = { correct: '❧', partial: '◆', wrong: '·' };
+  const guessLog = state.guessLog || [];
+  const grid = guessLog.map(row => row.map(m => SYM[m]).join(' ')).join('\n');
   return [
     header,
     `"${puzzle.name}"`,
