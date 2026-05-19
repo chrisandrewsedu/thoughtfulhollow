@@ -188,7 +188,6 @@ html, body { transition: background 0.25s, color 0.25s; }
 }
 .slot.selected { stroke: var(--accent); stroke-width: 3; }
 .slot.violation { stroke: var(--accent-bright); stroke-width: 4; stroke-dasharray: 4 3; }
-.slot-empty-fill { fill: var(--paper-deep); }
 .slot-label {
   font-family: 'Spectral', serif; font-size: 9px; fill: var(--ink-faint);
   pointer-events: none;
@@ -360,14 +359,7 @@ html, body { transition: background 0.25s, color 0.25s; }
   width: 100%;
 }
 :root[data-theme="dark"] .share-block { border-color: var(--ink-soft); }
-.share-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 2px; max-width: 144px; margin: 0.8rem auto;
-}
-.share-grid-cell {
-  aspect-ratio: 1 / 1;
-  border-radius: 2px;
-}
+
 .share-block-svg {
   width: 100%; max-width: 13rem;
   margin: 0.9rem auto 0.7rem;
@@ -630,6 +622,10 @@ function etDateOffset(dateStr, offsetDays) {
 function prevEtDate(dateStr) { return etDateOffset(dateStr, -1); }
 
 function loadStorage() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+// NOTE: silently swallows quota-exceeded and serialization errors. In
+// the unlikely event of storage failure, the in-memory `data` is
+// correct but won't persist — next session resets to last successful
+// save. Same behavior as Glossari.
 function saveStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {} }
 
 function formatTime(seconds) {
@@ -949,6 +945,8 @@ function verifyTemplate(templateId, dateRange) {
   return results;
 }
 
+// Debug / authoring tools — exposed on window for console use. Not part
+// of the public API; safe to remove if minifying for production.
 window.verifyTemplate = verifyTemplate;
 window.solve = solve;
 window.instantiateTemplate = instantiateTemplate;
@@ -977,7 +975,6 @@ function renderBlock(host, block, fabricBySlot, opts) {
       rect.setAttribute('fill', 'url(#' + fid + ')');
     } else {
       rect.setAttribute('fill', 'var(--paper-deep)');
-      rect.classList.add('slot-empty');
     }
     rect.dataset.slot = i;
     if (opts.onSlotClick) {
@@ -1385,7 +1382,6 @@ function triggerWin() {
 }
 
 function showCompletion() {
-  // Record the result first (Task 11 wires the actual write)
   recordCompletion();
   const data = loadStorage();
   const playDate = game.playDate || todayStr();
@@ -1393,8 +1389,20 @@ function showCompletion() {
   const dayName = d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'America/New_York' });
   const blockName = game.block.displayName;
   const time = formatTime(game.elapsed);
-  document.getElementById('completionSub').innerHTML =
-    `You solved a <b>${dayName}</b> <b>${blockName}</b> in <b>${time}</b>.`;
+  const sub = document.getElementById('completionSub');
+  sub.textContent = ''; // clear
+  const make = (text, bold) => {
+    const node = bold ? document.createElement('b') : document.createTextNode(text);
+    if (bold) node.textContent = text;
+    return node;
+  };
+  sub.appendChild(document.createTextNode('You solved a '));
+  sub.appendChild(make(dayName, true));
+  sub.appendChild(document.createTextNode(' '));
+  sub.appendChild(make(blockName, true));
+  sub.appendChild(document.createTextNode(' in '));
+  sub.appendChild(make(time, true));
+  sub.appendChild(document.createTextNode('.'));
   const streak = data.streak || 0;
   const pill = document.getElementById('completionStreak');
   if (streak > 0) {
@@ -1448,14 +1456,20 @@ function copyShareText() {
     .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
   const time = formatTime(game.elapsed);
   const text = `Sampler · ${dateLabel} · ${game.block.displayName} · ${time}`;
-  navigator.clipboard.writeText(text).then(() => {
+  const showFeedback = (msg) => {
     const btn = document.querySelector('.share-copy-btn');
-    if (btn) {
-      const orig = btn.textContent;
-      btn.textContent = 'Copied!';
-      setTimeout(() => { btn.textContent = orig; }, 1400);
-    }
-  });
+    if (!btn) return;
+    const orig = btn.textContent;
+    btn.textContent = msg;
+    setTimeout(() => { btn.textContent = orig; }, 1400);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showFeedback('Copied!'))
+      .catch(() => showFeedback('Copy failed'));
+  } else {
+    showFeedback('Copy not supported');
+  }
 }
 
 function closeCompletion() {
