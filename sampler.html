@@ -955,6 +955,33 @@ const TEMPLATES = [
       { kind: 'positional', slot: 'row3', constraint: { fabricId: 'ROLE:ROW3' } },
     ],
   },
+
+  // Rail Fence Template C: "Mirror Pairs" — the top half of the block
+  // mirrors the bottom half under 180° rotation. The player paints 6
+  // slots and the rotational-symmetry rule does the rest. Cream anchors
+  // the center pair; the other five pairs are date-rotated, giving a
+  // pinwheel-like effect.
+  {
+    id: 'rail-fence-mirror-pairs-v1',
+    block: 'rail-fence',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    fabricRoles: {
+      CENTER: 'F_CREAM',
+      P0: null, P1: null, P2: null, P3: null, P5: null,
+    },
+    rules: [
+      // Headline rule: 2-fold rotational symmetry pairs (0,11)(1,10)(2,9)(3,8)(4,7)(5,6).
+      { kind: 'rotational-symmetry', order: 2 },
+      // Pin the upper half; the lower half follows from the rotation rule.
+      { kind: 'positional', slot: 0, constraint: { fabricId: 'ROLE:P0' } },
+      { kind: 'positional', slot: 1, constraint: { fabricId: 'ROLE:P1' } },
+      { kind: 'positional', slot: 2, constraint: { fabricId: 'ROLE:P2' } },
+      { kind: 'positional', slot: 3, constraint: { fabricId: 'ROLE:P3' } },
+      { kind: 'positional', slot: 4, constraint: { fabricId: 'ROLE:CENTER' } },
+      { kind: 'positional', slot: 5, constraint: { fabricId: 'ROLE:P5' } },
+    ],
+  },
 ];
 
 function resolveRoleRefs(rule, fabricRoles) {
