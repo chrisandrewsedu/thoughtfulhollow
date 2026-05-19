@@ -142,6 +142,13 @@ Suggest (a) for Sunday: render a coarse 3×3 hue summary from each of the 4 sub-
 Phase 1's solver is **naive backtracking with rule-evaluation pruning**. For 9 slots × 6 fabrics = 10M raw assignments, well-pruned by rule violations. For 16 slots × 8 fabrics = 280 billion raw; pruning helps but may not be enough.
 
 - 2026-05-18 — Profile on Sawtooth Star (16 slots) in Phase 3. If verifyTemplate over a year of dates takes > 30s per template, switch to forward checking. Don't optimize before measuring.
+- 2026-05-19 — Code review (review #7) flagged that the current "cheap prune" only fires when `violatingSlots` for some rule are *all* ≤ current index. Rules with under-budget violations (count rules where the target isn't reached) never populate `violatingSlots` during partial fill, so they don't contribute to pruning. For Nine-Patch this is fine. **Before Phase 3 (Sawtooth Star, Dresden Plate)**, implement rule-kind-specific pruning predicates (e.g., `count` rule: prune if `min > matchingSlots + slotsRemaining` or `max < matchingSlots`). Document the pruning contract: each rule's `verify` could be extended to return a `stillPossible` flag derived from remaining slots.
+
+### Template assignment is rotation-by-date-index, not pool-pick
+
+`pickTemplateForDate` currently returns `TEMPLATES[dailyIndex(dateStr)]` (no modulo). This means templates are handed out in array order, one per day. Players who solve today can predict tomorrow's template *identity* (but not its palette, which date-seeds shuffle within the template).
+
+- 2026-05-19 — Phase 3 / 4 consideration: shuffle template assignment using a seeded RNG keyed off some stable epoch, so the daily-day-of-week → template mapping isn't deducible. Or accept that template identity is predictable but rule details aren't.
 
 ### PRNG and seeding stability
 
