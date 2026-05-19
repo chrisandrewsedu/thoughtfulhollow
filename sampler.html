@@ -1524,13 +1524,92 @@ function archiveShiftMonth(delta) {
 }
 
 function renderArchive() {
-  // Implemented in Task 15
   if (!archiveViewMonth) return;
+  const { year, month } = archiveViewMonth;
+  const firstOfMonth = new Date(year, month, 1);
   document.getElementById('archiveMonthLabel').textContent =
-    new Date(archiveViewMonth.year, archiveViewMonth.month, 1)
-      .toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  document.getElementById('archiveGrid').innerHTML = '';
-  document.getElementById('archiveStats').innerHTML = '';
+    firstOfMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const today = todayStr();
+  const [launchY, launchM, launchD] = LAUNCH_DATE.split('-').map(Number);
+  const launchDate = new Date(launchY, launchM - 1, launchD);
+  const todayDate = new Date(today + 'T12:00:00');
+
+  const prevBtn = document.getElementById('archivePrevBtn');
+  const nextBtn = document.getElementById('archiveNextBtn');
+  const lastOfPrevMonth = new Date(year, month, 0);
+  const firstOfNextMonth = new Date(year, month + 1, 1);
+  prevBtn.disabled = lastOfPrevMonth < launchDate;
+  nextBtn.disabled = firstOfNextMonth > todayDate;
+
+  const stored = loadStorage();
+  const byDate = stored.byDate || {};
+
+  const grid = document.getElementById('archiveGrid');
+  grid.innerHTML = '';
+  const firstWeekday = firstOfMonth.getDay();
+  for (let i = 0; i < firstWeekday; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'archive-cell empty';
+    grid.appendChild(cell);
+  }
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateObj = new Date(year, month, day);
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const cell = document.createElement('div');
+    cell.className = 'archive-cell';
+    const numEl = document.createElement('div');
+    numEl.textContent = day;
+    cell.appendChild(numEl);
+
+    const isBeforeLaunch = dateObj < launchDate;
+    const isFuture = dateObj > todayDate;
+    const isToday = dateStr === today;
+    const entry = byDate[dateStr];
+
+    if (isBeforeLaunch) {
+      cell.classList.add('empty');
+    } else if (isFuture) {
+      cell.classList.add('future');
+    } else {
+      if (isToday) cell.classList.add('today');
+      if (entry) {
+        cell.classList.add('completed');
+        const allSolved = entry.result && entry.result.allSolved;
+        cell.classList.add(allSolved ? 'solved' : 'revealed');
+        const mark = document.createElement('div');
+        mark.className = 'archive-mark';
+        mark.textContent = allSolved ? '✓' : '◊';
+        cell.appendChild(mark);
+        cell.onclick = () => archiveCellClick(dateStr, true);
+      } else {
+        cell.classList.add('available');
+        cell.onclick = () => archiveCellClick(dateStr, false);
+      }
+    }
+    grid.appendChild(cell);
+  }
+
+  const statsEl = document.getElementById('archiveStats');
+  statsEl.innerHTML = '';
+  [
+    ['Streak', stored.streak || 0],
+    ['Played', stored.totalPlayed || 0],
+    ['Flawless', stored.totalFlawless || 0],
+    ['Avg', formatAvgTime(stored)],
+  ].forEach(([label, val]) => {
+    const stat = document.createElement('div');
+    stat.className = 'archive-stat';
+    const num = document.createElement('div'); num.className = 'archive-stat-num'; num.textContent = val;
+    const lbl = document.createElement('div'); lbl.className = 'archive-stat-lbl'; lbl.textContent = label;
+    stat.appendChild(num); stat.appendChild(lbl); statsEl.appendChild(stat);
+  });
+}
+
+function archiveCellClick(dateStr, isReplay) {
+  document.getElementById('archive').classList.remove('show');
+  startDailyGame(dateStr, { replay: isReplay });
 }
 
 function bootSampler() {
