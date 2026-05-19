@@ -106,7 +106,8 @@ html, body {
   justify-content: space-between;
   align-items: baseline;
 }
-.brand { display: flex; align-items: baseline; gap: 0.5rem; }
+.brand { display: flex; align-items: baseline; gap: 0.5rem; cursor: pointer; }
+.brand:hover .title { color: var(--accent); }
 .title {
   font-family: 'Fascinate', serif;
   font-weight: 400;
@@ -494,7 +495,7 @@ html, body { transition: background 0.25s, color 0.25s; }
 <body>
 <div class="app">
   <header class="header">
-    <div class="brand">
+    <div class="brand" onclick="goHome()">
       <div class="title">Sampler</div>
       <div class="vol">daily</div>
     </div>
@@ -1014,6 +1015,7 @@ let game = {
   timerInterval: null,
   elapsed: 0,
   locked: false,
+  inProgress: false,       // tracks if game is mid-play
 };
 
 const STAGE_HTML = `
@@ -1041,8 +1043,18 @@ function startTimer() {
   }, 1000);
 }
 function stopTimer() {
-  if (game.timerInterval) clearInterval(game.timerInterval);
-  game.timerInterval = null;
+  if (game.timerInterval) { clearInterval(game.timerInterval); game.timerInterval = null; }
+  if (game.timerStart) { game.elapsed = Math.floor((Date.now() - game.timerStart) / 1000); }
+}
+
+function resumeTimer() {
+  if (game.timerInterval) { clearInterval(game.timerInterval); game.timerInterval = null; }
+  const offset = Date.now() - game.elapsed * 1000;
+  game.timerStart = offset;
+  document.getElementById('timer').textContent = formatTime(game.elapsed);
+  game.timerInterval = setInterval(() => {
+    document.getElementById('timer').textContent = formatTime(Math.floor((Date.now() - offset) / 1000));
+  }, 1000);
 }
 
 function initGame(blockId, paletteIds, rules) {
@@ -1053,7 +1065,9 @@ function initGame(blockId, paletteIds, rules) {
   game.history = [];
   game.locked = false;
   game.rules = rules || [];
+  game.inProgress = true;
   document.getElementById('blockName').textContent = game.block.displayName;
+  updateBeginBtn();
   renderAll();
   startTimer();
 }
@@ -1329,6 +1343,7 @@ function evaluateRules(rules, fabricBySlot, block, fabricsById) {
 
 function triggerWin() {
   game.locked = true;
+  game.inProgress = false;
   stopTimer();
   // Add reveal animation class
   const svg = document.querySelector('.block-svg');
@@ -1479,7 +1494,24 @@ function startDailyGame(dateStr, opts) {
   document.getElementById('subbarDate').textContent = isLive ? label : 'Archive · ' + label;
 }
 
+function goHome() {
+  if (!game.inProgress) return;
+  stopTimer();
+  updateBeginBtn();
+  document.getElementById('intro').classList.add('show');
+}
+
+function updateBeginBtn() {
+  const btn = document.getElementById('beginBtn');
+  if (btn) btn.textContent = game.inProgress ? 'Resume' : 'Begin';
+}
+
 function beginDaily() {
+  if (game.inProgress) {
+    document.getElementById('intro').classList.remove('show');
+    resumeTimer();
+    return;
+  }
   document.getElementById('intro').classList.remove('show');
   document.getElementById('alreadyPlayed').classList.remove('show');
   startDailyGame();
