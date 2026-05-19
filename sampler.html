@@ -1394,6 +1394,19 @@ function describeConstraint(c, fabricsById) {
   return parts.length ? parts.join(' ') : 'any fabric';
 }
 
+// Effective stripe direction = the orientation the player visually sees
+// for the slot. The fabric carries an intrinsic direction; the slot may
+// rotate it 90°. Diagonal stays diagonal (a coarse approximation —
+// good enough for the current rule shape).
+function effectiveDirection(fabricDir, slotRotationDeg) {
+  if (!fabricDir) return null;
+  if (slotRotationDeg === 90) {
+    if (fabricDir === 'horizontal') return 'vertical';
+    if (fabricDir === 'vertical') return 'horizontal';
+  }
+  return fabricDir;
+}
+
 // Rule verify() contract:
 //   verify(rule, fabricBySlot, block, fabricsById) →
 //     { satisfied: bool, violatingSlots: Set<int>, stillPossible: bool }
@@ -1557,6 +1570,49 @@ const RULE_KINDS = {
       return {
         satisfied: satisfied && allRelevantFilled,
         violatingSlots: violating,
+        stillPossible: violating.size === 0,
+      };
+    },
+  },
+
+  // pattern-property rules assert that some derived property of a slot's
+  // fabric is consistent across a constrained subset of slots. Phase 3a
+  // ships exactly one operator — effective-direction — used by Rail
+  // Fence to express "all striped fabrics must run vertically", taking
+  // the slot's stripe rotation into account.
+  'pattern-property': {
+    describe(rule, fabricsById) {
+      if (rule.property === 'effective-direction') {
+        const what = rule.slotConstraint
+          ? describeConstraint(rule.slotConstraint, fabricsById)
+          : 'slots';
+        return `All ${what} must run ${rule.value}.`;
+      }
+      return 'Pattern-property rule.';
+    },
+    verify(rule, fabricBySlot, block, fabricsById) {
+      if (rule.property !== 'effective-direction') {
+        return { satisfied: true, violatingSlots: new Set(), stillPossible: true };
+      }
+      const violating = new Set();
+      let satisfied = true;
+      for (let i = 0; i < fabricBySlot.length; i++) {
+        const fid = fabricBySlot[i];
+        if (!fid) continue;
+        if (rule.slotConstraint && !fabricMatches(fid, rule.slotConstraint, fabricsById)) continue;
+        const fabric = fabricsById[fid];
+        if (!fabric.direction) continue; // unconstrained: fabric has no intrinsic direction
+        const slotRot = (typeof block.rotation === 'function') ? block.rotation(i) : 0;
+        const eff = effectiveDirection(fabric.direction, slotRot);
+        if (eff !== rule.value) {
+          satisfied = false;
+          violating.add(i);
+        }
+      }
+      return {
+        satisfied,
+        violatingSlots: violating,
+        // Assigned-slot violations are permanent in the solver context.
         stillPossible: violating.size === 0,
       };
     },
