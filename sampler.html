@@ -535,6 +535,76 @@ function pickTemplateForDate(dateStr) {
   return TEMPLATES[idx];
 }
 
+// ─── Solver ──────────────────────────────────────────────────────────
+// Backtracking with rule-evaluation pruning. Used by the author to verify
+// a template has exactly one solution for a given fabric assignment.
+//
+// Returns { solutions: int, samples: Array<fabricBySlot> } where samples
+// holds up to `cap` distinct found solutions (cap=2 is enough to detect
+// non-uniqueness).
+
+function solve(block, paletteIds, rules, fabricsById, cap) {
+  cap = cap || 2;
+  const N = block.slotCount;
+  const solutions = [];
+  const assignment = new Array(N).fill(null);
+  function recurse(i) {
+    if (solutions.length >= cap) return;
+    if (i === N) {
+      // Fully filled — verify all rules pass.
+      const evaluated = evaluateRules(rules, assignment, block, fabricsById);
+      if (evaluated.every(r => r.satisfied)) {
+        solutions.push(assignment.slice());
+      }
+      return;
+    }
+    for (const fid of paletteIds) {
+      assignment[i] = fid;
+      // Cheap prune: only check rules whose violatingSlots indicate a
+      // confirmed conflict given currently-assigned slots.
+      const evaluated = evaluateRules(rules, assignment, block, fabricsById);
+      const violatingAssigned = evaluated.some(r =>
+        r.violatingSlots.size > 0 &&
+        Array.from(r.violatingSlots).every(s => s <= i)
+      );
+      if (!violatingAssigned) recurse(i + 1);
+      if (solutions.length >= cap) { assignment[i] = null; return; }
+    }
+    assignment[i] = null;
+  }
+  recurse(0);
+  return { solutionCount: solutions.length, samples: solutions };
+}
+
+function verifyTemplate(templateId, dateRange) {
+  const template = TEMPLATES.find(t => t.id === templateId);
+  if (!template) { console.error('No template:', templateId); return; }
+  dateRange = dateRange || ['2026-06-01', '2026-06-30'];
+  const [start, end] = dateRange;
+  const results = [];
+  let d = start;
+  while (d <= end) {
+    const instance = instantiateTemplate(template, d);
+    const block = BLOCKS[instance.template.block];
+    const result = solve(block, instance.paletteIds, instance.rules, FABRICS, 2);
+    results.push({ date: d, solutionCount: result.solutionCount });
+    d = etDateOffset(d, 1);
+  }
+  const unique = results.filter(r => r.solutionCount === 1).length;
+  const none = results.filter(r => r.solutionCount === 0).length;
+  const many = results.filter(r => r.solutionCount >= 2).length;
+  console.log(`Template ${templateId}: ${unique} unique / ${none} none / ${many} multiple (of ${results.length})`);
+  if (none > 0 || many > 0) {
+    console.log('First failing dates:',
+      results.filter(r => r.solutionCount !== 1).slice(0, 5).map(r => `${r.date} (${r.solutionCount})`).join(', '));
+  }
+  return results;
+}
+
+window.verifyTemplate = verifyTemplate;
+window.solve = solve;
+window.instantiateTemplate = instantiateTemplate;
+
 // ─── Block renderer ──────────────────────────────────────────────────
 // Renders a block as an SVG inside the host element. Updates slot fills
 // based on fabricBySlot (array of fabric-IDs or nulls). Calls onSlotClick(i)
