@@ -542,7 +542,7 @@ html, body { transition: background 0.25s, color 0.25s; }
     </div>
     <div class="go-rule"></div>
     <div class="go-sub" style="text-align:left; max-width:380px;">
-      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">1.</span><span>Each day you'll piece a real quilt block: today's is the <b>Nine-Patch</b>.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">1.</span><span>Each day you'll piece a real quilt block: today's is the <b id="introBlockName">Nine-Patch</b>.</span></div>
       <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">2.</span><span>Tap a fabric, then tap slots to <b>paint</b> them. Tap a different fabric to switch.</span></div>
       <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">3.</span><span>Place fabrics so <b>every rule</b> in the panel is satisfied. Violations glow red.</span></div>
       <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">4.</span><span>Each puzzle has <b>exactly one solution</b>. There's no submit button — it locks when you've got it.</span></div>
@@ -718,6 +718,7 @@ const BLOCKS = {
     id: 'nine-patch',
     displayName: 'Nine-Patch',
     slotCount: 9,
+    dayOfWeek: 1, // Monday (0=Sun..6=Sat)
     // Slot layout: 3×3 grid. Row-major. Each slot is a 60×60 cell with 4px gap.
     // slotPath(i) returns one of:
     //   { type: 'rect',    x, y, w, h }
@@ -764,6 +765,7 @@ const BLOCKS = {
     id: 'rail-fence',
     displayName: 'Rail Fence',
     slotCount: 12,
+    dayOfWeek: 2, // Tuesday
     // 4 rows × 3 cols of rail-fence squares. Each slot holds one fabric,
     // rendered as 3 parallel stripes whose orientation is set by
     // rotation(i): 0° = horizontal stripes, 90° = vertical stripes.
@@ -1028,9 +1030,17 @@ function instantiateTemplate(template, dateStr) {
 }
 
 function pickTemplateForDate(dateStr) {
-  const idx = dailyIndex(dateStr);
-  if (idx < 0 || idx >= TEMPLATES.length) return null;
-  return TEMPLATES[idx];
+  // No puzzles before launch.
+  const daysSince = dailyIndex(dateStr);
+  if (daysSince < 0) return null;
+  // Each block owns a weekday (block.dayOfWeek). Templates for that
+  // weekday rotate through the pool weekly — so the first Tuesday after
+  // launch picks pool[0], the second Tuesday pool[1], etc.
+  const weekday = new Date(dateStr + 'T00:00:00Z').getUTCDay();
+  const pool = TEMPLATES.filter(t => BLOCKS[t.block] && BLOCKS[t.block].dayOfWeek === weekday);
+  if (pool.length === 0) return null;
+  const weeksSince = Math.floor(daysSince / 7);
+  return pool[weeksSince % pool.length];
 }
 
 // True if the given date has a unique puzzle available.
@@ -1322,6 +1332,8 @@ function initGame(blockId, paletteIds, rules) {
   game.started = false;
   game.solved = false;
   document.getElementById('blockName').textContent = game.block.displayName;
+  const introBlockEl = document.getElementById('introBlockName');
+  if (introBlockEl) introBlockEl.textContent = game.block.displayName;
   updateBeginBtn();
   renderAll();
 }
@@ -2128,6 +2140,10 @@ window.TEMPLATES = TEMPLATES;
 window.FABRICS = FABRICS;
 window.RULE_KINDS = RULE_KINDS;
 window.renderBlock = renderBlock;
+window.pickTemplateForDate = pickTemplateForDate;
+window.hasPuzzleForDate = hasPuzzleForDate;
+window.startDailyGame = startDailyGame;
+window.game = game;
 </script>
 </body>
 </html>
