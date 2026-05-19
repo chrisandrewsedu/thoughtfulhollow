@@ -1090,7 +1090,8 @@ function renderArchive() {
   const today = todayStr();
   const [launchY, launchM, launchD] = LAUNCH_DATE.split('-').map(Number);
   const launchDate = new Date(launchY, launchM - 1, launchD);
-  const todayDate = new Date(today + 'T12:00:00');
+  const [ty, tm, td] = today.split('-').map(Number);
+  const todayDate = new Date(ty, tm - 1, td);
 
   const prevBtn = document.getElementById('archivePrevBtn');
   const nextBtn = document.getElementById('archiveNextBtn');
