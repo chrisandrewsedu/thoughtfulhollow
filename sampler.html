@@ -421,12 +421,15 @@ html, body { transition: background 0.25s, color 0.25s; }
 #archive { padding: 1.6rem 1rem; }
 .archive-close {
   position: absolute;
-  top: 0.8rem;
-  /* Anchor near the centered content (~24rem wide) on big screens,
-     but never push off the left edge on narrow viewports. */
-  right: max(0.9rem, calc(50% - 13rem));
+  /* The calendar grid is 22rem wide (half-width 11rem from center).
+     Anchor the close button just outside the grid's top-right corner,
+     vertically aligned with the title. On narrow viewports it falls
+     back to a small margin from the right edge. */
+  top: 1.2rem;
+  right: max(0.5rem, calc(50% - 11.25rem));
   background: transparent; border: none; color: var(--ink-faint);
   font-size: 1.4rem; cursor: pointer; padding: 0.2rem 0.5rem;
+  line-height: 1;
 }
 .archive-close:hover { color: var(--ink); }
 .archive-header { text-align: center; margin-bottom: 1.1rem; }
