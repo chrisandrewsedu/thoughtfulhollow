@@ -1451,17 +1451,24 @@ function recordCompletion() {
 
 function startDailyGame(dateStr, opts) {
   dateStr = dateStr || todayStr();
+  const replay = !!(opts && opts.replay);
+  const stored = loadStorage();
+  const existing = stored.byDate && stored.byDate[dateStr];
+  // If today has already been played and this isn't an explicit replay,
+  // route through the alreadyPlayed overlay rather than re-rendering the board.
+  if (existing && !replay && dateStr === todayStr()) {
+    showAlreadyPlayed(stored);
+    return;
+  }
   // Dismiss any open overlays so the board is visible
-  ['intro', 'alreadyPlayed', 'completion'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('show');
-  });
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  document.getElementById('completion').classList.remove('show');
   game.playDate = dateStr;
-  game.replay = !!(opts && opts.replay);
+  game.replay = replay;
   const template = pickTemplateForDate(dateStr);
   const instance = instantiateTemplate(template, dateStr);
   initGame(instance.template.block, instance.paletteIds, instance.rules);
-  // Update subbar date for archive plays
   const isLive = dateStr === todayStr();
   const d = new Date(dateStr + 'T12:00:00Z');
   const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
