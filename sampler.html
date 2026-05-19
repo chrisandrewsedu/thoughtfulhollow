@@ -608,7 +608,14 @@ document.getElementById('themeToggle').addEventListener('click', function () {
   try { localStorage.setItem('th_theme', next); } catch (e) {}
 });
 
-// Date / storage constants (placeholders — see plan header for replacements)
+// ─── RELEASE CONFIG ──────────────────────────────────────────────────
+// TODO before public launch:
+//   1. Set LAUNCH_DATE to the real public-launch date.
+//   2. Author enough TEMPLATES that the game has at least 4 weeks of
+//      content from LAUNCH_DATE (28+ templates). With fewer templates,
+//      players will see the "Coming Soon" overlay after the available
+//      days are exhausted — by design for the QA period, but not
+//      acceptable for public launch.
 const STORAGE_KEY = 'sampler_daily_v1';
 const LAUNCH_DATE = '2026-05-17';
 
@@ -1022,7 +1029,7 @@ function seededShuffle(arr, rng) {
 function dailyIndex(dateStr) {
   const ms = Date.parse(dateStr + 'T00:00:00Z') - Date.parse(LAUNCH_DATE + 'T00:00:00Z');
   const days = Math.floor(ms / 86400000);
-  return days < 0 ? 0 : days;
+  return days < 0 ? -1 : days;
 }
 
 // ─── Game state ──────────────────────────────────────────────────────
@@ -1092,7 +1099,6 @@ function initGame(blockId, paletteIds, rules) {
   document.getElementById('blockName').textContent = game.block.displayName;
   updateBeginBtn();
   renderAll();
-  startTimer();
 }
 
 function renderAll() {
@@ -1454,6 +1460,10 @@ function copyShareText() {
 
 function closeCompletion() {
   document.getElementById('completion').classList.remove('show');
+  // The puzzle is done; show the alreadyPlayed overlay so the player has
+  // a clear path forward (stats, archive, no dead-end on a locked board).
+  const stored = loadStorage();
+  showAlreadyPlayed(stored);
 }
 
 function recordCompletion() {
@@ -1523,9 +1533,14 @@ function startDailyGame(dateStr, opts) {
 }
 
 function goHome() {
-  if (!game.inProgress) return;
-  stopTimer();
+  // Always offer to return home; only stop the timer if mid-game.
+  if (game.inProgress) stopTimer();
   updateBeginBtn();
+  // Dismiss any other overlay that might be showing.
+  ['alreadyPlayed', 'completion', 'archive', 'noPuzzle'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  });
   document.getElementById('intro').classList.add('show');
 }
 
@@ -1542,7 +1557,11 @@ function beginDaily() {
   }
   document.getElementById('intro').classList.remove('show');
   document.getElementById('alreadyPlayed').classList.remove('show');
-  startDailyGame();
+  // Puzzle is pre-loaded by bootSampler. Start the timer now that the user has begun.
+  game.elapsed = 0;
+  game.inProgress = true;
+  updateBeginBtn();
+  startTimer();
 }
 
 function showAlreadyPlayed(stored) {
@@ -1696,21 +1715,35 @@ function renderArchive() {
 function archiveCellClick(dateStr, isReplay) {
   document.getElementById('archive').classList.remove('show');
   startDailyGame(dateStr, { replay: isReplay });
+  // startDailyGame may have early-exited (alreadyPlayed or no-puzzle); only
+  // start the timer if a fresh game was actually initialized.
+  if (game.inProgress) {
+    game.elapsed = 0;
+    startTimer();
+  }
 }
 
 function bootSampler() {
   const stored = loadStorage();
   const today = todayStr();
-  // Pre-load today's puzzle so Begin is instant. Called before overlays
-  // are shown so the dismiss-overlays step inside startDailyGame is a no-op.
-  startDailyGame(today);
-  // If today has no puzzle, showNoPuzzle was already called inside startDailyGame.
-  if (!hasPuzzleForDate(today)) return;
-  // startDailyGame's early-exit guard already shows alreadyPlayed when today
-  // has been played, so this conditional only handles the not-yet-played case.
-  if (!(stored.byDate && stored.byDate[today])) {
-    document.getElementById('intro').classList.add('show');
+
+  // 1. No puzzle authored for today yet (template inventory exhausted).
+  if (!hasPuzzleForDate(today)) {
+    showNoPuzzle(today);
+    return;
   }
+
+  // 2. Today has been played already — show the alreadyPlayed overlay,
+  //    but also pre-load the puzzle into game state so replay works.
+  if (stored.byDate && stored.byDate[today]) {
+    startDailyGame(today); // routes through early-exit guard to showAlreadyPlayed
+    return;
+  }
+
+  // 3. Fresh play. Pre-load the puzzle behind the intro so Begin is instant.
+  //    The timer does NOT start here; beginDaily() starts it on user click.
+  startDailyGame(today);
+  document.getElementById('intro').classList.add('show');
 }
 
 bootSampler();
