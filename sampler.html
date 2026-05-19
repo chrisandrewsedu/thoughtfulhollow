@@ -713,10 +713,15 @@ const BLOCKS = {
     displayName: 'Nine-Patch',
     slotCount: 9,
     // Slot layout: 3×3 grid. Row-major. Each slot is a 60×60 cell with 4px gap.
-    slotRect(i) {
+    // slotPath(i) returns one of:
+    //   { type: 'rect',    x, y, w, h }
+    //   { type: 'polygon', points: [[x,y], ...] }
+    //   { type: 'path',    d: '<SVG path d>' }
+    // Renderer (renderBlock) picks the right SVG element from the type.
+    slotPath(i) {
       const r = Math.floor(i / 3), c = i % 3;
       const SIZE = 60, GAP = 4, OFFSET = 10;
-      return { x: OFFSET + c * (SIZE + GAP), y: OFFSET + r * (SIZE + GAP), w: SIZE, h: SIZE };
+      return { type: 'rect', x: OFFSET + c * (SIZE + GAP), y: OFFSET + r * (SIZE + GAP), w: SIZE, h: SIZE };
     },
     // Edge-adjacency: which slots share a side?
     neighbors(i) {
@@ -953,6 +958,41 @@ window.instantiateTemplate = instantiateTemplate;
 // based on fabricBySlot (array of fabric-IDs or nulls). Calls onSlotClick(i)
 // when a slot is tapped.
 
+// Slot-path helpers. Each block.slotPath(i) returns one of three shapes;
+// renderBlock dispatches to the right SVG element + label-centering math.
+function createSlotElement(path) {
+  if (path.type === 'rect') {
+    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    r.setAttribute('x', path.x); r.setAttribute('y', path.y);
+    r.setAttribute('width', path.w); r.setAttribute('height', path.h);
+    return r;
+  }
+  if (path.type === 'polygon') {
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    p.setAttribute('points', path.points.map(pt => pt[0] + ',' + pt[1]).join(' '));
+    return p;
+  }
+  if (path.type === 'path') {
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', path.d);
+    return p;
+  }
+  throw new Error('Unknown slot path type: ' + path.type);
+}
+
+function slotCenter(path) {
+  if (path.type === 'rect') {
+    return { x: path.x + path.w / 2, y: path.y + path.h / 2 };
+  }
+  if (path.type === 'polygon') {
+    let sx = 0, sy = 0;
+    for (const pt of path.points) { sx += pt[0]; sy += pt[1]; }
+    return { x: sx / path.points.length, y: sy / path.points.length };
+  }
+  // path: caller may provide path.center; otherwise approximate at 0,0.
+  return path.center || { x: 0, y: 0 };
+}
+
 function renderBlock(host, block, fabricBySlot, opts) {
   opts = opts || {};
   host.innerHTML = '';
@@ -960,28 +1000,27 @@ function renderBlock(host, block, fabricBySlot, opts) {
   svg.setAttribute('viewBox', '0 0 200 200');
   svg.setAttribute('class', 'block-svg');
   for (let i = 0; i < block.slotCount; i++) {
-    const r = block.slotRect(i);
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', r.x); rect.setAttribute('y', r.y);
-    rect.setAttribute('width', r.w); rect.setAttribute('height', r.h);
-    rect.setAttribute('class', 'slot' + (opts.selectedSlot === i ? ' selected' : '') + (opts.violations && opts.violations.has(i) ? ' violation' : ''));
-    rect.setAttribute('stroke', 'var(--ink-soft)');
-    rect.setAttribute('stroke-width', '1.5');
+    const path = block.slotPath(i);
+    const el = createSlotElement(path);
+    el.setAttribute('class', 'slot' + (opts.selectedSlot === i ? ' selected' : '') + (opts.violations && opts.violations.has(i) ? ' violation' : ''));
+    el.setAttribute('stroke', 'var(--ink-soft)');
+    el.setAttribute('stroke-width', '1.5');
     const fid = fabricBySlot[i];
     if (fid) {
-      rect.setAttribute('fill', 'url(#' + fid + ')');
+      el.setAttribute('fill', 'url(#' + fid + ')');
     } else {
-      rect.setAttribute('fill', 'var(--paper-deep)');
+      el.setAttribute('fill', 'var(--paper-deep)');
     }
-    rect.dataset.slot = i;
+    el.dataset.slot = i;
     if (opts.onSlotClick) {
-      rect.addEventListener('click', () => opts.onSlotClick(i));
+      el.addEventListener('click', () => opts.onSlotClick(i));
     }
-    svg.appendChild(rect);
+    svg.appendChild(el);
     if (!fid) {
+      const center = slotCenter(path);
       const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      label.setAttribute('x', r.x + r.w / 2);
-      label.setAttribute('y', r.y + r.h / 2 + 3);
+      label.setAttribute('x', center.x);
+      label.setAttribute('y', center.y + 3);
       label.setAttribute('text-anchor', 'middle');
       label.setAttribute('class', 'slot-label');
       label.textContent = i + 1;
