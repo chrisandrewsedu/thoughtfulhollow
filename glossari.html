@@ -98,7 +98,7 @@ html, body {
 }
 .header::after { display: none; }
 
-.brand { display: flex; align-items: baseline; gap: 0.5rem; }
+.brand { display: flex; align-items: baseline; gap: 0.5rem; cursor: pointer; }
 .title {
   font-family: 'DM Serif Display', serif;
   font-weight: 400;
@@ -107,7 +107,9 @@ html, body {
   color: var(--ink);
   letter-spacing: -0.01em;
   line-height: 1;
+  transition: color 0.15s;
 }
+.brand:hover .title { color: var(--accent); }
 .title-mark { color: var(--accent); font-style: normal; }
 .vol {
   font-family: 'Lora', serif;
@@ -747,7 +749,7 @@ html, body { transition: background 0.25s, color 0.25s; }
 <body>
 <div class="app">
   <header class="header">
-    <div class="brand">
+    <div class="brand" onclick="goHome()">
       <div class="title">Glos<span class="title-mark">·</span>sa<span class="title-mark">·</span>ri</div>
       <div class="vol">daily</div>
     </div>
@@ -915,6 +917,7 @@ fetch('glossari.json')
     PUZZLES = data;
     let seenTutorial = false;
     try { seenTutorial = localStorage.getItem('tutorial_seen') === '1'; } catch (e) {}
+    updateStartBtn();
     if (seenTutorial) { document.getElementById('intro').classList.add('show'); }
     else { openTutorial(); }
   })
@@ -990,7 +993,7 @@ let state = {
   mistakes: 0, puzzlesSolved: 0, flawless: 0, totalMistakes: 0,
   locked: false, timerStart: null, timerInterval: null, elapsed: 0,
   guessLog: [],
-  playDate: null, replay: false,
+  playDate: null, replay: false, inProgress: false,
 };
 
 function shuffle(a) {
@@ -1021,6 +1024,16 @@ function startTimer() {
 function stopTimer() {
   if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
   if (state.timerStart) { state.elapsed = Math.floor((Date.now() - state.timerStart) / 1000); }
+}
+
+function resumeTimer() {
+  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+  const offset = Date.now() - state.elapsed * 1000;
+  state.timerStart = offset;
+  document.getElementById('timer').textContent = formatTime(state.elapsed);
+  state.timerInterval = setInterval(() => {
+    document.getElementById('timer').textContent = formatTime(Math.floor((Date.now() - offset) / 1000));
+  }, 1000);
 }
 
 function startDailyGame(dateStr, opts) {
@@ -1183,9 +1196,29 @@ function archiveCellClick(dateStr, isReplay) {
 }
 
 function resetGameState() { state.puzzlesSolved = 0; state.flawless = 0; state.totalMistakes = 0; state.puzzleMarksByEntry = []; }
-function startGame() { startDailyGame(); }
+
+function updateStartBtn() {
+  document.getElementById('beginBtn').textContent = state.inProgress ? 'Resume' : 'Begin';
+}
+
+function goHome() {
+  if (!state.inProgress) return;
+  stopTimer();
+  updateStartBtn();
+  document.getElementById('intro').classList.add('show');
+}
+
+function startGame() {
+  if (state.inProgress) {
+    document.getElementById('intro').classList.remove('show');
+    resumeTimer();
+    return;
+  }
+  startDailyGame();
+}
 
 function loadPuzzle() {
+  state.inProgress = true;
   document.getElementById('practiceLink').style.display = 'none';
   const puzzle = PUZZLES[state.puzzleIdx];
   state.mistakes = 0; state.locked = false; state.selectedIds = new Set();
@@ -1491,6 +1524,7 @@ function buildCurrentResult() {
 }
 
 function showReveal() {
+  state.inProgress = false;
   const puzzle = PUZZLES[state.puzzleIdx]; const stored = loadStorage();
   const playDate = state.playDate || todayStr();
   const dateStr = new Date(playDate + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/New_York' });
