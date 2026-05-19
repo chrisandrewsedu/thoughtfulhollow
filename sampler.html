@@ -415,6 +415,126 @@ const BLOCKS = {
   },
 };
 
+// ─── Templates ───────────────────────────────────────────────────────
+// Each template instantiates to a daily puzzle given a date seed.
+// The runtime picks a template, then resolves the palette from the
+// named family, then assigns fabrics to roles referenced by rules.
+//
+// Phase 1: 3 hand-authored Monday-tier Nine-Patch templates.
+// Each template is constructed so it admits exactly one solution.
+
+const TEMPLATES = [
+  // Template 1: "Greek Cross" — classic. Madder at corners, Cream center,
+  // edges all the same single fabric chosen from the palette by date.
+  {
+    id: 'nine-patch-greek-cross-v1',
+    block: 'nine-patch',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    // Fabric roles: ANCHOR_A = corners, ANCHOR_B = center, ANCHOR_C = edges.
+    fabricRoles: {
+      ANCHOR_A: 'F_MADDER',
+      ANCHOR_B: 'F_CREAM',
+      ANCHOR_C: null, // chosen from palette by date
+    },
+    rules: [
+      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:ANCHOR_B' } },
+      { kind: 'positional', slot: 'corners', constraint: { fabricId: 'ROLE:ANCHOR_A' } },
+      { kind: 'positional', slot: 'edges',   constraint: { fabricId: 'ROLE:ANCHOR_C' } },
+      { kind: 'count', constraint: { fabricId: 'ROLE:ANCHOR_A' }, exact: 4 },
+    ],
+  },
+  // Template 2: "Diagonal Stripes" — corners and center the same fabric,
+  // edges alternate two stripe fabrics in a pattern enforced by symmetry.
+  {
+    id: 'nine-patch-diagonal-v1',
+    block: 'nine-patch',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    fabricRoles: {
+      ANCHOR_A: 'F_CREAM',
+      ANCHOR_B: 'F_INDIGO',
+      ANCHOR_C: 'F_WALNUT',
+    },
+    rules: [
+      { kind: 'count', constraint: { fabricId: 'ROLE:ANCHOR_A' }, exact: 5 },
+      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:ANCHOR_A' } },
+      { kind: 'positional', slot: 'corners', constraint: { fabricId: 'ROLE:ANCHOR_A' } },
+      { kind: 'symmetry', axis: 'vertical' },
+      { kind: 'symmetry', axis: 'horizontal' },
+      { kind: 'adjacency', a: { fabricId: 'ROLE:ANCHOR_B' }, b: { fabricId: 'ROLE:ANCHOR_C' }, relation: 'forbid' },
+      { kind: 'count', constraint: { fabricId: 'ROLE:ANCHOR_B' }, exact: 2 },
+      { kind: 'count', constraint: { fabricId: 'ROLE:ANCHOR_C' }, exact: 2 },
+    ],
+  },
+  // Template 3: "Pinwheel-of-color" — every cell has a unique role-ish
+  // but rules constrain hue counts and adjacency.
+  {
+    id: 'nine-patch-warm-cool-v1',
+    block: 'nine-patch',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    fabricRoles: {
+      ANCHOR_A: 'F_CREAM',
+    },
+    rules: [
+      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:ANCHOR_A' } },
+      { kind: 'count', constraint: { hue: 'warm' }, exact: 4 },
+      { kind: 'count', constraint: { hue: 'cool' }, exact: 4 },
+      { kind: 'symmetry', axis: 'diagonal' },
+      { kind: 'adjacency', a: { hue: 'warm' }, b: { hue: 'warm' }, relation: 'forbid' },
+    ],
+  },
+];
+
+function resolveRoleRefs(rule, fabricRoles) {
+  // Deep-clone rule and replace any "ROLE:NAME" strings with the resolved fabric ID.
+  function resolveValue(v) {
+    if (typeof v === 'string' && v.startsWith('ROLE:')) {
+      const name = v.slice(5);
+      return fabricRoles[name];
+    }
+    if (v && typeof v === 'object') {
+      const out = Array.isArray(v) ? [] : {};
+      for (const k of Object.keys(v)) out[k] = resolveValue(v[k]);
+      return out;
+    }
+    return v;
+  }
+  return resolveValue(rule);
+}
+
+function instantiateTemplate(template, dateStr) {
+  const rng = mulberry32(seedFromDate(dateStr + ':' + template.id));
+  // Resolve unfilled fabricRoles by drawing from the palette.
+  const family = PALETTES[template.paletteFamily];
+  const used = new Set(Object.values(template.fabricRoles).filter(Boolean));
+  const available = family.filter(fid => !used.has(fid));
+  const shuffled = seededShuffle(available, rng);
+  const resolvedRoles = Object.assign({}, template.fabricRoles);
+  let cursor = 0;
+  for (const k of Object.keys(resolvedRoles)) {
+    if (resolvedRoles[k] === null) {
+      resolvedRoles[k] = shuffled[cursor++];
+    }
+  }
+  // Palette to show in UI: include all role fabrics + a few extras for choice.
+  const roleFabrics = Object.values(resolvedRoles);
+  const remaining = family.filter(fid => !roleFabrics.includes(fid));
+  const extras = seededShuffle(remaining, rng).slice(0, Math.max(0, template.paletteSize - roleFabrics.length));
+  const paletteIds = roleFabrics.concat(extras);
+  // Shuffle the palette display order so it isn't a giveaway.
+  const displayPalette = seededShuffle(paletteIds, mulberry32(seedFromDate(dateStr + ':display')));
+  // Resolve rules.
+  const rules = template.rules.map(r => resolveRoleRefs(r, resolvedRoles));
+  return { template, resolvedRoles, paletteIds: displayPalette, rules };
+}
+
+function pickTemplateForDate(dateStr) {
+  const idx = dailyIndex(dateStr) % TEMPLATES.length;
+  return TEMPLATES[idx];
+}
+
 // ─── Block renderer ──────────────────────────────────────────────────
 // Renders a block as an SVG inside the host element. Updates slot fills
 // based on fabricBySlot (array of fabric-IDs or nulls). Calls onSlotClick(i)
@@ -457,6 +577,41 @@ function renderBlock(host, block, fabricBySlot, opts) {
     }
   }
   host.appendChild(svg);
+}
+
+// ─── Seeded RNG ──────────────────────────────────────────────────────
+// mulberry32 — small, deterministic; good enough for shuffling palette
+// and picking from a template pool given a date seed.
+function mulberry32(seed) {
+  return function () {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function seedFromDate(dateStr) {
+  // Cheap hash of "YYYY-MM-DD" to a 32-bit int.
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    h ^= dateStr.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+function seededShuffle(arr, rng) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function dailyIndex(dateStr) {
+  const ms = Date.parse(dateStr + 'T00:00:00Z') - Date.parse(LAUNCH_DATE + 'T00:00:00Z');
+  const days = Math.floor(ms / 86400000);
+  return days < 0 ? 0 : days;
 }
 
 // ─── Game state ──────────────────────────────────────────────────────
@@ -761,13 +916,21 @@ function evaluateRules(rules, fabricBySlot, block, fabricsById) {
   });
 }
 
-// Boot: launch with the heritage-warm palette and initial rules
-initGame('nine-patch', PALETTES['heritage-warm'], [
-  { kind: 'positional', slot: 'center', constraint: { fabricId: 'F_CREAM' } },
-  { kind: 'count', constraint: { fabricId: 'F_MADDER' }, exact: 4 },
-  { kind: 'symmetry', axis: 'vertical' },
-  { kind: 'adjacency', a: { motif: 'stripe' }, b: { motif: 'stripe' }, relation: 'forbid' },
-]);
+function startDailyGame(dateStr, opts) {
+  dateStr = dateStr || todayStr();
+  game.playDate = dateStr;
+  game.replay = !!(opts && opts.replay);
+  const template = pickTemplateForDate(dateStr);
+  const instance = instantiateTemplate(template, dateStr);
+  initGame(instance.template.block, instance.paletteIds, instance.rules);
+  // Update subbar date for archive plays
+  const isLive = dateStr === todayStr();
+  const d = new Date(dateStr + 'T12:00:00Z');
+  const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+  document.getElementById('subbarDate').textContent = isLive ? label : 'Archive · ' + label;
+}
+
+startDailyGame();
 </script>
 </body>
 </html>
