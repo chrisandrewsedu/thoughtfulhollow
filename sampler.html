@@ -899,6 +899,28 @@ const TEMPLATES = [
       { kind: 'adjacency', a: { hue: 'warm' }, b: { hue: 'warm' }, relation: 'forbid' },
     ],
   },
+
+  // Rail Fence Template A: "Stacked Columns" — each column is one fabric.
+  // Middle column is anchored to cream; left and right columns are
+  // date-rotated. The block reads as three vertical bands of color, each
+  // composed of 4 stacked rail-fence squares. Easy Tuesday-level puzzle:
+  // once the rule colors are visible, paint each column.
+  {
+    id: 'rail-fence-stacked-columns-v1',
+    block: 'rail-fence',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    fabricRoles: {
+      LEFT: null,
+      MIDDLE: 'F_CREAM',
+      RIGHT: null,
+    },
+    rules: [
+      { kind: 'positional', slot: 'leftColumn',   constraint: { fabricId: 'ROLE:LEFT' } },
+      { kind: 'positional', slot: 'middleColumn', constraint: { fabricId: 'ROLE:MIDDLE' } },
+      { kind: 'positional', slot: 'rightColumn',  constraint: { fabricId: 'ROLE:RIGHT' } },
+    ],
+  },
 ];
 
 function resolveRoleRefs(rule, fabricRoles) {
