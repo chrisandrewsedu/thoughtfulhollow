@@ -419,14 +419,16 @@ html, body { transition: background 0.25s, color 0.25s; }
 }
 .btn-secondary:hover { background: var(--paper-shadow); color: var(--ink); border-color: var(--ink-soft); }
 #archive { padding: 1.6rem 1rem; }
+.archive-content {
+  position: relative;
+  width: 100%;
+  max-width: 22rem;
+  margin: 0 auto;
+}
 .archive-close {
   position: absolute;
-  /* The calendar grid is 22rem wide (half-width 11rem from center).
-     Anchor the close button just outside the grid's top-right corner,
-     vertically aligned with the title. On narrow viewports it falls
-     back to a small margin from the right edge. */
-  top: 1.2rem;
-  right: max(0.5rem, calc(50% - 11.25rem));
+  top: -0.4rem;
+  right: -0.4rem;
   background: transparent; border: none; color: var(--ink-faint);
   font-size: 1.4rem; cursor: pointer; padding: 0.2rem 0.5rem;
   line-height: 1;
@@ -567,21 +569,23 @@ html, body { transition: background 0.25s, color 0.25s; }
   </div>
 
   <div class="overlay" id="archive">
-    <button class="archive-close" type="button" onclick="closeArchive()" aria-label="Close archive">✕</button>
-    <div class="archive-header">
-      <div class="archive-title">Archive</div>
-      <div class="archive-subtitle"><em>Sampler · since May 17, 2026</em></div>
+    <div class="archive-content">
+      <button class="archive-close" type="button" onclick="closeArchive()" aria-label="Close archive">✕</button>
+      <div class="archive-header">
+        <div class="archive-title">Archive</div>
+        <div class="archive-subtitle"><em>Sampler · since May 17, 2026</em></div>
+      </div>
+      <div class="archive-monthnav">
+        <button class="archive-navbtn" type="button" id="archivePrevBtn" onclick="archiveShiftMonth(-1)">‹</button>
+        <div class="archive-monthlabel" id="archiveMonthLabel">—</div>
+        <button class="archive-navbtn" type="button" id="archiveNextBtn" onclick="archiveShiftMonth(1)">›</button>
+      </div>
+      <div class="archive-weekhead">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+      <div class="archive-grid" id="archiveGrid"></div>
+      <div class="archive-stats" id="archiveStats"></div>
     </div>
-    <div class="archive-monthnav">
-      <button class="archive-navbtn" type="button" id="archivePrevBtn" onclick="archiveShiftMonth(-1)">‹</button>
-      <div class="archive-monthlabel" id="archiveMonthLabel">—</div>
-      <button class="archive-navbtn" type="button" id="archiveNextBtn" onclick="archiveShiftMonth(1)">›</button>
-    </div>
-    <div class="archive-weekhead">
-      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-    </div>
-    <div class="archive-grid" id="archiveGrid"></div>
-    <div class="archive-stats" id="archiveStats"></div>
   </div>
 
   <div class="overlay" id="noPuzzle">
