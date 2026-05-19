@@ -17,7 +17,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 /* Sampler — shares Glossari's typographic / dictionary voice */
 :root {
@@ -59,7 +59,7 @@ html, body {
   height: 100%;
   background: var(--paper);
   color: var(--ink);
-  font-family: 'Lora', Georgia, serif;
+  font-family: 'Spectral', Georgia, serif;
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
@@ -96,14 +96,13 @@ html, body {
 }
 .brand { display: flex; align-items: baseline; gap: 0.5rem; }
 .title {
-  font-family: 'DM Serif Display', serif;
+  font-family: 'Yeseva One', serif;
   font-weight: 400; font-style: italic;
   font-size: 1.5rem; color: var(--ink);
   letter-spacing: -0.01em; line-height: 1;
 }
-.title-mark { color: var(--accent); font-style: normal; }
 .vol {
-  font-family: 'Lora', serif; font-style: italic;
+  font-family: 'Spectral', serif; font-style: italic;
   font-size: 0.6rem; letter-spacing: 0.08em; color: var(--ink-faint);
 }
 .header-actions { display: flex; align-items: center; gap: 0.35rem; }
@@ -127,18 +126,18 @@ html, body {
   gap: 0.5rem;
 }
 .subbar-date {
-  font-family: 'Lora', serif; font-style: italic;
+  font-family: 'Spectral', serif; font-style: italic;
   font-size: 0.55rem; color: var(--ink-faint);
   letter-spacing: 0.04em;
 }
 .block-name {
   grid-column: 2; justify-self: center;
-  font-family: 'DM Serif Display', serif;
+  font-family: 'Yeseva One', serif;
   font-style: italic; font-size: 0.85rem;
   color: var(--ink-soft); text-align: center;
 }
 .timer {
-  font-family: 'Lora', serif; font-style: italic;
+  font-family: 'Spectral', serif; font-style: italic;
   font-size: 0.6rem; color: var(--ink-faint);
   min-width: 2.4rem; text-align: right; justify-self: end;
 }
@@ -156,7 +155,7 @@ html, body { transition: background 0.25s, color 0.25s; }
   padding: 0.8rem 0 0.4rem;
 }
 .block-svg {
-  width: 100%; max-width: 360px; aspect-ratio: 1 / 1;
+  width: 100%; max-width: 26rem; aspect-ratio: 1 / 1;
   display: block;
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08));
 }
@@ -169,7 +168,7 @@ html, body { transition: background 0.25s, color 0.25s; }
 .slot.violation { stroke: var(--accent-bright); stroke-width: 4; stroke-dasharray: 4 3; }
 .slot-empty-fill { fill: var(--paper-deep); }
 .slot-label {
-  font-family: 'Lora', serif; font-size: 9px; fill: var(--ink-faint);
+  font-family: 'Spectral', serif; font-size: 9px; fill: var(--ink-faint);
   pointer-events: none;
 }
 
@@ -199,7 +198,7 @@ html, body { transition: background 0.25s, color 0.25s; }
   padding: 0.4rem 0;
 }
 .toolbar-btn {
-  font-family: 'Lora', serif; font-style: italic;
+  font-family: 'Spectral', serif; font-style: italic;
   font-size: 0.75rem;
   padding: 0.45rem 0.95rem;
   background: transparent; color: var(--ink-soft);
@@ -217,19 +216,19 @@ html, body { transition: background 0.25s, color 0.25s; }
   border-radius: 4px;
 }
 .rules-panel-title {
-  font-family: 'Lora', serif; font-style: italic;
+  font-family: 'Spectral', serif; font-style: italic;
   font-size: 0.5rem; letter-spacing: 0.28em; text-transform: uppercase;
   color: var(--ink-faint); margin-bottom: 0.4rem; text-align: center;
 }
 .rule-item {
   display: flex; align-items: baseline; gap: 0.5rem;
-  font-family: 'Lora', serif;
+  font-family: 'Spectral', serif;
   font-size: 0.78rem; line-height: 1.45;
   color: var(--ink-soft);
   padding: 0.12rem 0;
 }
 .rule-mark {
-  font-family: 'DM Serif Display', serif;
+  font-family: 'Yeseva One', serif;
   width: 0.95rem; text-align: center; flex-shrink: 0;
   color: var(--ink-ghost);
   font-style: normal;
@@ -258,12 +257,12 @@ html, body { transition: background 0.25s, color 0.25s; }
 }
 .overlay.show { display: flex; }
 .go-mark {
-  font-family: 'Lora', serif; font-style: italic;
+  font-family: 'Spectral', serif; font-style: italic;
   font-size: 0.6rem; letter-spacing: 0.28em; text-transform: uppercase;
   color: var(--accent); margin-bottom: 0.4rem;
 }
 .go-title {
-  font-family: 'DM Serif Display', serif; font-weight: 400; font-style: italic;
+  font-family: 'Yeseva One', serif; font-weight: 400; font-style: italic;
   font-size: 2.4rem; line-height: 1; margin-bottom: 0.3rem;
 }
 .go-rule {
@@ -271,7 +270,7 @@ html, body { transition: background 0.25s, color 0.25s; }
   margin: 0.9rem auto 1.2rem;
 }
 .go-sub {
-  font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.45;
+  font-family: 'Spectral', serif; font-size: 1.05rem; line-height: 1.45;
   color: var(--ink-soft); max-width: 380px; margin-bottom: 1.1rem;
 }
 .go-sub b { color: var(--ink); font-weight: 600; }
@@ -284,11 +283,11 @@ html, body { transition: background 0.25s, color 0.25s; }
 }
 .go-stat { text-align: center; }
 .go-stat-num {
-  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-family: 'Yeseva One', serif; font-style: italic;
   font-size: 1.4rem; color: var(--ink); line-height: 1;
 }
 .go-stat-lbl {
-  font-family: 'Lora', serif; font-style: italic;
+  font-family: 'Spectral', serif; font-style: italic;
   font-size: 0.5rem; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--ink-faint); margin-top: 3px;
 }
@@ -297,7 +296,7 @@ html, body { transition: background 0.25s, color 0.25s; }
   padding: 0.4rem 0.9rem;
   background: var(--gold);
   color: var(--paper);
-  font-family: 'Lora', serif; font-weight: 600; font-size: 0.7rem;
+  font-family: 'Spectral', serif; font-weight: 600; font-size: 0.7rem;
   letter-spacing: 0.14em; text-transform: uppercase;
   border-radius: 999px;
   margin-bottom: 1.2rem;
@@ -335,11 +334,11 @@ html, body { transition: background 0.25s, color 0.25s; }
   border-radius: 2px;
 }
 .share-line {
-  font-family: 'Lora', serif; font-size: 0.7rem;
+  font-family: 'Spectral', serif; font-size: 0.7rem;
   color: var(--ink-soft); margin-top: 0.3rem;
 }
 .share-copy-btn {
-  font-family: 'Lora', serif; font-style: italic; font-size: 0.85rem;
+  font-family: 'Spectral', serif; font-style: italic; font-size: 0.85rem;
   padding: 0.55rem 1.6rem; margin-top: 0.7rem;
   background: var(--ink); color: var(--paper);
   border: none; border-radius: 3px; cursor: pointer; width: 100%;
@@ -347,7 +346,7 @@ html, body { transition: background 0.25s, color 0.25s; }
 .share-copy-btn:hover { background: var(--ink-soft); }
 
 .btn {
-  font-family: 'Lora', serif; font-style: italic; font-size: 0.9rem;
+  font-family: 'Spectral', serif; font-style: italic; font-size: 0.9rem;
   padding: 0.8rem 2.2rem;
   background: var(--ink); color: var(--paper);
   border: none; border-radius: 3px; cursor: pointer;
@@ -359,7 +358,7 @@ html, body { transition: background 0.25s, color 0.25s; }
 <div class="app">
   <header class="header">
     <div class="brand">
-      <div class="title">Sam<span class="title-mark">·</span>pler</div>
+      <div class="title">Sampler</div>
       <div class="vol">daily</div>
     </div>
     <div class="header-actions">
@@ -397,16 +396,15 @@ html, body { transition: background 0.25s, color 0.25s; }
 
   <div class="overlay" id="intro">
     <div class="dict-entry-head">
-      <div style="font-family:'DM Serif Display',serif; font-weight:400; font-style:italic; font-size:clamp(2.2rem, 7vw, 3.4rem); line-height:1; color:var(--ink); margin-bottom:0.42rem;">Sam<span style="color:var(--accent); margin:0 1px; font-style:normal">·</span>pler</div>
-      <div style="font-family:'Lora',serif; font-size:0.78rem; color:var(--ink-faint); margin-bottom:0.32rem;"><em>n.</em>&nbsp;<span style="color:var(--ink-soft)">/ˈsam-plər/</span></div>
-      <div style="font-family:'Lora',serif; font-style:italic; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent);">a daily quilt-block puzzle</div>
+      <div style="font-family:'Yeseva One',serif; font-weight:400; font-style:italic; font-size:clamp(2.2rem, 7vw, 3.4rem); line-height:1; color:var(--ink); margin-bottom:0.42rem;">Sampler</div>
+      <div style="font-family:'Spectral',serif; font-style:italic; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent);">a daily quilt-block puzzle</div>
     </div>
     <div class="go-rule"></div>
     <div class="go-sub" style="text-align:left; max-width:380px;">
-      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'DM Serif Display',serif; font-style:italic; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">1.</span><span>Each day you'll piece a real quilt block: today's is the <b>Nine-Patch</b>.</span></div>
-      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'DM Serif Display',serif; font-style:italic; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">2.</span><span>Tap a fabric, then tap slots to <b>paint</b> them. Tap a different fabric to switch.</span></div>
-      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'DM Serif Display',serif; font-style:italic; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">3.</span><span>Place fabrics so <b>every rule</b> in the panel is satisfied. Violations glow red.</span></div>
-      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'DM Serif Display',serif; font-style:italic; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">4.</span><span>Each puzzle has <b>exactly one solution</b>. There's no submit button — it locks when you've got it.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Yeseva One',serif; font-style:italic; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">1.</span><span>Each day you'll piece a real quilt block: today's is the <b>Nine-Patch</b>.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Yeseva One',serif; font-style:italic; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">2.</span><span>Tap a fabric, then tap slots to <b>paint</b> them. Tap a different fabric to switch.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Yeseva One',serif; font-style:italic; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">3.</span><span>Place fabrics so <b>every rule</b> in the panel is satisfied. Violations glow red.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Yeseva One',serif; font-style:italic; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">4.</span><span>Each puzzle has <b>exactly one solution</b>. There's no submit button — it locks when you've got it.</span></div>
     </div>
     <button class="btn" id="beginBtn" onclick="beginDaily()" style="margin-top:0.6rem">Begin</button>
   </div>
@@ -1218,7 +1216,7 @@ function renderShareBlock(playDate, dayName, blockName, time) {
     return `<div class="share-grid-cell" style="background:${FABRICS[fid].hex}"></div>`;
   }).join('');
   host.innerHTML = `
-    <div style="font-family:'DM Serif Display',serif; font-style:italic; font-size:1.4rem; line-height:1;">Sam<span style="color:var(--accent); font-style:normal">·</span>pler</div>
+    <div style="font-family:'Yeseva One',serif; font-style:italic; font-size:1.4rem; line-height:1;">Sampler</div>
     <div class="share-line" style="font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-faint); margin-top:0.2rem;">${dateLabel} · ${blockName}</div>
     <div class="share-grid">${cells}</div>
     <div class="share-line"><b style="color:var(--ink)">${time}</b>${flawless ? ' · flawless' : ''}</div>
