@@ -29,26 +29,27 @@ The Nine-Patch block in Phase 1 defines this interface:
 
 `slotRect` works for grid blocks but **breaks at Churn Dash** (introduces half-square triangles) and **completely fails at Dresden Plate** (radial wedges). Likely needed before merging Phase 3:
 
-- 2026-05-18 — Generalize `slotRect(i)` to `slotPath(i)` returning either `{type:'rect', ...}` or `{type:'polygon', points: [[x,y]...]}` or `{type:'path', d: '<SVG path>'}`. The renderer in `renderBlock` (sampler.html) currently emits `<rect>` with `fill="url(#...)"` — for non-rect slots, use `<path>` with the same fill. Migration cost is small (Nine-Patch slots become `{type:'rect'}`).
-- 2026-05-18 — Same goes for selection/violation highlighting: the `.slot.selected` and `.slot.violation` CSS targets `<rect>`. Will need to also target `<path>` (or use a class-only selector).
+- ✓ 2026-05-19 — Phase 3a refactored `slotRect(i)` → `slotPath(i)` returning `{type:'rect'|'polygon'|'path', ...}`. `renderBlock` switches on type via `createSlotElement()` helper. CSS already class-only.
+- ✓ 2026-05-19 — Selection/violation CSS is class-only (`.slot.selected`/`.slot.violation`), so it works uniformly across rect/polygon/path slots.
 
 ### Direction-aware fabrics — Rail Fence is the first user
 
 Fabric metadata already includes `direction: 'horizontal' | 'vertical' | 'diagonal' | null`. Phase 1 has it on `F_INDIGO` (vertical stripe). No rule kind uses it yet.
 
-- 2026-05-18 — Rail Fence's central trick is *strip orientation*. Each Rail Fence slot is a 1×3 set of stripes; the slot's "direction" is the orientation of those stripes. This may be a slot property, not a fabric property. Decide before Rail Fence implementation: are stripes a property of the **fabric** (e.g., "indigo stripe runs vertical") or a property of the **slot rotation** (the same striped fabric placed at rotation 0 vs 90°)? Suggest: fabric carries `direction`, slot carries optional `rotation` that the renderer applies via `<g transform="rotate()">`. Rule kinds can then ask about effective-direction = fabric.direction rotated by slot.rotation.
+- ✓ 2026-05-19 — Phase 3a settled this: fabric carries intrinsic `direction`, slot carries `rotation(i)` returning 0 or 90, renderer overlays 2 thin stripe-divider `<line>` elements per slot. Effective direction = `effectiveDirection(fabric.direction, slot.rotation)` (XOR of the two). New `pattern-property` rule kind with `effective-direction` operator consumes this. Per-row alternation chosen for Rail Fence; checkerboard preserved as a one-line swap in the block's `rotation(i)` body.
 
 ### Concentric / non-orthogonal neighbors
 
 Log Cabin's natural adjacency is *radial*: each strip's neighbors are the previous and next ring, plus left/right within the ring. The `neighbors(i)` interface still works — it just returns a non-grid topology.
 
 - 2026-05-18 — Log Cabin also wants a `ring(i)` accessor (`namedSlot('ring0')` returns center, `namedSlot('ring1')` returns the first ring, etc.) so rules like "ring 2 is all warm" are expressible. Add to the block interface as an optional method.
+- partial ✓ 2026-05-19 — Phase 3a added `ring(i)` as an optional method on the block interface (Rail Fence returns `undefined`). Real implementation ships with Log Cabin in Phase 3b.
 
 ### Symmetry pairs — what's "symmetric" for radial blocks?
 
 Nine-Patch has clean reflective symmetry (vertical/horizontal/diagonal). Log Cabin has rotational symmetry. Dresden Plate has rotational symmetry of order N (number of petals).
 
-- 2026-05-18 — Add a `rotationalSymmetryGroups(order)` block method that returns groups of slots that should all be equal under N-fold rotation. The current `symmetryPairs` is too narrow.
+- ✓ 2026-05-19 — Phase 3a added `rotationalSymmetryGroups(order)` to both Nine-Patch (returns `[]`) and Rail Fence (order=2 returns 180° pairs). New `rotational-symmetry` rule kind consumes it. Templates with rotational symmetry now expressible.
 
 ### Spicy-tier rules — pattern-property and connectivity
 
@@ -142,7 +143,7 @@ Suggest (a) for Sunday: render a coarse 3×3 hue summary from each of the 4 sub-
 Phase 1's solver is **naive backtracking with rule-evaluation pruning**. For 9 slots × 6 fabrics = 10M raw assignments, well-pruned by rule violations. For 16 slots × 8 fabrics = 280 billion raw; pruning helps but may not be enough.
 
 - 2026-05-18 — Profile on Sawtooth Star (16 slots) in Phase 3. If verifyTemplate over a year of dates takes > 30s per template, switch to forward checking. Don't optimize before measuring.
-- 2026-05-19 — Code review (review #7) flagged that the current "cheap prune" only fires when `violatingSlots` for some rule are *all* ≤ current index. Rules with under-budget violations (count rules where the target isn't reached) never populate `violatingSlots` during partial fill, so they don't contribute to pruning. For Nine-Patch this is fine. **Before Phase 3 (Sawtooth Star, Dresden Plate)**, implement rule-kind-specific pruning predicates (e.g., `count` rule: prune if `min > matchingSlots + slotsRemaining` or `max < matchingSlots`). Document the pruning contract: each rule's `verify` could be extended to return a `stillPossible` flag derived from remaining slots.
+- ✓ 2026-05-19 — Phase 3a implemented `stillPossible` on the `verify()` contract. `count` rule has real forward-pruning (`matched > max` or `matched + slotsRemaining < min`). Other rules (positional/adjacency/symmetry/rotational-symmetry/pattern-property) return `stillPossible: violating.size === 0` since assigned-slot violations are permanent in solver context. Measured: warm-cool Nine-Patch verifyTemplate dropped from ~99ms to ~43ms over June 2026. Add per-rule predicates for other kinds if Sawtooth Star is slow.
 
 ### Template assignment is rotation-by-date-index, not pool-pick
 
@@ -175,6 +176,7 @@ The user explicitly named "collaboration with the algorithm" as the model: autho
 
 - 2026-05-18 — Eventually this wants a richer authoring UI (in-browser template editor with live verification + failure diagnostics). Out of scope until at least Phase 6. For now, JSON editing + console tool is fine.
 - 2026-05-18 — When verifyTemplate reports failures, the failure message should name **which rule** is over- or under-constraining. The current implementation just reports counts. Improve before Phase 4 (when Saturday templates with 6+ entangled rules become hard to debug).
+- 2026-05-19 — **Open bug discovered during Phase 3a:** `nine-patch-diagonal-v1` and `nine-patch-warm-cool-v1` both report `0 unique / 0 none / 30 multiple` under `verifyTemplate`. The breakage pre-dates Phase 3a (confirmed by running verifyTemplate against `HEAD~10`). Templates were authored without verification or the rules drifted. Mon-week-1 and Mon-week-2 currently serve non-unique puzzles. **Action:** re-author or tighten the two templates before Phase 3b ships. `nine-patch-greek-cross-v1` still verifies unique, so Mon week 0 is fine.
 
 ### Existing-file impact (cross-phase)
 
