@@ -753,6 +753,74 @@ const BLOCKS = {
       return map[name];
     },
   },
+
+  'rail-fence': {
+    id: 'rail-fence',
+    displayName: 'Rail Fence',
+    slotCount: 12,
+    // 4 rows × 3 cols of rail-fence squares. Each slot holds one fabric,
+    // rendered as 3 parallel stripes whose orientation is set by
+    // rotation(i): 0° = horizontal stripes, 90° = vertical stripes.
+    // Per-row alternation (rows 0/2 horizontal, rows 1/3 vertical) gives
+    // the classic basket-weave look. To experiment with a checkerboard
+    // pattern instead, change rotation(i) to `((Math.floor(i/3) + i%3) % 2) * 90`.
+    slotPath(i) {
+      const r = Math.floor(i / 3), c = i % 3;
+      const SLOT_W = 60, SLOT_H = 44;
+      const GAP_X = 4, GAP_Y = 4;
+      const X_OFFSET = 10, Y_OFFSET = 6;
+      return {
+        type: 'rect',
+        x: X_OFFSET + c * (SLOT_W + GAP_X),
+        y: Y_OFFSET + r * (SLOT_H + GAP_Y),
+        w: SLOT_W,
+        h: SLOT_H,
+      };
+    },
+    // Per-row stripe rotation in degrees. 0 = horizontal stripes;
+    // 90 = vertical stripes. Used by renderBlock for the stripe overlay
+    // and by the pattern-property rule for effective-direction checks.
+    rotation(i) {
+      return (Math.floor(i / 3) % 2) * 90;
+    },
+    neighbors(i) {
+      const r = Math.floor(i / 3), c = i % 3;
+      const out = [];
+      if (r > 0) out.push(i - 3);
+      if (r < 3) out.push(i + 3);
+      if (c > 0) out.push(i - 1);
+      if (c < 2) out.push(i + 1);
+      return out;
+    },
+    symmetryPairs(axis) {
+      if (axis === 'vertical')   return [[0,2],[3,5],[6,8],[9,11]];
+      if (axis === 'horizontal') return [[0,9],[1,10],[2,11],[3,6],[4,7],[5,8]];
+      // 4×3 is not square — no clean diagonal axis.
+      return [];
+    },
+    // 180° rotational symmetry pairs (i ↔ 11−i). No clean order-3 or
+    // order-4 rotation since the block is not square.
+    rotationalSymmetryGroups(order) {
+      if (order === 2) return [[0,11],[1,10],[2,9],[3,8],[4,7],[5,6]];
+      return [];
+    },
+    namedSlot(name) {
+      const map = {
+        leftColumn:   [0, 3, 6, 9],
+        middleColumn: [1, 4, 7, 10],
+        rightColumn:  [2, 5, 8, 11],
+        topRow:       [0, 1, 2],
+        bottomRow:    [9, 10, 11],
+        corners:      [0, 2, 9, 11],
+      };
+      return map[name];
+    },
+    // Rail Fence has no concentric rings; ring() is reserved for blocks
+    // like Log Cabin (Phase 3b).
+    ring(i) {
+      return undefined;
+    },
+  },
 };
 
 // ─── Templates ───────────────────────────────────────────────────────
@@ -954,6 +1022,10 @@ function verifyTemplate(templateId, dateRange) {
 window.verifyTemplate = verifyTemplate;
 window.solve = solve;
 window.instantiateTemplate = instantiateTemplate;
+window.BLOCKS = BLOCKS;
+window.TEMPLATES = TEMPLATES;
+window.FABRICS = FABRICS;
+window.RULE_KINDS = RULE_KINDS;
 
 // ─── Block renderer ──────────────────────────────────────────────────
 // Renders a block as an SVG inside the host element. Updates slot fills
