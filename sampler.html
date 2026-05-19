@@ -545,8 +545,180 @@ function undoMove() {
   renderAll();
 }
 
+// ─── Rules ───────────────────────────────────────────────────────────
+// Each rule kind has:
+//   - describe(rule, fabricsById) → human-readable text
+//   - verify(rule, fabricBySlot, block, fabricsById) → { satisfied, violatingSlots: Set<int> }
+//
+// Rules in templates are objects: { kind, ...params }. The runtime resolves
+// `kind` to the corresponding entry in RULE_KINDS.
+
+function fabricMatches(fid, constraint, fabricsById) {
+  if (!fid) return false;
+  const f = fabricsById[fid];
+  if (!f) return false;
+  if (constraint.fabricId) return f.id === constraint.fabricId;
+  return Object.entries(constraint).every(([k, v]) => {
+    if (k === 'fabricId') return true;
+    return f[k] === v;
+  });
+}
+
+function describeConstraint(c, fabricsById) {
+  if (c.fabricId) {
+    const f = fabricsById[c.fabricId];
+    return f ? f.name : c.fabricId;
+  }
+  const parts = [];
+  if (c.motif) parts.push(c.motif);
+  if (c.hue) parts.push(c.hue + ' fabrics');
+  if (c.value) parts.push(c.value + '-value');
+  if (c.scale) parts.push(c.scale + '-scale');
+  return parts.length ? parts.join(' ') : 'any fabric';
+}
+
+const RULE_KINDS = {
+  count: {
+    describe(rule, fabricsById) {
+      const c = describeConstraint(rule.constraint, fabricsById);
+      if (rule.exact !== undefined) return `Exactly ${rule.exact} ${c}.`;
+      const lo = rule.min, hi = rule.max;
+      if (lo !== undefined && hi !== undefined) return `Between ${lo} and ${hi} ${c}.`;
+      if (lo !== undefined) return `At least ${lo} ${c}.`;
+      if (hi !== undefined) return `At most ${hi} ${c}.`;
+      return '';
+    },
+    verify(rule, fabricBySlot, block, fabricsById) {
+      const matchingSlots = [];
+      fabricBySlot.forEach((fid, i) => {
+        if (fid && fabricMatches(fid, rule.constraint, fabricsById)) matchingSlots.push(i);
+      });
+      const n = matchingSlots.length;
+      let ok = true;
+      if (rule.exact !== undefined) ok = n === rule.exact;
+      else {
+        if (rule.min !== undefined && n < rule.min) ok = false;
+        if (rule.max !== undefined && n > rule.max) ok = false;
+      }
+      const violating = new Set();
+      if (!ok && rule.max !== undefined && n > rule.max) {
+        // All matching slots are over-budget; flag them all.
+        matchingSlots.forEach(i => violating.add(i));
+      }
+      // For under-budget or exact-violations we don't flag specific slots —
+      // every empty slot is a candidate.
+      return { satisfied: ok, violatingSlots: violating };
+    },
+  },
+
+  positional: {
+    describe(rule, fabricsById) {
+      const c = describeConstraint(rule.constraint, fabricsById);
+      const where = typeof rule.slot === 'string' ? rule.slot : 'slot ' + (rule.slot + 1);
+      const must = rule.must === false ? 'must NOT be' : 'must be';
+      return `The ${where} ${must} ${c}.`;
+    },
+    verify(rule, fabricBySlot, block, fabricsById) {
+      const target = typeof rule.slot === 'string' ? block.namedSlot(rule.slot) : rule.slot;
+      const slots = Array.isArray(target) ? target : [target];
+      const violating = new Set();
+      let allFilled = true;
+      let ok = true;
+      slots.forEach(i => {
+        const fid = fabricBySlot[i];
+        if (!fid) { allFilled = false; return; }
+        const matches = fabricMatches(fid, rule.constraint, fabricsById);
+        const must = rule.must !== false;
+        if (must && !matches) { ok = false; violating.add(i); }
+        if (!must && matches) { ok = false; violating.add(i); }
+      });
+      // If not all required slots are filled yet, the rule is "not yet satisfied"
+      // but we don't flag empty slots as violations.
+      return { satisfied: allFilled && ok, violatingSlots: violating };
+    },
+  },
+
+  adjacency: {
+    describe(rule, fabricsById) {
+      const a = describeConstraint(rule.a, fabricsById);
+      const b = describeConstraint(rule.b, fabricsById);
+      if (rule.relation === 'forbid') return `No ${a} may touch ${b}.`;
+      if (rule.relation === 'require-each-a-touches-b') return `Every ${a} must touch a ${b}.`;
+      return '';
+    },
+    verify(rule, fabricBySlot, block, fabricsById) {
+      const violating = new Set();
+      let ok = true;
+      const matchA = i => fabricBySlot[i] && fabricMatches(fabricBySlot[i], rule.a, fabricsById);
+      const matchB = i => fabricBySlot[i] && fabricMatches(fabricBySlot[i], rule.b, fabricsById);
+      if (rule.relation === 'forbid') {
+        for (let i = 0; i < fabricBySlot.length; i++) {
+          if (!matchA(i)) continue;
+          for (const n of block.neighbors(i)) {
+            if (matchB(n)) { ok = false; violating.add(i); violating.add(n); }
+          }
+        }
+      } else if (rule.relation === 'require-each-a-touches-b') {
+        let allFilled = true;
+        for (let i = 0; i < fabricBySlot.length; i++) {
+          if (!matchA(i)) continue;
+          const hasB = block.neighbors(i).some(n => matchB(n));
+          // Only flag if neighbors are all filled — otherwise rule isn't decidable yet.
+          const neighborsAllFilled = block.neighbors(i).every(n => fabricBySlot[n] !== null);
+          if (!hasB && neighborsAllFilled) { ok = false; violating.add(i); }
+          if (!neighborsAllFilled) allFilled = false;
+        }
+        return { satisfied: ok && allFilled, violatingSlots: violating };
+      }
+      return { satisfied: ok, violatingSlots: violating };
+    },
+  },
+
+  symmetry: {
+    describe(rule, fabricsById) {
+      return `Block has ${rule.axis} reflection symmetry.`;
+    },
+    verify(rule, fabricBySlot, block, fabricsById) {
+      const pairs = block.symmetryPairs(rule.axis);
+      const violating = new Set();
+      let ok = true;
+      let allRelevantFilled = true;
+      pairs.forEach(([a, b]) => {
+        const fa = fabricBySlot[a], fb = fabricBySlot[b];
+        if (fa === null || fb === null) { allRelevantFilled = false; return; }
+        if (fa !== fb) { ok = false; violating.add(a); violating.add(b); }
+      });
+      return { satisfied: ok && allRelevantFilled, violatingSlots: violating };
+    },
+  },
+};
+
+function evaluateRules(rules, fabricBySlot, block, fabricsById) {
+  return rules.map(rule => {
+    const kind = RULE_KINDS[rule.kind];
+    if (!kind) return { rule, satisfied: false, violatingSlots: new Set(), description: '(unknown rule)' };
+    const result = kind.verify(rule, fabricBySlot, block, fabricsById);
+    return {
+      rule,
+      satisfied: result.satisfied,
+      violatingSlots: result.violatingSlots,
+      description: kind.describe(rule, fabricsById),
+    };
+  });
+}
+
 // Boot: launch with the heritage-warm palette
 initGame('nine-patch', PALETTES['heritage-warm']);
+
+// Temporary smoke test — removed in Task 6.
+const _testRules = [
+  { kind: 'positional', slot: 'center', constraint: { fabricId: 'F_CREAM' } },
+  { kind: 'count', constraint: { hue: 'warm' }, min: 3, max: 5 },
+  { kind: 'adjacency', a: { motif: 'floral' }, b: { motif: 'floral' }, relation: 'forbid' },
+  { kind: 'symmetry', axis: 'vertical' },
+];
+window._evalRules = () => evaluateRules(_testRules, game.fabricBySlot, game.block, FABRICS);
+console.log('Smoke test: call window._evalRules() in the console with the current board.');
 </script>
 </body>
 </html>
