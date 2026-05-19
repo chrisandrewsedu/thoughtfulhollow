@@ -369,6 +369,84 @@ html, body {
 }
 .overlay.show { display: flex; }
 
+#archive {
+  padding: 1.6rem 1rem;
+  justify-content: flex-start;
+}
+.archive-inner {
+  position: relative;
+  width: 100%; max-width: 24rem;
+  display: flex; flex-direction: column; align-items: center;
+}
+.archive-close {
+  position: absolute; top: -0.2rem; right: -0.2rem;
+  background: transparent; border: none; color: var(--ink-faint);
+  font-size: 1.2rem; cursor: pointer; padding: 0.4rem 0.55rem;
+  line-height: 1;
+}
+.archive-close:hover { color: var(--ink); }
+.archive-header { text-align: center; margin-bottom: 1.1rem; }
+.archive-title {
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: 1.85rem; line-height: 1;
+}
+.archive-subtitle {
+  font-family: 'Lora', serif; font-size: 0.7rem; color: var(--ink-faint);
+  margin-top: 0.25rem;
+}
+.archive-monthnav {
+  display: flex; justify-content: center; align-items: center; gap: 1.2rem;
+  margin-bottom: 0.7rem;
+}
+.archive-navbtn {
+  background: transparent; border: none; color: var(--ink-soft);
+  font-size: 1.2rem; cursor: pointer; padding: 0.2rem 0.6rem;
+}
+.archive-navbtn:disabled { color: var(--ink-ghost); cursor: default; }
+.archive-monthlabel {
+  font-family: 'Lora', serif; font-style: italic; font-size: 0.95rem;
+  min-width: 8rem; text-align: center;
+}
+.archive-weekhead, .archive-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem; width: 100%;
+}
+.archive-weekhead > div {
+  font-family: 'Lora', serif; font-size: 0.55rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-faint); text-align: center;
+  padding: 0.3rem 0;
+}
+.archive-cell {
+  aspect-ratio: 1 / 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: 'Lora', serif; font-size: 0.95rem;
+  border: 1px solid transparent; border-radius: 4px;
+  background: transparent; color: var(--ink); cursor: pointer;
+  position: relative;
+}
+.archive-cell.empty { visibility: hidden; }
+.archive-cell.future { color: var(--ink-ghost); cursor: default; }
+.archive-cell.today { border-color: var(--accent); }
+.archive-cell.available:hover { background: var(--paper-shadow); }
+.archive-cell.completed { cursor: pointer; }
+.archive-cell .archive-mark {
+  font-size: 0.7rem; line-height: 1; margin-top: 0.05rem;
+}
+.archive-cell.solved .archive-mark { color: var(--green); }
+.archive-cell.revealed .archive-mark { color: var(--gold); }
+.archive-stats {
+  display: flex; justify-content: center; gap: 1.6rem;
+  margin-top: 1.4rem; width: 100%;
+}
+.archive-stats .archive-stat { text-align: center; }
+.archive-stats .archive-stat-num {
+  font-family: 'DM Serif Display', serif; font-size: 1.1rem; line-height: 1;
+}
+.archive-stats .archive-stat-lbl {
+  font-family: 'Lora', serif; font-size: 0.55rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-faint); margin-top: 0.18rem;
+}
+
 .go-mark {
   font-family: 'Lora', serif; font-style: italic;
   font-size: 0.6rem; letter-spacing: 0.28em; text-transform: uppercase;
@@ -436,6 +514,18 @@ html, body {
   margin-top: 0.4rem; text-decoration: underline; text-underline-offset: 2px;
 }
 .intro-practice-btn:hover { color: var(--accent); }
+.intro-actions-row {
+  display: flex; gap: 0.6rem; justify-content: center; align-items: center;
+  flex-wrap: wrap; margin-top: 0.6rem;
+}
+.btn-secondary {
+  font-family: 'Lora', serif; font-style: italic; font-size: 0.85rem;
+  padding: 0.5rem 1.1rem; border-radius: 4px;
+  background: transparent; color: var(--ink-soft);
+  border: 1px solid var(--ink-faint); cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn-secondary:hover { background: var(--paper-shadow); color: var(--ink); border-color: var(--ink-soft); }
 
 /* Tutorial */
 .tut-intro { font-family: 'Lora', serif; font-size: clamp(0.84rem, 1.2vw, 0.98rem); line-height: 1.58; color: var(--ink-soft); max-width: 400px; margin: 0 auto 1.1rem; }
@@ -736,7 +826,10 @@ html, body { transition: background 0.25s, color 0.25s; }
     </div>
     <div class="intro-actions" id="introActions">
       <button class="btn" id="beginBtn" onclick="startGame()">Begin</button>
-      <button class="intro-practice-btn" id="introPracticeBtn" onclick="startPracticeGame()">or try practice mode</button>
+      <div class="intro-actions-row">
+        <button class="btn-secondary" id="introPracticeBtn" onclick="startPracticeGame()">Practice</button>
+        <button class="btn-secondary" id="introArchiveBtn" onclick="openArchive()">Archive</button>
+      </div>
     </div>
   </div>
 
@@ -778,7 +871,30 @@ html, body { transition: background 0.25s, color 0.25s; }
     <div class="go-rule"></div>
     <div class="intro-rules" style="margin-bottom:1.1rem">You've already played today's puzzle. New puzzle at midnight.</div>
     <div class="go-stats" id="alreadyStats"></div>
-    <button class="btn" style="margin-bottom:0.8rem" onclick="startPracticeGame()">Practice Mode</button>
+    <div class="intro-actions-row" style="margin-bottom:0.8rem">
+      <button class="btn-secondary" onclick="startPracticeGame()">Practice</button>
+      <button class="btn-secondary" onclick="openArchive()">Archive</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="archive" role="dialog" aria-modal="true" aria-label="Puzzle archive">
+    <div class="archive-inner">
+      <button class="archive-close" type="button" onclick="closeArchive()" aria-label="Close archive">✕</button>
+      <div class="archive-header">
+        <div class="archive-title">Archive</div>
+        <div class="archive-subtitle"><em>Glossari · since May 17, 2026</em></div>
+      </div>
+      <div class="archive-monthnav">
+        <button class="archive-navbtn" type="button" id="archivePrevBtn" onclick="archiveShiftMonth(-1)">‹</button>
+        <div class="archive-monthlabel" id="archiveMonthLabel">—</div>
+        <button class="archive-navbtn" type="button" id="archiveNextBtn" onclick="archiveShiftMonth(1)">›</button>
+      </div>
+      <div class="archive-weekhead">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+      <div class="archive-grid" id="archiveGrid"></div>
+      <div class="archive-stats" id="archiveStats"></div>
+    </div>
   </div>
 </div>
 
@@ -807,7 +923,8 @@ fetch('glossari.json')
     document.getElementById('intro').classList.add('show');
   });
 
-const STORAGE_KEY = 'glossari_daily_v1';
+const STORAGE_KEY_V1 = 'glossari_daily_v1';
+const STORAGE_KEY = 'glossari_daily_v2';
 const LAUNCH_DATE = '2026-05-17';
 
 function dailyIndex(dateStr) {
@@ -818,7 +935,51 @@ function dailyIndex(dateStr) {
 }
 
 function todayStr() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date()); }
-function loadStorage() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+
+function etDateOffset(dateStr, offsetDays) {
+  const base = Date.parse(dateStr + 'T12:00:00Z');
+  const shifted = new Date(base + offsetDays * 86400000);
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(shifted);
+}
+function prevEtDate(dateStr) { return etDateOffset(dateStr, -1); }
+
+function migrateStorageIfNeeded() {
+  try {
+    if (localStorage.getItem(STORAGE_KEY)) return;
+    const rawV1 = localStorage.getItem(STORAGE_KEY_V1);
+    if (!rawV1) return;
+    const v1 = JSON.parse(rawV1) || {};
+    const v2 = {
+      byDate: {},
+      streak: v1.streak || 0,
+      bestStreak: v1.bestStreak || 0,
+      lastPlayedDate: v1.lastPlayedDate || null,
+      totalPlayed: v1.totalPlayed || 0,
+      totalSolved: v1.totalSolved || 0,
+      totalFlawless: v1.totalFlawless || 0,
+      totalSolveSeconds: 0,
+      solvedTimedCount: 0,
+    };
+    if (v1.lastPlayedDate && v1.lastResult) {
+      v2.byDate[v1.lastPlayedDate] = {
+        puzzleIdx: v1.lastPlayedIndex ?? 0,
+        result: v1.lastResult,
+        completedAt: Date.now(),
+        source: 'live',
+      };
+      if (v1.lastResult.allSolved && typeof v1.lastResult.elapsedSeconds === 'number') {
+        v2.totalSolveSeconds = v1.lastResult.elapsedSeconds;
+        v2.solvedTimedCount = 1;
+      }
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(v2));
+  } catch {}
+}
+
+function loadStorage() {
+  migrateStorageIfNeeded();
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+}
 function saveStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {} }
 
 const MAX_MISTAKES = 4;
@@ -829,6 +990,7 @@ let state = {
   mistakes: 0, puzzlesSolved: 0, flawless: 0, totalMistakes: 0,
   locked: false, timerStart: null, timerInterval: null, elapsed: 0,
   guessLog: [],
+  playDate: null, replay: false,
 };
 
 function shuffle(a) {
@@ -840,6 +1002,12 @@ function shuffle(a) {
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60); const s = seconds % 60;
   return m + ':' + String(s).padStart(2, '0');
+}
+
+function formatAvgTime(data) {
+  if (!data || !data.solvedTimedCount) return '—';
+  const avg = Math.round(data.totalSolveSeconds / data.solvedTimedCount);
+  return formatTime(avg);
 }
 
 function startTimer() {
@@ -855,11 +1023,25 @@ function stopTimer() {
   if (state.timerStart) { state.elapsed = Math.floor((Date.now() - state.timerStart) / 1000); }
 }
 
-function startDailyGame() {
-  const stored = loadStorage(); const today = todayStr();
-  if (stored.lastPlayedDate === today) { showAlreadyPlayed(stored); return; }
-  state.mode = 'daily'; state.puzzleIdx = dailyIndex(today);
-  resetGameState(); document.getElementById('intro').classList.remove('show'); loadPuzzle();
+function startDailyGame(dateStr, opts) {
+  dateStr = dateStr || todayStr();
+  const replay = !!(opts && opts.replay);
+  const stored = loadStorage();
+  const existing = stored.byDate && stored.byDate[dateStr];
+  if (existing && !replay) {
+    if (dateStr === todayStr()) { showAlreadyPlayed(stored); return; }
+    // shouldn't normally happen — archive cell click for completed day always passes replay:true
+    showAlreadyPlayed(stored); return;
+  }
+  state.mode = 'daily';
+  state.playDate = dateStr;
+  state.replay = replay;
+  state.puzzleIdx = dailyIndex(dateStr);
+  resetGameState();
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  document.getElementById('reveal').classList.remove('show');
+  loadPuzzle();
 }
 
 function startPracticeGame() {
@@ -869,6 +1051,135 @@ function startPracticeGame() {
   document.getElementById('alreadyPlayed').classList.remove('show');
   document.getElementById('reveal').classList.remove('show');
   loadPuzzle();
+}
+
+let archiveViewMonth = null; // {year, month} where month is 0-indexed
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const archiveEl = document.getElementById('archive');
+  if (archiveEl && archiveEl.classList.contains('show')) {
+    closeArchive();
+  }
+});
+
+function openArchive() {
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  const today = todayStr();
+  const [y, m] = today.split('-').map(Number);
+  archiveViewMonth = { year: y, month: m - 1 };
+  renderArchive();
+  document.getElementById('archive').classList.add('show');
+}
+
+function closeArchive() {
+  document.getElementById('archive').classList.remove('show');
+  const stored = loadStorage();
+  const today = todayStr();
+  if (stored.byDate && stored.byDate[today]) {
+    showAlreadyPlayed(stored);
+  } else {
+    document.getElementById('intro').classList.add('show');
+  }
+}
+
+function archiveShiftMonth(delta) {
+  if (!archiveViewMonth) return;
+  const d = new Date(archiveViewMonth.year, archiveViewMonth.month + delta, 1);
+  archiveViewMonth = { year: d.getFullYear(), month: d.getMonth() };
+  renderArchive();
+}
+
+function renderArchive() {
+  if (!archiveViewMonth) return;
+  const { year, month } = archiveViewMonth;
+  const firstOfMonth = new Date(year, month, 1);
+  const monthLabel = firstOfMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  document.getElementById('archiveMonthLabel').textContent = monthLabel;
+
+  const today = todayStr();
+  const [launchY, launchM, launchD] = LAUNCH_DATE.split('-').map(Number);
+  const launchDate = new Date(launchY, launchM - 1, launchD);
+  const [ty, tm, td] = today.split('-').map(Number);
+  const todayDate = new Date(ty, tm - 1, td);
+
+  const prevBtn = document.getElementById('archivePrevBtn');
+  const nextBtn = document.getElementById('archiveNextBtn');
+  const prevMonth = new Date(year, month - 1, 1);
+  const nextMonth = new Date(year, month + 1, 1);
+  const lastOfPrevMonth = new Date(year, month, 0);
+  const firstOfNextMonth = nextMonth;
+  prevBtn.disabled = lastOfPrevMonth < launchDate;
+  nextBtn.disabled = firstOfNextMonth > todayDate;
+
+  const stored = loadStorage();
+  const byDate = stored.byDate || {};
+
+  const grid = document.getElementById('archiveGrid');
+  grid.innerHTML = '';
+  const firstWeekday = firstOfMonth.getDay();
+  for (let i = 0; i < firstWeekday; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'archive-cell empty';
+    grid.appendChild(cell);
+  }
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateObj = new Date(year, month, day);
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const cell = document.createElement('div');
+    cell.className = 'archive-cell';
+    const numEl = document.createElement('div');
+    numEl.textContent = day;
+    cell.appendChild(numEl);
+
+    const isBeforeLaunch = dateObj < launchDate;
+    const isFuture = dateObj > todayDate;
+    const isToday = dateStr === today;
+    const entry = byDate[dateStr];
+
+    if (isBeforeLaunch || isFuture) {
+      cell.classList.add(isFuture ? 'future' : 'empty');
+      if (isBeforeLaunch) cell.classList.add('empty');
+    } else {
+      if (isToday) cell.classList.add('today');
+      if (entry) {
+        cell.classList.add('completed');
+        const allSolved = entry.result && entry.result.allSolved;
+        cell.classList.add(allSolved ? 'solved' : 'revealed');
+        const mark = document.createElement('div');
+        mark.className = 'archive-mark';
+        mark.textContent = allSolved ? '✓' : '◊';
+        cell.appendChild(mark);
+        cell.onclick = () => archiveCellClick(dateStr, true);
+      } else {
+        cell.classList.add('available');
+        cell.onclick = () => archiveCellClick(dateStr, false);
+      }
+    }
+    grid.appendChild(cell);
+  }
+
+  const statsEl = document.getElementById('archiveStats');
+  statsEl.innerHTML = '';
+  [
+    ['Streak', stored.streak || 0],
+    ['Played', stored.totalPlayed || 0],
+    ['Flawless', stored.totalFlawless || 0],
+    ['Avg Time', formatAvgTime(stored)],
+  ].forEach(([label, val]) => {
+    const stat = document.createElement('div');
+    stat.className = 'archive-stat';
+    const num = document.createElement('div'); num.className = 'archive-stat-num'; num.textContent = val;
+    const lbl = document.createElement('div'); lbl.className = 'archive-stat-lbl'; lbl.textContent = label;
+    stat.appendChild(num); stat.appendChild(lbl); statsEl.appendChild(stat);
+  });
+}
+
+function archiveCellClick(dateStr, isReplay) {
+  document.getElementById('archive').classList.remove('show');
+  startDailyGame(dateStr, { replay: isReplay });
 }
 
 function resetGameState() { state.puzzlesSolved = 0; state.flawless = 0; state.totalMistakes = 0; state.puzzleMarksByEntry = []; }
@@ -886,8 +1197,11 @@ function loadPuzzle() {
   state.items.push(...shuffle(tileItems));
   state.solvedSets = puzzle.sets.map(_ => false); state.revealedSets = puzzle.sets.map(_ => false);
   document.getElementById('puzzleName').textContent = puzzle.name;
-  const d = new Date();
-  document.getElementById('subbarDate').textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const playDate = state.playDate || todayStr();
+  const isLive = playDate === todayStr();
+  const d = new Date(playDate + 'T12:00:00Z');
+  const dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+  document.getElementById('subbarDate').textContent = isLive ? dateLabel : 'Archive · ' + dateLabel;
   renderMistakes(); renderAll(); updateSubmit(); startTimer();
 }
 
@@ -1135,15 +1449,40 @@ function finishPuzzle(success) {
   if (success) { state.puzzlesSolved++; if (state.mistakes === 0) state.flawless++; showBadge('correct', 'Puzzle Solved', 'on to the next'); }
   else { state.solvedSets.forEach((s, i) => { if (!s) state.revealedSets[i] = true; }); renderAll(); showBadge('wrong', 'Solutions', 'revealed above'); }
   state.locked = true;
-  if (state.mode === 'daily') {
-    const stored = loadStorage(); const allSolved = state.puzzleMarksByEntry.every(m => m === 'solved');
-    const result = { marks: state.puzzleMarksByEntry, elapsedSeconds: state.elapsed, mistakesUsed: state.mistakes, allSolved, flawless: allSolved && state.mistakes === 0 };
-    const yesterday = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(Date.now() - 86400000));
-    const streakBase = stored.lastPlayedDate === yesterday ? (stored.streak || 0) : 0;
-    const newStreak = allSolved ? streakBase + 1 : 0;
-    saveStorage({ lastPlayedDate: todayStr(), lastPlayedIndex: state.puzzleIdx, lastResult: result, streak: newStreak, bestStreak: Math.max(newStreak, stored.bestStreak || 0), totalPlayed: (stored.totalPlayed || 0) + 1, totalSolved: (stored.totalSolved || 0) + (allSolved ? 1 : 0), totalFlawless: (stored.totalFlawless || 0) + (result.flawless ? 1 : 0) });
-  }
+  if (state.mode === 'daily') recordCompletion();
   setTimeout(() => showReveal(), success ? 1900 : 3500);
+}
+
+function recordCompletion() {
+  if (state.replay) return;
+  const playDate = state.playDate || todayStr();
+  const isLive = playDate === todayStr();
+  const result = buildCurrentResult();
+  const allSolved = result.allSolved;
+  const data = loadStorage();
+  if (!data.byDate) data.byDate = {};
+  data.byDate[playDate] = {
+    puzzleIdx: state.puzzleIdx,
+    result,
+    completedAt: Date.now(),
+    source: isLive ? 'live' : 'archive',
+  };
+  data.totalPlayed = (data.totalPlayed || 0) + 1;
+  if (allSolved) {
+    data.totalSolved = (data.totalSolved || 0) + 1;
+    data.totalSolveSeconds = (data.totalSolveSeconds || 0) + state.elapsed;
+    data.solvedTimedCount = (data.solvedTimedCount || 0) + 1;
+    if (result.flawless) data.totalFlawless = (data.totalFlawless || 0) + 1;
+  }
+  if (isLive) {
+    const yesterday = prevEtDate(todayStr());
+    const streakBase = data.lastPlayedDate === yesterday ? (data.streak || 0) : 0;
+    const newStreak = allSolved ? streakBase + 1 : 0;
+    data.streak = newStreak;
+    data.bestStreak = Math.max(newStreak, data.bestStreak || 0);
+    data.lastPlayedDate = todayStr();
+  }
+  saveStorage(data);
 }
 
 function buildCurrentResult() {
@@ -1153,10 +1492,14 @@ function buildCurrentResult() {
 
 function showReveal() {
   const puzzle = PUZZLES[state.puzzleIdx]; const stored = loadStorage();
-  const dateStr = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const result = state.mode === 'daily' ? (stored.lastResult || buildCurrentResult()) : buildCurrentResult();
+  const playDate = state.playDate || todayStr();
+  const dateStr = new Date(playDate + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/New_York' });
+  const persisted = stored.byDate && stored.byDate[playDate];
+  const result = state.mode === 'daily' && persisted && !state.replay
+    ? persisted.result
+    : buildCurrentResult();
   if (state.mode === 'daily') {
-    const puzzleNum = dailyIndex(todayStr()) + 1;
+    const puzzleNum = dailyIndex(playDate) + 1;
     document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Daily No. ${puzzleNum} —</div><div class="reveal-title">${puzzle.name}</div><div class="reveal-date">${dateStr}</div>`;
   } else {
     document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Practice —</div><div class="reveal-title">${puzzle.name}</div>`;
@@ -1170,9 +1513,10 @@ function showReveal() {
     div.innerHTML = `<div class="dict-headword">${partsHtml}</div><div class="dict-pos">${s.pos} <span class="dict-badge">${isSolved ? 'Solved' : 'Revealed'}</span></div><div class="dict-row"><span class="dict-sym">❦</span><span class="dict-text">${s.definition}</span></div><div class="dict-row"><span class="dict-sym">§</span><span class="dict-text">${s.etymology}</span></div><div class="dict-row"><span class="dict-sym">¶</span><span class="dict-text">${s.example}</span></div><div class="dict-row"><span class="dict-sym">≡</span><span class="dict-text">${s.synonyms}</span></div><div class="dict-row"><span class="dict-sym">≠</span><span class="dict-text">${s.antonyms}</span></div>`;
     entriesEl.appendChild(div);
   });
-  const puzzleNum = state.mode === 'daily' ? dailyIndex(todayStr()) + 1 : null;
+  const puzzleNum = state.mode === 'daily' ? dailyIndex(state.playDate || todayStr()) + 1 : null;
   const shareStored = state.mode === 'daily' ? stored : {};
-  document.getElementById('shareBlock').innerHTML = buildShareBlockHTML(shareStored, puzzle, puzzleNum, result);
+  const sharePlayDate = state.mode === 'daily' ? (state.playDate || todayStr()) : null;
+  document.getElementById('shareBlock').innerHTML = buildShareBlockHTML(shareStored, puzzle, puzzleNum, result, sharePlayDate);
   document.getElementById('practiceLink').style.display = 'inline';
   document.getElementById('reveal').classList.add('show');
 }
@@ -1193,14 +1537,16 @@ const PERF_WORDS = [
 
 function perfWordFor(result) { return PERF_WORDS.find(p => p.condition(result)); }
 
-function buildShareBlockHTML(stored, puzzle, puzzleNum, result) {
+function buildShareBlockHTML(stored, puzzle, puzzleNum, result, playDate) {
   const marks = result.marks || [];
   const timeStr = result.elapsedSeconds != null ? formatTime(result.elapsedSeconds) : '—';
   const errStr = result.mistakesUsed === 0 ? 'no errors' : result.mistakesUsed === 1 ? '1 mistake' : `${result.mistakesUsed} mistakes`;
   const solvedCount = marks.filter(m => m === 'solved').length;
   const perf = perfWordFor(result);
   const puzzleLabel = puzzleNum != null ? `No. ${puzzleNum}` : 'Practice';
-  const dateStr = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const dateStr = playDate
+    ? new Date(playDate + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' })
+    : new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
   const SYM = { correct: '❧', partial: '◆', wrong: '·' };
   const guessLog = state.guessLog || [];
@@ -1232,6 +1578,7 @@ function buildShareBlockHTML(stored, puzzle, puzzleNum, result) {
       <div class="share-stat"><div class="share-stat-num">${stored.streak || 0}</div><div class="share-stat-lbl">Streak</div></div>
       <div class="share-stat"><div class="share-stat-num">${stored.totalPlayed || 0}</div><div class="share-stat-lbl">Played</div></div>
       <div class="share-stat"><div class="share-stat-num">${stored.totalFlawless || 0}</div><div class="share-stat-lbl">Flawless</div></div>
+      <div class="share-stat"><div class="share-stat-num">${formatAvgTime(stored)}</div><div class="share-stat-lbl">Avg Time</div></div>
     </div>
     <div class="share-perf">
       <div class="share-perf-word"><span class="share-sym">❦</span>${perf.word}<span class="share-perf-pos">${perf.pos}</span></div>
@@ -1277,7 +1624,7 @@ function copyResult() {
 function showAlreadyPlayed(stored) {
   document.getElementById('intro').classList.remove('show');
   const statsEl = document.getElementById('alreadyStats'); statsEl.textContent = '';
-  [['Streak', stored.streak || 0], ['Played', stored.totalPlayed || 0], ['Flawless', stored.totalFlawless || 0]].forEach(([label, val]) => {
+  [['Streak', stored.streak || 0], ['Played', stored.totalPlayed || 0], ['Flawless', stored.totalFlawless || 0], ['Avg Time', formatAvgTime(stored)]].forEach(([label, val]) => {
     const div = document.createElement('div'); div.className = 'go-stat';
     const num = document.createElement('div'); num.className = 'go-stat-num'; num.textContent = val;
     const lbl = document.createElement('div'); lbl.className = 'go-stat-label'; lbl.textContent = label;
