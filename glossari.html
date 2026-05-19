@@ -1502,7 +1502,8 @@ function showReveal() {
   });
   const puzzleNum = state.mode === 'daily' ? dailyIndex(state.playDate || todayStr()) + 1 : null;
   const shareStored = state.mode === 'daily' ? stored : {};
-  document.getElementById('shareBlock').innerHTML = buildShareBlockHTML(shareStored, puzzle, puzzleNum, result);
+  const sharePlayDate = state.mode === 'daily' ? (state.playDate || todayStr()) : null;
+  document.getElementById('shareBlock').innerHTML = buildShareBlockHTML(shareStored, puzzle, puzzleNum, result, sharePlayDate);
   document.getElementById('practiceLink').style.display = 'inline';
   document.getElementById('reveal').classList.add('show');
 }
@@ -1523,14 +1524,16 @@ const PERF_WORDS = [
 
 function perfWordFor(result) { return PERF_WORDS.find(p => p.condition(result)); }
 
-function buildShareBlockHTML(stored, puzzle, puzzleNum, result) {
+function buildShareBlockHTML(stored, puzzle, puzzleNum, result, playDate) {
   const marks = result.marks || [];
   const timeStr = result.elapsedSeconds != null ? formatTime(result.elapsedSeconds) : '—';
   const errStr = result.mistakesUsed === 0 ? 'no errors' : result.mistakesUsed === 1 ? '1 mistake' : `${result.mistakesUsed} mistakes`;
   const solvedCount = marks.filter(m => m === 'solved').length;
   const perf = perfWordFor(result);
   const puzzleLabel = puzzleNum != null ? `No. ${puzzleNum}` : 'Practice';
-  const dateStr = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const dateStr = playDate
+    ? new Date(playDate + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' })
+    : new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
   const SYM = { correct: '❧', partial: '◆', wrong: '·' };
   const guessLog = state.guessLog || [];
