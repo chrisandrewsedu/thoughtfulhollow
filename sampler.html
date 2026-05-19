@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sampler · Daily</title>
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('th_theme');
+      var resolved = (t === 'light' || t === 'dark')
+        ? t
+        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', resolved);
+    } catch (e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fascinate&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Sampler — shares Glossari's typographic / dictionary voice */
+:root {
+  --paper: #ffffff;
+  --paper-deep: #f7f7f5;
+  --paper-shadow: #e8e8e4;
+  --ink: #111111;
+  --ink-soft: #444444;
+  --ink-faint: #888888;
+  --ink-ghost: #cccccc;
+  --accent: #c01818;
+  --accent-bright: #d83030;
+  --accent-deep: #8a0f0f;
+  --gold: #8a6c18;
+  --gold-bright: #b08c30;
+  --green: #1a6630;
+  --green-bright: #2e8a4a;
+}
+:root[data-theme="dark"] {
+  --paper: #111111;
+  --paper-deep: #181818;
+  --paper-shadow: #222222;
+  --ink: #f0f0ee;
+  --ink-soft: #c0c0bc;
+  --ink-faint: #787878;
+  --ink-ghost: #333333;
+  --accent: #e04040;
+  --accent-bright: #ee6060;
+  --accent-deep: #c01818;
+  --gold: #c09040;
+  --gold-bright: #d4a850;
+  --green: #3a9a58;
+  --green-bright: #58b870;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Spectral', Georgia, serif;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+@media (min-width: 560px) {
+  .app { border-left: 1px solid var(--paper-shadow); border-right: 1px solid var(--paper-shadow); }
+}
+@media (min-width: 700px) {
+  html { font-size: 120%; }
+  .app { max-width: 680px; }
+}
+@media (min-width: 1000px) {
+  html { font-size: 135%; }
+  .app { max-width: 760px; }
+}
+@media (min-width: 1300px) {
+  html { font-size: 150%; }
+  .app { max-width: 840px; }
+}
+@media (min-width: 1600px) {
+  html { font-size: 165%; }
+  .app { max-width: 920px; }
+}
+@media (min-width: 2000px) {
+  html { font-size: 180%; }
+  .app { max-width: 1020px; }
+}
+
+.header {
+  padding: 0.9rem 1rem 0.7rem;
+  border-bottom: 1px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.brand { display: flex; align-items: baseline; gap: 0.5rem; cursor: pointer; }
+.brand:hover .title { color: var(--accent); }
+.title {
+  font-family: 'Fascinate', serif;
+  font-weight: 400;
+  font-size: 1.5rem; color: var(--ink);
+  letter-spacing: -0.01em; line-height: 1;
+}
+.vol {
+  font-family: 'Spectral', serif; font-style: italic;
+  font-size: 0.6rem; letter-spacing: 0.08em; color: var(--ink-faint);
+}
+.header-actions { display: flex; align-items: center; gap: 0.35rem; }
+.header-icon-btn {
+  background: transparent; border: 1px solid var(--ink-ghost);
+  border-radius: 50%; width: 26px; height: 26px;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--ink-faint); padding: 0;
+  transition: color 0.15s, border-color 0.15s;
+}
+.header-icon-btn:hover { color: var(--accent); border-color: var(--accent); }
+.theme-toggle .theme-icon { display: none; }
+:root[data-theme="light"] .theme-icon-light { display: block; }
+:root[data-theme="dark"]  .theme-icon-dark  { display: block; }
+
+.subbar {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0.3rem 1rem 0.32rem;
+  border-bottom: 1px solid var(--paper-shadow);
+  gap: 0.5rem;
+}
+.subbar-date {
+  font-family: 'Spectral', serif; font-style: italic;
+  font-size: 0.55rem; color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+.block-name {
+  grid-column: 2; justify-self: center;
+  font-family: 'Fascinate', serif;
+  font-size: 0.85rem;
+  color: var(--ink-soft); text-align: center;
+}
+.timer {
+  font-family: 'Spectral', serif; font-style: italic;
+  font-size: 0.6rem; color: var(--ink-faint);
+  min-width: 2.4rem; text-align: right; justify-self: end;
+}
+
+.main {
+  flex: 1; display: flex; flex-direction: column;
+  min-height: 0; overflow-y: auto;
+  padding: 0.4rem 1rem 1rem;
+}
+
+html, body { transition: background 0.25s, color 0.25s; }
+
+.block-stage {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0.8rem 0 0.4rem;
+}
+#blockHost {
+  width: 80%;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+.block-svg {
+  width: 100%;
+  max-width: calc(100vh - 12rem);
+  aspect-ratio: 1 / 1;
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08));
+}
+:root[data-theme="dark"] .block-svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
+.slot {
+  cursor: pointer;
+  transition: stroke 0.15s, stroke-width 0.15s;
+}
+.slot.selected { stroke: var(--accent); stroke-width: 3; }
+.slot.violation { stroke: var(--accent-bright); stroke-width: 4; stroke-dasharray: 4 3; }
+.slot-label {
+  font-family: 'Spectral', serif; font-size: 9px; fill: var(--ink-faint);
+  pointer-events: none;
+}
+
+.palette {
+  display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap;
+  padding: 0.8rem 0.4rem 0.3rem;
+}
+.palette-swatch-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0.22rem; max-width: 4rem;
+}
+.palette-swatch {
+  width: 2.6rem; height: 2.6rem;
+  border: 2px solid var(--ink-ghost); border-radius: 4px;
+  cursor: pointer; padding: 0;
+  display: block; position: relative;
+  transition: transform 0.12s, border-color 0.15s, box-shadow 0.15s;
+}
+.palette-swatch:hover { border-color: var(--ink-faint); }
+.palette-swatch.selected {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.palette-swatch svg { display: block; width: 100%; height: 100%; }
+.palette-swatch.erase { border-style: dashed; background: transparent; color: var(--ink-faint); font-size: 1.05rem; line-height: 1; display: flex; align-items: center; justify-content: center; }
+.palette-swatch.erase.selected { color: var(--accent); }
+.palette-label {
+  font-family: 'Spectral', serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  text-align: center;
+  line-height: 1.2;
+  user-select: none;
+}
+.palette-swatch-wrap.selected .palette-label { color: var(--accent); }
+
+.toolbar {
+  display: flex; gap: 0.5rem; justify-content: center;
+  padding: 0.4rem 0;
+}
+.toolbar-btn {
+  font-family: 'Spectral', serif; font-style: italic;
+  font-size: 0.75rem;
+  padding: 0.45rem 0.95rem;
+  background: transparent; color: var(--ink-soft);
+  border: 1px solid var(--ink-ghost); border-radius: 3px;
+  cursor: pointer;
+}
+.toolbar-btn:hover { border-color: var(--ink-faint); color: var(--ink); }
+.toolbar-btn:disabled { opacity: 0.3; cursor: default; }
+
+.rules-panel {
+  margin: 0.6rem 0 0.4rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--paper-deep);
+  border: 1px solid var(--paper-shadow);
+  border-radius: 4px;
+}
+.rules-panel-title {
+  font-family: 'Spectral', serif; font-style: italic;
+  font-size: 0.5rem; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--ink-faint); margin-bottom: 0.4rem; text-align: center;
+}
+.rule-item {
+  display: flex; align-items: baseline; gap: 0.5rem;
+  font-family: 'Spectral', serif;
+  font-size: 0.78rem; line-height: 1.45;
+  color: var(--ink-soft);
+  padding: 0.12rem 0;
+}
+.rule-mark {
+  font-family: 'Fascinate', serif;
+  width: 0.95rem; text-align: center; flex-shrink: 0;
+  color: var(--ink-ghost);
+}
+.rule-item.satisfied .rule-mark { color: var(--green); }
+.rule-item.satisfied .rule-text { color: var(--ink-soft); }
+.rule-item.violating .rule-mark { color: var(--accent); }
+.rule-item.violating .rule-text { color: var(--accent); }
+
+.block-svg.reveal-anim {
+  animation: blockSettle 0.7s ease-out;
+}
+@keyframes blockSettle {
+  0% { transform: scale(1); }
+  35% { transform: scale(0.97); filter: drop-shadow(0 0 14px var(--accent-bright)); }
+  100% { transform: scale(1); }
+}
+
+.overlay {
+  position: absolute; inset: 0;
+  background: var(--paper);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 1.6rem 1.3rem;
+  z-index: 10; text-align: center; overflow-y: auto;
+}
+.overlay.show { display: flex; }
+.go-mark {
+  font-family: 'Spectral', serif; font-style: italic;
+  font-size: 0.6rem; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 0.4rem;
+}
+.go-title {
+  font-family: 'Fascinate', serif; font-weight: 400;
+  font-size: 2.4rem; line-height: 1; margin-bottom: 0.3rem;
+}
+.go-rule {
+  width: 32px; height: 1px; background: var(--ink);
+  margin: 0.9rem auto 1.2rem;
+}
+.go-sub {
+  font-family: 'Spectral', serif; font-size: 1.05rem; line-height: 1.45;
+  color: var(--ink-soft); max-width: 380px; margin-bottom: 1.1rem;
+}
+.go-sub b { color: var(--ink); font-weight: 600; }
+.go-stats {
+  display: flex; gap: 1.4rem;
+  padding: 0.65rem 1.2rem;
+  border-top: 1px solid var(--paper-shadow);
+  border-bottom: 1px solid var(--paper-shadow);
+  margin-bottom: 1.3rem;
+}
+.go-stat { text-align: center; }
+.go-stat-num {
+  font-family: 'Fascinate', serif;
+  font-size: 1.4rem; color: var(--ink); line-height: 1;
+}
+.go-stat-lbl {
+  font-family: 'Spectral', serif; font-style: italic;
+  font-size: 0.5rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-faint); margin-top: 3px;
+}
+.streak-pill {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  background: var(--gold);
+  color: var(--paper);
+  font-family: 'Spectral', serif; font-weight: 600; font-size: 0.7rem;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  border-radius: 999px;
+  margin-bottom: 1.2rem;
+}
+:root[data-theme="dark"] .streak-pill { background: var(--gold-bright); color: var(--ink); }
+.streak-pill .star { color: var(--paper); }
+:root[data-theme="dark"] .streak-pill .star { color: var(--ink); }
+.go-icon {
+  width: 56px; height: 56px;
+  background: var(--gold);
+  border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-bottom: 0.9rem;
+  color: var(--paper);
+}
+:root[data-theme="dark"] .go-icon { background: var(--gold-bright); color: var(--ink); }
+
+.share-block {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 4px;
+  padding: 1rem 1.1rem 0.9rem;
+  text-align: center;
+  margin: 0 0 1rem;
+  max-width: 360px;
+  width: 100%;
+}
+:root[data-theme="dark"] .share-block { border-color: var(--ink-soft); }
+
+.share-block-svg {
+  width: 100%; max-width: 13rem;
+  margin: 0.9rem auto 0.7rem;
+}
+.share-block-svg .block-svg {
+  max-width: 100%;
+  filter: none;
+}
+.share-line {
+  font-family: 'Spectral', serif; font-size: 0.7rem;
+  color: var(--ink-soft); margin-top: 0.3rem;
+}
+.share-copy-btn {
+  font-family: 'Spectral', serif; font-style: italic; font-size: 0.85rem;
+  padding: 0.55rem 1.6rem; margin-top: 0.7rem;
+  background: var(--ink); color: var(--paper);
+  border: none; border-radius: 3px; cursor: pointer; width: 100%;
+}
+.share-copy-btn:hover { background: var(--ink-soft); }
+
+.btn {
+  font-family: 'Spectral', serif; font-style: italic; font-size: 0.9rem;
+  padding: 0.8rem 2.2rem;
+  background: var(--ink); color: var(--paper);
+  border: none; border-radius: 3px; cursor: pointer;
+}
+.btn:hover { background: var(--ink-soft); }
+
+@media (min-width: 700px) {
+  #rulesList {
+    column-count: 2;
+    column-gap: 1.2rem;
+  }
+  .rule-item {
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+  }
+}
+.intro-actions-row {
+  display: flex; gap: 0.6rem; justify-content: center; align-items: center;
+  flex-wrap: wrap; margin-top: 0.6rem;
+}
+.btn-secondary {
+  font-family: 'Spectral', serif; font-style: italic; font-size: 0.85rem;
+  padding: 0.5rem 1.1rem; border-radius: 4px;
+  background: transparent; color: var(--ink-soft);
+  border: 1px solid var(--ink-faint); cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn-secondary:hover { background: var(--paper-shadow); color: var(--ink); border-color: var(--ink-soft); }
+#archive { padding: 1.6rem 1rem; }
+.archive-content {
+  position: relative;
+  width: 100%;
+  max-width: 22rem;
+  margin: 0 auto;
+}
+.archive-close {
+  position: absolute;
+  top: -0.4rem;
+  right: -0.4rem;
+  background: transparent; border: none; color: var(--ink-faint);
+  font-size: 1.4rem; cursor: pointer; padding: 0.2rem 0.5rem;
+  line-height: 1;
+}
+.archive-close:hover { color: var(--ink); }
+.archive-header { text-align: center; margin-bottom: 1.1rem; }
+.archive-title {
+  font-family: 'Fascinate', serif;
+  font-size: 1.85rem; line-height: 1;
+}
+.archive-subtitle {
+  font-family: 'Spectral', serif; font-size: 0.7rem; color: var(--ink-faint);
+  margin-top: 0.25rem;
+}
+.archive-monthnav {
+  display: flex; justify-content: center; align-items: center; gap: 1.2rem;
+  margin-bottom: 0.7rem;
+}
+.archive-navbtn {
+  background: transparent; border: none; color: var(--ink-soft);
+  font-size: 1.2rem; cursor: pointer; padding: 0.2rem 0.6rem;
+}
+.archive-navbtn:disabled { color: var(--ink-ghost); cursor: default; }
+.archive-monthlabel {
+  font-family: 'Spectral', serif; font-style: italic; font-size: 0.95rem;
+  min-width: 8rem; text-align: center;
+}
+.archive-weekhead, .archive-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem; max-width: 22rem; margin: 0 auto;
+}
+.archive-weekhead > div {
+  font-family: 'Spectral', serif; font-size: 0.55rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-faint); text-align: center;
+  padding: 0.3rem 0;
+}
+.archive-cell {
+  aspect-ratio: 1 / 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: 'Spectral', serif; font-size: 0.95rem;
+  border: 1px solid transparent; border-radius: 4px;
+  background: transparent; color: var(--ink); cursor: pointer;
+  position: relative;
+}
+.archive-cell.empty { visibility: hidden; }
+.archive-cell.future { color: var(--ink-ghost); cursor: default; }
+.archive-cell.today { border-color: var(--accent); }
+.archive-cell.available:hover { background: var(--paper-shadow); }
+.archive-cell.completed { cursor: pointer; }
+.archive-cell .archive-mark {
+  font-size: 0.7rem; line-height: 1; margin-top: 0.05rem;
+}
+.archive-cell.solved .archive-mark { color: var(--green); }
+.archive-cell.revealed .archive-mark { color: var(--gold); }
+.archive-stats {
+  display: flex; justify-content: center; gap: 1.6rem;
+  margin-top: 1.2rem; max-width: 22rem; margin-left: auto; margin-right: auto;
+}
+.archive-stats .archive-stat { text-align: center; }
+.archive-stats .archive-stat-num {
+  font-family: 'Fascinate', serif; font-size: 1.1rem; line-height: 1;
+}
+.archive-stats .archive-stat-lbl {
+  font-family: 'Spectral', serif; font-size: 0.55rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-faint); margin-top: 0.18rem;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="brand" onclick="goHome()">
+      <div class="title">Sampler</div>
+      <div class="vol">daily</div>
+    </div>
+    <div class="header-actions">
+      <button class="theme-toggle header-icon-btn" id="themeToggle" aria-label="Toggle theme" type="button">
+        <svg class="theme-icon theme-icon-light" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+        <svg class="theme-icon theme-icon-dark" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="subbar">
+    <div class="subbar-date" id="subbarDate"></div>
+    <div class="block-name" id="blockName">—</div>
+    <div class="timer" id="timer">—</div>
+  </div>
+
+  <main class="main" id="main"></main>
+
+  <div class="overlay" id="completion">
+    <div class="go-icon" aria-hidden="true">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z"/></svg>
+    </div>
+    <div class="go-title">Congratulations!</div>
+    <div class="go-rule"></div>
+    <div class="go-sub" id="completionSub">—</div>
+    <div class="streak-pill" id="completionStreak" style="display:none">
+      <span class="star">★</span><span id="completionStreakText">—</span>
+    </div>
+    <div class="go-stats" id="completionStats"></div>
+    <div class="share-block" id="completionShare"></div>
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center">
+      <button class="btn" onclick="closeCompletion()">Close</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="intro">
+    <div class="dict-entry-head">
+      <div style="font-family:'Fascinate',serif; font-weight:400; font-size:clamp(2.2rem, 7vw, 3.4rem); line-height:1; color:var(--ink); margin-bottom:0.42rem;">Sampler</div>
+      <div style="font-family:'Spectral',serif; font-style:italic; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent);">a daily quilt-block puzzle</div>
+    </div>
+    <div class="go-rule"></div>
+    <div class="go-sub" style="text-align:left; max-width:380px;">
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">1.</span><span>Each day you'll piece a real quilt block: today's is the <b>Nine-Patch</b>.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">2.</span><span>Tap a fabric, then tap slots to <b>paint</b> them. Tap a different fabric to switch.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">3.</span><span>Place fabrics so <b>every rule</b> in the panel is satisfied. Violations glow red.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">4.</span><span>Each puzzle has <b>exactly one solution</b>. There's no submit button — it locks when you've got it.</span></div>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0.4rem; margin-top:0.6rem">
+      <button class="btn" id="beginBtn" onclick="beginDaily()">Begin</button>
+      <div class="intro-actions-row">
+        <button class="btn-secondary" onclick="openArchive()">Archive</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="alreadyPlayed">
+    <div class="go-mark">— Daily Complete —</div>
+    <div class="go-title">Come Back Tomorrow</div>
+    <div class="go-rule"></div>
+    <div class="go-sub">You've already pieced today's block. New puzzle at midnight (Eastern).</div>
+    <div class="go-stats" id="alreadyStats"></div>
+    <div class="intro-actions-row" style="margin-top:1.2rem">
+      <button class="btn-secondary" onclick="openArchive()">Archive</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="archive">
+    <div class="archive-content">
+      <button class="archive-close" type="button" onclick="closeArchive()" aria-label="Close archive">✕</button>
+      <div class="archive-header">
+        <div class="archive-title">Archive</div>
+        <div class="archive-subtitle"><em>Sampler · since May 19, 2026</em></div>
+      </div>
+      <div class="archive-monthnav">
+        <button class="archive-navbtn" type="button" id="archivePrevBtn" onclick="archiveShiftMonth(-1)">‹</button>
+        <div class="archive-monthlabel" id="archiveMonthLabel">—</div>
+        <button class="archive-navbtn" type="button" id="archiveNextBtn" onclick="archiveShiftMonth(1)">›</button>
+      </div>
+      <div class="archive-weekhead">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+      <div class="archive-grid" id="archiveGrid"></div>
+      <div class="archive-stats" id="archiveStats"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="noPuzzle">
+    <div class="go-mark">— Not Yet —</div>
+    <div class="go-title">Coming Soon</div>
+    <div class="go-rule"></div>
+    <div class="go-sub" id="noPuzzleSub">There's no puzzle for this date yet.</div>
+    <div class="intro-actions-row" style="margin-top:1.6rem">
+      <button class="btn-secondary" onclick="openArchive()">Archive</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Theme toggle (shared site idiom)
+document.getElementById('themeToggle').addEventListener('click', function () {
+  var cur = document.documentElement.getAttribute('data-theme') || 'light';
+  var next = cur === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('th_theme', next); } catch (e) {}
+});
+
+// ─── RELEASE CONFIG ──────────────────────────────────────────────────
+// LAUNCH_DATE is the public launch date — day 0 from which dailyIndex counts.
+// With N templates authored, the first N days from LAUNCH_DATE have unique
+// puzzles; subsequent days show the "Coming Soon" overlay until more
+// templates are added. Author more templates before that runway runs out.
+const STORAGE_KEY = 'sampler_daily_v1';
+const LAUNCH_DATE = '2026-05-19';
+
+function todayStr() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());
+}
+function etDateOffset(dateStr, offsetDays) {
+  const base = Date.parse(dateStr + 'T12:00:00Z');
+  const shifted = new Date(base + offsetDays * 86400000);
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(shifted);
+}
+function prevEtDate(dateStr) { return etDateOffset(dateStr, -1); }
+
+function loadStorage() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+// NOTE: silently swallows quota-exceeded and serialization errors. In
+// the unlikely event of storage failure, the in-memory `data` is
+// correct but won't persist — next session resets to last successful
+// save. Same behavior as Glossari.
+function saveStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {} }
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60); const s = seconds % 60;
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+// Initial subbar render
+document.getElementById('subbarDate').textContent =
+  new Date(todayStr() + 'T12:00:00Z')
+    .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+
+// ─── Fabrics ──────────────────────────────────────────────────────────
+// Each fabric: id, name, hex (base color for emoji/legend), and an SVG <pattern>
+// definition (id matches `id` field, used as fill="url(#<id>)").
+// Semantic tags drive rule evaluation: motif | scale | hue | value | direction.
+
+const FABRICS = {
+  F_CREAM:    { id: 'F_CREAM',    name: 'Cream',           hex: '#f3e9d2',
+                motif: 'solid',  scale: 'large',  hue: 'neutral', value: 'light',  direction: null },
+  F_MADDER:   { id: 'F_MADDER',   name: 'Madder Floral',   hex: '#a83838',
+                motif: 'floral', scale: 'small',  hue: 'warm',    value: 'medium', direction: null },
+  F_INDIGO:   { id: 'F_INDIGO',   name: 'Indigo Stripe',   hex: '#2a416d',
+                motif: 'stripe', scale: 'small',  hue: 'cool',    value: 'dark',   direction: 'vertical' },
+  F_WELD:     { id: 'F_WELD',     name: 'Weld Dot',        hex: '#c9a838',
+                motif: 'dot',    scale: 'small',  hue: 'warm',    value: 'medium', direction: null },
+  F_FOREST:   { id: 'F_FOREST',   name: 'Forest Vine',     hex: '#3a5a3a',
+                motif: 'vine',   scale: 'medium', hue: 'cool',    value: 'medium', direction: null },
+  F_WALNUT:   { id: 'F_WALNUT',   name: 'Walnut Solid',    hex: '#5a3a25',
+                motif: 'solid',  scale: 'large',  hue: 'warm',    value: 'dark',   direction: null },
+};
+
+// Palette family — for Phase 1, only one family ("heritage-warm"). Templates can name it.
+const PALETTES = {
+  'heritage-warm': ['F_CREAM', 'F_MADDER', 'F_INDIGO', 'F_WELD', 'F_FOREST', 'F_WALNUT'],
+};
+
+// SVG <pattern> definitions. Inserted once into a hidden <svg> in the DOM.
+const FABRIC_SVG = `
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="F_CREAM" patternUnits="userSpaceOnUse" width="20" height="20">
+      <rect width="20" height="20" fill="#f3e9d2"/>
+      <circle cx="3" cy="3" r="0.6" fill="#e0d4b6" opacity="0.6"/>
+      <circle cx="14" cy="11" r="0.5" fill="#e0d4b6" opacity="0.5"/>
+    </pattern>
+    <pattern id="F_MADDER" patternUnits="userSpaceOnUse" width="22" height="22">
+      <rect width="22" height="22" fill="#a83838"/>
+      <circle cx="11" cy="11" r="3.5" fill="none" stroke="#f3e9d2" stroke-width="0.9" opacity="0.85"/>
+      <circle cx="11" cy="11" r="1.2" fill="#f3e9d2" opacity="0.8"/>
+      <circle cx="2" cy="2" r="0.7" fill="#f3e9d2" opacity="0.6"/>
+      <circle cx="20" cy="20" r="0.7" fill="#f3e9d2" opacity="0.6"/>
+    </pattern>
+    <pattern id="F_INDIGO" patternUnits="userSpaceOnUse" width="10" height="20">
+      <rect width="10" height="20" fill="#2a416d"/>
+      <rect x="3" width="1.3" height="20" fill="#f0ead8" opacity="0.55"/>
+      <rect x="7" width="0.6" height="20" fill="#f0ead8" opacity="0.3"/>
+    </pattern>
+    <pattern id="F_WELD" patternUnits="userSpaceOnUse" width="14" height="14">
+      <rect width="14" height="14" fill="#c9a838"/>
+      <circle cx="3.5" cy="3.5" r="1.4" fill="#5a3a25" opacity="0.55"/>
+      <circle cx="10.5" cy="10.5" r="1.4" fill="#5a3a25" opacity="0.55"/>
+    </pattern>
+    <pattern id="F_FOREST" patternUnits="userSpaceOnUse" width="20" height="20">
+      <rect width="20" height="20" fill="#3a5a3a"/>
+      <path d="M2 10 Q 6 4 10 10 T 18 10" stroke="#c0d8b0" stroke-width="0.9" fill="none" opacity="0.75"/>
+      <circle cx="6" cy="7" r="0.6" fill="#c0d8b0" opacity="0.8"/>
+      <circle cx="14" cy="13" r="0.6" fill="#c0d8b0" opacity="0.8"/>
+    </pattern>
+    <pattern id="F_WALNUT" patternUnits="userSpaceOnUse" width="20" height="20">
+      <rect width="20" height="20" fill="#5a3a25"/>
+      <rect x="0" y="0" width="20" height="20" fill="#3a2415" opacity="0.18"/>
+    </pattern>
+  </defs>
+</svg>
+`;
+
+document.body.insertAdjacentHTML('afterbegin', FABRIC_SVG);
+
+// ─── Blocks ──────────────────────────────────────────────────────────
+// Each block: id, displayName, slotCount, render(svg, fabricBySlot, options) → svg DOM.
+// Slots are indexed 0..slotCount-1. The block defines geometry (positions of slots
+// in a 200×200 viewBox) and adjacency relationships.
+
+const BLOCKS = {
+  'nine-patch': {
+    id: 'nine-patch',
+    displayName: 'Nine-Patch',
+    slotCount: 9,
+    // Slot layout: 3×3 grid. Row-major. Each slot is a 60×60 cell with 4px gap.
+    slotRect(i) {
+      const r = Math.floor(i / 3), c = i % 3;
+      const SIZE = 60, GAP = 4, OFFSET = 10;
+      return { x: OFFSET + c * (SIZE + GAP), y: OFFSET + r * (SIZE + GAP), w: SIZE, h: SIZE };
+    },
+    // Edge-adjacency: which slots share a side?
+    neighbors(i) {
+      const r = Math.floor(i / 3), c = i % 3;
+      const out = [];
+      if (r > 0) out.push(i - 3);
+      if (r < 2) out.push(i + 3);
+      if (c > 0) out.push(i - 1);
+      if (c < 2) out.push(i + 1);
+      return out;
+    },
+    // Symmetry pairs for vertical-axis reflection. For nine-patch:
+    // 0↔2, 3↔5, 6↔8 (center column 1,4,7 unchanged).
+    symmetryPairs(axis) {
+      if (axis === 'vertical')   return [[0,2],[3,5],[6,8]];
+      if (axis === 'horizontal') return [[0,6],[1,7],[2,8]];
+      if (axis === 'diagonal')   return [[1,3],[2,6],[5,7]]; // main diagonal (TL→BR)
+      return [];
+    },
+    // Named positions for positional rules
+    namedSlot(name) {
+      const map = {
+        center: 4,
+        corners: [0, 2, 6, 8],
+        edges: [1, 3, 5, 7],
+        topLeft: 0, topRight: 2,
+        bottomLeft: 6, bottomRight: 8,
+      };
+      return map[name];
+    },
+  },
+};
+
+// ─── Templates ───────────────────────────────────────────────────────
+// Each template instantiates to a daily puzzle given a date seed.
+// The runtime picks a template, then resolves the palette from the
+// named family, then assigns fabrics to roles referenced by rules.
+//
+// Phase 1: 3 hand-authored Monday-tier Nine-Patch templates.
+// Each template is constructed so it admits exactly one solution.
+
+const TEMPLATES = [
+  // Template 1: "Greek Cross" — classic. Madder at corners, Cream center,
+  // edges all the same single fabric chosen from the palette by date.
+  {
+    id: 'nine-patch-greek-cross-v1',
+    block: 'nine-patch',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    // Fabric roles: ANCHOR_A = corners, ANCHOR_B = center, ANCHOR_C = edges.
+    fabricRoles: {
+      ANCHOR_A: 'F_MADDER',
+      ANCHOR_B: 'F_CREAM',
+      ANCHOR_C: null, // chosen from palette by date
+    },
+    rules: [
+      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:ANCHOR_B' } },
+      { kind: 'positional', slot: 'corners', constraint: { fabricId: 'ROLE:ANCHOR_A' } },
+      { kind: 'positional', slot: 'edges',   constraint: { fabricId: 'ROLE:ANCHOR_C' } },
+      { kind: 'count', constraint: { fabricId: 'ROLE:ANCHOR_A' }, exact: 4 },
+    ],
+  },
+  // Template 2: "Diagonal Stripes" — corners and center the same fabric,
+  // edges alternate two stripe fabrics in a pattern enforced by symmetry.
+  {
+    id: 'nine-patch-diagonal-v1',
+    block: 'nine-patch',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    fabricRoles: {
+      ANCHOR_A: 'F_CREAM',
+      ANCHOR_B: 'F_INDIGO',
+      ANCHOR_C: 'F_WALNUT',
+    },
+    rules: [
+      { kind: 'count', constraint: { fabricId: 'ROLE:ANCHOR_A' }, exact: 5 },
+      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:ANCHOR_A' } },
+      { kind: 'positional', slot: 'corners', constraint: { fabricId: 'ROLE:ANCHOR_A' } },
+      { kind: 'symmetry', axis: 'vertical' },
+      { kind: 'symmetry', axis: 'horizontal' },
+      { kind: 'adjacency', a: { fabricId: 'ROLE:ANCHOR_B' }, b: { fabricId: 'ROLE:ANCHOR_C' }, relation: 'forbid' },
+      { kind: 'count', constraint: { fabricId: 'ROLE:ANCHOR_B' }, exact: 2 },
+      { kind: 'count', constraint: { fabricId: 'ROLE:ANCHOR_C' }, exact: 2 },
+    ],
+  },
+  // Template 3: "Pinwheel-of-color" — every cell has a unique role-ish
+  // but rules constrain hue counts and adjacency.
+  {
+    id: 'nine-patch-warm-cool-v1',
+    block: 'nine-patch',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    fabricRoles: {
+      ANCHOR_A: 'F_CREAM',
+    },
+    rules: [
+      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:ANCHOR_A' } },
+      { kind: 'count', constraint: { hue: 'warm' }, exact: 4 },
+      { kind: 'count', constraint: { hue: 'cool' }, exact: 4 },
+      { kind: 'symmetry', axis: 'diagonal' },
+      { kind: 'adjacency', a: { hue: 'warm' }, b: { hue: 'warm' }, relation: 'forbid' },
+    ],
+  },
+];
+
+function resolveRoleRefs(rule, fabricRoles) {
+  // Deep-clone rule and replace any "ROLE:NAME" strings with the resolved fabric ID.
+  function resolveValue(v) {
+    if (typeof v === 'string' && v.startsWith('ROLE:')) {
+      const name = v.slice(5);
+      return fabricRoles[name];
+    }
+    if (v && typeof v === 'object') {
+      const out = Array.isArray(v) ? [] : {};
+      for (const k of Object.keys(v)) out[k] = resolveValue(v[k]);
+      return out;
+    }
+    return v;
+  }
+  return resolveValue(rule);
+}
+
+function instantiateTemplate(template, dateStr) {
+  const rng = mulberry32(seedFromDate(dateStr + ':' + template.id));
+  // Resolve unfilled fabricRoles by drawing from the palette.
+  const family = PALETTES[template.paletteFamily];
+  const used = new Set(Object.values(template.fabricRoles).filter(Boolean));
+  const available = family.filter(fid => !used.has(fid));
+  const shuffled = seededShuffle(available, rng);
+  const resolvedRoles = Object.assign({}, template.fabricRoles);
+  let cursor = 0;
+  for (const k of Object.keys(resolvedRoles)) {
+    if (resolvedRoles[k] === null) {
+      resolvedRoles[k] = shuffled[cursor++];
+    }
+  }
+  // Palette to show in UI: include all role fabrics + a few extras for choice.
+  const roleFabrics = Object.values(resolvedRoles);
+  const remaining = family.filter(fid => !roleFabrics.includes(fid));
+  const extras = seededShuffle(remaining, rng).slice(0, Math.max(0, template.paletteSize - roleFabrics.length));
+  const paletteIds = roleFabrics.concat(extras);
+  // Shuffle the palette display order so it isn't a giveaway.
+  const displayPalette = seededShuffle(paletteIds, mulberry32(seedFromDate(dateStr + ':display')));
+  // Resolve rules.
+  const rules = template.rules.map(r => resolveRoleRefs(r, resolvedRoles));
+  return { template, resolvedRoles, paletteIds: displayPalette, rules };
+}
+
+function pickTemplateForDate(dateStr) {
+  const idx = dailyIndex(dateStr);
+  if (idx < 0 || idx >= TEMPLATES.length) return null;
+  return TEMPLATES[idx];
+}
+
+// True if the given date has a unique puzzle available.
+function hasPuzzleForDate(dateStr) {
+  return pickTemplateForDate(dateStr) !== null;
+}
+
+// ─── Solver ──────────────────────────────────────────────────────────
+// Backtracking with rule-evaluation pruning. Used by the author to verify
+// a template has exactly one solution for a given fabric assignment.
+//
+// Returns { solutions: int, samples: Array<fabricBySlot> } where samples
+// holds up to `cap` distinct found solutions (cap=2 is enough to detect
+// non-uniqueness).
+
+function solve(block, paletteIds, rules, fabricsById, cap) {
+  cap = cap || 2;
+  const N = block.slotCount;
+  const solutions = [];
+  const assignment = new Array(N).fill(null);
+  function recurse(i) {
+    if (solutions.length >= cap) return;
+    if (i === N) {
+      // Fully filled — verify all rules pass.
+      const evaluated = evaluateRules(rules, assignment, block, fabricsById);
+      if (evaluated.every(r => r.satisfied)) {
+        solutions.push(assignment.slice());
+      }
+      return;
+    }
+    for (const fid of paletteIds) {
+      assignment[i] = fid;
+      // Cheap prune: only check rules whose violatingSlots indicate a
+      // confirmed conflict given currently-assigned slots.
+      const evaluated = evaluateRules(rules, assignment, block, fabricsById);
+      const violatingAssigned = evaluated.some(r =>
+        r.violatingSlots.size > 0 &&
+        Array.from(r.violatingSlots).every(s => s <= i)
+      );
+      if (!violatingAssigned) recurse(i + 1);
+      if (solutions.length >= cap) { assignment[i] = null; return; }
+    }
+    assignment[i] = null;
+  }
+  recurse(0);
+  return { solutionCount: solutions.length, samples: solutions };
+}
+
+function verifyTemplate(templateId, dateRange) {
+  const template = TEMPLATES.find(t => t.id === templateId);
+  if (!template) { console.error('No template:', templateId); return; }
+  dateRange = dateRange || ['2026-06-01', '2026-06-30'];
+  const [start, end] = dateRange;
+  const results = [];
+  let d = start;
+  while (d <= end) {
+    const instance = instantiateTemplate(template, d);
+    const block = BLOCKS[instance.template.block];
+    const result = solve(block, instance.paletteIds, instance.rules, FABRICS, 2);
+    results.push({ date: d, solutionCount: result.solutionCount });
+    d = etDateOffset(d, 1);
+  }
+  const unique = results.filter(r => r.solutionCount === 1).length;
+  const none = results.filter(r => r.solutionCount === 0).length;
+  const many = results.filter(r => r.solutionCount >= 2).length;
+  console.log(`Template ${templateId}: ${unique} unique / ${none} none / ${many} multiple (of ${results.length})`);
+  if (none > 0 || many > 0) {
+    console.log('First failing dates:',
+      results.filter(r => r.solutionCount !== 1).slice(0, 5).map(r => `${r.date} (${r.solutionCount})`).join(', '));
+  }
+  return results;
+}
+
+// Debug / authoring tools — exposed on window for console use. Not part
+// of the public API; safe to remove if minifying for production.
+window.verifyTemplate = verifyTemplate;
+window.solve = solve;
+window.instantiateTemplate = instantiateTemplate;
+
+// ─── Block renderer ──────────────────────────────────────────────────
+// Renders a block as an SVG inside the host element. Updates slot fills
+// based on fabricBySlot (array of fabric-IDs or nulls). Calls onSlotClick(i)
+// when a slot is tapped.
+
+function renderBlock(host, block, fabricBySlot, opts) {
+  opts = opts || {};
+  host.innerHTML = '';
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 200 200');
+  svg.setAttribute('class', 'block-svg');
+  for (let i = 0; i < block.slotCount; i++) {
+    const r = block.slotRect(i);
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', r.x); rect.setAttribute('y', r.y);
+    rect.setAttribute('width', r.w); rect.setAttribute('height', r.h);
+    rect.setAttribute('class', 'slot' + (opts.selectedSlot === i ? ' selected' : '') + (opts.violations && opts.violations.has(i) ? ' violation' : ''));
+    rect.setAttribute('stroke', 'var(--ink-soft)');
+    rect.setAttribute('stroke-width', '1.5');
+    const fid = fabricBySlot[i];
+    if (fid) {
+      rect.setAttribute('fill', 'url(#' + fid + ')');
+    } else {
+      rect.setAttribute('fill', 'var(--paper-deep)');
+    }
+    rect.dataset.slot = i;
+    if (opts.onSlotClick) {
+      rect.addEventListener('click', () => opts.onSlotClick(i));
+    }
+    svg.appendChild(rect);
+    if (!fid) {
+      const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      label.setAttribute('x', r.x + r.w / 2);
+      label.setAttribute('y', r.y + r.h / 2 + 3);
+      label.setAttribute('text-anchor', 'middle');
+      label.setAttribute('class', 'slot-label');
+      label.textContent = i + 1;
+      svg.appendChild(label);
+    }
+  }
+  host.appendChild(svg);
+}
+
+// ─── Seeded RNG ──────────────────────────────────────────────────────
+// mulberry32 — small, deterministic; good enough for shuffling palette
+// and picking from a template pool given a date seed.
+function mulberry32(seed) {
+  return function () {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function seedFromDate(dateStr) {
+  // Cheap hash of "YYYY-MM-DD" to a 32-bit int.
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    h ^= dateStr.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+function seededShuffle(arr, rng) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function dailyIndex(dateStr) {
+  const ms = Date.parse(dateStr + 'T00:00:00Z') - Date.parse(LAUNCH_DATE + 'T00:00:00Z');
+  const days = Math.floor(ms / 86400000);
+  return days < 0 ? -1 : days;
+}
+
+// ─── Game state ──────────────────────────────────────────────────────
+let game = {
+  block: null,             // BLOCKS[id]
+  paletteIds: [],          // fabric IDs in palette order
+  fabricBySlot: [],        // length = block.slotCount, fabric ID or null
+  selectedFabric: null,    // fabric ID or 'ERASE'
+  history: [],             // for undo: array of {slot, prev}
+  playDate: null,
+  replay: false,
+  timerStart: null,
+  timerInterval: null,
+  elapsed: 0,
+  locked: false,
+  inProgress: false,       // tracks if game is mid-play
+};
+
+const STAGE_HTML = `
+  <div class="block-stage">
+    <div id="blockHost"></div>
+  </div>
+  <div class="palette" id="palette"></div>
+  <div class="toolbar">
+    <button class="toolbar-btn" id="undoBtn" onclick="undoMove()" disabled>Undo</button>
+  </div>
+  <div class="rules-panel">
+    <div class="rules-panel-title">Rules</div>
+    <div id="rulesList"></div>
+  </div>
+`;
+document.getElementById('main').innerHTML = STAGE_HTML;
+
+function startTimer() {
+  stopTimer();
+  game.timerStart = Date.now(); game.elapsed = 0;
+  document.getElementById('timer').textContent = '0:00';
+  game.timerInterval = setInterval(() => {
+    game.elapsed = Math.floor((Date.now() - game.timerStart) / 1000);
+    document.getElementById('timer').textContent = formatTime(game.elapsed);
+  }, 1000);
+}
+function stopTimer() {
+  if (game.timerInterval) { clearInterval(game.timerInterval); game.timerInterval = null; }
+  if (game.timerStart) { game.elapsed = Math.floor((Date.now() - game.timerStart) / 1000); }
+}
+
+function resumeTimer() {
+  if (game.timerInterval) { clearInterval(game.timerInterval); game.timerInterval = null; }
+  const offset = Date.now() - game.elapsed * 1000;
+  game.timerStart = offset;
+  document.getElementById('timer').textContent = formatTime(game.elapsed);
+  game.timerInterval = setInterval(() => {
+    document.getElementById('timer').textContent = formatTime(Math.floor((Date.now() - offset) / 1000));
+  }, 1000);
+}
+
+function initGame(blockId, paletteIds, rules) {
+  game.block = BLOCKS[blockId];
+  game.paletteIds = paletteIds.slice();
+  game.fabricBySlot = new Array(game.block.slotCount).fill(null);
+  game.selectedFabric = paletteIds[0] || null;
+  game.history = [];
+  game.locked = false;
+  game.rules = rules || [];
+  game.started = false;
+  game.solved = false;
+  document.getElementById('blockName').textContent = game.block.displayName;
+  updateBeginBtn();
+  renderAll();
+}
+
+function renderAll() {
+  renderPalette();
+  const rules = game.rules || [];
+  const evaluated = evaluateRules(rules, game.fabricBySlot, game.block, FABRICS);
+  const violations = new Set();
+  evaluated.forEach(r => r.violatingSlots.forEach(s => violations.add(s)));
+  renderBlock(document.getElementById('blockHost'), game.block, game.fabricBySlot, {
+    onSlotClick: handleSlotClick,
+    selectedSlot: null,
+    violations,
+  });
+  renderRules(evaluated);
+  document.getElementById('undoBtn').disabled = game.history.length === 0 || game.locked;
+  return evaluated;
+}
+
+// Check the win condition. Call this AFTER any user-initiated state
+// mutation (paint, erase, undo). Returns true if a win was triggered.
+function checkWin() {
+  if (game.locked) return false;
+  const allFilled = game.fabricBySlot.every(x => x !== null);
+  if (!allFilled) return false;
+  const evaluated = evaluateRules(game.rules || [], game.fabricBySlot, game.block, FABRICS);
+  const allSatisfied = evaluated.every(r => r.satisfied);
+  if (allSatisfied) {
+    triggerWin();
+    return true;
+  }
+  return false;
+}
+
+function renderRules(evaluated) {
+  const host = document.getElementById('rulesList');
+  if (!host) return;
+  host.innerHTML = '';
+  evaluated.forEach(r => {
+    const div = document.createElement('div');
+    const isFilled = r.violatingSlots.size > 0;
+    div.className = 'rule-item' + (r.satisfied ? ' satisfied' : (isFilled ? ' violating' : ''));
+    div.innerHTML = `<span class="rule-mark">${r.satisfied ? '✓' : (isFilled ? '×' : '·')}</span><span class="rule-text">${r.description}</span>`;
+    host.appendChild(div);
+  });
+}
+
+function renderPalette() {
+  const host = document.getElementById('palette');
+  host.innerHTML = '';
+  game.paletteIds.forEach(fid => {
+    const f = FABRICS[fid];
+    const wrap = document.createElement('div');
+    const isSelected = game.selectedFabric === fid;
+    wrap.className = 'palette-swatch-wrap' + (isSelected ? ' selected' : '');
+    const btn = document.createElement('button');
+    btn.className = 'palette-swatch' + (isSelected ? ' selected' : '');
+    btn.setAttribute('aria-label', f.name);
+    btn.setAttribute('type', 'button');
+    btn.innerHTML = `<svg viewBox="0 0 40 40"><rect width="40" height="40" fill="url(#${fid})"/></svg>`;
+    btn.addEventListener('click', () => selectFabric(fid));
+    wrap.appendChild(btn);
+    const label = document.createElement('div');
+    label.className = 'palette-label';
+    label.textContent = f.name;
+    wrap.appendChild(label);
+    host.appendChild(wrap);
+  });
+  // Erase brush
+  const eraseIsSelected = game.selectedFabric === 'ERASE';
+  const eraseWrap = document.createElement('div');
+  eraseWrap.className = 'palette-swatch-wrap' + (eraseIsSelected ? ' selected' : '');
+  const erase = document.createElement('button');
+  erase.className = 'palette-swatch erase' + (eraseIsSelected ? ' selected' : '');
+  erase.setAttribute('aria-label', 'Erase');
+  erase.setAttribute('type', 'button');
+  erase.textContent = '✕';
+  erase.addEventListener('click', () => selectFabric('ERASE'));
+  eraseWrap.appendChild(erase);
+  const eraseLabel = document.createElement('div');
+  eraseLabel.className = 'palette-label';
+  eraseLabel.textContent = 'Erase';
+  eraseWrap.appendChild(eraseLabel);
+  host.appendChild(eraseWrap);
+}
+
+function selectFabric(fid) {
+  if (game.locked) return;
+  game.selectedFabric = fid;
+  renderAll();
+}
+
+function handleSlotClick(slotIdx) {
+  if (game.locked) return;
+  if (!game.selectedFabric) return;
+  const prev = game.fabricBySlot[slotIdx];
+  const next = game.selectedFabric === 'ERASE' ? null : game.selectedFabric;
+  if (prev === next) {
+    // Tap same fabric on already-filled slot = erase
+    if (game.selectedFabric !== 'ERASE') {
+      game.history.push({ slot: slotIdx, prev });
+      game.fabricBySlot[slotIdx] = null;
+      renderAll();
+      checkWin();
+    }
+    return;
+  }
+  game.history.push({ slot: slotIdx, prev });
+  game.fabricBySlot[slotIdx] = next;
+  renderAll();
+  checkWin();
+}
+
+function undoMove() {
+  if (game.locked) return;
+  const last = game.history.pop();
+  if (!last) return;
+  game.fabricBySlot[last.slot] = last.prev;
+  renderAll();
+  checkWin();
+}
+
+// ─── Rules ───────────────────────────────────────────────────────────
+// Each rule kind has:
+//   - describe(rule, fabricsById) → human-readable text
+//   - verify(rule, fabricBySlot, block, fabricsById) → { satisfied, violatingSlots: Set<int> }
+//
+// Rules in templates are objects: { kind, ...params }. The runtime resolves
+// `kind` to the corresponding entry in RULE_KINDS.
+
+function fabricMatches(fid, constraint, fabricsById) {
+  if (!fid) return false;
+  const f = fabricsById[fid];
+  if (!f) return false;
+  if (constraint.fabricId) return f.id === constraint.fabricId;
+  return Object.entries(constraint).every(([k, v]) => {
+    if (k === 'fabricId') return true;
+    return f[k] === v;
+  });
+}
+
+function describeConstraint(c, fabricsById) {
+  if (c.fabricId) {
+    const f = fabricsById[c.fabricId];
+    return f ? f.name : c.fabricId;
+  }
+  const parts = [];
+  if (c.motif) parts.push(c.motif);
+  if (c.hue) parts.push(c.hue + ' fabrics');
+  if (c.value) parts.push(c.value + '-value');
+  if (c.scale) parts.push(c.scale + '-scale');
+  return parts.length ? parts.join(' ') : 'any fabric';
+}
+
+const RULE_KINDS = {
+  count: {
+    describe(rule, fabricsById) {
+      const c = describeConstraint(rule.constraint, fabricsById);
+      if (rule.exact !== undefined) return `Exactly ${rule.exact} ${c}.`;
+      const lo = rule.min, hi = rule.max;
+      if (lo !== undefined && hi !== undefined) return `Between ${lo} and ${hi} ${c}.`;
+      if (lo !== undefined) return `At least ${lo} ${c}.`;
+      if (hi !== undefined) return `At most ${hi} ${c}.`;
+      return '';
+    },
+    verify(rule, fabricBySlot, block, fabricsById) {
+      const matchingSlots = [];
+      fabricBySlot.forEach((fid, i) => {
+        if (fid && fabricMatches(fid, rule.constraint, fabricsById)) matchingSlots.push(i);
+      });
+      const n = matchingSlots.length;
+      let ok = true;
+      if (rule.exact !== undefined) ok = n === rule.exact;
+      else {
+        if (rule.min !== undefined && n < rule.min) ok = false;
+        if (rule.max !== undefined && n > rule.max) ok = false;
+      }
+      const violating = new Set();
+      if (!ok && rule.max !== undefined && n > rule.max) {
+        // All matching slots are over-budget; flag them all.
+        matchingSlots.forEach(i => violating.add(i));
+      }
+      // For under-budget or exact-violations we don't flag specific slots —
+      // every empty slot is a candidate.
+      return { satisfied: ok, violatingSlots: violating };
+    },
+  },
+
+  positional: {
+    describe(rule, fabricsById) {
+      const c = describeConstraint(rule.constraint, fabricsById);
+      const where = typeof rule.slot === 'string' ? rule.slot : 'slot ' + (rule.slot + 1);
+      const must = rule.must === false ? 'must NOT be' : 'must be';
+      return `The ${where} ${must} ${c}.`;
+    },
+    verify(rule, fabricBySlot, block, fabricsById) {
+      const target = typeof rule.slot === 'string' ? block.namedSlot(rule.slot) : rule.slot;
+      const slots = Array.isArray(target) ? target : [target];
+      const violating = new Set();
+      let allFilled = true;
+      let ok = true;
+      slots.forEach(i => {
+        const fid = fabricBySlot[i];
+        if (!fid) { allFilled = false; return; }
+        const matches = fabricMatches(fid, rule.constraint, fabricsById);
+        const must = rule.must !== false;
+        if (must && !matches) { ok = false; violating.add(i); }
+        if (!must && matches) { ok = false; violating.add(i); }
+      });
+      // If not all required slots are filled yet, the rule is "not yet satisfied"
+      // but we don't flag empty slots as violations.
+      return { satisfied: allFilled && ok, violatingSlots: violating };
+    },
+  },
+
+  adjacency: {
+    describe(rule, fabricsById) {
+      const a = describeConstraint(rule.a, fabricsById);
+      const b = describeConstraint(rule.b, fabricsById);
+      if (rule.relation === 'forbid') return `No ${a} may touch ${b}.`;
+      if (rule.relation === 'require-each-a-touches-b') return `Every ${a} must touch a ${b}.`;
+      return '';
+    },
+    verify(rule, fabricBySlot, block, fabricsById) {
+      const violating = new Set();
+      let ok = true;
+      const matchA = i => fabricBySlot[i] && fabricMatches(fabricBySlot[i], rule.a, fabricsById);
+      const matchB = i => fabricBySlot[i] && fabricMatches(fabricBySlot[i], rule.b, fabricsById);
+      if (rule.relation === 'forbid') {
+        for (let i = 0; i < fabricBySlot.length; i++) {
+          if (!matchA(i)) continue;
+          for (const n of block.neighbors(i)) {
+            if (matchB(n)) { ok = false; violating.add(i); violating.add(n); }
+          }
+        }
+      } else if (rule.relation === 'require-each-a-touches-b') {
+        let allFilled = true;
+        for (let i = 0; i < fabricBySlot.length; i++) {
+          if (!matchA(i)) continue;
+          const hasB = block.neighbors(i).some(n => matchB(n));
+          // Only flag if neighbors are all filled — otherwise rule isn't decidable yet.
+          const neighborsAllFilled = block.neighbors(i).every(n => fabricBySlot[n] !== null);
+          if (!hasB && neighborsAllFilled) { ok = false; violating.add(i); }
+          if (!neighborsAllFilled) allFilled = false;
+        }
+        return { satisfied: ok && allFilled, violatingSlots: violating };
+      }
+      return { satisfied: ok, violatingSlots: violating };
+    },
+  },
+
+  symmetry: {
+    describe(rule, fabricsById) {
+      return `Block has ${rule.axis} reflection symmetry.`;
+    },
+    verify(rule, fabricBySlot, block, fabricsById) {
+      const pairs = block.symmetryPairs(rule.axis);
+      const violating = new Set();
+      let ok = true;
+      let allRelevantFilled = true;
+      pairs.forEach(([a, b]) => {
+        const fa = fabricBySlot[a], fb = fabricBySlot[b];
+        if (fa === null || fb === null) { allRelevantFilled = false; return; }
+        if (fa !== fb) { ok = false; violating.add(a); violating.add(b); }
+      });
+      return { satisfied: ok && allRelevantFilled, violatingSlots: violating };
+    },
+  },
+};
+
+function evaluateRules(rules, fabricBySlot, block, fabricsById) {
+  return rules.map(rule => {
+    const kind = RULE_KINDS[rule.kind];
+    if (!kind) return { rule, satisfied: false, violatingSlots: new Set(), description: '(unknown rule)' };
+    const result = kind.verify(rule, fabricBySlot, block, fabricsById);
+    return {
+      rule,
+      satisfied: result.satisfied,
+      violatingSlots: result.violatingSlots,
+      description: kind.describe(rule, fabricsById),
+    };
+  });
+}
+
+function triggerWin() {
+  game.locked = true;
+  game.solved = true;
+  stopTimer();
+  // Add reveal animation class
+  const svg = document.querySelector('.block-svg');
+  if (svg) {
+    svg.classList.add('reveal-anim');
+    setTimeout(() => svg.classList.remove('reveal-anim'), 700);
+  }
+  // Show completion after the animation
+  setTimeout(() => showCompletion(), 900);
+}
+
+function showCompletion() {
+  recordCompletion();
+  const data = loadStorage();
+  const playDate = game.playDate || todayStr();
+  const d = new Date(playDate + 'T12:00:00Z');
+  const dayName = d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'America/New_York' });
+  const blockName = game.block.displayName;
+  const time = formatTime(game.elapsed);
+  const sub = document.getElementById('completionSub');
+  sub.textContent = ''; // clear
+  const make = (text, bold) => {
+    const node = bold ? document.createElement('b') : document.createTextNode(text);
+    if (bold) node.textContent = text;
+    return node;
+  };
+  sub.appendChild(document.createTextNode('You solved a '));
+  sub.appendChild(make(dayName, true));
+  sub.appendChild(document.createTextNode(' '));
+  sub.appendChild(make(blockName, true));
+  sub.appendChild(document.createTextNode(' in '));
+  sub.appendChild(make(time, true));
+  sub.appendChild(document.createTextNode('.'));
+  const streak = data.streak || 0;
+  const pill = document.getElementById('completionStreak');
+  if (streak > 0) {
+    pill.style.display = 'inline-flex';
+    document.getElementById('completionStreakText').textContent = `You have a ${streak}-day streak`;
+  } else {
+    pill.style.display = 'none';
+  }
+  // Stats row
+  const statsHost = document.getElementById('completionStats');
+  statsHost.innerHTML = '';
+  [
+    ['Streak', data.streak || 0],
+    ['Played', data.totalPlayed || 0],
+    ['Flawless', data.totalFlawless || 0],
+    ['Avg', formatAvgTime(data)],
+  ].forEach(([label, val]) => {
+    const stat = document.createElement('div');
+    stat.className = 'go-stat';
+    stat.innerHTML = `<div class="go-stat-num">${val}</div><div class="go-stat-lbl">${label}</div>`;
+    statsHost.appendChild(stat);
+  });
+  // Share block
+  renderShareBlock(playDate, dayName, blockName, time);
+  document.getElementById('completion').classList.add('show');
+}
+
+function formatAvgTime(data) {
+  if (!data || !data.solvedTimedCount) return '—';
+  const avg = Math.round(data.totalSolveSeconds / data.solvedTimedCount);
+  return formatTime(avg);
+}
+
+function renderShareBlock(playDate, dayName, blockName, time) {
+  const host = document.getElementById('completionShare');
+  const dateLabel = new Date(playDate + 'T12:00:00Z')
+    .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+  host.innerHTML = `
+    <div style="font-family:'Fascinate',serif; font-size:1.4rem; line-height:1;">Sampler</div>
+    <div class="share-line" style="font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-faint); margin-top:0.2rem;">${dateLabel} · ${blockName}</div>
+    <div class="share-block-svg" id="shareBlockSvg"></div>
+    <div class="share-line"><b style="color:var(--ink)">${time}</b></div>
+    <button class="share-copy-btn" onclick="copyShareText()">Copy result</button>
+  `;
+  renderBlock(document.getElementById('shareBlockSvg'), game.block, game.fabricBySlot, { violations: new Set() });
+}
+
+function copyShareText() {
+  const playDate = game.playDate || todayStr();
+  const dateLabel = new Date(playDate + 'T12:00:00Z')
+    .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+  const time = formatTime(game.elapsed);
+  const text = `Sampler · ${dateLabel} · ${game.block.displayName} · ${time}`;
+  const showFeedback = (msg) => {
+    const btn = document.querySelector('.share-copy-btn');
+    if (!btn) return;
+    const orig = btn.textContent;
+    btn.textContent = msg;
+    setTimeout(() => { btn.textContent = orig; }, 1400);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showFeedback('Copied!'))
+      .catch(() => showFeedback('Copy failed'));
+  } else {
+    showFeedback('Copy not supported');
+  }
+}
+
+function closeCompletion() {
+  document.getElementById('completion').classList.remove('show');
+  // The puzzle is done; show the alreadyPlayed overlay so the player has
+  // a clear path forward (stats, archive, no dead-end on a locked board).
+  const stored = loadStorage();
+  showAlreadyPlayed(stored);
+}
+
+function recordCompletion() {
+  // Writes the completed daily to storage. Mirrors Glossari's
+  // recordCompletion shape exactly (byDate map + aggregate counters).
+  // Replays do not write.
+  if (game.replay) return;
+  const playDate = game.playDate || todayStr();
+  const isLive = playDate === todayStr();
+  const data = loadStorage();
+  if (!data.byDate) data.byDate = {};
+  data.byDate[playDate] = {
+    puzzleIdx: dailyIndex(playDate),
+    block: game.block.id,
+    result: {
+      elapsedSeconds: game.elapsed,
+      allSolved: true,
+      flawless: true, // no mistake system in v1
+    },
+    completedAt: Date.now(),
+    source: isLive ? 'live' : 'archive',
+  };
+  data.totalPlayed = (data.totalPlayed || 0) + 1;
+  data.totalSolved = (data.totalSolved || 0) + 1;
+  data.totalFlawless = (data.totalFlawless || 0) + 1;
+  data.totalSolveSeconds = (data.totalSolveSeconds || 0) + game.elapsed;
+  data.solvedTimedCount = (data.solvedTimedCount || 0) + 1;
+  if (isLive) {
+    const yesterday = prevEtDate(todayStr());
+    const streakBase = data.lastPlayedDate === yesterday ? (data.streak || 0) : 0;
+    data.streak = streakBase + 1;
+    data.bestStreak = Math.max(data.bestStreak || 0, data.streak);
+    data.lastPlayedDate = todayStr();
+  }
+  saveStorage(data);
+}
+
+function startDailyGame(dateStr, opts) {
+  dateStr = dateStr || todayStr();
+  const replay = !!(opts && opts.replay);
+  const stored = loadStorage();
+  const existing = stored.byDate && stored.byDate[dateStr];
+  // If today has already been played and this isn't an explicit replay,
+  // route through the alreadyPlayed overlay rather than re-rendering the board.
+  if (existing && !replay && dateStr === todayStr()) {
+    showAlreadyPlayed(stored);
+    return;
+  }
+  // Dismiss any open overlays so the board is visible
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  document.getElementById('completion').classList.remove('show');
+  const template = pickTemplateForDate(dateStr);
+  if (!template) {
+    // No puzzle exists for this date yet
+    showNoPuzzle(dateStr);
+    return;
+  }
+  game.playDate = dateStr;
+  game.replay = replay;
+  const instance = instantiateTemplate(template, dateStr);
+  initGame(instance.template.block, instance.paletteIds, instance.rules);
+  const isLive = dateStr === todayStr();
+  const d = new Date(dateStr + 'T12:00:00Z');
+  const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+  document.getElementById('subbarDate').textContent = isLive ? label : 'Archive · ' + label;
+}
+
+function goHome() {
+  // Always offer to return home; only stop the timer if mid-game.
+  if (game.started && !game.solved) stopTimer();
+  updateBeginBtn();
+  // Dismiss any other overlay that might be showing.
+  ['alreadyPlayed', 'completion', 'archive', 'noPuzzle'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  });
+  document.getElementById('intro').classList.add('show');
+}
+
+function updateBeginBtn() {
+  const btn = document.getElementById('beginBtn');
+  if (!btn) return;
+  btn.textContent = (game.started && !game.solved) ? 'Resume' : 'Begin';
+}
+
+function startPlay() {
+  game.elapsed = 0;
+  game.started = true;
+  game.solved = false;
+  updateBeginBtn();
+  startTimer();
+}
+
+function beginDaily() {
+  if (game.started && !game.solved) {
+    document.getElementById('intro').classList.remove('show');
+    resumeTimer();
+    return;
+  }
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  // Puzzle is pre-loaded by bootSampler. Start the timer now that the user has begun.
+  startPlay();
+}
+
+function showAlreadyPlayed(stored) {
+  document.getElementById('intro').classList.remove('show');
+  const host = document.getElementById('alreadyStats');
+  host.innerHTML = '';
+  [
+    ['Streak', stored.streak || 0],
+    ['Played', stored.totalPlayed || 0],
+    ['Flawless', stored.totalFlawless || 0],
+    ['Avg', formatAvgTime(stored)],
+  ].forEach(([label, val]) => {
+    const stat = document.createElement('div');
+    stat.className = 'go-stat';
+    stat.innerHTML = `<div class="go-stat-num">${val}</div><div class="go-stat-lbl">${label}</div>`;
+    host.appendChild(stat);
+  });
+  document.getElementById('alreadyPlayed').classList.add('show');
+}
+
+function showNoPuzzle(dateStr) {
+  const sub = document.getElementById('noPuzzleSub');
+  if (sub) {
+    const d = new Date(dateStr + 'T12:00:00Z');
+    const label = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+    sub.textContent = `There's no puzzle for ${label} yet. New puzzles will appear as they're added.`;
+  }
+  document.getElementById('noPuzzle').classList.add('show');
+}
+
+let archiveViewMonth = null; // {year, month} 0-indexed
+
+function openArchive() {
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  document.getElementById('completion').classList.remove('show');
+  const today = todayStr();
+  const [y, m] = today.split('-').map(Number);
+  archiveViewMonth = { year: y, month: m - 1 };
+  renderArchive();
+  document.getElementById('archive').classList.add('show');
+}
+
+function closeArchive() {
+  document.getElementById('archive').classList.remove('show');
+  const stored = loadStorage();
+  const today = todayStr();
+  if (!hasPuzzleForDate(today)) {
+    showNoPuzzle(today);
+    return;
+  }
+  if (stored.byDate && stored.byDate[today]) {
+    showAlreadyPlayed(stored);
+  } else {
+    document.getElementById('intro').classList.add('show');
+  }
+}
+
+function archiveShiftMonth(delta) {
+  if (!archiveViewMonth) return;
+  const d = new Date(archiveViewMonth.year, archiveViewMonth.month + delta, 1);
+  archiveViewMonth = { year: d.getFullYear(), month: d.getMonth() };
+  renderArchive();
+}
+
+function renderArchive() {
+  if (!archiveViewMonth) return;
+  const { year, month } = archiveViewMonth;
+  const firstOfMonth = new Date(year, month, 1);
+  document.getElementById('archiveMonthLabel').textContent =
+    firstOfMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const today = todayStr(); // already in ET, "YYYY-MM-DD"
+  // String compare prev/next month boundaries against ET dates.
+  // The last day of the previous month, as YYYY-MM-DD.
+  const lastOfPrevMonthDate = new Date(year, month, 0);
+  const lastOfPrevMonthStr = `${lastOfPrevMonthDate.getFullYear()}-${String(lastOfPrevMonthDate.getMonth() + 1).padStart(2, '0')}-${String(lastOfPrevMonthDate.getDate()).padStart(2, '0')}`;
+  // The first day of the next month, as YYYY-MM-DD.
+  const nextMonthYear = month === 11 ? year + 1 : year;
+  const nextMonthNum = month === 11 ? 1 : month + 2;
+  const firstOfNextMonthStr = `${nextMonthYear}-${String(nextMonthNum).padStart(2, '0')}-01`;
+  const prevBtn = document.getElementById('archivePrevBtn');
+  const nextBtn = document.getElementById('archiveNextBtn');
+  prevBtn.disabled = lastOfPrevMonthStr < LAUNCH_DATE;
+  nextBtn.disabled = firstOfNextMonthStr > today;
+
+  const stored = loadStorage();
+  const byDate = stored.byDate || {};
+
+  const grid = document.getElementById('archiveGrid');
+  grid.innerHTML = '';
+  const firstWeekday = firstOfMonth.getDay();
+  for (let i = 0; i < firstWeekday; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'archive-cell empty';
+    grid.appendChild(cell);
+  }
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const cell = document.createElement('div');
+    cell.className = 'archive-cell';
+    const numEl = document.createElement('div');
+    numEl.textContent = day;
+    cell.appendChild(numEl);
+
+    const isBeforeLaunch = dateStr < LAUNCH_DATE;
+    const isFuture = dateStr > today;
+    const isToday = dateStr === today;
+    const entry = byDate[dateStr];
+
+    if (isBeforeLaunch) {
+      cell.classList.add('empty');
+    } else if (isFuture || !hasPuzzleForDate(dateStr)) {
+      // Either truly in the future, or no template yet authored for this date
+      cell.classList.add('empty');
+    } else {
+      if (isToday) cell.classList.add('today');
+      if (entry) {
+        cell.classList.add('completed');
+        const allSolved = entry.result && entry.result.allSolved;
+        cell.classList.add(allSolved ? 'solved' : 'revealed');
+        const mark = document.createElement('div');
+        mark.className = 'archive-mark';
+        mark.textContent = allSolved ? '✓' : '◊';
+        cell.appendChild(mark);
+        cell.onclick = () => archiveCellClick(dateStr, true);
+      } else {
+        cell.classList.add('available');
+        cell.onclick = () => archiveCellClick(dateStr, false);
+      }
+    }
+    grid.appendChild(cell);
+  }
+
+  const statsEl = document.getElementById('archiveStats');
+  statsEl.innerHTML = '';
+  [
+    ['Streak', stored.streak || 0],
+    ['Played', stored.totalPlayed || 0],
+    ['Flawless', stored.totalFlawless || 0],
+    ['Avg', formatAvgTime(stored)],
+  ].forEach(([label, val]) => {
+    const stat = document.createElement('div');
+    stat.className = 'archive-stat';
+    const num = document.createElement('div'); num.className = 'archive-stat-num'; num.textContent = val;
+    const lbl = document.createElement('div'); lbl.className = 'archive-stat-lbl'; lbl.textContent = label;
+    stat.appendChild(num); stat.appendChild(lbl); statsEl.appendChild(stat);
+  });
+}
+
+function archiveCellClick(dateStr, isReplay) {
+  document.getElementById('archive').classList.remove('show');
+  startDailyGame(dateStr, { replay: isReplay });
+  // If startDailyGame's early-exit guard didn't trigger, the board is
+  // ready to play. We detect by checking that no blocking overlay is now showing.
+  const blocking = ['alreadyPlayed', 'completion', 'noPuzzle'].some(id =>
+    document.getElementById(id).classList.contains('show'));
+  if (!blocking) startPlay();
+}
+
+function bootSampler() {
+  const stored = loadStorage();
+  const today = todayStr();
+
+  // 1. No puzzle authored for today yet (template inventory exhausted).
+  if (!hasPuzzleForDate(today)) {
+    showNoPuzzle(today);
+    return;
+  }
+
+  // 2. Today has been played already — show the alreadyPlayed overlay,
+  //    but also pre-load the puzzle into game state so replay works.
+  if (stored.byDate && stored.byDate[today]) {
+    startDailyGame(today); // routes through early-exit guard to showAlreadyPlayed
+    return;
+  }
+
+  // 3. Fresh play. Pre-load the puzzle behind the intro so Begin is instant.
+  //    The timer does NOT start here; beginDaily() starts it on user click.
+  startDailyGame(today);
+  document.getElementById('intro').classList.add('show');
+}
+
+bootSampler();
+</script>
+</body>
+</html>
