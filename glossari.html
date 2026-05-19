@@ -98,7 +98,7 @@ html, body {
 }
 .header::after { display: none; }
 
-.brand { display: flex; align-items: baseline; gap: 0.5rem; }
+.brand { display: flex; align-items: baseline; gap: 0.5rem; cursor: pointer; }
 .title {
   font-family: 'DM Serif Display', serif;
   font-weight: 400;
@@ -107,7 +107,9 @@ html, body {
   color: var(--ink);
   letter-spacing: -0.01em;
   line-height: 1;
+  transition: color 0.15s;
 }
+.brand:hover .title { color: var(--accent); }
 .title-mark { color: var(--accent); font-style: normal; }
 .vol {
   font-family: 'Lora', serif;
@@ -747,7 +749,7 @@ html, body { transition: background 0.25s, color 0.25s; }
 <body>
 <div class="app">
   <header class="header">
-    <div class="brand">
+    <div class="brand" onclick="goHome()">
       <div class="title">Glos<span class="title-mark">·</span>sa<span class="title-mark">·</span>ri</div>
       <div class="vol">daily</div>
     </div>
@@ -915,6 +917,7 @@ fetch('glossari.json')
     PUZZLES = data;
     let seenTutorial = false;
     try { seenTutorial = localStorage.getItem('tutorial_seen') === '1'; } catch (e) {}
+    updateStartBtn();
     if (seenTutorial) { document.getElementById('intro').classList.add('show'); }
     else { openTutorial(); }
   })
