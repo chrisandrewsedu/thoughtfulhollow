@@ -369,11 +369,20 @@ html, body {
 }
 .overlay.show { display: flex; }
 
-#archive { padding: 1.6rem 1rem; }
+#archive {
+  padding: 1.6rem 1rem;
+  justify-content: flex-start;
+}
+.archive-inner {
+  position: relative;
+  width: 100%; max-width: 24rem;
+  display: flex; flex-direction: column; align-items: center;
+}
 .archive-close {
-  position: absolute; top: 0.8rem; right: 0.9rem;
+  position: absolute; top: -0.2rem; right: -0.2rem;
   background: transparent; border: none; color: var(--ink-faint);
-  font-size: 1.2rem; cursor: pointer; padding: 0.2rem 0.5rem;
+  font-size: 1.2rem; cursor: pointer; padding: 0.4rem 0.55rem;
+  line-height: 1;
 }
 .archive-close:hover { color: var(--ink); }
 .archive-header { text-align: center; margin-bottom: 1.1rem; }
@@ -400,7 +409,7 @@ html, body {
 }
 .archive-weekhead, .archive-grid {
   display: grid; grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem; max-width: 22rem; margin: 0 auto;
+  gap: 0.25rem; width: 100%;
 }
 .archive-weekhead > div {
   font-family: 'Lora', serif; font-size: 0.55rem; letter-spacing: 0.16em;
@@ -427,7 +436,7 @@ html, body {
 .archive-cell.revealed .archive-mark { color: var(--gold); }
 .archive-stats {
   display: flex; justify-content: center; gap: 1.6rem;
-  margin-top: 1.2rem; max-width: 22rem; margin-left: auto; margin-right: auto;
+  margin-top: 1.4rem; width: 100%;
 }
 .archive-stats .archive-stat { text-align: center; }
 .archive-stats .archive-stat-num {
@@ -869,21 +878,23 @@ html, body { transition: background 0.25s, color 0.25s; }
   </div>
 
   <div class="overlay" id="archive" role="dialog" aria-modal="true" aria-label="Puzzle archive">
-    <button class="archive-close" type="button" onclick="closeArchive()" aria-label="Close archive">✕</button>
-    <div class="archive-header">
-      <div class="archive-title">Archive</div>
-      <div class="archive-subtitle"><em>Glossari · since May 17, 2026</em></div>
+    <div class="archive-inner">
+      <button class="archive-close" type="button" onclick="closeArchive()" aria-label="Close archive">✕</button>
+      <div class="archive-header">
+        <div class="archive-title">Archive</div>
+        <div class="archive-subtitle"><em>Glossari · since May 17, 2026</em></div>
+      </div>
+      <div class="archive-monthnav">
+        <button class="archive-navbtn" type="button" id="archivePrevBtn" onclick="archiveShiftMonth(-1)">‹</button>
+        <div class="archive-monthlabel" id="archiveMonthLabel">—</div>
+        <button class="archive-navbtn" type="button" id="archiveNextBtn" onclick="archiveShiftMonth(1)">›</button>
+      </div>
+      <div class="archive-weekhead">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+      <div class="archive-grid" id="archiveGrid"></div>
+      <div class="archive-stats" id="archiveStats"></div>
     </div>
-    <div class="archive-monthnav">
-      <button class="archive-navbtn" type="button" id="archivePrevBtn" onclick="archiveShiftMonth(-1)">‹</button>
-      <div class="archive-monthlabel" id="archiveMonthLabel">—</div>
-      <button class="archive-navbtn" type="button" id="archiveNextBtn" onclick="archiveShiftMonth(1)">›</button>
-    </div>
-    <div class="archive-weekhead">
-      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-    </div>
-    <div class="archive-grid" id="archiveGrid"></div>
-    <div class="archive-stats" id="archiveStats"></div>
   </div>
 </div>
 
