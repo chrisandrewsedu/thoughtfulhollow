@@ -208,6 +208,36 @@ html, body { transition: background 0.25s, color 0.25s; }
 }
 .toolbar-btn:hover { border-color: var(--ink-faint); color: var(--ink); }
 .toolbar-btn:disabled { opacity: 0.3; cursor: default; }
+
+.rules-panel {
+  margin: 0.6rem 0 0.4rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--paper-deep);
+  border: 1px solid var(--paper-shadow);
+  border-radius: 4px;
+}
+.rules-panel-title {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.5rem; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--ink-faint); margin-bottom: 0.4rem; text-align: center;
+}
+.rule-item {
+  display: flex; align-items: baseline; gap: 0.5rem;
+  font-family: 'Lora', serif;
+  font-size: 0.78rem; line-height: 1.45;
+  color: var(--ink-soft);
+  padding: 0.12rem 0;
+}
+.rule-mark {
+  font-family: 'DM Serif Display', serif;
+  width: 0.95rem; text-align: center; flex-shrink: 0;
+  color: var(--ink-ghost);
+  font-style: normal;
+}
+.rule-item.satisfied .rule-mark { color: var(--green); }
+.rule-item.satisfied .rule-text { color: var(--ink-soft); }
+.rule-item.violating .rule-mark { color: var(--accent); }
+.rule-item.violating .rule-text { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -452,6 +482,10 @@ const STAGE_HTML = `
   <div class="toolbar">
     <button class="toolbar-btn" id="undoBtn" onclick="undoMove()" disabled>Undo</button>
   </div>
+  <div class="rules-panel">
+    <div class="rules-panel-title">Rules</div>
+    <div id="rulesList"></div>
+  </div>
 `;
 document.getElementById('main').innerHTML = STAGE_HTML;
 
@@ -469,13 +503,14 @@ function stopTimer() {
   game.timerInterval = null;
 }
 
-function initGame(blockId, paletteIds) {
+function initGame(blockId, paletteIds, rules) {
   game.block = BLOCKS[blockId];
   game.paletteIds = paletteIds.slice();
   game.fabricBySlot = new Array(game.block.slotCount).fill(null);
   game.selectedFabric = paletteIds[0] || null;
   game.history = [];
   game.locked = false;
+  game.rules = rules || [];
   document.getElementById('blockName').textContent = game.block.displayName;
   renderAll();
   startTimer();
@@ -483,12 +518,31 @@ function initGame(blockId, paletteIds) {
 
 function renderAll() {
   renderPalette();
+  const rules = game.rules || [];
+  const evaluated = evaluateRules(rules, game.fabricBySlot, game.block, FABRICS);
+  const violations = new Set();
+  evaluated.forEach(r => r.violatingSlots.forEach(s => violations.add(s)));
   renderBlock(document.getElementById('blockHost'), game.block, game.fabricBySlot, {
     onSlotClick: handleSlotClick,
     selectedSlot: null,
-    violations: new Set(),
+    violations,
   });
+  renderRules(evaluated);
   document.getElementById('undoBtn').disabled = game.history.length === 0 || game.locked;
+  return evaluated;
+}
+
+function renderRules(evaluated) {
+  const host = document.getElementById('rulesList');
+  if (!host) return;
+  host.innerHTML = '';
+  evaluated.forEach(r => {
+    const div = document.createElement('div');
+    const isFilled = r.violatingSlots.size > 0;
+    div.className = 'rule-item' + (r.satisfied ? ' satisfied' : (isFilled ? ' violating' : ''));
+    div.innerHTML = `<span class="rule-mark">${r.satisfied ? '✓' : (isFilled ? '×' : '·')}</span><span class="rule-text">${r.description}</span>`;
+    host.appendChild(div);
+  });
 }
 
 function renderPalette() {
@@ -707,18 +761,13 @@ function evaluateRules(rules, fabricBySlot, block, fabricsById) {
   });
 }
 
-// Boot: launch with the heritage-warm palette
-initGame('nine-patch', PALETTES['heritage-warm']);
-
-// Temporary smoke test — removed in Task 6.
-const _testRules = [
+// Boot: launch with the heritage-warm palette and initial rules
+initGame('nine-patch', PALETTES['heritage-warm'], [
   { kind: 'positional', slot: 'center', constraint: { fabricId: 'F_CREAM' } },
-  { kind: 'count', constraint: { hue: 'warm' }, min: 3, max: 5 },
-  { kind: 'adjacency', a: { motif: 'floral' }, b: { motif: 'floral' }, relation: 'forbid' },
+  { kind: 'count', constraint: { fabricId: 'F_MADDER' }, exact: 4 },
   { kind: 'symmetry', axis: 'vertical' },
-];
-window._evalRules = () => evaluateRules(_testRules, game.fabricBySlot, game.block, FABRICS);
-console.log('Smoke test: call window._evalRules() in the console with the current board.');
+  { kind: 'adjacency', a: { motif: 'stripe' }, b: { motif: 'stripe' }, relation: 'forbid' },
+]);
 </script>
 </body>
 </html>
