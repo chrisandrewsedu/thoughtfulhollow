@@ -17,7 +17,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rye&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Honk&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 /* Sampler — shares Glossari's typographic / dictionary voice */
 :root {
@@ -80,15 +80,23 @@ html, body {
 }
 @media (min-width: 700px) {
   html { font-size: 125%; }
-  .app { max-width: 660px; }
+  .app { max-width: 700px; }
 }
 @media (min-width: 1000px) {
-  html { font-size: 140%; }
-  .app { max-width: 720px; }
+  html { font-size: 145%; }
+  .app { max-width: 780px; }
 }
 @media (min-width: 1300px) {
-  html { font-size: 150%; }
-  .app { max-width: 780px; }
+  html { font-size: 165%; }
+  .app { max-width: 880px; }
+}
+@media (min-width: 1600px) {
+  html { font-size: 185%; }
+  .app { max-width: 980px; }
+}
+@media (min-width: 2000px) {
+  html { font-size: 200%; }
+  .app { max-width: 1080px; }
 }
 
 .header {
@@ -100,7 +108,7 @@ html, body {
 }
 .brand { display: flex; align-items: baseline; gap: 0.5rem; }
 .title {
-  font-family: 'Rye', serif;
+  font-family: 'Honk', serif;
   font-weight: 400;
   font-size: 1.5rem; color: var(--ink);
   letter-spacing: -0.01em; line-height: 1;
@@ -136,7 +144,7 @@ html, body {
 }
 .block-name {
   grid-column: 2; justify-self: center;
-  font-family: 'Rye', serif;
+  font-family: 'Honk', serif;
   font-size: 0.85rem;
   color: var(--ink-soft); text-align: center;
 }
@@ -159,7 +167,7 @@ html, body { transition: background 0.25s, color 0.25s; }
   padding: 0.8rem 0 0.4rem;
 }
 .block-svg {
-  width: 100%; max-width: 30rem; aspect-ratio: 1 / 1;
+  width: 100%; max-width: 36rem; aspect-ratio: 1 / 1;
   display: block;
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08));
 }
@@ -246,7 +254,7 @@ html, body { transition: background 0.25s, color 0.25s; }
   padding: 0.12rem 0;
 }
 .rule-mark {
-  font-family: 'Rye', serif;
+  font-family: 'Honk', serif;
   width: 0.95rem; text-align: center; flex-shrink: 0;
   color: var(--ink-ghost);
 }
@@ -279,7 +287,7 @@ html, body { transition: background 0.25s, color 0.25s; }
   color: var(--accent); margin-bottom: 0.4rem;
 }
 .go-title {
-  font-family: 'Rye', serif; font-weight: 400;
+  font-family: 'Honk', serif; font-weight: 400;
   font-size: 2.4rem; line-height: 1; margin-bottom: 0.3rem;
 }
 .go-rule {
@@ -300,7 +308,7 @@ html, body { transition: background 0.25s, color 0.25s; }
 }
 .go-stat { text-align: center; }
 .go-stat-num {
-  font-family: 'Rye', serif;
+  font-family: 'Honk', serif;
   font-size: 1.4rem; color: var(--ink); line-height: 1;
 }
 .go-stat-lbl {
@@ -421,15 +429,15 @@ html, body { transition: background 0.25s, color 0.25s; }
 
   <div class="overlay" id="intro">
     <div class="dict-entry-head">
-      <div style="font-family:'Rye',serif; font-weight:400; font-size:clamp(2.2rem, 7vw, 3.4rem); line-height:1; color:var(--ink); margin-bottom:0.42rem;">Sampler</div>
+      <div style="font-family:'Honk',serif; font-weight:400; font-size:clamp(2.2rem, 7vw, 3.4rem); line-height:1; color:var(--ink); margin-bottom:0.42rem;">Sampler</div>
       <div style="font-family:'Spectral',serif; font-style:italic; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent);">a daily quilt-block puzzle</div>
     </div>
     <div class="go-rule"></div>
     <div class="go-sub" style="text-align:left; max-width:380px;">
-      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Rye',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">1.</span><span>Each day you'll piece a real quilt block: today's is the <b>Nine-Patch</b>.</span></div>
-      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Rye',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">2.</span><span>Tap a fabric, then tap slots to <b>paint</b> them. Tap a different fabric to switch.</span></div>
-      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Rye',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">3.</span><span>Place fabrics so <b>every rule</b> in the panel is satisfied. Violations glow red.</span></div>
-      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Rye',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">4.</span><span>Each puzzle has <b>exactly one solution</b>. There's no submit button — it locks when you've got it.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Honk',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">1.</span><span>Each day you'll piece a real quilt block: today's is the <b>Nine-Patch</b>.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Honk',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">2.</span><span>Tap a fabric, then tap slots to <b>paint</b> them. Tap a different fabric to switch.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Honk',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">3.</span><span>Place fabrics so <b>every rule</b> in the panel is satisfied. Violations glow red.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Honk',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">4.</span><span>Each puzzle has <b>exactly one solution</b>. There's no submit button — it locks when you've got it.</span></div>
     </div>
     <button class="btn" id="beginBtn" onclick="beginDaily()" style="margin-top:0.6rem">Begin</button>
   </div>
@@ -1251,7 +1259,7 @@ function renderShareBlock(playDate, dayName, blockName, time) {
   const dateLabel = new Date(playDate + 'T12:00:00Z')
     .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
   host.innerHTML = `
-    <div style="font-family:'Rye',serif; font-size:1.4rem; line-height:1;">Sampler</div>
+    <div style="font-family:'Honk',serif; font-size:1.4rem; line-height:1;">Sampler</div>
     <div class="share-line" style="font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-faint); margin-top:0.2rem;">${dateLabel} · ${blockName}</div>
     <div class="share-block-svg" id="shareBlockSvg"></div>
     <div class="share-line"><b style="color:var(--ink)">${time}</b></div>
