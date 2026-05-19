@@ -188,12 +188,6 @@ html, body { transition: background 0.25s, color 0.25s; }
 }
 .slot.selected { stroke: var(--accent); stroke-width: 3; }
 .slot.violation { stroke: var(--accent-bright); stroke-width: 4; stroke-dasharray: 4 3; }
-.stripe-divider {
-  stroke: var(--ink-soft);
-  stroke-width: 0.75;
-  stroke-opacity: 0.55;
-  pointer-events: none;
-}
 .slot-label {
   font-family: 'Spectral', serif; font-size: 9px; fill: var(--ink-faint);
   pointer-events: none;
@@ -766,71 +760,97 @@ const BLOCKS = {
     displayName: 'Rail Fence',
     slotCount: 12,
     dayOfWeek: 2, // Tuesday
-    // 4 rows × 3 cols of rail-fence squares. Each slot holds one fabric,
-    // rendered as 3 parallel stripes whose orientation is set by
-    // rotation(i): 0° = horizontal stripes, 90° = vertical stripes.
-    // Per-row alternation (rows 0/2 horizontal, rows 1/3 vertical) gives
-    // the classic basket-weave look. To experiment with a checkerboard
-    // pattern instead, change rotation(i) to `((Math.floor(i/3) + i%3) % 2) * 90`.
+    // Canonical Rail Fence layout: 2×2 grid of rail-fence "squares",
+    // each square split into 3 parallel stripes. 4 squares × 3 stripes
+    // = 12 slots; each slot is one stripe. The 2×2 squares alternate
+    // orientation in a basket-weave:
+    //
+    //   TL: vertical stripes (slots 0, 1, 2 — left to right)
+    //   TR: horizontal stripes (slots 3, 4, 5 — top to bottom)
+    //   BL: horizontal stripes (slots 6, 7, 8 — top to bottom)
+    //   BR: vertical stripes (slots 9, 10, 11 — left to right)
+    //
+    // 200×200 viewBox: outer pad 10, square edge 88, gap 4 between
+    // squares; within each square stripe thickness 28, gap 2.
     slotPath(i) {
-      const r = Math.floor(i / 3), c = i % 3;
-      const SLOT_W = 60, SLOT_H = 44;
-      const GAP_X = 4, GAP_Y = 4;
-      const X_OFFSET = 10, Y_OFFSET = 6;
+      const square = Math.floor(i / 3);   // 0=TL, 1=TR, 2=BL, 3=BR
+      const stripe = i % 3;
+      const SQ = 88, GAP_SQ = 4, PAD = 10, STRIPE = 28, GAP_ST = 2;
+      const sqRow = square >> 1;          // 0 = top, 1 = bottom
+      const sqCol = square & 1;           // 0 = left, 1 = right
+      const sqX = PAD + sqCol * (SQ + GAP_SQ);
+      const sqY = PAD + sqRow * (SQ + GAP_SQ);
+      // TL and BR (squares 0 and 3) have vertical stripes; TR and BL
+      // (squares 1 and 2) have horizontal stripes.
+      const vertical = (square === 0 || square === 3);
+      if (vertical) {
+        // Stripes side-by-side, full square height.
+        return {
+          type: 'rect',
+          x: sqX + stripe * (STRIPE + GAP_ST),
+          y: sqY,
+          w: STRIPE,
+          h: SQ,
+        };
+      }
       return {
         type: 'rect',
-        x: X_OFFSET + c * (SLOT_W + GAP_X),
-        y: Y_OFFSET + r * (SLOT_H + GAP_Y),
-        w: SLOT_W,
-        h: SLOT_H,
+        x: sqX,
+        y: sqY + stripe * (STRIPE + GAP_ST),
+        w: SQ,
+        h: STRIPE,
       };
     },
-    // Per-row stripe rotation in degrees. 0 = horizontal stripes;
-    // 90 = vertical stripes. Used by renderBlock for the stripe overlay
-    // and by the pattern-property rule for effective-direction checks.
+    // Stripe orientation. 0 = horizontal stripe (long axis horizontal);
+    // 90 = vertical stripe (long axis vertical). Used by the
+    // pattern-property rule for effective-direction checks.
     rotation(i) {
-      return (Math.floor(i / 3) % 2) * 90;
+      const square = Math.floor(i / 3);
+      return (square === 0 || square === 3) ? 90 : 0;
     },
+    // Neighbors: within-square chain (the 3 stripes touch each other in
+    // a linear chain). Cross-square adjacency is not modelled — the
+    // perpendicular orientation across boundaries makes it ambiguous,
+    // and existing templates don't need it.
     neighbors(i) {
-      const r = Math.floor(i / 3), c = i % 3;
+      const stripe = i % 3;
       const out = [];
-      if (r > 0) out.push(i - 3);
-      if (r < 3) out.push(i + 3);
-      if (c > 0) out.push(i - 1);
-      if (c < 2) out.push(i + 1);
+      if (stripe > 0) out.push(i - 1);
+      if (stripe < 2) out.push(i + 1);
       return out;
     },
-    symmetryPairs(axis) {
-      if (axis === 'vertical')   return [[0,2],[3,5],[6,8],[9,11]];
-      if (axis === 'horizontal') return [[0,9],[1,10],[2,11],[3,6],[4,7],[5,8]];
-      // 4×3 is not square — no clean diagonal axis.
+    // Reflection symmetry is awkward here — vertical/horizontal flips
+    // map vertical-stripe squares to horizontal-stripe positions, so
+    // slot-by-slot reflection breaks the structure. Return [] for now;
+    // rotational symmetry (below) is the canonical Rail Fence symmetry.
+    symmetryPairs(_axis) {
       return [];
     },
-    // 180° rotational symmetry pairs (i ↔ 11−i). No clean order-3 or
-    // order-4 rotation since the block is not square.
+    // 180° rotational symmetry pairs (slot i around block center (100,
+    // 100) maps to slot 11-i; the math works because the basket-weave
+    // is rotationally symmetric of order 2 by construction).
     rotationalSymmetryGroups(order) {
       if (order === 2) return [[0,11],[1,10],[2,9],[3,8],[4,7],[5,6]];
       return [];
     },
     namedSlot(name) {
       const map = {
-        leftColumn:   [0, 3, 6, 9],
-        middleColumn: [1, 4, 7, 10],
-        rightColumn:  [2, 5, 8, 11],
-        topRow:       [0, 1, 2],
-        row1:         [3, 4, 5],
-        row2:         [6, 7, 8],
-        bottomRow:    [9, 10, 11],
-        // Aliases for clarity in templates.
-        row0:         [0, 1, 2],
-        row3:         [9, 10, 11],
-        corners:      [0, 2, 9, 11],
+        // Whole-square pins — all 3 stripes of one square.
+        squareTL: [0, 1, 2],
+        squareTR: [3, 4, 5],
+        squareBL: [6, 7, 8],
+        squareBR: [9, 10, 11],
+        // Per-orientation groups.
+        verticalSquares:   [0, 1, 2, 9, 10, 11], // TL + BR
+        horizontalSquares: [3, 4, 5, 6, 7, 8],   // TR + BL
+        // Inner stripe (middle of each square).
+        middleStripes: [1, 4, 7, 10],
       };
       return map[name];
     },
     // Rail Fence has no concentric rings; ring() is reserved for blocks
     // like Log Cabin (Phase 3b).
-    ring(i) {
+    ring(_i) {
       return undefined;
     },
   },
@@ -907,62 +927,61 @@ const TEMPLATES = [
     ],
   },
 
-  // Rail Fence Template A: "Stacked Columns" — each column is one fabric.
-  // Middle column is anchored to cream; left and right columns are
-  // date-rotated. The block reads as three vertical bands of color, each
-  // composed of 4 stacked rail-fence squares. Easy Tuesday-level puzzle:
-  // once the rule colors are visible, paint each column.
+  // Rail Fence Template A: "Four Squares" — each of the 4 rail-fence
+  // squares is a single fabric (all 3 stripes within a square match).
+  // The top-right square is anchored to cream; the other three are
+  // date-rotated so each Tuesday's block displays a different colour
+  // arrangement around the cream anchor.
   {
-    id: 'rail-fence-stacked-columns-v1',
+    id: 'rail-fence-four-squares-v1',
     block: 'rail-fence',
     paletteFamily: 'heritage-warm',
     paletteSize: 6,
     fabricRoles: {
-      LEFT: null,
-      MIDDLE: 'F_CREAM',
-      RIGHT: null,
+      SQ_TL: null,
+      SQ_TR: 'F_CREAM',
+      SQ_BL: null,
+      SQ_BR: null,
     },
     rules: [
-      { kind: 'positional', slot: 'leftColumn',   constraint: { fabricId: 'ROLE:LEFT' } },
-      { kind: 'positional', slot: 'middleColumn', constraint: { fabricId: 'ROLE:MIDDLE' } },
-      { kind: 'positional', slot: 'rightColumn',  constraint: { fabricId: 'ROLE:RIGHT' } },
+      { kind: 'positional', slot: 'squareTL', constraint: { fabricId: 'ROLE:SQ_TL' } },
+      { kind: 'positional', slot: 'squareTR', constraint: { fabricId: 'ROLE:SQ_TR' } },
+      { kind: 'positional', slot: 'squareBL', constraint: { fabricId: 'ROLE:SQ_BL' } },
+      { kind: 'positional', slot: 'squareBR', constraint: { fabricId: 'ROLE:SQ_BR' } },
     ],
   },
 
-  // Rail Fence Template B: "Horizontal Stripe Bands" — every-other row is
-  // indigo stripe; alternating rows are date-rotated. Because Rail Fence
-  // rotates rows 1 and 3 by 90°, placing the (intrinsically-vertical)
-  // indigo stripe on rows 0 and 2 keeps it reading visually vertical —
-  // satisfying the pattern-property rule. This teaches the player that
-  // fabric direction interacts with slot rotation.
+  // Rail Fence Template B: "Indigo Goes Vertical" — the indigo stripe
+  // (intrinsically vertical) is the headline of both vertical-stripe
+  // squares (TL and BR). The pattern-property rule "all striped
+  // fabrics must run vertical" is satisfied because those squares run
+  // their stripes vertically. The two horizontal-stripe squares (TR,
+  // BL) are date-rotated to keep day-to-day variety.
   {
-    id: 'rail-fence-stripe-bands-v1',
+    id: 'rail-fence-indigo-vertical-v1',
     block: 'rail-fence',
     paletteFamily: 'heritage-warm',
     paletteSize: 6,
     fabricRoles: {
-      STRIPE: 'F_INDIGO',
-      ROW1:   null,
-      ROW3:   null,
+      STRIPE_FAB: 'F_INDIGO',
+      H_TR: null,
+      H_BL: null,
     },
     rules: [
-      // Pattern-property is the headline rule — visible in the rules
-      // panel, teaches the concept. Solver-wise it's reinforced by the
-      // positional pins below.
       { kind: 'pattern-property', property: 'effective-direction',
         slotConstraint: { motif: 'stripe' }, value: 'vertical' },
-      { kind: 'positional', slot: 'row0', constraint: { fabricId: 'ROLE:STRIPE' } },
-      { kind: 'positional', slot: 'row2', constraint: { fabricId: 'ROLE:STRIPE' } },
-      { kind: 'positional', slot: 'row1', constraint: { fabricId: 'ROLE:ROW1' } },
-      { kind: 'positional', slot: 'row3', constraint: { fabricId: 'ROLE:ROW3' } },
+      { kind: 'positional', slot: 'squareTL', constraint: { fabricId: 'ROLE:STRIPE_FAB' } },
+      { kind: 'positional', slot: 'squareBR', constraint: { fabricId: 'ROLE:STRIPE_FAB' } },
+      { kind: 'positional', slot: 'squareTR', constraint: { fabricId: 'ROLE:H_TR' } },
+      { kind: 'positional', slot: 'squareBL', constraint: { fabricId: 'ROLE:H_BL' } },
     ],
   },
 
-  // Rail Fence Template C: "Mirror Pairs" — the top half of the block
-  // mirrors the bottom half under 180° rotation. The player paints 6
-  // slots and the rotational-symmetry rule does the rest. Cream anchors
-  // the center pair; the other five pairs are date-rotated, giving a
-  // pinwheel-like effect.
+  // Rail Fence Template C: "Mirror Pairs" — every slot equals its
+  // 180°-rotated partner. The player paints 6 stripes (the upper-half
+  // squares: TL + TR); the rotational-symmetry rule forces the lower
+  // half (BL + BR) to match. The center stripe of TR is anchored to
+  // cream; the other five pair-anchors are date-rotated.
   {
     id: 'rail-fence-mirror-pairs-v1',
     block: 'rail-fence',
@@ -973,9 +992,11 @@ const TEMPLATES = [
       P0: null, P1: null, P2: null, P3: null, P5: null,
     },
     rules: [
-      // Headline rule: 2-fold rotational symmetry pairs (0,11)(1,10)(2,9)(3,8)(4,7)(5,6).
+      // Headline rule: 2-fold rotational symmetry. Pairs are (0,11)
+      // (1,10)(2,9)(3,8)(4,7)(5,6).
       { kind: 'rotational-symmetry', order: 2 },
-      // Pin the upper half; the lower half follows from the rotation rule.
+      // Pin the upper half (squares TL and TR); the lower half follows
+      // from the rotation rule.
       { kind: 'positional', slot: 0, constraint: { fabricId: 'ROLE:P0' } },
       { kind: 'positional', slot: 1, constraint: { fabricId: 'ROLE:P1' } },
       { kind: 'positional', slot: 2, constraint: { fabricId: 'ROLE:P2' } },
@@ -1183,20 +1204,6 @@ function renderBlock(host, block, fabricBySlot, opts) {
       el.addEventListener('click', () => opts.onSlotClick(i));
     }
     svg.appendChild(el);
-    // Stripe dividers for blocks that define rotation(i) (e.g. Rail Fence).
-    // Two thin lines split each slot into 3 visual stripes; orientation
-    // comes from block.rotation(i) (0 = horizontal stripes, 90 = vertical).
-    if (typeof block.rotation === 'function' && path.type === 'rect') {
-      const rot = block.rotation(i);
-      const divs = stripeDividers(path, rot);
-      for (const d of divs) {
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', d.x1); line.setAttribute('y1', d.y1);
-        line.setAttribute('x2', d.x2); line.setAttribute('y2', d.y2);
-        line.setAttribute('class', 'stripe-divider');
-        svg.appendChild(line);
-      }
-    }
     if (!fid) {
       const center = slotCenter(path);
       const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -1209,26 +1216,6 @@ function renderBlock(host, block, fabricBySlot, opts) {
     }
   }
   host.appendChild(svg);
-}
-
-// For Rail Fence slots: two thin lines at 1/3 and 2/3 across the slot,
-// perpendicular to the stripe orientation. rot=0 → horizontal stripes
-// (lines run left-to-right); rot=90 → vertical stripes (lines run
-// top-to-bottom).
-function stripeDividers(path, rotationDeg) {
-  const { x, y, w, h } = path;
-  if (rotationDeg === 90) {
-    // Vertical stripes — dividers are vertical lines at x = x+w/3 and x+2w/3.
-    return [
-      { x1: x + w / 3, y1: y, x2: x + w / 3, y2: y + h },
-      { x1: x + 2 * w / 3, y1: y, x2: x + 2 * w / 3, y2: y + h },
-    ];
-  }
-  // Default (rot=0) — horizontal stripes; dividers are horizontal lines.
-  return [
-    { x1: x, y1: y + h / 3, x2: x + w, y2: y + h / 3 },
-    { x1: x, y1: y + 2 * h / 3, x2: x + w, y2: y + 2 * h / 3 },
-  ];
 }
 
 // ─── Seeded RNG ──────────────────────────────────────────────────────
@@ -1490,16 +1477,12 @@ function describeConstraint(c, fabricsById) {
 }
 
 // Effective stripe direction = the orientation the player visually sees
-// for the slot. The fabric carries an intrinsic direction; the slot may
-// rotate it 90°. Diagonal stays diagonal (a coarse approximation —
-// good enough for the current rule shape).
-function effectiveDirection(fabricDir, slotRotationDeg) {
-  if (!fabricDir) return null;
-  if (slotRotationDeg === 90) {
-    if (fabricDir === 'horizontal') return 'vertical';
-    if (fabricDir === 'vertical') return 'horizontal';
-  }
-  return fabricDir;
+// for the slot, in the block's coordinate frame. In the rail-fence
+// stripe-as-slot model, the slot's own orientation IS the direction
+// stripe-pattern fabrics read in. The fabric's intrinsic direction is
+// kept as a "is this a directional fabric?" gate at the call site.
+function effectiveDirection(_fabricDir, slotRotationDeg) {
+  return slotRotationDeg === 90 ? 'vertical' : 'horizontal';
 }
 
 // Rule verify() contract:
