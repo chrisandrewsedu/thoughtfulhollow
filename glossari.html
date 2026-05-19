@@ -1156,7 +1156,7 @@ function renderArchive() {
     ['Streak', stored.streak || 0],
     ['Played', stored.totalPlayed || 0],
     ['Flawless', stored.totalFlawless || 0],
-    ['Avg', formatAvgTime(stored)],
+    ['Avg Time', formatAvgTime(stored)],
   ].forEach(([label, val]) => {
     const stat = document.createElement('div');
     stat.className = 'archive-stat';
@@ -1484,7 +1484,9 @@ function showReveal() {
   const playDate = state.playDate || todayStr();
   const dateStr = new Date(playDate + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/New_York' });
   const persisted = stored.byDate && stored.byDate[playDate];
-  const result = state.mode === 'daily' ? (persisted ? persisted.result : buildCurrentResult()) : buildCurrentResult();
+  const result = state.mode === 'daily' && persisted && !state.replay
+    ? persisted.result
+    : buildCurrentResult();
   if (state.mode === 'daily') {
     const puzzleNum = dailyIndex(playDate) + 1;
     document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Daily No. ${puzzleNum} —</div><div class="reveal-title">${puzzle.name}</div><div class="reveal-date">${dateStr}</div>`;
@@ -1565,7 +1567,7 @@ function buildShareBlockHTML(stored, puzzle, puzzleNum, result, playDate) {
       <div class="share-stat"><div class="share-stat-num">${stored.streak || 0}</div><div class="share-stat-lbl">Streak</div></div>
       <div class="share-stat"><div class="share-stat-num">${stored.totalPlayed || 0}</div><div class="share-stat-lbl">Played</div></div>
       <div class="share-stat"><div class="share-stat-num">${stored.totalFlawless || 0}</div><div class="share-stat-lbl">Flawless</div></div>
-      <div class="share-stat"><div class="share-stat-num">${formatAvgTime(stored)}</div><div class="share-stat-lbl">Avg</div></div>
+      <div class="share-stat"><div class="share-stat-num">${formatAvgTime(stored)}</div><div class="share-stat-lbl">Avg Time</div></div>
     </div>
     <div class="share-perf">
       <div class="share-perf-word"><span class="share-sym">❦</span>${perf.word}<span class="share-perf-pos">${perf.pos}</span></div>
@@ -1611,7 +1613,7 @@ function copyResult() {
 function showAlreadyPlayed(stored) {
   document.getElementById('intro').classList.remove('show');
   const statsEl = document.getElementById('alreadyStats'); statsEl.textContent = '';
-  [['Streak', stored.streak || 0], ['Played', stored.totalPlayed || 0], ['Flawless', stored.totalFlawless || 0], ['Avg', formatAvgTime(stored)]].forEach(([label, val]) => {
+  [['Streak', stored.streak || 0], ['Played', stored.totalPlayed || 0], ['Flawless', stored.totalFlawless || 0], ['Avg Time', formatAvgTime(stored)]].forEach(([label, val]) => {
     const div = document.createElement('div'); div.className = 'go-stat';
     const num = document.createElement('div'); num.className = 'go-stat-num'; num.textContent = val;
     const lbl = document.createElement('div'); lbl.className = 'go-stat-label'; lbl.textContent = label;
