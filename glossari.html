@@ -1023,6 +1023,16 @@ function stopTimer() {
   if (state.timerStart) { state.elapsed = Math.floor((Date.now() - state.timerStart) / 1000); }
 }
 
+function resumeTimer() {
+  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+  const offset = Date.now() - state.elapsed * 1000;
+  state.timerStart = offset;
+  document.getElementById('timer').textContent = formatTime(state.elapsed);
+  state.timerInterval = setInterval(() => {
+    document.getElementById('timer').textContent = formatTime(Math.floor((Date.now() - offset) / 1000));
+  }, 1000);
+}
+
 function startDailyGame(dateStr, opts) {
   dateStr = dateStr || todayStr();
   const replay = !!(opts && opts.replay);
