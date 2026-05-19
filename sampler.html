@@ -172,6 +172,42 @@ html, body { transition: background 0.25s, color 0.25s; }
   font-family: 'Lora', serif; font-size: 9px; fill: var(--ink-faint);
   pointer-events: none;
 }
+
+.palette {
+  display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;
+  padding: 0.6rem 0.4rem 0.2rem;
+}
+.palette-swatch {
+  width: 44px; height: 44px;
+  border: 2px solid var(--ink-ghost); border-radius: 4px;
+  cursor: pointer; padding: 0;
+  display: block; position: relative;
+  transition: transform 0.12s, border-color 0.15s, box-shadow 0.15s;
+}
+.palette-swatch:hover { border-color: var(--ink-faint); }
+.palette-swatch.selected {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.palette-swatch svg { display: block; width: 100%; height: 100%; }
+.palette-swatch.erase { border-style: dashed; background: transparent; color: var(--ink-faint); font-size: 1.1rem; line-height: 1; display: flex; align-items: center; justify-content: center; }
+.palette-swatch.erase.selected { color: var(--accent); }
+
+.toolbar {
+  display: flex; gap: 0.5rem; justify-content: center;
+  padding: 0.4rem 0;
+}
+.toolbar-btn {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.75rem;
+  padding: 0.45rem 0.95rem;
+  background: transparent; color: var(--ink-soft);
+  border: 1px solid var(--ink-ghost); border-radius: 3px;
+  cursor: pointer;
+}
+.toolbar-btn:hover { border-color: var(--ink-faint); color: var(--ink); }
+.toolbar-btn:disabled { opacity: 0.3; cursor: default; }
 </style>
 </head>
 <body>
@@ -393,19 +429,124 @@ function renderBlock(host, block, fabricBySlot, opts) {
   host.appendChild(svg);
 }
 
-// Initial Nine-Patch with a hand-picked fabric set for visual sanity.
-// Replaced by template-driven init in Task 7.
+// ─── Game state ──────────────────────────────────────────────────────
+let game = {
+  block: null,             // BLOCKS[id]
+  paletteIds: [],          // fabric IDs in palette order
+  fabricBySlot: [],        // length = block.slotCount, fabric ID or null
+  selectedFabric: null,    // fabric ID or 'ERASE'
+  history: [],             // for undo: array of {slot, prev}
+  playDate: null,
+  replay: false,
+  timerStart: null,
+  timerInterval: null,
+  elapsed: 0,
+  locked: false,
+};
+
 const STAGE_HTML = `
   <div class="block-stage">
     <div id="blockHost"></div>
   </div>
+  <div class="palette" id="palette"></div>
+  <div class="toolbar">
+    <button class="toolbar-btn" id="undoBtn" onclick="undoMove()" disabled>Undo</button>
+  </div>
 `;
 document.getElementById('main').innerHTML = STAGE_HTML;
 
-const _initialFabrics = ['F_MADDER','F_CREAM','F_MADDER','F_CREAM','F_INDIGO','F_CREAM','F_MADDER','F_CREAM','F_MADDER'];
-renderBlock(document.getElementById('blockHost'), BLOCKS['nine-patch'], _initialFabrics);
+function startTimer() {
+  stopTimer();
+  game.timerStart = Date.now(); game.elapsed = 0;
+  document.getElementById('timer').textContent = '0:00';
+  game.timerInterval = setInterval(() => {
+    game.elapsed = Math.floor((Date.now() - game.timerStart) / 1000);
+    document.getElementById('timer').textContent = formatTime(game.elapsed);
+  }, 1000);
+}
+function stopTimer() {
+  if (game.timerInterval) clearInterval(game.timerInterval);
+  game.timerInterval = null;
+}
 
-document.getElementById('blockName').textContent = BLOCKS['nine-patch'].displayName;
+function initGame(blockId, paletteIds) {
+  game.block = BLOCKS[blockId];
+  game.paletteIds = paletteIds.slice();
+  game.fabricBySlot = new Array(game.block.slotCount).fill(null);
+  game.selectedFabric = paletteIds[0] || null;
+  game.history = [];
+  game.locked = false;
+  document.getElementById('blockName').textContent = game.block.displayName;
+  renderAll();
+  startTimer();
+}
+
+function renderAll() {
+  renderPalette();
+  renderBlock(document.getElementById('blockHost'), game.block, game.fabricBySlot, {
+    onSlotClick: handleSlotClick,
+    selectedSlot: null,
+    violations: new Set(),
+  });
+  document.getElementById('undoBtn').disabled = game.history.length === 0 || game.locked;
+}
+
+function renderPalette() {
+  const host = document.getElementById('palette');
+  host.innerHTML = '';
+  game.paletteIds.forEach(fid => {
+    const f = FABRICS[fid];
+    const btn = document.createElement('button');
+    btn.className = 'palette-swatch' + (game.selectedFabric === fid ? ' selected' : '');
+    btn.setAttribute('aria-label', f.name);
+    btn.innerHTML = `<svg viewBox="0 0 40 40"><rect width="40" height="40" fill="url(#${fid})"/></svg>`;
+    btn.addEventListener('click', () => selectFabric(fid));
+    host.appendChild(btn);
+  });
+  // Erase brush
+  const erase = document.createElement('button');
+  erase.className = 'palette-swatch erase' + (game.selectedFabric === 'ERASE' ? ' selected' : '');
+  erase.setAttribute('aria-label', 'Erase');
+  erase.textContent = '✕';
+  erase.addEventListener('click', () => selectFabric('ERASE'));
+  host.appendChild(erase);
+}
+
+function selectFabric(fid) {
+  if (game.locked) return;
+  game.selectedFabric = fid;
+  renderAll();
+}
+
+function handleSlotClick(slotIdx) {
+  if (game.locked) return;
+  if (!game.selectedFabric) return;
+  const prev = game.fabricBySlot[slotIdx];
+  const next = game.selectedFabric === 'ERASE' ? null : game.selectedFabric;
+  if (prev === next) {
+    // Tap same fabric on already-filled slot = erase
+    if (game.selectedFabric !== 'ERASE') {
+      game.history.push({ slot: slotIdx, prev });
+      game.fabricBySlot[slotIdx] = null;
+      renderAll();
+    }
+    return;
+  }
+  game.history.push({ slot: slotIdx, prev });
+  game.fabricBySlot[slotIdx] = next;
+  renderAll();
+}
+
+function undoMove() {
+  if (game.locked) return;
+  const last = game.history.pop();
+  if (!last) return;
+  game.fabricBySlot[last.slot] = last.prev;
+  renderAll();
+}
+
+// Boot: launch with the heritage-warm palette
+initGame('nine-patch', PALETTES['heritage-warm']);
 </script>
 </body>
 </html>
