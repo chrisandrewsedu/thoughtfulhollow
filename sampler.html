@@ -906,14 +906,16 @@ function solve(block, paletteIds, rules, fabricsById, cap) {
     }
     for (const fid of paletteIds) {
       assignment[i] = fid;
-      // Cheap prune: only check rules whose violatingSlots indicate a
-      // confirmed conflict given currently-assigned slots.
+      // Forward pruning: rule has either an irrecoverable violation among
+      // already-assigned slots, OR the rule reports stillPossible=false
+      // (e.g., a count rule's min is unreachable given slotsRemaining).
       const evaluated = evaluateRules(rules, assignment, block, fabricsById);
       const violatingAssigned = evaluated.some(r =>
         r.violatingSlots.size > 0 &&
         Array.from(r.violatingSlots).every(s => s <= i)
       );
-      if (!violatingAssigned) recurse(i + 1);
+      const infeasible = evaluated.some(r => !r.stillPossible);
+      if (!violatingAssigned && !infeasible) recurse(i + 1);
       if (solutions.length >= cap) { assignment[i] = null; return; }
     }
     assignment[i] = null;
@@ -1286,6 +1288,14 @@ function describeConstraint(c, fabricsById) {
   return parts.length ? parts.join(' ') : 'any fabric';
 }
 
+// Rule verify() contract:
+//   verify(rule, fabricBySlot, block, fabricsById) →
+//     { satisfied: bool, violatingSlots: Set<int>, stillPossible: bool }
+//
+// stillPossible = false means "no completion of fabricBySlot can satisfy
+// this rule." The solver uses this for forward pruning. Rules that can't
+// cheaply look ahead should return stillPossible: true (safe default —
+// equivalent to no extra pruning). Live UI ignores stillPossible.
 const RULE_KINDS = {
   count: {
     describe(rule, fabricsById) {
@@ -1299,10 +1309,13 @@ const RULE_KINDS = {
     },
     verify(rule, fabricBySlot, block, fabricsById) {
       const matchingSlots = [];
+      let filled = 0;
       fabricBySlot.forEach((fid, i) => {
+        if (fid) filled++;
         if (fid && fabricMatches(fid, rule.constraint, fabricsById)) matchingSlots.push(i);
       });
       const n = matchingSlots.length;
+      const slotsRemaining = fabricBySlot.length - filled;
       let ok = true;
       if (rule.exact !== undefined) ok = n === rule.exact;
       else {
@@ -1314,9 +1327,20 @@ const RULE_KINDS = {
         // All matching slots are over-budget; flag them all.
         matchingSlots.forEach(i => violating.add(i));
       }
+      // Forward pruning: rule is no longer satisfiable if the current
+      // matched count exceeds the budget, or the remaining slots can't
+      // bring it up to the minimum.
+      let stillPossible = true;
+      if (rule.exact !== undefined) {
+        if (n > rule.exact) stillPossible = false;
+        else if (n + slotsRemaining < rule.exact) stillPossible = false;
+      } else {
+        if (rule.max !== undefined && n > rule.max) stillPossible = false;
+        if (rule.min !== undefined && n + slotsRemaining < rule.min) stillPossible = false;
+      }
       // For under-budget or exact-violations we don't flag specific slots —
       // every empty slot is a candidate.
-      return { satisfied: ok, violatingSlots: violating };
+      return { satisfied: ok, violatingSlots: violating, stillPossible };
     },
   },
 
@@ -1343,7 +1367,9 @@ const RULE_KINDS = {
       });
       // If not all required slots are filled yet, the rule is "not yet satisfied"
       // but we don't flag empty slots as violations.
-      return { satisfied: allFilled && ok, violatingSlots: violating };
+      // stillPossible: any concrete violation (slot filled with wrong fabric)
+      // makes the rule unsatisfiable since named slots can't be re-empty.
+      return { satisfied: allFilled && ok, violatingSlots: violating, stillPossible: violating.size === 0 };
     },
   },
 
@@ -1377,9 +1403,9 @@ const RULE_KINDS = {
           if (!hasB && neighborsAllFilled) { ok = false; violating.add(i); }
           if (!neighborsAllFilled) allFilled = false;
         }
-        return { satisfied: ok && allFilled, violatingSlots: violating };
+        return { satisfied: ok && allFilled, violatingSlots: violating, stillPossible: violating.size === 0 };
       }
-      return { satisfied: ok, violatingSlots: violating };
+      return { satisfied: ok, violatingSlots: violating, stillPossible: violating.size === 0 };
     },
   },
 
@@ -1397,7 +1423,7 @@ const RULE_KINDS = {
         if (fa === null || fb === null) { allRelevantFilled = false; return; }
         if (fa !== fb) { ok = false; violating.add(a); violating.add(b); }
       });
-      return { satisfied: ok && allRelevantFilled, violatingSlots: violating };
+      return { satisfied: ok && allRelevantFilled, violatingSlots: violating, stillPossible: violating.size === 0 };
     },
   },
 };
@@ -1405,12 +1431,13 @@ const RULE_KINDS = {
 function evaluateRules(rules, fabricBySlot, block, fabricsById) {
   return rules.map(rule => {
     const kind = RULE_KINDS[rule.kind];
-    if (!kind) return { rule, satisfied: false, violatingSlots: new Set(), description: '(unknown rule)' };
+    if (!kind) return { rule, satisfied: false, violatingSlots: new Set(), stillPossible: true, description: '(unknown rule)' };
     const result = kind.verify(rule, fabricBySlot, block, fabricsById);
     return {
       rule,
       satisfied: result.satisfied,
       violatingSlots: result.violatingSlots,
+      stillPossible: result.stillPossible !== false,
       description: kind.describe(rule, fabricsById),
     };
   });
