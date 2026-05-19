@@ -565,7 +565,7 @@ html, body { transition: background 0.25s, color 0.25s; }
       <button class="archive-close" type="button" onclick="closeArchive()" aria-label="Close archive">✕</button>
       <div class="archive-header">
         <div class="archive-title">Archive</div>
-        <div class="archive-subtitle"><em>Sampler · since May 17, 2026</em></div>
+        <div class="archive-subtitle"><em>Sampler · since May 19, 2026</em></div>
       </div>
       <div class="archive-monthnav">
         <button class="archive-navbtn" type="button" id="archivePrevBtn" onclick="archiveShiftMonth(-1)">‹</button>
@@ -601,15 +601,12 @@ document.getElementById('themeToggle').addEventListener('click', function () {
 });
 
 // ─── RELEASE CONFIG ──────────────────────────────────────────────────
-// TODO before public launch:
-//   1. Set LAUNCH_DATE to the real public-launch date.
-//   2. Author enough TEMPLATES that the game has at least 4 weeks of
-//      content from LAUNCH_DATE (28+ templates). With fewer templates,
-//      players will see the "Coming Soon" overlay after the available
-//      days are exhausted — by design for the QA period, but not
-//      acceptable for public launch.
+// LAUNCH_DATE is the public launch date — day 0 from which dailyIndex counts.
+// With N templates authored, the first N days from LAUNCH_DATE have unique
+// puzzles; subsequent days show the "Coming Soon" overlay until more
+// templates are added. Author more templates before that runway runs out.
 const STORAGE_KEY = 'sampler_daily_v1';
-const LAUNCH_DATE = '2026-05-17';
+const LAUNCH_DATE = '2026-05-19';
 
 function todayStr() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());

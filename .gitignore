@@ -5,3 +5,6 @@
 node_modules/
 .env
 .env.local
+
+# Throwaway prototypes from the design phase — not shipped content.
+sketches/
