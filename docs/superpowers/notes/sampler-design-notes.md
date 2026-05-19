@@ -178,6 +178,34 @@ The user explicitly named "collaboration with the algorithm" as the model: autho
 - 2026-05-18 — When verifyTemplate reports failures, the failure message should name **which rule** is over- or under-constraining. The current implementation just reports counts. Improve before Phase 4 (when Saturday templates with 6+ entangled rules become hard to debug).
 - 2026-05-19 — **Open bug discovered during Phase 3a:** `nine-patch-diagonal-v1` and `nine-patch-warm-cool-v1` both report `0 unique / 0 none / 30 multiple` under `verifyTemplate`. The breakage pre-dates Phase 3a (confirmed by running verifyTemplate against `HEAD~10`). Templates were authored without verification or the rules drifted. Mon-week-1 and Mon-week-2 currently serve non-unique puzzles. **Action:** re-author or tighten the two templates before Phase 3b ships. `nine-patch-greek-cross-v1` still verifies unique, so Mon week 0 is fine.
 
+### Decorative rules (added Phase 3a)
+
+Templates can now flag any rule with `decorative: true`. `evaluateRules` short-circuits decorative rules to `{satisfied:true, violatingSlots:∅, stillPossible:true}` — they appear in the rules panel via `kind.describe()` but never constrain the solver or trigger violation highlights.
+
+Use cases (to be exercised by Phase 3b+ templates):
+
+- **Pedagogy** — surface a property that's true by construction. E.g. on a Three-Rails Rail Fence template, add `{ kind: 'rotational-symmetry', order: 2, decorative: true }` to teach the player that the block has rotational symmetry even though that's already forced by the rank-based positional rules.
+- **Theme / flavour** — name a design family. E.g. `{ kind: 'pattern-property', property: 'effective-direction', slotConstraint: {motif:'stripe'}, value: 'vertical', decorative: true }` reads as "striped fabrics in this template run vertical" without affecting solving.
+- **Pre-implementation placeholder** — flag a rule whose kind isn't fully implemented yet (returns trivial satisfied:true). Templates ship the descriptive copy now; verification logic lands later.
+
+The `pattern-property` rule kind and `block.rotation()` on Rail Fence are unused by current Phase 3a templates — they stay in the codebase so future templates can either use them as hard constraints (once a horizontally-striped fabric exists in some palette and gives them solving teeth) or as decorative pedagogy.
+
+### Rail Fence — quilter-authentic templates (Phase 3a)
+
+The first pass at Rail Fence templates pinned whole squares to one fabric ("each square is monochrome"). That's not how real quilters use Rail Fence — the canonical pattern is **three different fabrics per square, same A-B-C rank ordering across all four squares**, which is what creates the basket-weave illusion when blocks tile.
+
+Phase 3a's final template set, all using `topRails / middleRails / bottomRails` named slots:
+
+- **rail-fence-three-rails-v1** — canonical 3-fabric A-B-C. Cream anchors the middle rail; top and bottom rails are date-rotated.
+- **rail-fence-center-stripe-v1** — palindromic 2-fabric A-B-A around a cream center.
+- **rail-fence-mirror-pairs-v1** — `rotational-symmetry order 2` + slot pins on the upper-half squares.
+
+Future Rail Fence template ideas worth authoring in Phase 3b:
+
+- **Light-Medium-Dark gradient** — value-based positional constraints (e.g. `topRails = {value:'light'}, middleRails = {value:'medium'}, bottomRails = {value:'dark'}`) instead of fabric-ID pins. Needs more medium/dark fabrics or a forced-monochrome-per-rank rule.
+- **Diagonal stripe** — fabric A on `topRails`, fabric B on `middleRails`, fabric C on `bottomRails`, with the values arranged so the gradient reads diagonally across the assembled block.
+- **Direction-aware stripe rule** — once a horizontally-striped fabric joins the palette, `pattern-property` can express "striped fabrics must run with their rail" as a real constraint instead of a decorative one.
+
 ### Existing-file impact (cross-phase)
 
 Touching `glossari.html` to add a cross-promo or to update the site footer is fair game during Phase 6. Avoid changing `glossari.html` in Phases 1–5.

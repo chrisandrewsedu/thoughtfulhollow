@@ -840,11 +840,17 @@ const BLOCKS = {
         squareTR: [3, 4, 5],
         squareBL: [6, 7, 8],
         squareBR: [9, 10, 11],
-        // Per-orientation groups.
+        // Per-rank groups: the "top rail" of every square is the
+        // first stripe in the square's natural reading order (leftmost
+        // for vertical-stripe squares, topmost for horizontal). The
+        // canonical Rail Fence pattern uses the same fabric at each
+        // rank across all 4 squares, producing the basket-weave look.
+        topRails:    [0, 3, 6, 9],
+        middleRails: [1, 4, 7, 10],
+        bottomRails: [2, 5, 8, 11],
+        // Per-orientation groups (handy for direction-aware rules).
         verticalSquares:   [0, 1, 2, 9, 10, 11], // TL + BR
         horizontalSquares: [3, 4, 5, 6, 7, 8],   // TR + BL
-        // Inner stripe (middle of each square).
-        middleStripes: [1, 4, 7, 10],
       };
       return map[name];
     },
@@ -927,53 +933,52 @@ const TEMPLATES = [
     ],
   },
 
-  // Rail Fence Template A: "Four Squares" — each of the 4 rail-fence
-  // squares is a single fabric (all 3 stripes within a square match).
-  // The top-right square is anchored to cream; the other three are
+  // Rail Fence Template A: "Three Rails" — the canonical Rail Fence
+  // pattern. Three different fabrics, each one occupying a specific
+  // rank (top/middle/bottom rail) across all 4 squares. The basket-
+  // weave illusion emerges because the same A→B→C ordering appears in
+  // every square, perpendicular between adjacent squares.
+  //
+  // Cream anchors the middle rail; the top and bottom rails are
   // date-rotated so each Tuesday's block displays a different colour
-  // arrangement around the cream anchor.
+  // story along the rails.
   {
-    id: 'rail-fence-four-squares-v1',
+    id: 'rail-fence-three-rails-v1',
     block: 'rail-fence',
     paletteFamily: 'heritage-warm',
     paletteSize: 6,
     fabricRoles: {
-      SQ_TL: null,
-      SQ_TR: 'F_CREAM',
-      SQ_BL: null,
-      SQ_BR: null,
+      RAIL_TOP: null,
+      RAIL_MID: 'F_CREAM',
+      RAIL_BOT: null,
     },
     rules: [
-      { kind: 'positional', slot: 'squareTL', constraint: { fabricId: 'ROLE:SQ_TL' } },
-      { kind: 'positional', slot: 'squareTR', constraint: { fabricId: 'ROLE:SQ_TR' } },
-      { kind: 'positional', slot: 'squareBL', constraint: { fabricId: 'ROLE:SQ_BL' } },
-      { kind: 'positional', slot: 'squareBR', constraint: { fabricId: 'ROLE:SQ_BR' } },
+      { kind: 'positional', slot: 'topRails',    constraint: { fabricId: 'ROLE:RAIL_TOP' } },
+      { kind: 'positional', slot: 'middleRails', constraint: { fabricId: 'ROLE:RAIL_MID' } },
+      { kind: 'positional', slot: 'bottomRails', constraint: { fabricId: 'ROLE:RAIL_BOT' } },
     ],
   },
 
-  // Rail Fence Template B: "Indigo Goes Vertical" — the indigo stripe
-  // (intrinsically vertical) is the headline of both vertical-stripe
-  // squares (TL and BR). The pattern-property rule "all striped
-  // fabrics must run vertical" is satisfied because those squares run
-  // their stripes vertically. The two horizontal-stripe squares (TR,
-  // BL) are date-rotated to keep day-to-day variety.
+  // Rail Fence Template B: "Center Stripe" — a palindromic two-fabric
+  // variation. Top and bottom rails share one fabric (the "frame");
+  // the middle rail is a contrasting accent. Each square reads as
+  // A-B-A around the center stripe.
+  //
+  // Frame is date-rotated; center is anchored to cream so the puzzle
+  // always has a clean light through-line.
   {
-    id: 'rail-fence-indigo-vertical-v1',
+    id: 'rail-fence-center-stripe-v1',
     block: 'rail-fence',
     paletteFamily: 'heritage-warm',
     paletteSize: 6,
     fabricRoles: {
-      STRIPE_FAB: 'F_INDIGO',
-      H_TR: null,
-      H_BL: null,
+      FRAME:  null,
+      CENTER: 'F_CREAM',
     },
     rules: [
-      { kind: 'pattern-property', property: 'effective-direction',
-        slotConstraint: { motif: 'stripe' }, value: 'vertical' },
-      { kind: 'positional', slot: 'squareTL', constraint: { fabricId: 'ROLE:STRIPE_FAB' } },
-      { kind: 'positional', slot: 'squareBR', constraint: { fabricId: 'ROLE:STRIPE_FAB' } },
-      { kind: 'positional', slot: 'squareTR', constraint: { fabricId: 'ROLE:H_TR' } },
-      { kind: 'positional', slot: 'squareBL', constraint: { fabricId: 'ROLE:H_BL' } },
+      { kind: 'positional', slot: 'topRails',    constraint: { fabricId: 'ROLE:FRAME' } },
+      { kind: 'positional', slot: 'bottomRails', constraint: { fabricId: 'ROLE:FRAME' } },
+      { kind: 'positional', slot: 'middleRails', constraint: { fabricId: 'ROLE:CENTER' } },
     ],
   },
 
@@ -1463,6 +1468,12 @@ function fabricMatches(fid, constraint, fabricsById) {
   });
 }
 
+// "topRails" → "top rails". Used by rules-panel labels so named-slot
+// identifiers read as natural English in the UI.
+function humanizeSlotName(name) {
+  return name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
+}
+
 function describeConstraint(c, fabricsById) {
   if (c.fabricId) {
     const f = fabricsById[c.fabricId];
@@ -1493,6 +1504,14 @@ function effectiveDirection(_fabricDir, slotRotationDeg) {
 // this rule." The solver uses this for forward pruning. Rules that can't
 // cheaply look ahead should return stillPossible: true (safe default —
 // equivalent to no extra pruning). Live UI ignores stillPossible.
+//
+// Decorative rules: a template can flag any rule with `decorative: true`.
+// evaluateRules short-circuits decorative rules to {satisfied:true,
+// violatingSlots:∅, stillPossible:true} — so they appear in the rules
+// panel via kind.describe() but never constrain the solver or trigger
+// violation highlights. Use for pedagogy ("this block has 4-fold
+// rotational symmetry") or flavour ("Light-Medium-Dark gradient") on
+// templates whose hard constraints are already expressed by other rules.
 const RULE_KINDS = {
   count: {
     describe(rule, fabricsById) {
@@ -1544,7 +1563,9 @@ const RULE_KINDS = {
   positional: {
     describe(rule, fabricsById) {
       const c = describeConstraint(rule.constraint, fabricsById);
-      const where = typeof rule.slot === 'string' ? rule.slot : 'slot ' + (rule.slot + 1);
+      const where = typeof rule.slot === 'string'
+        ? humanizeSlotName(rule.slot)
+        : 'slot ' + (rule.slot + 1);
       const must = rule.must === false ? 'must NOT be' : 'must be';
       return `The ${where} ${must} ${c}.`;
     },
@@ -1658,6 +1679,15 @@ const RULE_KINDS = {
   // ships exactly one operator — effective-direction — used by Rail
   // Fence to express "all striped fabrics must run vertically", taking
   // the slot's stripe rotation into account.
+  //
+  // Status: no Phase 3a template currently uses this as a hard
+  // constraint. It's kept here (along with block.rotation() on Rail
+  // Fence and the effectiveDirection helper) so future templates can
+  // either use it as a hard constraint OR flag it `decorative: true`
+  // for pedagogical effect ("striped fabrics in this template run
+  // vertical — see the indigo stripes"). Adding a horizontally-
+  // striped fabric to the palette in Phase 3b will give this real
+  // teeth as a solving constraint.
   'pattern-property': {
     describe(rule, fabricsById) {
       if (rule.property === 'effective-direction') {
@@ -1701,6 +1731,16 @@ function evaluateRules(rules, fabricBySlot, block, fabricsById) {
   return rules.map(rule => {
     const kind = RULE_KINDS[rule.kind];
     if (!kind) return { rule, satisfied: false, violatingSlots: new Set(), stillPossible: true, description: '(unknown rule)' };
+    // Decorative rules: shown in the panel but never constrain.
+    if (rule.decorative) {
+      return {
+        rule,
+        satisfied: true,
+        violatingSlots: new Set(),
+        stillPossible: true,
+        description: kind.describe(rule, fabricsById),
+      };
+    }
     const result = kind.verify(rule, fabricBySlot, block, fabricsById);
     return {
       rule,
