@@ -417,6 +417,74 @@ html, body { transition: background 0.25s, color 0.25s; }
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 .btn-secondary:hover { background: var(--paper-shadow); color: var(--ink); border-color: var(--ink-soft); }
+#archive { padding: 1.6rem 1rem; }
+.archive-close {
+  position: absolute; top: 0.8rem; right: 0.9rem;
+  background: transparent; border: none; color: var(--ink-faint);
+  font-size: 1.2rem; cursor: pointer; padding: 0.2rem 0.5rem;
+}
+.archive-close:hover { color: var(--ink); }
+.archive-header { text-align: center; margin-bottom: 1.1rem; }
+.archive-title {
+  font-family: 'Fascinate', serif;
+  font-size: 1.85rem; line-height: 1;
+}
+.archive-subtitle {
+  font-family: 'Spectral', serif; font-size: 0.7rem; color: var(--ink-faint);
+  margin-top: 0.25rem;
+}
+.archive-monthnav {
+  display: flex; justify-content: center; align-items: center; gap: 1.2rem;
+  margin-bottom: 0.7rem;
+}
+.archive-navbtn {
+  background: transparent; border: none; color: var(--ink-soft);
+  font-size: 1.2rem; cursor: pointer; padding: 0.2rem 0.6rem;
+}
+.archive-navbtn:disabled { color: var(--ink-ghost); cursor: default; }
+.archive-monthlabel {
+  font-family: 'Spectral', serif; font-style: italic; font-size: 0.95rem;
+  min-width: 8rem; text-align: center;
+}
+.archive-weekhead, .archive-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem; max-width: 22rem; margin: 0 auto;
+}
+.archive-weekhead > div {
+  font-family: 'Spectral', serif; font-size: 0.55rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-faint); text-align: center;
+  padding: 0.3rem 0;
+}
+.archive-cell {
+  aspect-ratio: 1 / 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: 'Spectral', serif; font-size: 0.95rem;
+  border: 1px solid transparent; border-radius: 4px;
+  background: transparent; color: var(--ink); cursor: pointer;
+  position: relative;
+}
+.archive-cell.empty { visibility: hidden; }
+.archive-cell.future { color: var(--ink-ghost); cursor: default; }
+.archive-cell.today { border-color: var(--accent); }
+.archive-cell.available:hover { background: var(--paper-shadow); }
+.archive-cell.completed { cursor: pointer; }
+.archive-cell .archive-mark {
+  font-size: 0.7rem; line-height: 1; margin-top: 0.05rem;
+}
+.archive-cell.solved .archive-mark { color: var(--green); }
+.archive-cell.revealed .archive-mark { color: var(--gold); }
+.archive-stats {
+  display: flex; justify-content: center; gap: 1.6rem;
+  margin-top: 1.2rem; max-width: 22rem; margin-left: auto; margin-right: auto;
+}
+.archive-stats .archive-stat { text-align: center; }
+.archive-stats .archive-stat-num {
+  font-family: 'Fascinate', serif; font-size: 1.1rem; line-height: 1;
+}
+.archive-stats .archive-stat-lbl {
+  font-family: 'Spectral', serif; font-size: 0.55rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-faint); margin-top: 0.18rem;
+}
 </style>
 </head>
 <body>
@@ -488,6 +556,24 @@ html, body { transition: background 0.25s, color 0.25s; }
     <div class="intro-actions-row" style="margin-top:1.2rem">
       <button class="btn-secondary" onclick="openArchive()">Archive</button>
     </div>
+  </div>
+
+  <div class="overlay" id="archive">
+    <button class="archive-close" type="button" onclick="closeArchive()" aria-label="Close archive">✕</button>
+    <div class="archive-header">
+      <div class="archive-title">Archive</div>
+      <div class="archive-subtitle"><em>Sampler · since June 1, 2026</em></div>
+    </div>
+    <div class="archive-monthnav">
+      <button class="archive-navbtn" type="button" id="archivePrevBtn" onclick="archiveShiftMonth(-1)">‹</button>
+      <div class="archive-monthlabel" id="archiveMonthLabel">—</div>
+      <button class="archive-navbtn" type="button" id="archiveNextBtn" onclick="archiveShiftMonth(1)">›</button>
+    </div>
+    <div class="archive-weekhead">
+      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    </div>
+    <div class="archive-grid" id="archiveGrid"></div>
+    <div class="archive-stats" id="archiveStats"></div>
   </div>
 </div>
 
@@ -1406,9 +1492,45 @@ function showAlreadyPlayed(stored) {
   document.getElementById('alreadyPlayed').classList.add('show');
 }
 
+let archiveViewMonth = null; // {year, month} 0-indexed
+
 function openArchive() {
-  // Implemented in Task 14
-  console.log('archive open (stub)');
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  document.getElementById('completion').classList.remove('show');
+  const today = todayStr();
+  const [y, m] = today.split('-').map(Number);
+  archiveViewMonth = { year: y, month: m - 1 };
+  renderArchive();
+  document.getElementById('archive').classList.add('show');
+}
+
+function closeArchive() {
+  document.getElementById('archive').classList.remove('show');
+  const stored = loadStorage();
+  const today = todayStr();
+  if (stored.byDate && stored.byDate[today]) {
+    showAlreadyPlayed(stored);
+  } else {
+    document.getElementById('intro').classList.add('show');
+  }
+}
+
+function archiveShiftMonth(delta) {
+  if (!archiveViewMonth) return;
+  const d = new Date(archiveViewMonth.year, archiveViewMonth.month + delta, 1);
+  archiveViewMonth = { year: d.getFullYear(), month: d.getMonth() };
+  renderArchive();
+}
+
+function renderArchive() {
+  // Implemented in Task 15
+  if (!archiveViewMonth) return;
+  document.getElementById('archiveMonthLabel').textContent =
+    new Date(archiveViewMonth.year, archiveViewMonth.month, 1)
+      .toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  document.getElementById('archiveGrid').innerHTML = '';
+  document.getElementById('archiveStats').innerHTML = '';
 }
 
 function bootSampler() {
