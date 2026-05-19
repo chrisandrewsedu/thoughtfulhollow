@@ -405,6 +405,18 @@ html, body { transition: background 0.25s, color 0.25s; }
     -webkit-column-break-inside: avoid;
   }
 }
+.intro-actions-row {
+  display: flex; gap: 0.6rem; justify-content: center; align-items: center;
+  flex-wrap: wrap; margin-top: 0.6rem;
+}
+.btn-secondary {
+  font-family: 'Spectral', serif; font-style: italic; font-size: 0.85rem;
+  padding: 0.5rem 1.1rem; border-radius: 4px;
+  background: transparent; color: var(--ink-soft);
+  border: 1px solid var(--ink-faint); cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn-secondary:hover { background: var(--paper-shadow); color: var(--ink); border-color: var(--ink-soft); }
 </style>
 </head>
 <body>
@@ -459,7 +471,12 @@ html, body { transition: background 0.25s, color 0.25s; }
       <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">3.</span><span>Place fabrics so <b>every rule</b> in the panel is satisfied. Violations glow red.</span></div>
       <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">4.</span><span>Each puzzle has <b>exactly one solution</b>. There's no submit button — it locks when you've got it.</span></div>
     </div>
-    <button class="btn" id="beginBtn" onclick="beginDaily()" style="margin-top:0.6rem">Begin</button>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0.4rem; margin-top:0.6rem">
+      <button class="btn" id="beginBtn" onclick="beginDaily()">Begin</button>
+      <div class="intro-actions-row">
+        <button class="btn-secondary" onclick="openArchive()">Archive</button>
+      </div>
+    </div>
   </div>
 
   <div class="overlay" id="alreadyPlayed">
@@ -468,6 +485,9 @@ html, body { transition: background 0.25s, color 0.25s; }
     <div class="go-rule"></div>
     <div class="go-sub">You've already pieced today's block. New puzzle at midnight (Eastern).</div>
     <div class="go-stats" id="alreadyStats"></div>
+    <div class="intro-actions-row" style="margin-top:1.2rem">
+      <button class="btn-secondary" onclick="openArchive()">Archive</button>
+    </div>
   </div>
 </div>
 
@@ -1384,6 +1404,11 @@ function showAlreadyPlayed(stored) {
     host.appendChild(stat);
   });
   document.getElementById('alreadyPlayed').classList.add('show');
+}
+
+function openArchive() {
+  // Implemented in Task 14
+  console.log('archive open (stub)');
 }
 
 function bootSampler() {
