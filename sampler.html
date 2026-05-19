@@ -394,6 +394,30 @@ html, body { transition: background 0.25s, color 0.25s; }
       <button class="btn" onclick="closeCompletion()">Close</button>
     </div>
   </div>
+
+  <div class="overlay" id="intro">
+    <div class="dict-entry-head">
+      <div style="font-family:'DM Serif Display',serif; font-weight:400; font-style:italic; font-size:clamp(2.2rem, 7vw, 3.4rem); line-height:1; color:var(--ink); margin-bottom:0.42rem;">Sam<span style="color:var(--accent); margin:0 1px; font-style:normal">·</span>pler</div>
+      <div style="font-family:'Lora',serif; font-size:0.78rem; color:var(--ink-faint); margin-bottom:0.32rem;"><em>n.</em>&nbsp;<span style="color:var(--ink-soft)">/ˈsam-plər/</span></div>
+      <div style="font-family:'Lora',serif; font-style:italic; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent);">a daily quilt-block puzzle</div>
+    </div>
+    <div class="go-rule"></div>
+    <div class="go-sub" style="text-align:left; max-width:380px;">
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'DM Serif Display',serif; font-style:italic; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">1.</span><span>Each day you'll piece a real quilt block: today's is the <b>Nine-Patch</b>.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'DM Serif Display',serif; font-style:italic; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">2.</span><span>Tap a fabric, then tap slots to <b>paint</b> them. Tap a different fabric to switch.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'DM Serif Display',serif; font-style:italic; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">3.</span><span>Place fabrics so <b>every rule</b> in the panel is satisfied. Violations glow red.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'DM Serif Display',serif; font-style:italic; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">4.</span><span>Each puzzle has <b>exactly one solution</b>. There's no submit button — it locks when you've got it.</span></div>
+    </div>
+    <button class="btn" id="beginBtn" onclick="beginDaily()" style="margin-top:0.6rem">Begin</button>
+  </div>
+
+  <div class="overlay" id="alreadyPlayed">
+    <div class="go-mark">— Daily Complete —</div>
+    <div class="go-title">Come Back Tomorrow</div>
+    <div class="go-rule"></div>
+    <div class="go-sub">You've already pieced today's block. New puzzle at midnight (Eastern).</div>
+    <div class="go-stats" id="alreadyStats"></div>
+  </div>
 </div>
 
 <script>
@@ -1293,7 +1317,43 @@ function startDailyGame(dateStr, opts) {
   document.getElementById('subbarDate').textContent = isLive ? label : 'Archive · ' + label;
 }
 
-startDailyGame();
+function beginDaily() {
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  startDailyGame();
+}
+
+function showAlreadyPlayed(stored) {
+  document.getElementById('intro').classList.remove('show');
+  const host = document.getElementById('alreadyStats');
+  host.innerHTML = '';
+  [
+    ['Streak', stored.streak || 0],
+    ['Played', stored.totalPlayed || 0],
+    ['Flawless', stored.totalFlawless || 0],
+    ['Avg', formatAvgTime(stored)],
+  ].forEach(([label, val]) => {
+    const stat = document.createElement('div');
+    stat.className = 'go-stat';
+    stat.innerHTML = `<div class="go-stat-num">${val}</div><div class="go-stat-lbl">${label}</div>`;
+    host.appendChild(stat);
+  });
+  document.getElementById('alreadyPlayed').classList.add('show');
+}
+
+function bootSampler() {
+  const stored = loadStorage();
+  const today = todayStr();
+  if (stored.byDate && stored.byDate[today]) {
+    showAlreadyPlayed(stored);
+  } else {
+    document.getElementById('intro').classList.add('show');
+  }
+  // Pre-load today's puzzle behind the overlay so Begin is instant
+  startDailyGame(today);
+}
+
+bootSampler();
 </script>
 </body>
 </html>
