@@ -868,7 +868,7 @@ html, body { transition: background 0.25s, color 0.25s; }
     </div>
   </div>
 
-  <div class="overlay" id="archive">
+  <div class="overlay" id="archive" role="dialog" aria-modal="true" aria-label="Puzzle archive">
     <button class="archive-close" type="button" onclick="closeArchive()" aria-label="Close archive">✕</button>
     <div class="archive-header">
       <div class="archive-title">Archive</div>
@@ -1043,6 +1043,14 @@ function startPracticeGame() {
 }
 
 let archiveViewMonth = null; // {year, month} where month is 0-indexed
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const archiveEl = document.getElementById('archive');
+  if (archiveEl && archiveEl.classList.contains('show')) {
+    closeArchive();
+  }
+});
 
 function openArchive() {
   document.getElementById('intro').classList.remove('show');
