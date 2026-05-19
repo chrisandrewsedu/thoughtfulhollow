@@ -1023,16 +1023,9 @@ function verifyTemplate(templateId, dateRange) {
   return results;
 }
 
-// Debug / authoring tools — exposed on window for console use. Not part
-// of the public API; safe to remove if minifying for production.
-window.verifyTemplate = verifyTemplate;
-window.solve = solve;
-window.instantiateTemplate = instantiateTemplate;
-window.BLOCKS = BLOCKS;
-window.TEMPLATES = TEMPLATES;
-window.FABRICS = FABRICS;
-window.RULE_KINDS = RULE_KINDS;
-window.renderBlock = renderBlock;
+// Debug / authoring tools — exposed at the bottom of the script (after
+// all consts are declared) to avoid TDZ. Not part of the public API;
+// safe to remove if minifying for production.
 
 // ─── Block renderer ──────────────────────────────────────────────────
 // Renders a block as an SVG inside the host element. Updates slot fills
@@ -1539,6 +1532,35 @@ const RULE_KINDS = {
       return { satisfied: ok && allRelevantFilled, violatingSlots: violating, stillPossible: violating.size === 0 };
     },
   },
+
+  'rotational-symmetry': {
+    describe(rule) {
+      return `Block has ${rule.order}-fold rotational symmetry.`;
+    },
+    verify(rule, fabricBySlot, block) {
+      const groups = (typeof block.rotationalSymmetryGroups === 'function')
+        ? block.rotationalSymmetryGroups(rule.order) : [];
+      const violating = new Set();
+      let satisfied = true;
+      let allRelevantFilled = true;
+      for (const group of groups) {
+        const fabrics = group.map(i => fabricBySlot[i]);
+        const filled = fabrics.filter(Boolean);
+        if (filled.length < group.length) allRelevantFilled = false;
+        if (filled.length < 2) continue;
+        const allSame = filled.every(f => f === filled[0]);
+        if (!allSame) {
+          satisfied = false;
+          group.forEach(i => { if (fabricBySlot[i]) violating.add(i); });
+        }
+      }
+      return {
+        satisfied: satisfied && allRelevantFilled,
+        violatingSlots: violating,
+        stillPossible: violating.size === 0,
+      };
+    },
+  },
 };
 
 function evaluateRules(rules, fabricBySlot, block, fabricsById) {
@@ -1956,6 +1978,17 @@ function bootSampler() {
 }
 
 bootSampler();
+
+// Debug / authoring tools — exposed on window for console use. Not part
+// of the public API; safe to remove if minifying for production.
+window.verifyTemplate = verifyTemplate;
+window.solve = solve;
+window.instantiateTemplate = instantiateTemplate;
+window.BLOCKS = BLOCKS;
+window.TEMPLATES = TEMPLATES;
+window.FABRICS = FABRICS;
+window.RULE_KINDS = RULE_KINDS;
+window.renderBlock = renderBlock;
 </script>
 </body>
 </html>
