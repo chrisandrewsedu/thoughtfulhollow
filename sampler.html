@@ -79,24 +79,24 @@ html, body {
   .app { border-left: 1px solid var(--paper-shadow); border-right: 1px solid var(--paper-shadow); }
 }
 @media (min-width: 700px) {
-  html { font-size: 125%; }
-  .app { max-width: 700px; }
+  html { font-size: 120%; }
+  .app { max-width: 680px; }
 }
 @media (min-width: 1000px) {
-  html { font-size: 145%; }
-  .app { max-width: 780px; }
+  html { font-size: 135%; }
+  .app { max-width: 760px; }
 }
 @media (min-width: 1300px) {
-  html { font-size: 165%; }
-  .app { max-width: 880px; }
+  html { font-size: 150%; }
+  .app { max-width: 840px; }
 }
 @media (min-width: 1600px) {
-  html { font-size: 185%; }
-  .app { max-width: 980px; }
+  html { font-size: 165%; }
+  .app { max-width: 920px; }
 }
 @media (min-width: 2000px) {
-  html { font-size: 200%; }
-  .app { max-width: 1080px; }
+  html { font-size: 180%; }
+  .app { max-width: 1020px; }
 }
 
 .header {
@@ -167,7 +167,7 @@ html, body { transition: background 0.25s, color 0.25s; }
   padding: 0.8rem 0 0.4rem;
 }
 .block-svg {
-  width: 100%; max-width: 36rem; aspect-ratio: 1 / 1;
+  width: 100%; max-width: min(36rem, 55vmin); aspect-ratio: 1 / 1;
   display: block;
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08));
 }
@@ -385,6 +385,17 @@ html, body { transition: background 0.25s, color 0.25s; }
   border: none; border-radius: 3px; cursor: pointer;
 }
 .btn:hover { background: var(--ink-soft); }
+
+@media (min-width: 700px) {
+  #rulesList {
+    column-count: 2;
+    column-gap: 1.2rem;
+  }
+  .rule-item {
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+  }
+}
 </style>
 </head>
 <body>
