@@ -1193,7 +1193,26 @@ function archiveCellClick(dateStr, isReplay) {
 }
 
 function resetGameState() { state.puzzlesSolved = 0; state.flawless = 0; state.totalMistakes = 0; state.puzzleMarksByEntry = []; }
-function startGame() { startDailyGame(); }
+
+function updateStartBtn() {
+  document.getElementById('beginBtn').textContent = state.inProgress ? 'Resume' : 'Begin';
+}
+
+function goHome() {
+  if (!state.inProgress) return;
+  stopTimer();
+  updateStartBtn();
+  document.getElementById('intro').classList.add('show');
+}
+
+function startGame() {
+  if (state.inProgress) {
+    document.getElementById('intro').classList.remove('show');
+    resumeTimer();
+    return;
+  }
+  startDailyGame();
+}
 
 function loadPuzzle() {
   state.inProgress = true;
