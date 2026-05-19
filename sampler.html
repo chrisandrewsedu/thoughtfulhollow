@@ -1622,13 +1622,14 @@ function archiveCellClick(dateStr, isReplay) {
 function bootSampler() {
   const stored = loadStorage();
   const today = todayStr();
-  if (stored.byDate && stored.byDate[today]) {
-    showAlreadyPlayed(stored);
-  } else {
+  // Pre-load today's puzzle so Begin is instant. Called before overlays
+  // are shown so the dismiss-overlays step inside startDailyGame is a no-op.
+  startDailyGame(today);
+  // startDailyGame's early-exit guard already shows alreadyPlayed when today
+  // has been played, so this conditional only handles the not-yet-played case.
+  if (!(stored.byDate && stored.byDate[today])) {
     document.getElementById('intro').classList.add('show');
   }
-  // Pre-load today's puzzle behind the overlay so Begin is instant
-  startDailyGame(today);
 }
 
 bootSampler();
