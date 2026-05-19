@@ -990,7 +990,7 @@ let state = {
   mistakes: 0, puzzlesSolved: 0, flawless: 0, totalMistakes: 0,
   locked: false, timerStart: null, timerInterval: null, elapsed: 0,
   guessLog: [],
-  playDate: null, replay: false,
+  playDate: null, replay: false, inProgress: false,
 };
 
 function shuffle(a) {
@@ -1186,6 +1186,7 @@ function resetGameState() { state.puzzlesSolved = 0; state.flawless = 0; state.t
 function startGame() { startDailyGame(); }
 
 function loadPuzzle() {
+  state.inProgress = true;
   document.getElementById('practiceLink').style.display = 'none';
   const puzzle = PUZZLES[state.puzzleIdx];
   state.mistakes = 0; state.locked = false; state.selectedIds = new Set();
@@ -1491,6 +1492,7 @@ function buildCurrentResult() {
 }
 
 function showReveal() {
+  state.inProgress = false;
   const puzzle = PUZZLES[state.puzzleIdx]; const stored = loadStorage();
   const playDate = state.playDate || todayStr();
   const dateStr = new Date(playDate + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/New_York' });
