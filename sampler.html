@@ -567,7 +567,7 @@ html, body { transition: background 0.25s, color 0.25s; }
     <button class="archive-close" type="button" onclick="closeArchive()" aria-label="Close archive">✕</button>
     <div class="archive-header">
       <div class="archive-title">Archive</div>
-      <div class="archive-subtitle"><em>Sampler · since May 1, 2026</em></div>
+      <div class="archive-subtitle"><em>Sampler · since May 17, 2026</em></div>
     </div>
     <div class="archive-monthnav">
       <button class="archive-navbtn" type="button" id="archivePrevBtn" onclick="archiveShiftMonth(-1)">‹</button>
@@ -579,6 +579,16 @@ html, body { transition: background 0.25s, color 0.25s; }
     </div>
     <div class="archive-grid" id="archiveGrid"></div>
     <div class="archive-stats" id="archiveStats"></div>
+  </div>
+
+  <div class="overlay" id="noPuzzle">
+    <div class="go-mark">— Not Yet —</div>
+    <div class="go-title">Coming Soon</div>
+    <div class="go-rule"></div>
+    <div class="go-sub" id="noPuzzleSub">There's no puzzle for this date yet.</div>
+    <div class="intro-actions-row" style="margin-top:1.6rem">
+      <button class="btn-secondary" onclick="openArchive()">Archive</button>
+    </div>
   </div>
 </div>
 
@@ -593,7 +603,7 @@ document.getElementById('themeToggle').addEventListener('click', function () {
 
 // Date / storage constants (placeholders — see plan header for replacements)
 const STORAGE_KEY = 'sampler_daily_v1';
-const LAUNCH_DATE = '2026-05-01';
+const LAUNCH_DATE = '2026-05-17';
 
 function todayStr() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());
@@ -849,8 +859,14 @@ function instantiateTemplate(template, dateStr) {
 }
 
 function pickTemplateForDate(dateStr) {
-  const idx = dailyIndex(dateStr) % TEMPLATES.length;
+  const idx = dailyIndex(dateStr);
+  if (idx < 0 || idx >= TEMPLATES.length) return null;
   return TEMPLATES[idx];
+}
+
+// True if the given date has a unique puzzle available.
+function hasPuzzleForDate(dateStr) {
+  return pickTemplateForDate(dateStr) !== null;
 }
 
 // ─── Solver ──────────────────────────────────────────────────────────
@@ -1483,9 +1499,14 @@ function startDailyGame(dateStr, opts) {
   document.getElementById('intro').classList.remove('show');
   document.getElementById('alreadyPlayed').classList.remove('show');
   document.getElementById('completion').classList.remove('show');
+  const template = pickTemplateForDate(dateStr);
+  if (!template) {
+    // No puzzle exists for this date yet
+    showNoPuzzle(dateStr);
+    return;
+  }
   game.playDate = dateStr;
   game.replay = replay;
-  const template = pickTemplateForDate(dateStr);
   const instance = instantiateTemplate(template, dateStr);
   initGame(instance.template.block, instance.paletteIds, instance.rules);
   const isLive = dateStr === todayStr();
@@ -1535,6 +1556,16 @@ function showAlreadyPlayed(stored) {
   document.getElementById('alreadyPlayed').classList.add('show');
 }
 
+function showNoPuzzle(dateStr) {
+  const sub = document.getElementById('noPuzzleSub');
+  if (sub) {
+    const d = new Date(dateStr + 'T12:00:00Z');
+    const label = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+    sub.textContent = `There's no puzzle for ${label} yet. New puzzles will appear as they're added.`;
+  }
+  document.getElementById('noPuzzle').classList.add('show');
+}
+
 let archiveViewMonth = null; // {year, month} 0-indexed
 
 function openArchive() {
@@ -1552,6 +1583,10 @@ function closeArchive() {
   document.getElementById('archive').classList.remove('show');
   const stored = loadStorage();
   const today = todayStr();
+  if (!hasPuzzleForDate(today)) {
+    showNoPuzzle(today);
+    return;
+  }
   if (stored.byDate && stored.byDate[today]) {
     showAlreadyPlayed(stored);
   } else {
@@ -1613,8 +1648,9 @@ function renderArchive() {
 
     if (isBeforeLaunch) {
       cell.classList.add('empty');
-    } else if (isFuture) {
-      cell.classList.add('future');
+    } else if (isFuture || !hasPuzzleForDate(dateStr)) {
+      // Either truly in the future, or no template yet authored for this date
+      cell.classList.add('empty');
     } else {
       if (isToday) cell.classList.add('today');
       if (entry) {
@@ -1661,6 +1697,8 @@ function bootSampler() {
   // Pre-load today's puzzle so Begin is instant. Called before overlays
   // are shown so the dismiss-overlays step inside startDailyGame is a no-op.
   startDailyGame(today);
+  // If today has no puzzle, showNoPuzzle was already called inside startDailyGame.
+  if (!hasPuzzleForDate(today)) return;
   // startDailyGame's early-exit guard already shows alreadyPlayed when today
   // has been played, so this conditional only handles the not-yet-played case.
   if (!(stored.byDate && stored.byDate[today])) {
