@@ -238,6 +238,15 @@ html, body { transition: background 0.25s, color 0.25s; }
 .rule-item.satisfied .rule-text { color: var(--ink-soft); }
 .rule-item.violating .rule-mark { color: var(--accent); }
 .rule-item.violating .rule-text { color: var(--accent); }
+
+.block-svg.reveal-anim {
+  animation: blockSettle 0.7s ease-out;
+}
+@keyframes blockSettle {
+  0% { transform: scale(1); }
+  35% { transform: scale(0.97); filter: drop-shadow(0 0 14px var(--accent-bright)); }
+  100% { transform: scale(1); }
+}
 </style>
 </head>
 <body>
@@ -754,6 +763,12 @@ function renderAll() {
   });
   renderRules(evaluated);
   document.getElementById('undoBtn').disabled = game.history.length === 0 || game.locked;
+  // Win detection
+  const allFilled = game.fabricBySlot.every(x => x !== null);
+  const allSatisfied = evaluated.every(r => r.satisfied);
+  if (!game.locked && allFilled && allSatisfied) {
+    triggerWin();
+  }
   return evaluated;
 }
 
@@ -984,6 +999,24 @@ function evaluateRules(rules, fabricBySlot, block, fabricsById) {
       description: kind.describe(rule, fabricsById),
     };
   });
+}
+
+function triggerWin() {
+  game.locked = true;
+  stopTimer();
+  // Add reveal animation class
+  const svg = document.querySelector('.block-svg');
+  if (svg) {
+    svg.classList.add('reveal-anim');
+    setTimeout(() => svg.classList.remove('reveal-anim'), 700);
+  }
+  // Show completion after the animation
+  setTimeout(() => showCompletion(), 900);
+}
+
+function showCompletion() {
+  // Stub — implemented in Task 10
+  console.log('WIN! Time:', game.elapsed, 'seconds. Block:', game.block.displayName);
 }
 
 function startDailyGame(dateStr, opts) {
