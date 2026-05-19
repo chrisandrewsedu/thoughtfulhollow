@@ -347,6 +347,14 @@ html, body { transition: background 0.25s, color 0.25s; }
   aspect-ratio: 1 / 1;
   border-radius: 2px;
 }
+.share-block-svg {
+  width: 100%; max-width: 13rem;
+  margin: 0.9rem auto 0.7rem;
+}
+.share-block-svg .block-svg {
+  max-width: 100%;
+  filter: none;
+}
 .share-line {
   font-family: 'Spectral', serif; font-size: 0.7rem;
   color: var(--ink-soft); margin-top: 0.3rem;
@@ -1239,51 +1247,22 @@ function renderShareBlock(playDate, dayName, blockName, time) {
   const host = document.getElementById('completionShare');
   const dateLabel = new Date(playDate + 'T12:00:00Z')
     .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
-  const data = loadStorage();
-  const streak = data.streak || 0;
-  const flawless = game.fabricBySlot.length && (loadStorage().byDate?.[playDate]?.result?.flawless);
-  // 3×3 emoji-ish grid using fabric hex
-  const cells = game.fabricBySlot.map(fid => {
-    if (!fid) return '<div class="share-grid-cell" style="background:var(--paper-shadow)"></div>';
-    return `<div class="share-grid-cell" style="background:${FABRICS[fid].hex}"></div>`;
-  }).join('');
   host.innerHTML = `
     <div style="font-family:'Yeseva One',serif; font-style:italic; font-size:1.4rem; line-height:1;">Sampler</div>
     <div class="share-line" style="font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-faint); margin-top:0.2rem;">${dateLabel} · ${blockName}</div>
-    <div class="share-grid">${cells}</div>
-    <div class="share-line"><b style="color:var(--ink)">${time}</b>${flawless ? ' · flawless' : ''}</div>
-    ${streak > 0 ? `<div class="share-line">${streak}-day streak</div>` : ''}
+    <div class="share-block-svg" id="shareBlockSvg"></div>
+    <div class="share-line"><b style="color:var(--ink)">${time}</b></div>
     <button class="share-copy-btn" onclick="copyShareText()">Copy result</button>
   `;
+  renderBlock(document.getElementById('shareBlockSvg'), game.block, game.fabricBySlot, { violations: new Set() });
 }
 
 function copyShareText() {
   const playDate = game.playDate || todayStr();
   const dateLabel = new Date(playDate + 'T12:00:00Z')
-    .toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' });
+    .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
   const time = formatTime(game.elapsed);
-  const data = loadStorage();
-  const streak = data.streak || 0;
-  const flawless = loadStorage().byDate?.[playDate]?.result?.flawless;
-  // Hue-based emoji approximation for 3×3
-  const hueToEmoji = { warm: '🟧', cool: '🟦', neutral: '⬜' };
-  const valueToEmoji = { dark: '🟫', medium: null, light: null };
-  function emojiFor(fid) {
-    if (!fid) return '⬛';
-    const f = FABRICS[fid];
-    return valueToEmoji[f.value] || hueToEmoji[f.hue] || '🟩';
-  }
-  const rows = [];
-  for (let r = 0; r < 3; r++) {
-    rows.push([0,1,2].map(c => emojiFor(game.fabricBySlot[r*3+c])).join(''));
-  }
-  const lines = [
-    `Sampler · ${dateLabel} · ${game.block.displayName}`,
-    `${time}${flawless ? ' ★ flawless' : ''}`,
-    ...rows,
-  ];
-  if (streak > 0) lines.push(`🔥 ${streak}-day streak`);
-  const text = lines.join('\n');
+  const text = `Sampler · ${dateLabel} · ${game.block.displayName} · ${time}`;
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.querySelector('.share-copy-btn');
     if (btn) {
@@ -1335,6 +1314,11 @@ function recordCompletion() {
 
 function startDailyGame(dateStr, opts) {
   dateStr = dateStr || todayStr();
+  // Dismiss any open overlays so the board is visible
+  ['intro', 'alreadyPlayed', 'completion'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  });
   game.playDate = dateStr;
   game.replay = !!(opts && opts.replay);
   const template = pickTemplateForDate(dateStr);
