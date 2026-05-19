@@ -1092,7 +1092,8 @@ function initGame(blockId, paletteIds, rules) {
   game.history = [];
   game.locked = false;
   game.rules = rules || [];
-  game.inProgress = true;
+  game.started = false;
+  game.solved = false;
   document.getElementById('blockName').textContent = game.block.displayName;
   updateBeginBtn();
   renderAll();
@@ -1111,13 +1112,22 @@ function renderAll() {
   });
   renderRules(evaluated);
   document.getElementById('undoBtn').disabled = game.history.length === 0 || game.locked;
-  // Win detection
-  const allFilled = game.fabricBySlot.every(x => x !== null);
-  const allSatisfied = evaluated.every(r => r.satisfied);
-  if (!game.locked && allFilled && allSatisfied) {
-    triggerWin();
-  }
   return evaluated;
+}
+
+// Check the win condition. Call this AFTER any user-initiated state
+// mutation (paint, erase, undo). Returns true if a win was triggered.
+function checkWin() {
+  if (game.locked) return false;
+  const allFilled = game.fabricBySlot.every(x => x !== null);
+  if (!allFilled) return false;
+  const evaluated = evaluateRules(game.rules || [], game.fabricBySlot, game.block, FABRICS);
+  const allSatisfied = evaluated.every(r => r.satisfied);
+  if (allSatisfied) {
+    triggerWin();
+    return true;
+  }
+  return false;
 }
 
 function renderRules(evaluated) {
@@ -1189,12 +1199,14 @@ function handleSlotClick(slotIdx) {
       game.history.push({ slot: slotIdx, prev });
       game.fabricBySlot[slotIdx] = null;
       renderAll();
+      checkWin();
     }
     return;
   }
   game.history.push({ slot: slotIdx, prev });
   game.fabricBySlot[slotIdx] = next;
   renderAll();
+  checkWin();
 }
 
 function undoMove() {
@@ -1203,6 +1215,7 @@ function undoMove() {
   if (!last) return;
   game.fabricBySlot[last.slot] = last.prev;
   renderAll();
+  checkWin();
 }
 
 // ─── Rules ───────────────────────────────────────────────────────────
@@ -1369,7 +1382,7 @@ function evaluateRules(rules, fabricBySlot, block, fabricsById) {
 
 function triggerWin() {
   game.locked = true;
-  game.inProgress = false;
+  game.solved = true;
   stopTimer();
   // Add reveal animation class
   const svg = document.querySelector('.block-svg');
@@ -1548,7 +1561,7 @@ function startDailyGame(dateStr, opts) {
 
 function goHome() {
   // Always offer to return home; only stop the timer if mid-game.
-  if (game.inProgress) stopTimer();
+  if (game.started && !game.solved) stopTimer();
   updateBeginBtn();
   // Dismiss any other overlay that might be showing.
   ['alreadyPlayed', 'completion', 'archive', 'noPuzzle'].forEach(id => {
@@ -1560,11 +1573,20 @@ function goHome() {
 
 function updateBeginBtn() {
   const btn = document.getElementById('beginBtn');
-  if (btn) btn.textContent = game.inProgress ? 'Resume' : 'Begin';
+  if (!btn) return;
+  btn.textContent = (game.started && !game.solved) ? 'Resume' : 'Begin';
+}
+
+function startPlay() {
+  game.elapsed = 0;
+  game.started = true;
+  game.solved = false;
+  updateBeginBtn();
+  startTimer();
 }
 
 function beginDaily() {
-  if (game.inProgress) {
+  if (game.started && !game.solved) {
     document.getElementById('intro').classList.remove('show');
     resumeTimer();
     return;
@@ -1572,10 +1594,7 @@ function beginDaily() {
   document.getElementById('intro').classList.remove('show');
   document.getElementById('alreadyPlayed').classList.remove('show');
   // Puzzle is pre-loaded by bootSampler. Start the timer now that the user has begun.
-  game.elapsed = 0;
-  game.inProgress = true;
-  updateBeginBtn();
-  startTimer();
+  startPlay();
 }
 
 function showAlreadyPlayed(stored) {
@@ -1648,17 +1667,19 @@ function renderArchive() {
   document.getElementById('archiveMonthLabel').textContent =
     firstOfMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-  const today = todayStr();
-  const [launchY, launchM, launchD] = LAUNCH_DATE.split('-').map(Number);
-  const launchDate = new Date(launchY, launchM - 1, launchD);
-  const todayDate = new Date(today + 'T12:00:00');
-
+  const today = todayStr(); // already in ET, "YYYY-MM-DD"
+  // String compare prev/next month boundaries against ET dates.
+  // The last day of the previous month, as YYYY-MM-DD.
+  const lastOfPrevMonthDate = new Date(year, month, 0);
+  const lastOfPrevMonthStr = `${lastOfPrevMonthDate.getFullYear()}-${String(lastOfPrevMonthDate.getMonth() + 1).padStart(2, '0')}-${String(lastOfPrevMonthDate.getDate()).padStart(2, '0')}`;
+  // The first day of the next month, as YYYY-MM-DD.
+  const nextMonthYear = month === 11 ? year + 1 : year;
+  const nextMonthNum = month === 11 ? 1 : month + 2;
+  const firstOfNextMonthStr = `${nextMonthYear}-${String(nextMonthNum).padStart(2, '0')}-01`;
   const prevBtn = document.getElementById('archivePrevBtn');
   const nextBtn = document.getElementById('archiveNextBtn');
-  const lastOfPrevMonth = new Date(year, month, 0);
-  const firstOfNextMonth = new Date(year, month + 1, 1);
-  prevBtn.disabled = lastOfPrevMonth < launchDate;
-  nextBtn.disabled = firstOfNextMonth > todayDate;
+  prevBtn.disabled = lastOfPrevMonthStr < LAUNCH_DATE;
+  nextBtn.disabled = firstOfNextMonthStr > today;
 
   const stored = loadStorage();
   const byDate = stored.byDate || {};
@@ -1673,7 +1694,6 @@ function renderArchive() {
   }
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   for (let day = 1; day <= daysInMonth; day++) {
-    const dateObj = new Date(year, month, day);
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const cell = document.createElement('div');
     cell.className = 'archive-cell';
@@ -1681,8 +1701,8 @@ function renderArchive() {
     numEl.textContent = day;
     cell.appendChild(numEl);
 
-    const isBeforeLaunch = dateObj < launchDate;
-    const isFuture = dateObj > todayDate;
+    const isBeforeLaunch = dateStr < LAUNCH_DATE;
+    const isFuture = dateStr > today;
     const isToday = dateStr === today;
     const entry = byDate[dateStr];
 
@@ -1729,12 +1749,11 @@ function renderArchive() {
 function archiveCellClick(dateStr, isReplay) {
   document.getElementById('archive').classList.remove('show');
   startDailyGame(dateStr, { replay: isReplay });
-  // startDailyGame may have early-exited (alreadyPlayed or no-puzzle); only
-  // start the timer if a fresh game was actually initialized.
-  if (game.inProgress) {
-    game.elapsed = 0;
-    startTimer();
-  }
+  // If startDailyGame's early-exit guard didn't trigger, the board is
+  // ready to play. We detect by checking that no blocking overlay is now showing.
+  const blocking = ['alreadyPlayed', 'completion', 'noPuzzle'].some(id =>
+    document.getElementById(id).classList.contains('show'));
+  if (!blocking) startPlay();
 }
 
 function bootSampler() {
