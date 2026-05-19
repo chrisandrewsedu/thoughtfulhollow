@@ -816,7 +816,12 @@ const BLOCKS = {
         middleColumn: [1, 4, 7, 10],
         rightColumn:  [2, 5, 8, 11],
         topRow:       [0, 1, 2],
+        row1:         [3, 4, 5],
+        row2:         [6, 7, 8],
         bottomRow:    [9, 10, 11],
+        // Aliases for clarity in templates.
+        row0:         [0, 1, 2],
+        row3:         [9, 10, 11],
         corners:      [0, 2, 9, 11],
       };
       return map[name];
@@ -919,6 +924,35 @@ const TEMPLATES = [
       { kind: 'positional', slot: 'leftColumn',   constraint: { fabricId: 'ROLE:LEFT' } },
       { kind: 'positional', slot: 'middleColumn', constraint: { fabricId: 'ROLE:MIDDLE' } },
       { kind: 'positional', slot: 'rightColumn',  constraint: { fabricId: 'ROLE:RIGHT' } },
+    ],
+  },
+
+  // Rail Fence Template B: "Horizontal Stripe Bands" — every-other row is
+  // indigo stripe; alternating rows are date-rotated. Because Rail Fence
+  // rotates rows 1 and 3 by 90°, placing the (intrinsically-vertical)
+  // indigo stripe on rows 0 and 2 keeps it reading visually vertical —
+  // satisfying the pattern-property rule. This teaches the player that
+  // fabric direction interacts with slot rotation.
+  {
+    id: 'rail-fence-stripe-bands-v1',
+    block: 'rail-fence',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    fabricRoles: {
+      STRIPE: 'F_INDIGO',
+      ROW1:   null,
+      ROW3:   null,
+    },
+    rules: [
+      // Pattern-property is the headline rule — visible in the rules
+      // panel, teaches the concept. Solver-wise it's reinforced by the
+      // positional pins below.
+      { kind: 'pattern-property', property: 'effective-direction',
+        slotConstraint: { motif: 'stripe' }, value: 'vertical' },
+      { kind: 'positional', slot: 'row0', constraint: { fabricId: 'ROLE:STRIPE' } },
+      { kind: 'positional', slot: 'row2', constraint: { fabricId: 'ROLE:STRIPE' } },
+      { kind: 'positional', slot: 'row1', constraint: { fabricId: 'ROLE:ROW1' } },
+      { kind: 'positional', slot: 'row3', constraint: { fabricId: 'ROLE:ROW3' } },
     ],
   },
 ];
