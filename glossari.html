@@ -929,13 +929,12 @@ const CLUE_META = {
   antonym:    { sym: "≠", label: "Antonym" }
 };
 
-let PUZZLES = [];
+let THEMES = [];      // [{ name, tiers: { easy?, medium?, hard? } }]
+let PRACTICE = { easy: [], medium: [], hard: [] };
+const TIERS = ['easy', 'medium', 'hard'];
 
-// Admin/dev override: ?puzzle=<idx-or-name> in the URL forces a specific
-// puzzle regardless of date routing. Used by glossari-admin.html to
-// browse and play any puzzle on demand. Names are slugified for matching
-// (e.g. ?puzzle=fault-faithlessness). Returns null if no override or
-// the requested puzzle doesn't exist.
+// Admin/dev override: ?puzzle=<idx-or-name> forces a specific theme.
+// &tier=easy|medium|hard picks which tier variant to load (default: hard).
 function slugifyName(s) {
   return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
@@ -944,23 +943,49 @@ function forcedPuzzleIdx() {
   const raw = new URLSearchParams(location.search).get('puzzle');
   if (raw == null) return null;
   const n = Number(raw);
-  if (Number.isInteger(n) && n >= 0 && n < PUZZLES.length) return n;
+  if (Number.isInteger(n) && n >= 0 && n < THEMES.length) return n;
   const slug = slugifyName(raw);
-  const byName = PUZZLES.findIndex(p => slugifyName(p.name) === slug);
+  const byName = THEMES.findIndex(t => slugifyName(t.name) === slug);
   return byName >= 0 ? byName : null;
+}
+function forcedTier() {
+  if (typeof location === 'undefined' || !location.search) return null;
+  const raw = new URLSearchParams(location.search).get('tier');
+  return TIERS.includes(raw) ? raw : null;
+}
+// ?practice=easy:0 — load a specific practice puzzle by tier and index.
+function forcedPracticeRef() {
+  if (typeof location === 'undefined' || !location.search) return null;
+  const raw = new URLSearchParams(location.search).get('practice');
+  if (!raw) return null;
+  const [tier, idxStr] = raw.split(':');
+  const idx = Number(idxStr);
+  if (!TIERS.includes(tier) || !Number.isInteger(idx)) return null;
+  if (!PRACTICE[tier] || idx < 0 || idx >= PRACTICE[tier].length) return null;
+  return { tier, idx };
 }
 function isPreviewMode() {
   if (typeof location === 'undefined' || !location.search) return false;
   return new URLSearchParams(location.search).get('preview') === '1';
 }
 
-// Boot path for ?preview=1: skip intro/tutorial entirely, render the
-// forced puzzle with every set marked solved so all definitions and
-// assembled parts are visible. Chrome hidden via .preview-mode CSS.
+// Returns the tier variant (or null) for a theme. Themes always have hard;
+// easy/medium are optional.
+function getTierVariant(themeIdx, tier) {
+  const theme = THEMES[themeIdx];
+  if (!theme || !theme.tiers) return null;
+  return theme.tiers[tier] || null;
+}
+function tierAvailable(themeIdx, tier) {
+  return getTierVariant(themeIdx, tier) != null;
+}
+
+// Boot path for ?preview=1.
 function bootPreview() {
   document.body.classList.add('preview-mode');
   state.mode = 'preview';
   state.playDate = todayStr();
+  state.tier = forcedTier() || 'hard';
   state.puzzleIdx = forcedPuzzleIdx() ?? 0;
   resetGameState();
   loadPuzzle();
@@ -973,28 +998,34 @@ function bootPreview() {
 fetch('glossari.json')
   .then(r => { if (!r.ok) throw new Error('Failed to load puzzles'); return r.json(); })
   .then(data => {
-    PUZZLES = data;
+    // Defensive: refuse to run against the old flat-array shape.
+    if (Array.isArray(data) || !data.themes || !data.practice) {
+      throw new Error('glossari.json is in legacy shape; run scripts/migrate-glossari-json.mjs');
+    }
+    THEMES = data.themes;
+    PRACTICE = data.practice;
     if (isPreviewMode()) { bootPreview(); return; }
     let seenTutorial = false;
     try { seenTutorial = localStorage.getItem('tutorial_seen') === '1'; } catch (e) {}
-    updateStartBtn();
+    refreshIntroButtons();
     if (seenTutorial) { document.getElementById('intro').classList.add('show'); }
     else { openTutorial(); }
   })
-  .catch(() => {
-    document.getElementById('intro').innerHTML = '<div class="go-title" style="font-size:1.2rem">Could not load puzzles</div><div class="intro-rules" style="margin-top:1rem">Make sure glossari.json is in the same folder as this file.</div>';
+  .catch((err) => {
+    document.getElementById('intro').innerHTML = '<div class="go-title" style="font-size:1.2rem">Could not load puzzles</div><div class="intro-rules" style="margin-top:1rem">' + (err && err.message ? err.message : 'Make sure glossari.json is in the same folder as this file.') + '</div>';
     document.getElementById('intro').classList.add('show');
   });
 
 const STORAGE_KEY_V1 = 'glossari_daily_v1';
-const STORAGE_KEY = 'glossari_daily_v2';
+const STORAGE_KEY_V2 = 'glossari_daily_v2';
+const STORAGE_KEY = 'glossari_daily_v3';
 const LAUNCH_DATE = '2026-05-17';
 
 function dailyIndex(dateStr) {
   const ms = Date.parse(dateStr + 'T00:00:00Z') - Date.parse(LAUNCH_DATE + 'T00:00:00Z');
   const days = Math.floor(ms / 86400000);
   if (days < 0) return 0;
-  return days % PUZZLES.length;
+  return days % THEMES.length;
 }
 
 function todayStr() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date()); }
@@ -1048,7 +1079,7 @@ function saveStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.string
 const MAX_MISTAKES = 4;
 
 let state = {
-  puzzleIdx: 0, mode: 'daily', puzzleMarksByEntry: [],
+  puzzleIdx: 0, mode: 'daily', tier: 'hard', puzzleMarksByEntry: [],
   items: [], selectedIds: new Set(), solvedSets: [], revealedSets: [],
   mistakes: 0, puzzlesSolved: 0, flawless: 0, totalMistakes: 0,
   locked: false, timerStart: null, timerInterval: null, elapsed: 0,
