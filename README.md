@@ -10,15 +10,18 @@ Glossari is a daily dictionary puzzle. Each puzzle contains four dictionary entr
 
 **Clue types:** definition, synonym, antonym, example sentence (marked with ❦ ≡ ≠ ¶)
 
+**Difficulty tiers:** each daily theme comes in three tiers — **Easy** (productive English affixes, ~4th–8th grade), **Medium** (transparent Latin/Greek roots, ~high school / early college), and **Hard** (current college / grad vocabulary). The landing page presents three tier buttons; players can play any or all three on the same day. Streaks, stats, and share text are independent per tier.
+
 **Mechanics:**
 - Select one clue card and three word segments, in order
+- All headwords across all tiers are exactly three parts
 - Segment order matters — right parts in the wrong order gives a yellow warning rather than a solve
 - Four mistakes allowed per puzzle
-- Daily puzzle rotates at midnight; practice mode available any time
+- Daily puzzle rotates at midnight; practice mode available any time with its own dedicated puzzle pool (separate from the daily rotation)
 
-**Share format:** the results screen shows a guess log with four columns (clue + three segments) using ❧ (correct), ◆ (right part, wrong position), and · (wrong). The same symbols appear in the copied share text.
+**Share format:** the results screen shows a guess log with four columns (clue + three segments) using ❧ (correct), ◆ (right part, wrong position), and · (wrong). Share text reads `Glossari — No. N · {Tier} · "{Theme}"` followed by the guess grid.
 
-**Puzzle data:** `glossari.json` — an array of puzzle objects, each with a `name`, `sets` array, and per-set `parts`, `pos`, `definition`, `synonyms`, `antonyms`, and `example`.
+**Puzzle data:** `glossari.json` — a top-level object with two collections. `themes[]` is the daily rotation; each theme has up to three `tiers` (`easy`, `medium`, `hard`). `practice` is an object keyed by tier, each value a small array of sandbox puzzles never drawn from the daily catalog. Each puzzle in either collection has 4 entries with `parts` always of length 3, plus `pos`, `definition`, `etymology`, `example`, `synonyms`, `antonyms`.
 
 ## Local development
 

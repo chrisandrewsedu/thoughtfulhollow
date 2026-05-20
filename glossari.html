@@ -436,6 +436,28 @@ html, body {
 }
 .archive-cell.solved .archive-mark { color: var(--green); }
 .archive-cell.revealed .archive-mark { color: var(--gold); }
+.archive-tier-picker {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--paper); border: 1px solid var(--border);
+  border-radius: 6px; padding: 1rem 1.2rem;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.18);
+  z-index: 20; display: none;
+}
+.archive-tier-picker.show { display: block; }
+.archive-tier-picker .picker-title {
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  text-align: center; margin-bottom: 0.4rem;
+}
+.archive-tier-picker .picker-sub {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.6rem; color: var(--ink-faint);
+  text-align: center; margin-bottom: 0.8rem;
+}
+.archive-tier-picker .tier-buttons { margin-top: 0.3rem; }
+.archive-tier-picker .picker-close {
+  display: block; margin: 0.8rem auto 0;
+}
 .archive-stats {
   display: flex; justify-content: center; gap: 1.6rem;
   margin-top: 1.4rem; width: 100%;
@@ -447,6 +469,16 @@ html, body {
 .archive-stats .archive-stat-lbl {
   font-family: 'Lora', serif; font-size: 0.55rem; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--ink-faint); margin-top: 0.18rem;
+}
+.archive-stat-row {
+  display: grid; grid-template-columns: 4rem 1fr 1fr 1fr 1fr;
+  gap: 0.4rem; align-items: center; padding: 0.3rem 0;
+  border-top: 1px solid var(--paper-shadow);
+}
+.archive-stat-tier {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.7rem; color: var(--ink-soft);
+  text-align: left;
 }
 
 .go-mark {
@@ -509,6 +541,20 @@ html, body {
 }
 .btn:hover { background: var(--ink-soft); }
 .btn:active { background: var(--ink); }
+.tier-buttons {
+  display: flex; gap: 0.6rem; justify-content: center;
+  flex-wrap: wrap; margin-bottom: 0.6rem;
+}
+.tier-btn { min-width: 5.5rem; flex: 1 1 auto; max-width: 8rem; }
+.tier-btn[disabled] {
+  opacity: 0.4; cursor: not-allowed; pointer-events: none;
+}
+.tier-btn .tier-state {
+  display: block;
+  font-family: 'Lora', serif; font-style: italic; font-weight: 400;
+  font-size: 0.55rem; letter-spacing: 0.06em; text-transform: lowercase;
+  color: var(--ink-faint); margin-top: 0.15rem;
+}
 .intro-practice-btn {
   font-family: 'Lora', serif; font-style: italic;
   font-size: 0.72rem; color: var(--ink-faint);
@@ -671,6 +717,11 @@ html, body { transition: background 0.25s, color 0.25s; }
   font-size: 0.55rem; color: var(--ink-faint);
   letter-spacing: 0.04em;
 }
+.subbar-tier {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.55rem; color: var(--ink-faint);
+  letter-spacing: 0.04em; text-transform: lowercase;
+}
 .puzzle-name { flex-direction: column; align-items: center; gap: 0.05rem; }
 .puzzle-name-label {
   font-family: 'Lora', serif; font-style: italic;
@@ -759,6 +810,7 @@ body.preview-mode .page-footer,
 body.preview-mode .overlay { display: none !important; }
 body.preview-mode .subbar { padding: 0.4rem 0.8rem; border: none; }
 body.preview-mode .subbar-date,
+body.preview-mode .subbar-tier,
 body.preview-mode .timer { display: none; }
 body.preview-mode .puzzle-name { text-align: center; }
 body.preview-mode .main { padding: 0.4rem 0.6rem; max-width: none; }
@@ -774,7 +826,7 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
       <div class="vol">daily</div>
     </div>
     <div class="header-actions">
-      <button class="practice-link" id="practiceLink" onclick="startPracticeGame()">Practice</button>
+      <button class="practice-link" id="practiceLink" onclick="openPracticePicker()">Practice</button>
       <button class="header-icon-btn" id="helpBtn" aria-label="How to play" type="button" onclick="openTutorial()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
       </button>
@@ -791,6 +843,7 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
       <span class="puzzle-name-label">today's theme</span>
       <span class="name" id="puzzleName">— —</span>
     </div>
+    <div class="subbar-tier" id="subbarTier"></div>
     <div class="timer" id="timer">—</div>
   </div>
 
@@ -847,9 +900,13 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
       <div><span class="sym">≠</span><span class="lbl">Antonym</span></div>
     </div>
     <div class="intro-actions" id="introActions">
-      <button class="btn" id="beginBtn" onclick="startGame()">Begin</button>
+      <div class="tier-buttons" id="tierButtons">
+        <button class="btn tier-btn" data-tier="easy"   onclick="startGame('easy')">Easy</button>
+        <button class="btn tier-btn" data-tier="medium" onclick="startGame('medium')">Medium</button>
+        <button class="btn tier-btn" data-tier="hard"   onclick="startGame('hard')">Hard</button>
+      </div>
       <div class="intro-actions-row">
-        <button class="btn-secondary" id="introPracticeBtn" onclick="startPracticeGame()">Practice</button>
+        <button class="btn-secondary" id="introPracticeBtn" onclick="openPracticePicker()">Practice</button>
         <button class="btn-secondary" id="introArchiveBtn" onclick="openArchive()">Archive</button>
       </div>
     </div>
@@ -894,8 +951,25 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     <div class="intro-rules" style="margin-bottom:1.1rem">You've already played today's puzzle. New puzzle at midnight.</div>
     <div class="go-stats" id="alreadyStats"></div>
     <div class="intro-actions-row" style="margin-bottom:0.8rem">
-      <button class="btn-secondary" onclick="startPracticeGame()">Practice</button>
+      <button class="btn-secondary" onclick="openPracticePicker()">Practice</button>
       <button class="btn-secondary" onclick="openArchive()">Archive</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="practicePicker">
+    <div class="dict-entry-head">
+      <div class="dict-headword-large">Practice</div>
+      <div class="dict-tagline">Pick a difficulty</div>
+    </div>
+    <div class="go-rule"></div>
+    <div class="intro-rules" style="margin-bottom:1.1rem; text-align:center">A standalone puzzle outside the daily rotation. Doesn't affect your streak.</div>
+    <div class="tier-buttons" id="practiceTierButtons">
+      <button class="btn tier-btn" data-tier="easy"   onclick="startPracticeGame('easy')">Easy</button>
+      <button class="btn tier-btn" data-tier="medium" onclick="startPracticeGame('medium')">Medium</button>
+      <button class="btn tier-btn" data-tier="hard"   onclick="startPracticeGame('hard')">Hard</button>
+    </div>
+    <div class="intro-actions-row" style="margin-top:0.9rem">
+      <button class="btn-secondary" onclick="closePracticePicker()">Back</button>
     </div>
   </div>
 
@@ -917,6 +991,16 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
       <div class="archive-grid" id="archiveGrid"></div>
       <div class="archive-stats" id="archiveStats"></div>
     </div>
+      <div class="archive-tier-picker" id="archiveTierPicker">
+        <div class="picker-title" id="archivePickerTitle">—</div>
+        <div class="picker-sub" id="archivePickerSub">—</div>
+        <div class="tier-buttons" id="archivePickerButtons">
+          <button class="btn tier-btn" data-tier="easy"   onclick="archiveTierPick('easy')">Easy</button>
+          <button class="btn tier-btn" data-tier="medium" onclick="archiveTierPick('medium')">Medium</button>
+          <button class="btn tier-btn" data-tier="hard"   onclick="archiveTierPick('hard')">Hard</button>
+        </div>
+        <button class="btn-secondary picker-close" onclick="closeArchiveTierPicker()">Back</button>
+      </div>
   </div>
 </div>
 
@@ -929,13 +1013,12 @@ const CLUE_META = {
   antonym:    { sym: "≠", label: "Antonym" }
 };
 
-let PUZZLES = [];
+let THEMES = [];      // [{ name, tiers: { easy?, medium?, hard? } }]
+let PRACTICE = { easy: [], medium: [], hard: [] };
+const TIERS = ['easy', 'medium', 'hard'];
 
-// Admin/dev override: ?puzzle=<idx-or-name> in the URL forces a specific
-// puzzle regardless of date routing. Used by glossari-admin.html to
-// browse and play any puzzle on demand. Names are slugified for matching
-// (e.g. ?puzzle=fault-faithlessness). Returns null if no override or
-// the requested puzzle doesn't exist.
+// Admin/dev override: ?puzzle=<idx-or-name> forces a specific theme.
+// &tier=easy|medium|hard picks which tier variant to load (default: hard).
 function slugifyName(s) {
   return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
@@ -944,23 +1027,49 @@ function forcedPuzzleIdx() {
   const raw = new URLSearchParams(location.search).get('puzzle');
   if (raw == null) return null;
   const n = Number(raw);
-  if (Number.isInteger(n) && n >= 0 && n < PUZZLES.length) return n;
+  if (Number.isInteger(n) && n >= 0 && n < THEMES.length) return n;
   const slug = slugifyName(raw);
-  const byName = PUZZLES.findIndex(p => slugifyName(p.name) === slug);
+  const byName = THEMES.findIndex(t => slugifyName(t.name) === slug);
   return byName >= 0 ? byName : null;
+}
+function forcedTier() {
+  if (typeof location === 'undefined' || !location.search) return null;
+  const raw = new URLSearchParams(location.search).get('tier');
+  return TIERS.includes(raw) ? raw : null;
+}
+// ?practice=easy:0 — load a specific practice puzzle by tier and index.
+function forcedPracticeRef() {
+  if (typeof location === 'undefined' || !location.search) return null;
+  const raw = new URLSearchParams(location.search).get('practice');
+  if (!raw) return null;
+  const [tier, idxStr] = raw.split(':');
+  const idx = Number(idxStr);
+  if (!TIERS.includes(tier) || !Number.isInteger(idx)) return null;
+  if (!PRACTICE[tier] || idx < 0 || idx >= PRACTICE[tier].length) return null;
+  return { tier, idx };
 }
 function isPreviewMode() {
   if (typeof location === 'undefined' || !location.search) return false;
   return new URLSearchParams(location.search).get('preview') === '1';
 }
 
-// Boot path for ?preview=1: skip intro/tutorial entirely, render the
-// forced puzzle with every set marked solved so all definitions and
-// assembled parts are visible. Chrome hidden via .preview-mode CSS.
+// Returns the tier variant (or null) for a theme. Themes always have hard;
+// easy/medium are optional.
+function getTierVariant(themeIdx, tier) {
+  const theme = THEMES[themeIdx];
+  if (!theme || !theme.tiers) return null;
+  return theme.tiers[tier] || null;
+}
+function tierAvailable(themeIdx, tier) {
+  return getTierVariant(themeIdx, tier) != null;
+}
+
+// Boot path for ?preview=1.
 function bootPreview() {
   document.body.classList.add('preview-mode');
   state.mode = 'preview';
   state.playDate = todayStr();
+  state.tier = forcedTier() || 'hard';
   state.puzzleIdx = forcedPuzzleIdx() ?? 0;
   resetGameState();
   loadPuzzle();
@@ -973,28 +1082,34 @@ function bootPreview() {
 fetch('glossari.json')
   .then(r => { if (!r.ok) throw new Error('Failed to load puzzles'); return r.json(); })
   .then(data => {
-    PUZZLES = data;
+    // Defensive: refuse to run against the old flat-array shape.
+    if (Array.isArray(data) || !data.themes || !data.practice) {
+      throw new Error('glossari.json is in legacy shape; run scripts/migrate-glossari-json.mjs');
+    }
+    THEMES = data.themes;
+    PRACTICE = data.practice;
     if (isPreviewMode()) { bootPreview(); return; }
     let seenTutorial = false;
     try { seenTutorial = localStorage.getItem('tutorial_seen') === '1'; } catch (e) {}
-    updateStartBtn();
+    refreshIntroButtons();
     if (seenTutorial) { document.getElementById('intro').classList.add('show'); }
     else { openTutorial(); }
   })
-  .catch(() => {
-    document.getElementById('intro').innerHTML = '<div class="go-title" style="font-size:1.2rem">Could not load puzzles</div><div class="intro-rules" style="margin-top:1rem">Make sure glossari.json is in the same folder as this file.</div>';
+  .catch((err) => {
+    document.getElementById('intro').innerHTML = '<div class="go-title" style="font-size:1.2rem">Could not load puzzles</div><div class="intro-rules" style="margin-top:1rem">' + (err && err.message ? err.message : 'Make sure glossari.json is in the same folder as this file.') + '</div>';
     document.getElementById('intro').classList.add('show');
   });
 
 const STORAGE_KEY_V1 = 'glossari_daily_v1';
-const STORAGE_KEY = 'glossari_daily_v2';
+const STORAGE_KEY_V2 = 'glossari_daily_v2';
+const STORAGE_KEY = 'glossari_daily_v3';
 const LAUNCH_DATE = '2026-05-17';
 
 function dailyIndex(dateStr) {
   const ms = Date.parse(dateStr + 'T00:00:00Z') - Date.parse(LAUNCH_DATE + 'T00:00:00Z');
   const days = Math.floor(ms / 86400000);
   if (days < 0) return 0;
-  return days % PUZZLES.length;
+  return days % THEMES.length;
 }
 
 function todayStr() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date()); }
@@ -1006,9 +1121,32 @@ function etDateOffset(dateStr, offsetDays) {
 }
 function prevEtDate(dateStr) { return etDateOffset(dateStr, -1); }
 
-function migrateStorageIfNeeded() {
+function emptyTierState() {
+  return {
+    byDate: {},
+    streak: 0,
+    bestStreak: 0,
+    lastPlayedDate: null,
+    totalPlayed: 0,
+    totalSolved: 0,
+    totalFlawless: 0,
+    totalSolveSeconds: 0,
+    solvedTimedCount: 0,
+  };
+}
+
+function emptyV3() {
+  return {
+    v: 3,
+    tiers: { easy: emptyTierState(), medium: emptyTierState(), hard: emptyTierState() },
+  };
+}
+
+// v1 → v2 (existing logic from prior release, preserved). Used as an
+// intermediate step when migrating v1 storage forward to v3.
+function migrateV1toV2() {
   try {
-    if (localStorage.getItem(STORAGE_KEY)) return;
+    if (localStorage.getItem(STORAGE_KEY_V2)) return;
     const rawV1 = localStorage.getItem(STORAGE_KEY_V1);
     if (!rawV1) return;
     const v1 = JSON.parse(rawV1) || {};
@@ -1035,20 +1173,77 @@ function migrateStorageIfNeeded() {
         v2.solvedTimedCount = 1;
       }
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(v2));
+    localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(v2));
   } catch {}
+}
+
+// v2 → v3: move all top-level fields into tiers.hard (existing players are
+// all hard-tier players). Leaves v2 key in place for one release as a
+// safety net; can be removed later.
+function migrateV2toV3() {
+  try {
+    if (localStorage.getItem(STORAGE_KEY)) return;
+    const rawV2 = localStorage.getItem(STORAGE_KEY_V2);
+    const v3 = emptyV3();
+    if (rawV2) {
+      const v2 = JSON.parse(rawV2) || {};
+      v3.tiers.hard = {
+        byDate: v2.byDate || {},
+        streak: v2.streak || 0,
+        bestStreak: v2.bestStreak || 0,
+        lastPlayedDate: v2.lastPlayedDate || null,
+        totalPlayed: v2.totalPlayed || 0,
+        totalSolved: v2.totalSolved || 0,
+        totalFlawless: v2.totalFlawless || 0,
+        totalSolveSeconds: v2.totalSolveSeconds || 0,
+        solvedTimedCount: v2.solvedTimedCount || 0,
+      };
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(v3));
+  } catch {}
+}
+
+function migrateStorageIfNeeded() {
+  migrateV1toV2();
+  migrateV2toV3();
 }
 
 function loadStorage() {
   migrateStorageIfNeeded();
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!parsed || parsed.v !== 3 || !parsed.tiers) return emptyV3();
+    // Defensive: ensure each tier exists.
+    for (const t of TIERS) {
+      if (!parsed.tiers[t]) parsed.tiers[t] = emptyTierState();
+    }
+    return parsed;
+  } catch {
+    return emptyV3();
+  }
 }
-function saveStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {} }
+
+function saveStorage(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+}
+
+function tierStorage(tier) {
+  const all = loadStorage();
+  return all.tiers[tier] || emptyTierState();
+}
+
+// Replace the stub from Task 5.
+function getTierDayState(tier, dateStr) {
+  const ts = tierStorage(tier);
+  const entry = ts.byDate && ts.byDate[dateStr];
+  if (!entry) return null;
+  return { result: entry.result, inProgress: false };
+}
 
 const MAX_MISTAKES = 4;
 
 let state = {
-  puzzleIdx: 0, mode: 'daily', puzzleMarksByEntry: [],
+  puzzleIdx: 0, mode: 'daily', tier: 'hard', puzzleMarksByEntry: [],
   items: [], selectedIds: new Set(), solvedSets: [], revealedSets: [],
   mistakes: 0, puzzlesSolved: 0, flawless: 0, totalMistakes: 0,
   locked: false, timerStart: null, timerInterval: null, elapsed: 0,
@@ -1098,21 +1293,29 @@ function resumeTimer() {
 
 function startDailyGame(dateStr, opts) {
   dateStr = dateStr || todayStr();
-  const replay = !!(opts && opts.replay);
-  const stored = loadStorage();
-  const existing = stored.byDate && stored.byDate[dateStr];
+  opts = opts || {};
+  const replay = !!opts.replay;
+  if (opts.tier && TIERS.includes(opts.tier)) state.tier = opts.tier;
+  if (!state.tier) state.tier = 'hard';
+  const all = loadStorage();
+  const tierData = all.tiers[state.tier];
+  const existing = tierData.byDate && tierData.byDate[dateStr];
   if (existing && !replay) {
-    if (dateStr === todayStr()) { showAlreadyPlayed(stored); return; }
-    // shouldn't normally happen — archive cell click for completed day always passes replay:true
-    showAlreadyPlayed(stored); return;
+    showAlreadyPlayed(all, state.tier); return;
   }
   state.mode = 'daily';
   state.playDate = dateStr;
   state.replay = replay;
-  // Honor ?puzzle=<idx-or-name> override; fall through to date routing
-  // if the param is missing or doesn't resolve to a known puzzle.
+  state.puzzleSource = null; // clear practice-mode source so daily loadPuzzle reads via getTierVariant
   const forced = forcedPuzzleIdx();
   state.puzzleIdx = forced != null ? forced : dailyIndex(dateStr);
+  // If the chosen tier doesn't have a variant for this theme, bail with a
+  // gentle message rather than crashing.
+  if (!tierAvailable(state.puzzleIdx, state.tier)) {
+    alert(`This tier isn't available for today's puzzle.`);
+    document.getElementById('intro').classList.add('show');
+    return;
+  }
   resetGameState();
   document.getElementById('intro').classList.remove('show');
   document.getElementById('alreadyPlayed').classList.remove('show');
@@ -1120,10 +1323,39 @@ function startDailyGame(dateStr, opts) {
   loadPuzzle();
 }
 
-function startPracticeGame() {
-  state.mode = 'practice'; state.puzzleIdx = Math.floor(Math.random() * PUZZLES.length);
+function openPracticePicker() {
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  // Disable tier buttons that have no practice content.
+  for (const tier of TIERS) {
+    const btn = document.querySelector(`#practiceTierButtons .tier-btn[data-tier="${tier}"]`);
+    if (!btn) continue;
+    const hasContent = Array.isArray(PRACTICE[tier]) && PRACTICE[tier].length > 0;
+    btn.disabled = !hasContent;
+  }
+  document.getElementById('practicePicker').classList.add('show');
+}
+
+function closePracticePicker() {
+  document.getElementById('practicePicker').classList.remove('show');
+  refreshIntroButtons();
+  document.getElementById('intro').classList.add('show');
+}
+
+function startPracticeGame(tier) {
+  if (!TIERS.includes(tier)) return;
+  const pool = PRACTICE[tier] || [];
+  if (pool.length === 0) return;
+  // Honor ?practice=tier:idx if present.
+  const forced = forcedPracticeRef();
+  const idx = (forced && forced.tier === tier) ? forced.idx : Math.floor(Math.random() * pool.length);
+  state.mode = 'practice';
+  state.tier = tier;
+  state.puzzleSource = pool[idx];
+  state.puzzleIdx = -1; // not a theme idx
   resetGameState();
   document.getElementById('intro').classList.remove('show');
+  document.getElementById('practicePicker').classList.remove('show');
   document.getElementById('alreadyPlayed').classList.remove('show');
   document.getElementById('reveal').classList.remove('show');
   loadPuzzle();
@@ -1151,11 +1383,13 @@ function openArchive() {
 
 function closeArchive() {
   document.getElementById('archive').classList.remove('show');
-  const stored = loadStorage();
+  const all = loadStorage();
   const today = todayStr();
-  if (stored.byDate && stored.byDate[today]) {
-    showAlreadyPlayed(stored);
+  const t = all.tiers[state.tier] || emptyTierState();
+  if (t.byDate && t.byDate[today]) {
+    showAlreadyPlayed(all, state.tier);
   } else {
+    refreshIntroButtons();
     document.getElementById('intro').classList.add('show');
   }
 }
@@ -1189,8 +1423,7 @@ function renderArchive() {
   prevBtn.disabled = lastOfPrevMonth < launchDate;
   nextBtn.disabled = firstOfNextMonth > todayDate;
 
-  const stored = loadStorage();
-  const byDate = stored.byDate || {};
+  const all = loadStorage();
 
   const grid = document.getElementById('archiveGrid');
   grid.innerHTML = '';
@@ -1213,77 +1446,148 @@ function renderArchive() {
     const isBeforeLaunch = dateObj < launchDate;
     const isFuture = dateObj > todayDate;
     const isToday = dateStr === today;
-    const entry = byDate[dateStr];
+    const playedTiers = TIERS.filter(t => all.tiers[t].byDate && all.tiers[t].byDate[dateStr]);
+    const hasAnyPlay = playedTiers.length > 0;
+    const allSolvedOnAnyTier = hasAnyPlay && playedTiers.some(t => all.tiers[t].byDate[dateStr].result && all.tiers[t].byDate[dateStr].result.allSolved);
 
     if (isBeforeLaunch || isFuture) {
       cell.classList.add(isFuture ? 'future' : 'empty');
       if (isBeforeLaunch) cell.classList.add('empty');
     } else {
       if (isToday) cell.classList.add('today');
-      if (entry) {
+      if (hasAnyPlay) {
         cell.classList.add('completed');
-        const allSolved = entry.result && entry.result.allSolved;
-        cell.classList.add(allSolved ? 'solved' : 'revealed');
+        cell.classList.add(allSolvedOnAnyTier ? 'solved' : 'revealed');
         const mark = document.createElement('div');
         mark.className = 'archive-mark';
-        mark.textContent = allSolved ? '✓' : '◊';
+        mark.textContent = allSolvedOnAnyTier ? '✓' : '◊';
         cell.appendChild(mark);
-        cell.onclick = () => archiveCellClick(dateStr, true);
       } else {
         cell.classList.add('available');
-        cell.onclick = () => archiveCellClick(dateStr, false);
       }
+      cell.onclick = () => archiveCellClick(dateStr);
     }
     grid.appendChild(cell);
   }
 
   const statsEl = document.getElementById('archiveStats');
   statsEl.innerHTML = '';
-  [
-    ['Streak', stored.streak || 0],
-    ['Played', stored.totalPlayed || 0],
-    ['Flawless', stored.totalFlawless || 0],
-    ['Avg Time', formatAvgTime(stored)],
-  ].forEach(([label, val]) => {
-    const stat = document.createElement('div');
-    stat.className = 'archive-stat';
-    const num = document.createElement('div'); num.className = 'archive-stat-num'; num.textContent = val;
-    const lbl = document.createElement('div'); lbl.className = 'archive-stat-lbl'; lbl.textContent = label;
-    stat.appendChild(num); stat.appendChild(lbl); statsEl.appendChild(stat);
-  });
+  // Per-tier rows: always show all three so other tiers stay discoverable.
+  for (const tier of TIERS) {
+    const t = all.tiers[tier];
+    const row = document.createElement('div');
+    row.className = 'archive-stat-row';
+    row.innerHTML = `<div class="archive-stat-tier">${tier.charAt(0).toUpperCase() + tier.slice(1)}</div>` +
+      [['Streak', t.streak || 0], ['Played', t.totalPlayed || 0], ['Flawless', t.totalFlawless || 0], ['Avg', formatAvgTime(t)]]
+        .map(([label, val]) => `<div class="archive-stat"><div class="archive-stat-num">${val}</div><div class="archive-stat-lbl">${label}</div></div>`)
+        .join('');
+    statsEl.appendChild(row);
+  }
 }
 
-function archiveCellClick(dateStr, isReplay) {
+let archivePickerDate = null;
+
+function archiveCellClick(dateStr) {
+  archivePickerDate = dateStr;
+  const themeIdx = dailyIndex(dateStr);
+  const theme = THEMES[themeIdx];
+  const d = new Date(dateStr + 'T12:00:00Z');
+  const dateLabel = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+  document.getElementById('archivePickerTitle').textContent = theme.name;
+  document.getElementById('archivePickerSub').textContent = dateLabel;
+  // Enable each tier button only if a variant exists for that date.
+  const all = loadStorage();
+  for (const tier of TIERS) {
+    const btn = document.querySelector(`#archivePickerButtons .tier-btn[data-tier="${tier}"]`);
+    if (!btn) continue;
+    const available = tierAvailable(themeIdx, tier);
+    const tEntry = all.tiers[tier].byDate && all.tiers[tier].byDate[dateStr];
+    const sub = !available ? 'unavailable' : (tEntry ? (tEntry.result.allSolved ? '✓ played' : '◊ played') : 'play');
+    btn.disabled = !available;
+    btn.innerHTML = `${tier.charAt(0).toUpperCase() + tier.slice(1)}<span class="tier-state">${sub}</span>`;
+  }
+  document.getElementById('archiveTierPicker').classList.add('show');
+}
+
+function closeArchiveTierPicker() {
+  document.getElementById('archiveTierPicker').classList.remove('show');
+  archivePickerDate = null;
+}
+
+function archiveTierPick(tier) {
+  if (!archivePickerDate) return;
+  if (!tierAvailable(dailyIndex(archivePickerDate), tier)) return;
+  const date = archivePickerDate;
+  closeArchiveTierPicker();
   document.getElementById('archive').classList.remove('show');
-  startDailyGame(dateStr, { replay: isReplay });
+  const all = loadStorage();
+  const entry = all.tiers[tier].byDate && all.tiers[tier].byDate[date];
+  // If already played, replay; otherwise play fresh.
+  startDailyGame(date, { tier, replay: !!entry });
 }
 
 function resetGameState() { state.puzzlesSolved = 0; state.flawless = 0; state.totalMistakes = 0; state.puzzleMarksByEntry = []; }
 
-function updateStartBtn() {
-  document.getElementById('beginBtn').textContent = state.inProgress ? 'Resume' : 'Begin';
-}
-
 function goHome() {
   if (!state.inProgress) return;
   stopTimer();
-  updateStartBtn();
+  refreshIntroButtons();
   document.getElementById('intro').classList.add('show');
 }
 
-function startGame() {
-  if (state.inProgress) {
-    document.getElementById('intro').classList.remove('show');
-    resumeTimer();
-    return;
+function startGame(tier) {
+  if (!TIERS.includes(tier)) return;
+  if (!tierAvailable(dailyIndex(todayStr()), tier)) return;
+  state.tier = tier;
+  startDailyGame(undefined, { tier });
+}
+
+// Refresh the three tier buttons on the landing page to reflect each
+// tier's per-day state. Called on intro show and after completions.
+function refreshIntroButtons() {
+  const themeIdx = dailyIndex(todayStr());
+  const today = todayStr();
+  for (const tier of TIERS) {
+    const btn = document.querySelector(`.tier-btn[data-tier="${tier}"]`);
+    if (!btn) continue;
+    const available = tierAvailable(themeIdx, tier);
+    const tierState = getTierDayState(tier, today);
+    let label = tier.charAt(0).toUpperCase() + tier.slice(1);
+    let sub = '';
+    if (!available) {
+      btn.disabled = true;
+      sub = 'unavailable today';
+    } else if (tierState && tierState.result) {
+      btn.disabled = false;
+      sub = tierState.result.allSolved ? '✓ played' : '◊ played';
+    } else if (tierState && tierState.inProgress) {
+      btn.disabled = false;
+      sub = 'resume';
+    } else {
+      btn.disabled = false;
+      sub = 'begin';
+    }
+    btn.innerHTML = `${label}<span class="tier-state">${sub}</span>`;
   }
-  startDailyGame();
 }
 
 function loadPuzzle() {
   state.inProgress = true;
   document.getElementById('practiceLink').style.display = 'none';
-  const puzzle = PUZZLES[state.puzzleIdx];
+  // Daily mode: look up tier variant on the current theme.
+  // Practice mode: state.puzzleSource holds the resolved puzzle object directly (set by startPracticeGame).
+  let puzzle;
+  if (state.mode === 'practice') {
+    puzzle = state.puzzleSource;
+  } else {
+    const variant = getTierVariant(state.puzzleIdx, state.tier);
+    if (!variant) {
+      console.error('No variant for theme', state.puzzleIdx, 'tier', state.tier);
+      return;
+    }
+    // The theme provides name; the variant provides sets.
+    puzzle = { name: THEMES[state.puzzleIdx].name, sets: variant.sets };
+  }
   state.mistakes = 0; state.locked = false; state.selectedIds = new Set();
   state.guessLog = [];
   state.items = []; let id = 0;
@@ -1293,11 +1597,13 @@ function loadPuzzle() {
   state.items.push(...shuffle(tileItems));
   state.solvedSets = puzzle.sets.map(_ => false); state.revealedSets = puzzle.sets.map(_ => false);
   document.getElementById('puzzleName').textContent = puzzle.name;
+  state.currentPuzzle = puzzle; // cache for showReveal/copyResult use
   const playDate = state.playDate || todayStr();
   const isLive = playDate === todayStr();
   const d = new Date(playDate + 'T12:00:00Z');
   const dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
   document.getElementById('subbarDate').textContent = isLive ? dateLabel : 'Archive · ' + dateLabel;
+  document.getElementById('subbarTier').textContent = state.mode === 'practice' ? 'practice' : state.tier;
   renderMistakes(); renderAll(); updateSubmit(); startTimer();
 }
 
@@ -1474,7 +1780,7 @@ function updatePreviewRow() {
 
 
 function computeGuessMark(bestSetIdx) {
-  const set = PUZZLES[state.puzzleIdx].sets[bestSetIdx];
+  const set = state.currentPuzzle.sets[bestSetIdx];
   const sel = [...state.selectedIds].map(id => itemById(id));
   const clue = sel.find(it => it.type === 'clue');
   const tiles = sel.filter(it => it.type === 'tile');
@@ -1488,7 +1794,7 @@ function computeGuessMark(bestSetIdx) {
 }
 
 function tilesMatchOrder(setIdx) {
-  const set = PUZZLES[state.puzzleIdx].sets[setIdx];
+  const set = state.currentPuzzle.sets[setIdx];
   const sel = [...state.selectedIds].map(id => itemById(id));
   const tiles = sel.filter(it => it && it.type === 'tile');
   if (tiles.length !== 3) return false;
@@ -1496,7 +1802,7 @@ function tilesMatchOrder(setIdx) {
 }
 
 function matchAgainstSet(setIdx) {
-  const set = PUZZLES[state.puzzleIdx].sets[setIdx]; const selected = [...state.selectedIds].map(id => itemById(id));
+  const set = state.currentPuzzle.sets[setIdx]; const selected = [...state.selectedIds].map(id => itemById(id));
   let matches = 0;
   selected.forEach(it => { if (it.type === 'clue' && it.setIdx === setIdx) matches++; });
   const need = {}; set.parts.forEach(p => need[p] = (need[p] || 0) + 1);
@@ -1505,7 +1811,7 @@ function matchAgainstSet(setIdx) {
 }
 
 function findBestMatch() {
-  const puzzle = PUZZLES[state.puzzleIdx]; let best = { setIdx: -1, count: -1 };
+  const puzzle = state.currentPuzzle; let best = { setIdx: -1, count: -1 };
   for (let i = 0; i < puzzle.sets.length; i++) {
     if (state.solvedSets[i] || state.revealedSets[i]) continue;
     const m = matchAgainstSet(i); if (m > best.count) best = { setIdx: i, count: m };
@@ -1551,34 +1857,36 @@ function finishPuzzle(success) {
 
 function recordCompletion() {
   if (state.replay) return;
+  if (state.mode === 'practice') return; // practice never affects stats
   const playDate = state.playDate || todayStr();
   const isLive = playDate === todayStr();
   const result = buildCurrentResult();
   const allSolved = result.allSolved;
-  const data = loadStorage();
-  if (!data.byDate) data.byDate = {};
-  data.byDate[playDate] = {
+  const all = loadStorage();
+  const t = all.tiers[state.tier];
+  if (!t.byDate) t.byDate = {};
+  t.byDate[playDate] = {
     puzzleIdx: state.puzzleIdx,
     result,
     completedAt: Date.now(),
     source: isLive ? 'live' : 'archive',
   };
-  data.totalPlayed = (data.totalPlayed || 0) + 1;
+  t.totalPlayed = (t.totalPlayed || 0) + 1;
   if (allSolved) {
-    data.totalSolved = (data.totalSolved || 0) + 1;
-    data.totalSolveSeconds = (data.totalSolveSeconds || 0) + state.elapsed;
-    data.solvedTimedCount = (data.solvedTimedCount || 0) + 1;
-    if (result.flawless) data.totalFlawless = (data.totalFlawless || 0) + 1;
+    t.totalSolved = (t.totalSolved || 0) + 1;
+    t.totalSolveSeconds = (t.totalSolveSeconds || 0) + state.elapsed;
+    t.solvedTimedCount = (t.solvedTimedCount || 0) + 1;
+    if (result.flawless) t.totalFlawless = (t.totalFlawless || 0) + 1;
   }
   if (isLive) {
     const yesterday = prevEtDate(todayStr());
-    const streakBase = data.lastPlayedDate === yesterday ? (data.streak || 0) : 0;
+    const streakBase = t.lastPlayedDate === yesterday ? (t.streak || 0) : 0;
     const newStreak = allSolved ? streakBase + 1 : 0;
-    data.streak = newStreak;
-    data.bestStreak = Math.max(newStreak, data.bestStreak || 0);
-    data.lastPlayedDate = todayStr();
+    t.streak = newStreak;
+    t.bestStreak = Math.max(newStreak, t.bestStreak || 0);
+    t.lastPlayedDate = todayStr();
   }
-  saveStorage(data);
+  saveStorage(all);
 }
 
 function buildCurrentResult() {
@@ -1588,18 +1896,21 @@ function buildCurrentResult() {
 
 function showReveal() {
   state.inProgress = false;
-  const puzzle = PUZZLES[state.puzzleIdx]; const stored = loadStorage();
+  const puzzle = state.currentPuzzle || (state.mode === 'practice' ? state.puzzleSource : { name: THEMES[state.puzzleIdx].name, sets: getTierVariant(state.puzzleIdx, state.tier).sets });
+  const all = loadStorage();
   const playDate = state.playDate || todayStr();
   const dateStr = new Date(playDate + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/New_York' });
-  const persisted = stored.byDate && stored.byDate[playDate];
+  const persisted = state.mode === 'daily' ? (all.tiers[state.tier].byDate || {})[playDate] : null;
   const result = state.mode === 'daily' && persisted && !state.replay
     ? persisted.result
     : buildCurrentResult();
   if (state.mode === 'daily') {
     const puzzleNum = dailyIndex(playDate) + 1;
-    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Daily No. ${puzzleNum} —</div><div class="reveal-title">${puzzle.name}</div><div class="reveal-date">${dateStr}</div>`;
+    const tierLabel = state.tier.charAt(0).toUpperCase() + state.tier.slice(1);
+    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Daily No. ${puzzleNum} · ${tierLabel} —</div><div class="reveal-title">${puzzle.name}</div><div class="reveal-date">${dateStr}</div>`;
   } else {
-    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Practice —</div><div class="reveal-title">${puzzle.name}</div>`;
+    const tierLabel = state.tier.charAt(0).toUpperCase() + state.tier.slice(1);
+    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Practice · ${tierLabel} —</div><div class="reveal-title">${puzzle.name}</div>`;
   }
   const clueItems = state.items.filter(it => it.type === 'clue').sort((a, b) => a.id - b.id);
   const entriesEl = document.getElementById('revealEntries'); entriesEl.innerHTML = '';
@@ -1611,9 +1922,9 @@ function showReveal() {
     entriesEl.appendChild(div);
   });
   const puzzleNum = state.mode === 'daily' ? dailyIndex(state.playDate || todayStr()) + 1 : null;
-  const shareStored = state.mode === 'daily' ? stored : {};
+  const tierStats = state.mode === 'daily' ? all.tiers[state.tier] : emptyTierState();
   const sharePlayDate = state.mode === 'daily' ? (state.playDate || todayStr()) : null;
-  document.getElementById('shareBlock').innerHTML = buildShareBlockHTML(shareStored, puzzle, puzzleNum, result, sharePlayDate);
+  document.getElementById('shareBlock').innerHTML = buildShareBlockHTML(tierStats, puzzle, puzzleNum, result, sharePlayDate, state.tier);
   document.getElementById('practiceLink').style.display = 'inline';
   document.getElementById('reveal').classList.add('show');
 }
@@ -1634,13 +1945,16 @@ const PERF_WORDS = [
 
 function perfWordFor(result) { return PERF_WORDS.find(p => p.condition(result)); }
 
-function buildShareBlockHTML(stored, puzzle, puzzleNum, result, playDate) {
+function buildShareBlockHTML(tierStats, puzzle, puzzleNum, result, playDate, tier) {
   const marks = result.marks || [];
   const timeStr = result.elapsedSeconds != null ? formatTime(result.elapsedSeconds) : '—';
   const errStr = result.mistakesUsed === 0 ? 'no errors' : result.mistakesUsed === 1 ? '1 mistake' : `${result.mistakesUsed} mistakes`;
   const solvedCount = marks.filter(m => m === 'solved').length;
   const perf = perfWordFor(result);
-  const puzzleLabel = puzzleNum != null ? `No. ${puzzleNum}` : 'Practice';
+  const tierLabel = tier ? (tier.charAt(0).toUpperCase() + tier.slice(1)) : '';
+  const puzzleLabel = puzzleNum != null
+    ? `No. ${puzzleNum} · ${tierLabel}`
+    : (tier ? `Practice · ${tierLabel}` : 'Practice');
   const dateStr = playDate
     ? new Date(playDate + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' })
     : new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -1659,7 +1973,7 @@ function buildShareBlockHTML(stored, puzzle, puzzleNum, result, playDate) {
     ).join('')}</div>`
   ).join('');
 
-  return `<div class="share-block" data-puzzle-num="${puzzleNum ?? ''}">
+  return `<div class="share-block" data-puzzle-num="${puzzleNum ?? ''}" data-tier="${tier ?? ''}">
     <div class="share-brand">
       <div class="share-game-title">Glos<span class="share-dot">·</span>sa<span class="share-dot">·</span>ri</div>
       <div class="share-game-sub">${puzzleLabel} · <em>"${puzzle.name}"</em></div>
@@ -1672,10 +1986,10 @@ function buildShareBlockHTML(stored, puzzle, puzzleNum, result, playDate) {
     <div class="share-summary">${solvedCount} of ${marks.length} · ${timeStr} · ${errStr}</div>
     <hr class="share-divider">
     <div class="share-stats">
-      <div class="share-stat"><div class="share-stat-num">${stored.streak || 0}</div><div class="share-stat-lbl">Streak</div></div>
-      <div class="share-stat"><div class="share-stat-num">${stored.totalPlayed || 0}</div><div class="share-stat-lbl">Played</div></div>
-      <div class="share-stat"><div class="share-stat-num">${stored.totalFlawless || 0}</div><div class="share-stat-lbl">Flawless</div></div>
-      <div class="share-stat"><div class="share-stat-num">${formatAvgTime(stored)}</div><div class="share-stat-lbl">Avg Time</div></div>
+      <div class="share-stat"><div class="share-stat-num">${tierStats.streak || 0}</div><div class="share-stat-lbl">Streak</div></div>
+      <div class="share-stat"><div class="share-stat-num">${tierStats.totalPlayed || 0}</div><div class="share-stat-lbl">Played</div></div>
+      <div class="share-stat"><div class="share-stat-num">${tierStats.totalFlawless || 0}</div><div class="share-stat-lbl">Flawless</div></div>
+      <div class="share-stat"><div class="share-stat-num">${formatAvgTime(tierStats)}</div><div class="share-stat-lbl">Avg Time</div></div>
     </div>
     <div class="share-perf">
       <div class="share-perf-word"><span class="share-sym">❦</span>${perf.word}<span class="share-perf-pos">${perf.pos}</span></div>
@@ -1685,12 +1999,15 @@ function buildShareBlockHTML(stored, puzzle, puzzleNum, result, playDate) {
   </div>`;
 }
 
-function generateShareText(puzzle, puzzleNum, result) {
+function generateShareText(puzzle, puzzleNum, result, tier) {
   const marks = result.marks || [];
   const timeStr = result.elapsedSeconds != null ? formatTime(result.elapsedSeconds) : '—';
   const errStr = result.mistakesUsed === 0 ? 'no errors' : result.mistakesUsed === 1 ? '1 mistake' : `${result.mistakesUsed} mistakes`;
   const solvedCount = marks.filter(m => m === 'solved').length;
-  const header = puzzleNum != null ? `Glos·sa·ri — No. ${puzzleNum}` : 'Glos·sa·ri — Practice';
+  const tierLabel = tier ? (tier.charAt(0).toUpperCase() + tier.slice(1)) : '';
+  const header = puzzleNum != null
+    ? `Glos·sa·ri — No. ${puzzleNum} · ${tierLabel}`
+    : (tier ? `Glos·sa·ri — Practice · ${tierLabel}` : 'Glos·sa·ri — Practice');
   const SYM = { correct: '❧', partial: '◆', wrong: '·' };
   const guessLog = state.guessLog || [];
   const grid = guessLog.map(row => row.map(m => SYM[m]).join(' ')).join('\n');
@@ -1705,10 +2022,13 @@ function generateShareText(puzzle, puzzleNum, result) {
 }
 
 function copyResult() {
-  const result = buildCurrentResult(); const puzzle = PUZZLES[state.puzzleIdx];
-  const raw = document.querySelector('.share-block')?.dataset.puzzleNum;
-  const puzzleNum = raw ? parseInt(raw, 10) : null;
-  const text = generateShareText(puzzle, puzzleNum, result);
+  const result = buildCurrentResult();
+  const puzzle = state.currentPuzzle || (state.mode === 'practice' ? state.puzzleSource : { name: THEMES[state.puzzleIdx].name, sets: getTierVariant(state.puzzleIdx, state.tier).sets });
+  const block = document.querySelector('.share-block');
+  const rawNum = block?.dataset.puzzleNum;
+  const puzzleNum = rawNum ? parseInt(rawNum, 10) : null;
+  const tier = block?.dataset.tier || state.tier;
+  const text = generateShareText(puzzle, puzzleNum, result, tier);
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.querySelector('.share-copy-btn'); const orig = btn.textContent;
     btn.textContent = 'Copied ✓'; setTimeout(() => { btn.textContent = orig; }, 1800);
@@ -1718,10 +2038,11 @@ function copyResult() {
   });
 }
 
-function showAlreadyPlayed(stored) {
+function showAlreadyPlayed(all, tier) {
   document.getElementById('intro').classList.remove('show');
+  const t = (all && all.tiers && all.tiers[tier]) || emptyTierState();
   const statsEl = document.getElementById('alreadyStats'); statsEl.textContent = '';
-  [['Streak', stored.streak || 0], ['Played', stored.totalPlayed || 0], ['Flawless', stored.totalFlawless || 0], ['Avg Time', formatAvgTime(stored)]].forEach(([label, val]) => {
+  [['Streak', t.streak || 0], ['Played', t.totalPlayed || 0], ['Flawless', t.totalFlawless || 0], ['Avg Time', formatAvgTime(t)]].forEach(([label, val]) => {
     const div = document.createElement('div'); div.className = 'go-stat';
     const num = document.createElement('div'); num.className = 'go-stat-num'; num.textContent = val;
     const lbl = document.createElement('div'); lbl.className = 'go-stat-label'; lbl.textContent = label;
