@@ -9,6 +9,21 @@ Cross-phase decisions and discoveries that affect future phases. The canonical d
 - Resolve each note as it's addressed: prefix with ✓ when handled, ✗ when explicitly rejected, leave bare when still open.
 - Date format: `YYYY-MM-DD`.
 
+## Current status (2026-05-19)
+
+- ✓ **Phase 1+2 — Engine + Monday block + Archive parity** (shipped)
+- ✓ **Phase 3a — Rail Fence + foundations** (shipped: 2×2 basket-weave, 12 stripe slots, three rank-based templates, all foundational refactors per the notes below)
+- ✓ **Phase 3b — Multi-solution UX layer** (shipped: solution-range engine, three new rule kinds, storage v2 with v1 migration, duplicate detection, find-another flow, "pattern N of M" overlay copy, archive N/M badges, Nine-Patch template audit)
+- **Phase 3c — Log Cabin (Wednesday block)** ← *next up*
+- Future: Churn Dash (Thu), Sawtooth Star (Fri), Dresden Plate (Sat), Sampler quilt (Sun), polish & launch.
+
+**Starting a new session on Phase 3c?** Read this file end-to-end first. The key things to know:
+- The block interface is in `sampler.html` at the `BLOCKS` object (currently `nine-patch` + `rail-fence`). Log Cabin needs to add `ring(i)` (currently stubbed `undefined` on existing blocks) and probably a `concentric`-style `neighbors(i)` for the radial topology — see the §"Concentric / non-orthogonal neighbors" section below.
+- Multi-solution templates declare `solutionTarget: { min, max }`. Difficulty calibration says Wed targets 4–6 solutions (see §"Multi-solution puzzles").
+- Use the rule kinds shipped in Phase 3a/3b — `all-same`, `all-different`, `alternating`, plus the existing `count`/`positional`/`adjacency`/`symmetry`/`rotational-symmetry`/`pattern-property`. Lean on `all-same` + property positional constraints to get multi-solution puzzles cheaply.
+- The block needs `dayOfWeek: 3` so `pickTemplateForDate` routes Wednesdays to it.
+- `verifyTemplate(templateId, [startDate, endDate])` is the authoring tool — exposed on `window` for console use.
+
 ---
 
 ## Phase 3 candidates (Rail Fence · Log Cabin · Churn Dash · Sawtooth Star)
@@ -214,14 +229,39 @@ These are starting targets; revisit after a few weeks of play. The Spelling Bee 
 
 The dropped `rail-fence-mirror-pairs-v1` template is worth bringing back when we either (a) have a cross-group equality primitive that plays nicely with rotational-symmetry, or (b) add a horizontally-striped fabric to a palette so `pattern-property` has solving teeth.
 
-**Deferred to Phase 3b (multi-solution UX & cleanup):**
+**Phase 3b — Shipped (multi-solution UX & cleanup):**
 
-- Storage shape v2 — track which solutions a player has actually found. Probably `byDate[d].solutionsFound: [fabricBySlot, ...]` plus `solutionCountAtPlayTime: int`. Migration from v1 needed.
-- Completion overlay rewrite — "You found a Rail Fence — pattern 1 of 5. Play again to find another."
-- Archive cell badges — small "3/5" indicator on completed days.
-- Share string evolution — convey "found 3 of 5 patterns this puzzle allows."
-- Retroactive audit of the broken Nine-Patch templates (`nine-patch-diagonal-v1`, `nine-patch-warm-cool-v1`). They currently report "too-many" against the default `{1,1}` target. Phase 3b should run them through the solver, decide a reasonable `solutionTarget`, possibly tighten rules if the count is too loose, and re-author if needed.
-- Decision: does "complete" remain `≥1 solution found` (current behavior, casual-friendly) or graduate to `all N solutions found` (hardcore)? Probably stay with the former and have a separate "completionist" achievement.
+All items below shipped in commits 3769a30 through c35391b. Key state changes:
+
+- ✓ **Storage v2** (`sampler_daily_v1` → `sampler_daily_v2`). Per-day shape now stores `{ puzzleIdx, block, templateId, totalSolutions, solutionsFound: [{fabricBySlot, elapsedSeconds, foundAt, flawless}], firstCompletedAt, source }`. Aggregate gains `totalSolutionsFound`. v1 → v2 migration is one-way on first load; migrated entries have `fabricBySlot: null` (we didn't capture layouts in v1) and `totalSolutions: null` (re-computed on next play). v1 key is kept in storage as safety net.
+- ✓ **Duplicate detection at win time.** `checkWin` compares the current `fabricBySlot` against `game.solutionsFound[*].fabricBySlot`; if a match, a `.win-notice` banner says "You've already found this pattern. Try a different one!" and the win doesn't fire. Migrated v1 records (null fabric) never match — they can be re-found as new.
+- ✓ **Completion overlay copy** now reads "You found pattern N of M — a Tuesday Rail Fence in 2:34." Single-solution and unknown-M (migrated) puzzles keep the legacy "You solved a..." wording. All-found state reads "You found all M patterns — today's Rail Fence is complete."
+- ✓ **Find-another flow.** `findAnotherPattern()` clears the board, restarts the timer, sets `game.findingAnother = true`, and preserves `game.solutionsFound`. The CTA appears on both the completion overlay and the alreadyPlayed overlay when N < M.
+- ✓ **`game.findingAnother` distinguishes** the legacy "play for fun" archive replay (recordCompletion no-ops) from the new "find another solution" mode (recordCompletion appends a new find but doesn't bump primary aggregate stats — those stay anchored to the first attempt per date, per user direction).
+- ✓ **Archive cells** show "N/M" instead of ✓ for multi-solution days. All-found days carry `.archive-cell.all-found` for a small visual accent. Single-solution and migrated still show ✓.
+- ✓ **Share string** evolves: "Sampler · May 19, 2026 · Rail Fence — pattern N of M · 2:34" for multi-solution; legacy ` · `-separated format for single-solution.
+- ✓ **Broken Nine-Patch templates audited.** `diagonal-v1` was 2 solutions per date all along (Phase 1 never declared a target); now declares `{2, 4}` to pass verifyTemplate. `warm-cool-v1` was 100+ solutions per date (legitimately broken); replaced with `warm-cool-v2` (cream center, all-same warm-medium corners, all-same dark edges) — 4 solutions per date.
+- ✓ **"Complete" semantics decision:** stayed at "≥1 solution found." Replay can find more without changing the day's completed status. A future "completionist" achievement could celebrate finding all M but doesn't gate any flow.
+
+**Engine state after Phase 3b:**
+
+| Day      | Template (week)          | Solutions |
+|----------|--------------------------|-----------|
+| Mon w0   | nine-patch-greek-cross-v1  | 1 |
+| Mon w1   | nine-patch-diagonal-v1     | 2 |
+| Mon w2   | nine-patch-warm-cool-v2    | 4 |
+| Tue w0   | rail-fence-three-rails-v2  | 6 |
+| Tue w1   | rail-fence-center-stripe-v2| 3 |
+| Tue w2   | rail-fence-gradient-v1     | 6 |
+
+All six pass `verifyTemplate` against their declared `solutionTarget` ranges across 2026-05-19 → 2026-08-18.
+
+**Deferred (not yet built):**
+
+- **"Completionist" achievement** — celebrate finding all M patterns on a day. Stat shape exists; just needs UI.
+- **Per-day stats in archive hover** — block name, found patterns, average solve time. UX nicety.
+- **A few more Monday/Tuesday templates** — the pool currently cycles through only 3 per weekday before repeating. More variety would be nice. Phase 3b shipped multi-solution rule kinds (`all-same`, `all-different`, `alternating`) that no current template uses; new templates can lean on them.
+- **Pattern-property rule kind** is shipped but no template uses it — kept for when a horizontally-striped fabric joins a palette (gives it solving teeth) or for use as a `decorative: true` flavor rule.
 
 ### Decorative rules (added Phase 3a)
 
