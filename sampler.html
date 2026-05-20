@@ -1329,6 +1329,148 @@ const BLOCKS = {
       return map[name];
     },
   },
+
+  'sawtooth-star': {
+    id: 'sawtooth-star',
+    displayName: 'Sawtooth Star',
+    slotCount: 17,
+    dayOfWeek: 5, // Friday (0=Sun..6=Sat)
+    // Sawtooth Star: 4×4 cell layout (PAD=4, CELL=48, GAP=0 in 200×200
+    // viewBox). 1 large center square (2×2 cells, 96×96) + 4 corner
+    // squares (48×48 each) + 4 mid-edge "flying geese" units, each
+    // composed of 1 large isoceles point triangle (pointing inward
+    // toward center) + 2 small right-triangle backgrounds on either
+    // flank of the point. Total 17 slots.
+    //
+    // First shipped block with order-4 rotational symmetry (Phase 3d's
+    // X-bowtie Churn Dash was order-2 only; Log Cabin's spiral is chiral).
+    // Also full reflection on V, H, and main-diagonal axes.
+    //
+    // Slot indices, by structural group:
+    //   0:     C (center, the large 96×96 square)
+    //   1-4:   corners — TL, TR, BR, BL (cw from TL)
+    //   5-8:   point triangles — N, E, S, W (cw from N)
+    //   9-16:  bg triangles around the points, 2 per side:
+    //          9 N-left, 10 N-right; 11 E-top, 12 E-bot;
+    //          13 S-right, 14 S-left; 15 W-bot, 16 W-top.
+    //          The 8 bgs split into two order-4 rotation orbits:
+    //          "leading" [9,11,13,15] and "trailing" [10,12,14,16].
+    //
+    // The polygon-slot pipeline (shipped Phase 3a, first used by Churn
+    // Dash in Phase 3d) handles all 12 triangle slots; no renderer
+    // changes needed.
+    slotPath(i) {
+      const SLOTS = [
+        { type: 'rect',    x: 52,  y: 52,  w: 96, h: 96 },                    // 0  C
+        { type: 'rect',    x: 4,   y: 4,   w: 48, h: 48 },                    // 1  TL corner
+        { type: 'rect',    x: 148, y: 4,   w: 48, h: 48 },                    // 2  TR corner
+        { type: 'rect',    x: 148, y: 148, w: 48, h: 48 },                    // 3  BR corner
+        { type: 'rect',    x: 4,   y: 148, w: 48, h: 48 },                    // 4  BL corner
+        { type: 'polygon', points: [[52,4],   [148,4],  [100,52]]    },       // 5  N point △
+        { type: 'polygon', points: [[196,52], [196,148],[148,100]]   },       // 6  E point △
+        { type: 'polygon', points: [[148,196],[52,196], [100,148]]   },       // 7  S point △
+        { type: 'polygon', points: [[4,148],  [4,52],   [52,100]]    },       // 8  W point △
+        { type: 'polygon', points: [[52,4],   [52,52],  [100,52]]    },       // 9  N-left bg △
+        { type: 'polygon', points: [[148,4],  [148,52], [100,52]]    },       // 10 N-right bg △
+        { type: 'polygon', points: [[148,52], [196,52], [148,100]]   },       // 11 E-top bg △
+        { type: 'polygon', points: [[148,148],[196,148],[148,100]]   },       // 12 E-bot bg △
+        { type: 'polygon', points: [[148,148],[148,196],[100,148]]   },       // 13 S-right bg △
+        { type: 'polygon', points: [[52,148], [52,196], [100,148]]   },       // 14 S-left bg △
+        { type: 'polygon', points: [[4,148],  [52,148], [52,100]]    },       // 15 W-bot bg △
+        { type: 'polygon', points: [[4,52],   [52,52],  [52,100]]    },       // 16 W-top bg △
+      ];
+      return SLOTS[i];
+    },
+    // Edge-adjacency: two slots are neighbors iff they share an edge
+    // segment of nonzero length. Each point triangle touches only its
+    // two flanking bg triangles (other two sides are on the block
+    // boundary). Each corner touches only its two flanking bg
+    // triangles (the corner's other two sides are also on the block
+    // boundary). The center touches all 8 bg triangles around its
+    // perimeter. The 4 corners and 4 points never touch each other
+    // (the 8 bgs sit between them everywhere).
+    neighbors(i) {
+      const ADJ = [
+        [9, 10, 11, 12, 13, 14, 15, 16], // 0  C
+        [9, 16],                          // 1  TL corner
+        [10, 11],                         // 2  TR corner
+        [12, 13],                         // 3  BR corner
+        [14, 15],                         // 4  BL corner
+        [9, 10],                          // 5  N point △
+        [11, 12],                         // 6  E point △
+        [13, 14],                         // 7  S point △
+        [15, 16],                         // 8  W point △
+        [0, 1, 5],                        // 9  N-left bg △
+        [0, 2, 5],                        // 10 N-right bg △
+        [0, 2, 6],                        // 11 E-top bg △
+        [0, 3, 6],                        // 12 E-bot bg △
+        [0, 3, 7],                        // 13 S-right bg △
+        [0, 4, 7],                        // 14 S-left bg △
+        [0, 4, 8],                        // 15 W-bot bg △
+        [0, 1, 8],                        // 16 W-top bg △
+      ];
+      return ADJ[i].slice();
+    },
+    // Full reflection symmetry on V, H, and main-diagonal axes.
+    symmetryPairs(axis) {
+      if (axis === 'vertical')   return [[1,2],[4,3],[6,8],[9,10],[11,16],[12,15],[13,14]];
+      if (axis === 'horizontal') return [[1,4],[2,3],[5,7],[9,14],[10,13],[11,12],[16,15]];
+      if (axis === 'diagonal')   return [[2,4],[5,8],[6,7],[9,16],[10,15],[11,14],[12,13]];
+      return [];
+    },
+    // 180° AND 90° rotational symmetry. First shipped block with order 4.
+    // Order 4: 4-slot rotation orbits.
+    // Order 2: pairs (subset of order-4 orbits).
+    rotationalSymmetryGroups(order) {
+      if (order === 4) return [[1,2,3,4],[5,6,7,8],[9,11,13,15],[10,12,14,16]];
+      if (order === 2) return [[1,3],[2,4],[5,7],[6,8],[9,13],[10,14],[11,15],[12,16]];
+      return [];
+    },
+    // Sawtooth Star has no concentric rings (a Log Cabin / Dresden
+    // Plate concept). Stay consistent with Rail Fence and Churn Dash
+    // and return undefined.
+    ring(_i) {
+      return undefined;
+    },
+    namedSlot(name) {
+      const map = {
+        center: 0,
+        corners: [1, 2, 3, 4],
+        points:  [5, 6, 7, 8],
+        bgs:     [9, 10, 11, 12, 13, 14, 15, 16],
+        // Same 8 slots as `bgs` but with cyclic clockwise ordering
+        // explicit — used by `alternating` rules to produce pinwheel
+        // patterns. The order is N-left, N-right, E-top, E-bot,
+        // S-right, S-left, W-bot, W-top.
+        bgsCyclic: [9, 10, 11, 12, 13, 14, 15, 16],
+        // The 8 bgs split into two order-4 rotation orbits — the
+        // "leading" bg of each point (clockwise-leading) and the
+        // "trailing" bg. Under order-4 rotation 9→11→13→15→9 and
+        // 10→12→14→16→10. Templates use these for rotational-pinwheel
+        // looks where the two orbits carry different fabrics.
+        bgsLeading:  [9, 11, 13, 15],
+        bgsTrailing: [10, 12, 14, 16],
+        // The visible star silhouette: center + 4 points.
+        star:  [0, 5, 6, 7, 8],
+        // The entire background: corners + bgs (everything not in `star`).
+        field: [1, 2, 3, 4, 9, 10, 11, 12, 13, 14, 15, 16],
+        // Per-axis point pairs (for `all-different`-with-hue-axis templates).
+        pointsNS: [5, 7],
+        pointsEW: [6, 8],
+        // Diagonal corner pairs (TL+BR on main diagonal, TR+BL on anti-diagonal).
+        mainDiagonalCorners: [1, 3],
+        antiDiagonalCorners: [2, 4],
+        // Per-point "flying geese" units — the full mid-edge region:
+        // 1 point + its 2 flanking bgs. Useful for templates that want
+        // the whole geese unit to share a property.
+        pointArea_N: [5, 9, 10],
+        pointArea_E: [6, 11, 12],
+        pointArea_S: [7, 13, 14],
+        pointArea_W: [8, 15, 16],
+      };
+      return map[name];
+    },
+  },
 };
 
 // ─── Templates ───────────────────────────────────────────────────────
