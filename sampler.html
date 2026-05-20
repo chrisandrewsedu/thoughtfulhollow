@@ -188,6 +188,39 @@ html, body { transition: background 0.25s, color 0.25s; }
 }
 .slot.selected { stroke: var(--accent); stroke-width: 3; }
 .slot.violation { stroke: var(--accent-bright); stroke-width: 4; stroke-dasharray: 4 3; }
+
+/* Transient banner above the board — duplicate-solution notices, etc.
+   Shown via .show; auto-hides on a timer in JS. */
+.win-notice {
+  font-family: 'Spectral', serif;
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: var(--paper-deep);
+  border: 1px solid var(--accent);
+  padding: 0.5rem 0.9rem;
+  margin: 0 auto 0.6rem;
+  border-radius: 4px;
+  text-align: center;
+  max-width: 22rem;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  height: 0;
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-width: 0;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.win-notice.show {
+  opacity: 1;
+  transform: translateY(0);
+  height: auto;
+  padding: 0.5rem 0.9rem;
+  margin-bottom: 0.6rem;
+  border-width: 1px;
+}
 .slot-label {
   font-family: 'Spectral', serif; font-size: 9px; fill: var(--ink-faint);
   pointer-events: none;
@@ -475,6 +508,9 @@ html, body { transition: background 0.25s, color 0.25s; }
 }
 .archive-cell.solved .archive-mark { color: var(--green); }
 .archive-cell.revealed .archive-mark { color: var(--gold); }
+/* All-patterns-found gets a brighter accent so the player can scan the
+   calendar for completionist days at a glance. */
+.archive-cell.solved.all-found .archive-mark { color: var(--gold); font-weight: 600; }
 .archive-stats {
   display: flex; justify-content: center; gap: 1.6rem;
   margin-top: 1.2rem; max-width: 22rem; margin-left: auto; margin-right: auto;
@@ -487,6 +523,23 @@ html, body { transition: background 0.25s, color 0.25s; }
   font-family: 'Spectral', serif; font-size: 0.55rem; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--ink-faint); margin-top: 0.18rem;
 }
+
+/* Admin preview mode — used by sampler-admin.html iframes.
+   ?preview=1 strips the page down to just the rendered block so a wall
+   of small iframes can show every template's visual identity at a
+   glance. Not a user-facing mode; not linked from the main UI. */
+body.preview-mode .header,
+body.preview-mode .subbar,
+body.preview-mode .palette,
+body.preview-mode .toolbar,
+body.preview-mode .rules-panel,
+body.preview-mode .win-notice,
+body.preview-mode .overlay { display: none !important; }
+body.preview-mode { background: var(--paper); }
+body.preview-mode .app { padding: 0.5rem; max-width: none; }
+body.preview-mode .main { padding: 0; }
+body.preview-mode .block-stage { padding: 0; margin: 0; }
+body.preview-mode .slot { pointer-events: none; cursor: default; }
 </style>
 </head>
 <body>
@@ -525,6 +578,7 @@ html, body { transition: background 0.25s, color 0.25s; }
     <div class="go-stats" id="completionStats"></div>
     <div class="share-block" id="completionShare"></div>
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center">
+      <button class="btn" id="findAnotherBtn" onclick="findAnotherPattern()" style="display:none">Find another pattern</button>
       <button class="btn" onclick="closeCompletion()">Close</button>
     </div>
   </div>
@@ -536,7 +590,7 @@ html, body { transition: background 0.25s, color 0.25s; }
     </div>
     <div class="go-rule"></div>
     <div class="go-sub" style="text-align:left; max-width:380px;">
-      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">1.</span><span>Each day you'll piece a real quilt block: today's is the <b>Nine-Patch</b>.</span></div>
+      <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">1.</span><span>Each day you'll piece a real quilt block: today's is the <b id="introBlockName">Nine-Patch</b>.</span></div>
       <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">2.</span><span>Tap a fabric, then tap slots to <b>paint</b> them. Tap a different fabric to switch.</span></div>
       <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">3.</span><span>Place fabrics so <b>every rule</b> in the panel is satisfied. Violations glow red.</span></div>
       <div style="display:flex; gap:0.55rem; align-items:baseline; margin-bottom:0.45rem;"><span style="font-family:'Fascinate',serif; color:var(--accent); flex-shrink:0; min-width:1.1rem; font-size:1.05rem">4.</span><span>Each puzzle has <b>exactly one solution</b>. There's no submit button — it locks when you've got it.</span></div>
@@ -553,9 +607,10 @@ html, body { transition: background 0.25s, color 0.25s; }
     <div class="go-mark">— Daily Complete —</div>
     <div class="go-title">Come Back Tomorrow</div>
     <div class="go-rule"></div>
-    <div class="go-sub">You've already pieced today's block. New puzzle at midnight (Eastern).</div>
+    <div class="go-sub" id="alreadyPlayedSub">You've already pieced today's block. New puzzle at midnight (Eastern).</div>
     <div class="go-stats" id="alreadyStats"></div>
-    <div class="intro-actions-row" style="margin-top:1.2rem">
+    <div class="intro-actions-row" style="margin-top:1.2rem; gap:0.5rem; flex-wrap:wrap;">
+      <button class="btn" id="alreadyFindAnotherBtn" onclick="findAnotherPattern()" style="display:none">Find another pattern</button>
       <button class="btn-secondary" onclick="openArchive()">Archive</button>
     </div>
   </div>
@@ -605,7 +660,13 @@ document.getElementById('themeToggle').addEventListener('click', function () {
 // With N templates authored, the first N days from LAUNCH_DATE have unique
 // puzzles; subsequent days show the "Coming Soon" overlay until more
 // templates are added. Author more templates before that runway runs out.
-const STORAGE_KEY = 'sampler_daily_v1';
+// Storage schema versions. v1 (Phase 1+2) stored one completion per
+// date with a single `result.allSolved` boolean. v2 (Phase 3b) stores
+// per-date `solutionsFound: [{fabricBySlot, elapsedSeconds, foundAt,
+// flawless}]` so multi-solution puzzles can track which patterns the
+// player has discovered. Migration is one-way on first load.
+const STORAGE_KEY_V1 = 'sampler_daily_v1';
+const STORAGE_KEY = 'sampler_daily_v2';
 const LAUNCH_DATE = '2026-05-19';
 
 function todayStr() {
@@ -618,12 +679,77 @@ function etDateOffset(dateStr, offsetDays) {
 }
 function prevEtDate(dateStr) { return etDateOffset(dateStr, -1); }
 
-function loadStorage() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+// Load storage: try v2 first, fall back to migrating v1 once. Returns
+// {} for a fresh user. Silently swallows storage / parse errors —
+// behavior matches v1 + Glossari (in-memory state stays correct, just
+// doesn't persist).
+function loadStorage() {
+  try {
+    const v2raw = localStorage.getItem(STORAGE_KEY);
+    if (v2raw) return JSON.parse(v2raw);
+    // No v2 yet — try to migrate from v1.
+    const v1raw = localStorage.getItem(STORAGE_KEY_V1);
+    if (v1raw) {
+      const v1 = JSON.parse(v1raw);
+      const v2 = migrateV1ToV2(v1);
+      saveStorage(v2);
+      return v2;
+    }
+  } catch {}
+  return {};
+}
+
 // NOTE: silently swallows quota-exceeded and serialization errors. In
 // the unlikely event of storage failure, the in-memory `data` is
 // correct but won't persist — next session resets to last successful
 // save. Same behavior as Glossari.
 function saveStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {} }
+
+// One-time migration from v1 → v2 storage. v1 records a single
+// completion per date; v2 records an array of solutions found. Since
+// v1 never captured the actual fabricBySlot at completion time, we
+// synthesize one entry per migrated date with `fabricBySlot: null` —
+// the player gets credit for one find on each previously-completed
+// day, but duplicate detection can't match against an unknown layout.
+// totalSolutions is left null until the date is next played, then
+// computed and cached by recordCompletion.
+function migrateV1ToV2(v1) {
+  const v2 = {
+    schemaVersion: 2,
+    streak: v1.streak,
+    bestStreak: v1.bestStreak,
+    lastPlayedDate: v1.lastPlayedDate,
+    totalPlayed: v1.totalPlayed,
+    totalSolved: v1.totalSolved,
+    totalFlawless: v1.totalFlawless,
+    totalSolveSeconds: v1.totalSolveSeconds,
+    solvedTimedCount: v1.solvedTimedCount,
+    totalSolutionsFound: 0,
+    byDate: {},
+  };
+  if (v1.byDate) {
+    for (const [dateStr, entry] of Object.entries(v1.byDate)) {
+      if (!entry || !entry.result || !entry.result.allSolved) continue;
+      const find = {
+        fabricBySlot: null,
+        elapsedSeconds: entry.result.elapsedSeconds || null,
+        foundAt: entry.completedAt || null,
+        flawless: !!entry.result.flawless,
+      };
+      v2.byDate[dateStr] = {
+        puzzleIdx: entry.puzzleIdx,
+        block: entry.block,
+        templateId: null,
+        totalSolutions: null,
+        solutionsFound: [find],
+        firstCompletedAt: entry.completedAt || null,
+        source: entry.source,
+      };
+      v2.totalSolutionsFound++;
+    }
+  }
+  return v2;
+}
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60); const s = seconds % 60;
@@ -712,11 +838,17 @@ const BLOCKS = {
     id: 'nine-patch',
     displayName: 'Nine-Patch',
     slotCount: 9,
+    dayOfWeek: 1, // Monday (0=Sun..6=Sat)
     // Slot layout: 3×3 grid. Row-major. Each slot is a 60×60 cell with 4px gap.
-    slotRect(i) {
+    // slotPath(i) returns one of:
+    //   { type: 'rect',    x, y, w, h }
+    //   { type: 'polygon', points: [[x,y], ...] }
+    //   { type: 'path',    d: '<SVG path d>' }
+    // Renderer (renderBlock) picks the right SVG element from the type.
+    slotPath(i) {
       const r = Math.floor(i / 3), c = i % 3;
       const SIZE = 60, GAP = 4, OFFSET = 10;
-      return { x: OFFSET + c * (SIZE + GAP), y: OFFSET + r * (SIZE + GAP), w: SIZE, h: SIZE };
+      return { type: 'rect', x: OFFSET + c * (SIZE + GAP), y: OFFSET + r * (SIZE + GAP), w: SIZE, h: SIZE };
     },
     // Edge-adjacency: which slots share a side?
     neighbors(i) {
@@ -744,6 +876,214 @@ const BLOCKS = {
         edges: [1, 3, 5, 7],
         topLeft: 0, topRight: 2,
         bottomLeft: 6, bottomRight: 8,
+      };
+      return map[name];
+    },
+  },
+
+  'rail-fence': {
+    id: 'rail-fence',
+    displayName: 'Rail Fence',
+    slotCount: 12,
+    dayOfWeek: 2, // Tuesday
+    // Canonical Rail Fence layout: 2×2 grid of rail-fence "squares",
+    // each square split into 3 parallel stripes. 4 squares × 3 stripes
+    // = 12 slots; each slot is one stripe. The 2×2 squares alternate
+    // orientation in a basket-weave:
+    //
+    //   TL: vertical stripes (slots 0, 1, 2 — left to right)
+    //   TR: horizontal stripes (slots 3, 4, 5 — top to bottom)
+    //   BL: horizontal stripes (slots 6, 7, 8 — top to bottom)
+    //   BR: vertical stripes (slots 9, 10, 11 — left to right)
+    //
+    // 200×200 viewBox: outer pad 10, square edge 88, gap 4 between
+    // squares; within each square stripe thickness 28, gap 2.
+    slotPath(i) {
+      const square = Math.floor(i / 3);   // 0=TL, 1=TR, 2=BL, 3=BR
+      const stripe = i % 3;
+      const SQ = 88, GAP_SQ = 4, PAD = 10, STRIPE = 28, GAP_ST = 2;
+      const sqRow = square >> 1;          // 0 = top, 1 = bottom
+      const sqCol = square & 1;           // 0 = left, 1 = right
+      const sqX = PAD + sqCol * (SQ + GAP_SQ);
+      const sqY = PAD + sqRow * (SQ + GAP_SQ);
+      // TL and BR (squares 0 and 3) have vertical stripes; TR and BL
+      // (squares 1 and 2) have horizontal stripes.
+      const vertical = (square === 0 || square === 3);
+      if (vertical) {
+        // Stripes side-by-side, full square height.
+        return {
+          type: 'rect',
+          x: sqX + stripe * (STRIPE + GAP_ST),
+          y: sqY,
+          w: STRIPE,
+          h: SQ,
+        };
+      }
+      return {
+        type: 'rect',
+        x: sqX,
+        y: sqY + stripe * (STRIPE + GAP_ST),
+        w: SQ,
+        h: STRIPE,
+      };
+    },
+    // Stripe orientation. 0 = horizontal stripe (long axis horizontal);
+    // 90 = vertical stripe (long axis vertical). Used by the
+    // pattern-property rule for effective-direction checks.
+    rotation(i) {
+      const square = Math.floor(i / 3);
+      return (square === 0 || square === 3) ? 90 : 0;
+    },
+    // Neighbors: within-square chain (the 3 stripes touch each other in
+    // a linear chain). Cross-square adjacency is not modelled — the
+    // perpendicular orientation across boundaries makes it ambiguous,
+    // and existing templates don't need it.
+    neighbors(i) {
+      const stripe = i % 3;
+      const out = [];
+      if (stripe > 0) out.push(i - 1);
+      if (stripe < 2) out.push(i + 1);
+      return out;
+    },
+    // Reflection symmetry is awkward here — vertical/horizontal flips
+    // map vertical-stripe squares to horizontal-stripe positions, so
+    // slot-by-slot reflection breaks the structure. Return [] for now;
+    // rotational symmetry (below) is the canonical Rail Fence symmetry.
+    symmetryPairs(_axis) {
+      return [];
+    },
+    // 180° rotational symmetry pairs (slot i around block center (100,
+    // 100) maps to slot 11-i; the math works because the basket-weave
+    // is rotationally symmetric of order 2 by construction).
+    rotationalSymmetryGroups(order) {
+      if (order === 2) return [[0,11],[1,10],[2,9],[3,8],[4,7],[5,6]];
+      return [];
+    },
+    namedSlot(name) {
+      const map = {
+        // Whole-square pins — all 3 stripes of one square.
+        squareTL: [0, 1, 2],
+        squareTR: [3, 4, 5],
+        squareBL: [6, 7, 8],
+        squareBR: [9, 10, 11],
+        // Per-rank groups: the "top rail" of every square is the
+        // first stripe in the square's natural reading order (leftmost
+        // for vertical-stripe squares, topmost for horizontal). The
+        // canonical Rail Fence pattern uses the same fabric at each
+        // rank across all 4 squares, producing the basket-weave look.
+        topRails:    [0, 3, 6, 9],
+        middleRails: [1, 4, 7, 10],
+        bottomRails: [2, 5, 8, 11],
+        // Top + bottom rails together — the "frame" around the middle.
+        frameRails:  [0, 2, 3, 5, 6, 8, 9, 11],
+        // Per-orientation groups (handy for direction-aware rules).
+        verticalSquares:   [0, 1, 2, 9, 10, 11], // TL + BR
+        horizontalSquares: [3, 4, 5, 6, 7, 8],   // TR + BL
+      };
+      return map[name];
+    },
+    // Rail Fence has no concentric rings; ring() is reserved for blocks
+    // like Log Cabin (Phase 3b).
+    ring(_i) {
+      return undefined;
+    },
+  },
+
+  'log-cabin': {
+    id: 'log-cabin',
+    displayName: 'Log Cabin',
+    slotCount: 13,
+    dayOfWeek: 3, // Wednesday
+    // Log Cabin: a center "hearth" + 3 concentric rings of 4 logs each.
+    // Logs grow in length around the spiral (N=1, E=2, S=2, W=3 in the
+    // inner ring), with each outer ring's logs two cells longer than its
+    // inner-ring counterpart. 7×7 cell grid in 200×200 viewBox, PAD=2,
+    // CELL=28, no gaps (the .slot stroke draws the log seams).
+    //
+    // Spiral chirality: the longer logs of each ring accumulate on the S
+    // and W sides (the traditional "dark" half); the shorter logs on the
+    // N and E sides (the "light" half). namedSlot('northeastSide') and
+    // 'southwestSide' expose this split for templates.
+    //
+    // Slot indices, by ring:
+    //   0:  center C
+    //   1-4: ring 1 — N1, E1, S1, W1 (1-cell, 2-cell, 2-cell, 3-cell)
+    //   5-8: ring 2 — N2, E2, S2, W2 (3, 4, 4, 5 cells)
+    //   9-12: ring 3 — N3, E3, S3, W3 (5, 6, 6, 7 cells)
+    slotPath(i) {
+      const RECTS = [
+        { x: 86,  y: 86,  w: 28,  h: 28  }, // 0 C
+        { x: 86,  y: 58,  w: 28,  h: 28  }, // 1 N1
+        { x: 114, y: 58,  w: 28,  h: 56  }, // 2 E1
+        { x: 86,  y: 114, w: 56,  h: 28  }, // 3 S1
+        { x: 58,  y: 58,  w: 28,  h: 84  }, // 4 W1
+        { x: 58,  y: 30,  w: 84,  h: 28  }, // 5 N2
+        { x: 142, y: 30,  w: 28,  h: 112 }, // 6 E2
+        { x: 58,  y: 142, w: 112, h: 28  }, // 7 S2
+        { x: 30,  y: 30,  w: 28,  h: 140 }, // 8 W2
+        { x: 30,  y: 2,   w: 140, h: 28  }, // 9 N3
+        { x: 170, y: 2,   w: 28,  h: 168 }, // 10 E3
+        { x: 30,  y: 170, w: 168, h: 28  }, // 11 S3
+        { x: 2,   y: 2,   w: 28,  h: 196 }, // 12 W3
+      ];
+      return { type: 'rect', ...RECTS[i] };
+    },
+    // Edge-adjacency table (two slots are neighbors iff they share at
+    // least one cell-edge). Note ring-1/ring-2 east logs touch one more
+    // log than the corresponding north log — the spiral isn't symmetric.
+    neighbors(i) {
+      const ADJ = [
+        [1, 2, 3, 4],          // 0  C
+        [0, 2, 4, 5],          // 1  N1
+        [0, 1, 3, 5, 6],       // 2  E1
+        [0, 2, 4, 6, 7],       // 3  S1
+        [0, 1, 3, 5, 7, 8],    // 4  W1
+        [1, 2, 4, 6, 8, 9],    // 5  N2
+        [2, 3, 5, 7, 9, 10],   // 6  E2
+        [3, 4, 6, 8, 10, 11],  // 7  S2
+        [4, 5, 7, 9, 11, 12],  // 8  W2
+        [5, 6, 8, 10, 12],     // 9  N3
+        [6, 7, 9, 11],         // 10 E3
+        [7, 8, 10, 12],        // 11 S3
+        [8, 9, 11],            // 12 W3
+      ];
+      return ADJ[i].slice();
+    },
+    // Log Cabin's spiral is chiral — no reflection symmetry.
+    symmetryPairs(_axis) {
+      return [];
+    },
+    // (no rotationalSymmetryGroups: the spiral isn't geometrically
+    // rotation-symmetric either — logs in a ring have different shapes.
+    // Templates that want "all logs in ring K same fabric" use the
+    // all-same rule on namedSlot('ringK'), which reads honestly.)
+    //
+    // First real ring(i) implementation: center=0, inner ring=1, etc.
+    ring(i) {
+      if (i === 0) return 0;
+      if (i <= 4)  return 1;
+      if (i <= 8)  return 2;
+      if (i <= 12) return 3;
+      return undefined;
+    },
+    namedSlot(name) {
+      const map = {
+        center: 0,
+        ring1: [1, 2, 3, 4],
+        ring2: [5, 6, 7, 8],
+        ring3: [9, 10, 11, 12],
+        northLogs: [1, 5, 9],
+        eastLogs:  [2, 6, 10],
+        southLogs: [3, 7, 11],
+        westLogs:  [4, 8, 12],
+        // Cross axis groups (six logs each) — N+S, and E+W.
+        northSouthLogs: [1, 3, 5, 7, 9, 11],
+        eastWestLogs:   [2, 4, 6, 8, 10, 12],
+        // Diagonal split (classic Log Cabin "light side" / "dark side").
+        northeastSide: [1, 2, 5, 6, 9, 10],
+        southwestSide: [3, 4, 7, 8, 11, 12],
+        // Convenience: everything except the center.
+        allLogs: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       };
       return map[name];
     },
@@ -779,13 +1119,19 @@ const TEMPLATES = [
       { kind: 'count', constraint: { fabricId: 'ROLE:ANCHOR_A' }, exact: 4 },
     ],
   },
-  // Template 2: "Diagonal Stripes" — corners and center the same fabric,
-  // edges alternate two stripe fabrics in a pattern enforced by symmetry.
+  // Template 2: "Cross with Edges" — cream cross (center + corners),
+  // four edges fill with 2 indigo + 2 walnut, arranged so top/bottom
+  // share a fabric and left/right share the other. Two valid patterns
+  // per date (which fabric goes top/bottom vs. left/right).
+  //
+  // Audited Phase 3b: actual solution count is 2 per date — declared
+  // {2, 4} to match the Monday range.
   {
     id: 'nine-patch-diagonal-v1',
     block: 'nine-patch',
     paletteFamily: 'heritage-warm',
     paletteSize: 6,
+    solutionTarget: { min: 2, max: 4 },
     fabricRoles: {
       ANCHOR_A: 'F_CREAM',
       ANCHOR_B: 'F_INDIGO',
@@ -802,22 +1148,165 @@ const TEMPLATES = [
       { kind: 'count', constraint: { fabricId: 'ROLE:ANCHOR_C' }, exact: 2 },
     ],
   },
-  // Template 3: "Pinwheel-of-color" — every cell has a unique role-ish
-  // but rules constrain hue counts and adjacency.
+  // Template 3: "Warm Corners, Dark Edges" — cream center, all four
+  // corners the same warm-medium fabric, all four edges the same dark
+  // fabric. Player picks which warm-medium goes in the corners (madder
+  // or weld) and which dark fabric runs around the edges (walnut or
+  // indigo). 2 × 2 = 4 solutions per date.
+  //
+  // Replaces the v1 "Pinwheel-of-color" template that audited at 100+
+  // solutions per date — its rules (hue counts + diagonal symmetry +
+  // forbid warm-warm adjacency) were too loose given the palette has
+  // 3 warms and 2 cools to spread across 8 slots with repetition.
   {
-    id: 'nine-patch-warm-cool-v1',
+    id: 'nine-patch-warm-cool-v2',
     block: 'nine-patch',
     paletteFamily: 'heritage-warm',
     paletteSize: 6,
-    fabricRoles: {
-      ANCHOR_A: 'F_CREAM',
-    },
+    solutionTarget: { min: 2, max: 4 },
+    fabricRoles: { CENTER: 'F_CREAM' },
     rules: [
-      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:ANCHOR_A' } },
-      { kind: 'count', constraint: { hue: 'warm' }, exact: 4 },
-      { kind: 'count', constraint: { hue: 'cool' }, exact: 4 },
-      { kind: 'symmetry', axis: 'diagonal' },
-      { kind: 'adjacency', a: { hue: 'warm' }, b: { hue: 'warm' }, relation: 'forbid' },
+      { kind: 'positional', slot: 'center',  constraint: { fabricId: 'ROLE:CENTER' } },
+      { kind: 'all-same',   slot: 'corners' },
+      { kind: 'positional', slot: 'corners', constraint: { hue: 'warm', value: 'medium' } },
+      { kind: 'all-same',   slot: 'edges' },
+      { kind: 'positional', slot: 'edges',   constraint: { value: 'dark' } },
+    ],
+  },
+
+  // Rail Fence Template A: "Three Rails (Warm / Cool)" — the canonical
+  // A-B-C rail-fence pattern with each rank constrained by hue. The
+  // middle rail is always cream; the top is some warm fabric; the
+  // bottom is some cool fabric. Per-rank all-same forces each rank
+  // monochrome (so the basket-weave reads cleanly).
+  //
+  // Six solutions: 3 warm choices × 2 cool choices.
+  {
+    id: 'rail-fence-three-rails-v2',
+    block: 'rail-fence',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: { CENTER: 'F_CREAM' },
+    rules: [
+      { kind: 'positional', slot: 'middleRails', constraint: { fabricId: 'ROLE:CENTER' } },
+      { kind: 'all-same',   slot: 'topRails' },
+      { kind: 'positional', slot: 'topRails',    constraint: { hue: 'warm' } },
+      { kind: 'all-same',   slot: 'bottomRails' },
+      { kind: 'positional', slot: 'bottomRails', constraint: { hue: 'cool' } },
+    ],
+  },
+
+  // Rail Fence Template B: "One-Frame Center" — the eight outer-rail
+  // stripes all share one warm fabric (the "frame"); the four middle
+  // rails are cream. Palindromic A-B-A reading per square.
+  //
+  // Three solutions: one per warm fabric (madder, weld, walnut).
+  {
+    id: 'rail-fence-center-stripe-v2',
+    block: 'rail-fence',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    solutionTarget: { min: 2, max: 4 },
+    fabricRoles: { CENTER: 'F_CREAM' },
+    rules: [
+      { kind: 'positional', slot: 'middleRails', constraint: { fabricId: 'ROLE:CENTER' } },
+      { kind: 'all-same',   slot: 'frameRails' },
+      { kind: 'positional', slot: 'frameRails',  constraint: { hue: 'warm' } },
+    ],
+  },
+
+  // Rail Fence Template C: "Light → Medium → Dark Gradient" — value
+  // gradient across the three ranks. Top rails light, middle medium,
+  // bottom dark; each rank monochrome via all-same. The light fabric
+  // is the constrained "anchor clue" (only cream is light in the
+  // current palette), which then unlocks the medium and dark choices.
+  //
+  // Six solutions: 1 light × 3 medium × 2 dark.
+  {
+    id: 'rail-fence-gradient-v1',
+    block: 'rail-fence',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: {},
+    rules: [
+      { kind: 'all-same',   slot: 'topRails' },
+      { kind: 'positional', slot: 'topRails',    constraint: { value: 'light' } },
+      { kind: 'all-same',   slot: 'middleRails' },
+      { kind: 'positional', slot: 'middleRails', constraint: { value: 'medium' } },
+      { kind: 'all-same',   slot: 'bottomRails' },
+      { kind: 'positional', slot: 'bottomRails', constraint: { value: 'dark' } },
+    ],
+  },
+
+  // Log Cabin Template A: "Hearth" — concentric ring values. The center
+  // is a warm hearth, ring 1 is a cream halo around it, ring 2 is the
+  // cool middle band (only forest qualifies as cool+medium), and ring 3
+  // is dark (indigo or walnut). The player chooses which warm fabric
+  // anchors the center and which dark fabric forms the outer wall.
+  //
+  // Six solutions: 3 warm × 1 light × 1 cool-medium × 2 dark. Note that
+  // walnut (warm-dark) can validly appear in both center and ring 3 — no
+  // rule forbids fabric reuse across rings, and the count depends on it.
+  {
+    id: 'log-cabin-hearth-v1',
+    block: 'log-cabin',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: {},
+    rules: [
+      { kind: 'positional', slot: 'center', constraint: { hue: 'warm' } },
+      { kind: 'all-same',   slot: 'ring1' },
+      { kind: 'positional', slot: 'ring1',  constraint: { value: 'light' } },
+      { kind: 'all-same',   slot: 'ring2' },
+      { kind: 'positional', slot: 'ring2',  constraint: { hue: 'cool', value: 'medium' } },
+      { kind: 'all-same',   slot: 'ring3' },
+      { kind: 'positional', slot: 'ring3',  constraint: { value: 'dark' } },
+    ],
+  },
+  // Log Cabin Template B: "Light/Dark Diagonal" — the classic two-tone
+  // pattern. Cream anchors the center; the northeast diagonal half (N
+  // and E logs across all three rings, 6 slots) is one warm fabric; the
+  // southwest half (S and W logs, 6 slots) is one cool fabric. The
+  // diagonal split is the signature Log Cabin look.
+  //
+  // Six solutions: 1 center × 3 warm × 2 cool.
+  {
+    id: 'log-cabin-light-dark-v1',
+    block: 'log-cabin',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: { CENTER: 'F_CREAM' },
+    rules: [
+      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:CENTER' } },
+      { kind: 'all-same',   slot: 'northeastSide' },
+      { kind: 'positional', slot: 'northeastSide', constraint: { hue: 'warm' } },
+      { kind: 'all-same',   slot: 'southwestSide' },
+      { kind: 'positional', slot: 'southwestSide', constraint: { hue: 'cool' } },
+    ],
+  },
+  // Log Cabin Template C: "Cross" — orthogonal cross-axis pattern. Cream
+  // center; the six north-south logs (top + bottom across all three
+  // rings) share one dark fabric; the six east-west logs share one
+  // medium fabric. Reads as a plus sign through the block.
+  //
+  // Six solutions: 1 center × 2 dark × 3 medium.
+  {
+    id: 'log-cabin-cross-v1',
+    block: 'log-cabin',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: { CENTER: 'F_CREAM' },
+    rules: [
+      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:CENTER' } },
+      { kind: 'all-same',   slot: 'northSouthLogs' },
+      { kind: 'positional', slot: 'northSouthLogs', constraint: { value: 'dark' } },
+      { kind: 'all-same',   slot: 'eastWestLogs' },
+      { kind: 'positional', slot: 'eastWestLogs',   constraint: { value: 'medium' } },
     ],
   },
 ];
@@ -865,10 +1354,35 @@ function instantiateTemplate(template, dateStr) {
   return { template, resolvedRoles, paletteIds: displayPalette, rules };
 }
 
+// Admin/dev override: ?template=<id> in the URL forces a specific
+// template regardless of date routing. Used by sampler-admin.html to
+// browse and play any template on demand. Returns null if no override
+// is present or the URL has no search string (e.g. file:// loads).
+function forcedTemplateId() {
+  if (typeof location === 'undefined' || !location.search) return null;
+  return new URLSearchParams(location.search).get('template');
+}
+
 function pickTemplateForDate(dateStr) {
-  const idx = dailyIndex(dateStr);
-  if (idx < 0 || idx >= TEMPLATES.length) return null;
-  return TEMPLATES[idx];
+  // Honor the admin override first. If the requested template doesn't
+  // exist (typo, stale link), fall through to normal date routing
+  // rather than failing — keeps the daily game playable.
+  const forced = forcedTemplateId();
+  if (forced) {
+    const t = TEMPLATES.find(t => t.id === forced);
+    if (t) return t;
+  }
+  // No puzzles before launch.
+  const daysSince = dailyIndex(dateStr);
+  if (daysSince < 0) return null;
+  // Each block owns a weekday (block.dayOfWeek). Templates for that
+  // weekday rotate through the pool weekly — so the first Tuesday after
+  // launch picks pool[0], the second Tuesday pool[1], etc.
+  const weekday = new Date(dateStr + 'T00:00:00Z').getUTCDay();
+  const pool = TEMPLATES.filter(t => BLOCKS[t.block] && BLOCKS[t.block].dayOfWeek === weekday);
+  if (pool.length === 0) return null;
+  const weeksSince = Math.floor(daysSince / 7);
+  return pool[weeksSince % pool.length];
 }
 
 // True if the given date has a unique puzzle available.
@@ -901,14 +1415,16 @@ function solve(block, paletteIds, rules, fabricsById, cap) {
     }
     for (const fid of paletteIds) {
       assignment[i] = fid;
-      // Cheap prune: only check rules whose violatingSlots indicate a
-      // confirmed conflict given currently-assigned slots.
+      // Forward pruning: rule has either an irrecoverable violation among
+      // already-assigned slots, OR the rule reports stillPossible=false
+      // (e.g., a count rule's min is unreachable given slotsRemaining).
       const evaluated = evaluateRules(rules, assignment, block, fabricsById);
       const violatingAssigned = evaluated.some(r =>
         r.violatingSlots.size > 0 &&
         Array.from(r.violatingSlots).every(s => s <= i)
       );
-      if (!violatingAssigned) recurse(i + 1);
+      const infeasible = evaluated.some(r => !r.stillPossible);
+      if (!violatingAssigned && !infeasible) recurse(i + 1);
       if (solutions.length >= cap) { assignment[i] = null; return; }
     }
     assignment[i] = null;
@@ -917,41 +1433,89 @@ function solve(block, paletteIds, rules, fabricsById, cap) {
   return { solutionCount: solutions.length, samples: solutions };
 }
 
+// Verify a template across a date range. Each date instantiates the
+// template with its date-seeded roles, then the solver counts solutions
+// up to cap = solutionTarget.max + 1 (so "more than max" is detectable).
+//
+// Templates declare their target as `solutionTarget: { min, max }`.
+// Templates without it default to { min: 1, max: 1 } — the legacy
+// uniqueness requirement.
+//
+// Output: "X in-range / Y too-few / Z too-many (of N)" plus the first
+// few offending dates if any.
 function verifyTemplate(templateId, dateRange) {
   const template = TEMPLATES.find(t => t.id === templateId);
   if (!template) { console.error('No template:', templateId); return; }
   dateRange = dateRange || ['2026-06-01', '2026-06-30'];
   const [start, end] = dateRange;
+  const target = template.solutionTarget || { min: 1, max: 1 };
+  const cap = target.max + 1;
   const results = [];
   let d = start;
   while (d <= end) {
     const instance = instantiateTemplate(template, d);
     const block = BLOCKS[instance.template.block];
-    const result = solve(block, instance.paletteIds, instance.rules, FABRICS, 2);
+    const result = solve(block, instance.paletteIds, instance.rules, FABRICS, cap);
     results.push({ date: d, solutionCount: result.solutionCount });
     d = etDateOffset(d, 1);
   }
-  const unique = results.filter(r => r.solutionCount === 1).length;
-  const none = results.filter(r => r.solutionCount === 0).length;
-  const many = results.filter(r => r.solutionCount >= 2).length;
-  console.log(`Template ${templateId}: ${unique} unique / ${none} none / ${many} multiple (of ${results.length})`);
-  if (none > 0 || many > 0) {
-    console.log('First failing dates:',
-      results.filter(r => r.solutionCount !== 1).slice(0, 5).map(r => `${r.date} (${r.solutionCount})`).join(', '));
+  const inRange = results.filter(r => r.solutionCount >= target.min && r.solutionCount <= target.max).length;
+  const tooFew = results.filter(r => r.solutionCount < target.min).length;
+  const tooMany = results.filter(r => r.solutionCount > target.max).length;
+  console.log(`Template ${templateId} (target ${target.min}-${target.max}): ${inRange} in-range / ${tooFew} too-few / ${tooMany} too-many (of ${results.length})`);
+  if (tooFew > 0 || tooMany > 0) {
+    const offenders = results.filter(r => r.solutionCount < target.min || r.solutionCount > target.max);
+    const hitCap = offenders.some(r => r.solutionCount === cap);
+    console.log('First out-of-range dates:',
+      offenders.slice(0, 5).map(r => `${r.date} (${r.solutionCount === cap ? '≥' + cap : r.solutionCount})`).join(', '));
+    if (hitCap) console.log(`(solver stopped at cap=${cap}; ≥${cap} means "at least this many solutions exist")`);
   }
   return results;
 }
 
-// Debug / authoring tools — exposed on window for console use. Not part
-// of the public API; safe to remove if minifying for production.
-window.verifyTemplate = verifyTemplate;
-window.solve = solve;
-window.instantiateTemplate = instantiateTemplate;
+// Debug / authoring tools — exposed at the bottom of the script (after
+// all consts are declared) to avoid TDZ. Not part of the public API;
+// safe to remove if minifying for production.
 
 // ─── Block renderer ──────────────────────────────────────────────────
 // Renders a block as an SVG inside the host element. Updates slot fills
 // based on fabricBySlot (array of fabric-IDs or nulls). Calls onSlotClick(i)
 // when a slot is tapped.
+
+// Slot-path helpers. Each block.slotPath(i) returns one of three shapes;
+// renderBlock dispatches to the right SVG element + label-centering math.
+function createSlotElement(path) {
+  if (path.type === 'rect') {
+    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    r.setAttribute('x', path.x); r.setAttribute('y', path.y);
+    r.setAttribute('width', path.w); r.setAttribute('height', path.h);
+    return r;
+  }
+  if (path.type === 'polygon') {
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    p.setAttribute('points', path.points.map(pt => pt[0] + ',' + pt[1]).join(' '));
+    return p;
+  }
+  if (path.type === 'path') {
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', path.d);
+    return p;
+  }
+  throw new Error('Unknown slot path type: ' + path.type);
+}
+
+function slotCenter(path) {
+  if (path.type === 'rect') {
+    return { x: path.x + path.w / 2, y: path.y + path.h / 2 };
+  }
+  if (path.type === 'polygon') {
+    let sx = 0, sy = 0;
+    for (const pt of path.points) { sx += pt[0]; sy += pt[1]; }
+    return { x: sx / path.points.length, y: sy / path.points.length };
+  }
+  // path: caller may provide path.center; otherwise approximate at 0,0.
+  return path.center || { x: 0, y: 0 };
+}
 
 function renderBlock(host, block, fabricBySlot, opts) {
   opts = opts || {};
@@ -960,28 +1524,27 @@ function renderBlock(host, block, fabricBySlot, opts) {
   svg.setAttribute('viewBox', '0 0 200 200');
   svg.setAttribute('class', 'block-svg');
   for (let i = 0; i < block.slotCount; i++) {
-    const r = block.slotRect(i);
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', r.x); rect.setAttribute('y', r.y);
-    rect.setAttribute('width', r.w); rect.setAttribute('height', r.h);
-    rect.setAttribute('class', 'slot' + (opts.selectedSlot === i ? ' selected' : '') + (opts.violations && opts.violations.has(i) ? ' violation' : ''));
-    rect.setAttribute('stroke', 'var(--ink-soft)');
-    rect.setAttribute('stroke-width', '1.5');
+    const path = block.slotPath(i);
+    const el = createSlotElement(path);
+    el.setAttribute('class', 'slot' + (opts.selectedSlot === i ? ' selected' : '') + (opts.violations && opts.violations.has(i) ? ' violation' : ''));
+    el.setAttribute('stroke', 'var(--ink-soft)');
+    el.setAttribute('stroke-width', '1.5');
     const fid = fabricBySlot[i];
     if (fid) {
-      rect.setAttribute('fill', 'url(#' + fid + ')');
+      el.setAttribute('fill', 'url(#' + fid + ')');
     } else {
-      rect.setAttribute('fill', 'var(--paper-deep)');
+      el.setAttribute('fill', 'var(--paper-deep)');
     }
-    rect.dataset.slot = i;
+    el.dataset.slot = i;
     if (opts.onSlotClick) {
-      rect.addEventListener('click', () => opts.onSlotClick(i));
+      el.addEventListener('click', () => opts.onSlotClick(i));
     }
-    svg.appendChild(rect);
+    svg.appendChild(el);
     if (!fid) {
+      const center = slotCenter(path);
       const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      label.setAttribute('x', r.x + r.w / 2);
-      label.setAttribute('y', r.y + r.h / 2 + 3);
+      label.setAttribute('x', center.x);
+      label.setAttribute('y', center.y + 3);
       label.setAttribute('text-anchor', 'middle');
       label.setAttribute('class', 'slot-label');
       label.textContent = i + 1;
@@ -1043,6 +1606,7 @@ let game = {
 };
 
 const STAGE_HTML = `
+  <div id="winNotice" class="win-notice"></div>
   <div class="block-stage">
     <div id="blockHost"></div>
   </div>
@@ -1092,6 +1656,8 @@ function initGame(blockId, paletteIds, rules) {
   game.started = false;
   game.solved = false;
   document.getElementById('blockName').textContent = game.block.displayName;
+  const introBlockEl = document.getElementById('introBlockName');
+  if (introBlockEl) introBlockEl.textContent = game.block.displayName;
   updateBeginBtn();
   renderAll();
 }
@@ -1112,19 +1678,58 @@ function renderAll() {
   return evaluated;
 }
 
+// Element-wise equality on two fabricBySlot arrays. Returns false if
+// either is null (migrated v1 records carry fabricBySlot:null and so
+// can't be matched against — those will always read as "not a
+// duplicate" so the player can re-find them as fresh).
+function fabricsEqual(a, b) {
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+// True if the current solution matches any previously-found solution
+// for the same date.
+function isDuplicateSolution(solution, priorFinds) {
+  if (!priorFinds || priorFinds.length === 0) return false;
+  return priorFinds.some(find => fabricsEqual(solution, find.fabricBySlot));
+}
+
+// Show a transient notice above the board.
+function showWinNotice(text, durationMs) {
+  const notice = document.getElementById('winNotice');
+  if (!notice) return;
+  notice.textContent = text;
+  notice.classList.add('show');
+  clearTimeout(showWinNotice._t);
+  showWinNotice._t = setTimeout(() => {
+    notice.classList.remove('show');
+  }, durationMs || 3500);
+}
+
 // Check the win condition. Call this AFTER any user-initiated state
 // mutation (paint, erase, undo). Returns true if a win was triggered.
+//
+// Multi-solution semantics: if the current arrangement matches a
+// previously-found solution for this date, soft-refuse — show a
+// transient notice instead of firing the completion overlay. The
+// player must change at least one slot before win can re-fire.
 function checkWin() {
   if (game.locked) return false;
   const allFilled = game.fabricBySlot.every(x => x !== null);
   if (!allFilled) return false;
   const evaluated = evaluateRules(game.rules || [], game.fabricBySlot, game.block, FABRICS);
   const allSatisfied = evaluated.every(r => r.satisfied);
-  if (allSatisfied) {
-    triggerWin();
-    return true;
+  if (!allSatisfied) return false;
+  if (isDuplicateSolution(game.fabricBySlot, game.solutionsFound)) {
+    showWinNotice("You've already found this pattern. Try a different one!");
+    return false;
   }
-  return false;
+  triggerWin();
+  return true;
 }
 
 function renderRules(evaluated) {
@@ -1234,6 +1839,12 @@ function fabricMatches(fid, constraint, fabricsById) {
   });
 }
 
+// "topRails" → "top rails". Used by rules-panel labels so named-slot
+// identifiers read as natural English in the UI.
+function humanizeSlotName(name) {
+  return name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
+}
+
 function describeConstraint(c, fabricsById) {
   if (c.fabricId) {
     const f = fabricsById[c.fabricId];
@@ -1247,6 +1858,31 @@ function describeConstraint(c, fabricsById) {
   return parts.length ? parts.join(' ') : 'any fabric';
 }
 
+// Effective stripe direction = the orientation the player visually sees
+// for the slot, in the block's coordinate frame. In the rail-fence
+// stripe-as-slot model, the slot's own orientation IS the direction
+// stripe-pattern fabrics read in. The fabric's intrinsic direction is
+// kept as a "is this a directional fabric?" gate at the call site.
+function effectiveDirection(_fabricDir, slotRotationDeg) {
+  return slotRotationDeg === 90 ? 'vertical' : 'horizontal';
+}
+
+// Rule verify() contract:
+//   verify(rule, fabricBySlot, block, fabricsById) →
+//     { satisfied: bool, violatingSlots: Set<int>, stillPossible: bool }
+//
+// stillPossible = false means "no completion of fabricBySlot can satisfy
+// this rule." The solver uses this for forward pruning. Rules that can't
+// cheaply look ahead should return stillPossible: true (safe default —
+// equivalent to no extra pruning). Live UI ignores stillPossible.
+//
+// Decorative rules: a template can flag any rule with `decorative: true`.
+// evaluateRules short-circuits decorative rules to {satisfied:true,
+// violatingSlots:∅, stillPossible:true} — so they appear in the rules
+// panel via kind.describe() but never constrain the solver or trigger
+// violation highlights. Use for pedagogy ("this block has 4-fold
+// rotational symmetry") or flavour ("Light-Medium-Dark gradient") on
+// templates whose hard constraints are already expressed by other rules.
 const RULE_KINDS = {
   count: {
     describe(rule, fabricsById) {
@@ -1260,10 +1896,13 @@ const RULE_KINDS = {
     },
     verify(rule, fabricBySlot, block, fabricsById) {
       const matchingSlots = [];
+      let filled = 0;
       fabricBySlot.forEach((fid, i) => {
+        if (fid) filled++;
         if (fid && fabricMatches(fid, rule.constraint, fabricsById)) matchingSlots.push(i);
       });
       const n = matchingSlots.length;
+      const slotsRemaining = fabricBySlot.length - filled;
       let ok = true;
       if (rule.exact !== undefined) ok = n === rule.exact;
       else {
@@ -1275,16 +1914,29 @@ const RULE_KINDS = {
         // All matching slots are over-budget; flag them all.
         matchingSlots.forEach(i => violating.add(i));
       }
+      // Forward pruning: rule is no longer satisfiable if the current
+      // matched count exceeds the budget, or the remaining slots can't
+      // bring it up to the minimum.
+      let stillPossible = true;
+      if (rule.exact !== undefined) {
+        if (n > rule.exact) stillPossible = false;
+        else if (n + slotsRemaining < rule.exact) stillPossible = false;
+      } else {
+        if (rule.max !== undefined && n > rule.max) stillPossible = false;
+        if (rule.min !== undefined && n + slotsRemaining < rule.min) stillPossible = false;
+      }
       // For under-budget or exact-violations we don't flag specific slots —
       // every empty slot is a candidate.
-      return { satisfied: ok, violatingSlots: violating };
+      return { satisfied: ok, violatingSlots: violating, stillPossible };
     },
   },
 
   positional: {
     describe(rule, fabricsById) {
       const c = describeConstraint(rule.constraint, fabricsById);
-      const where = typeof rule.slot === 'string' ? rule.slot : 'slot ' + (rule.slot + 1);
+      const where = typeof rule.slot === 'string'
+        ? humanizeSlotName(rule.slot)
+        : 'slot ' + (rule.slot + 1);
       const must = rule.must === false ? 'must NOT be' : 'must be';
       return `The ${where} ${must} ${c}.`;
     },
@@ -1304,7 +1956,9 @@ const RULE_KINDS = {
       });
       // If not all required slots are filled yet, the rule is "not yet satisfied"
       // but we don't flag empty slots as violations.
-      return { satisfied: allFilled && ok, violatingSlots: violating };
+      // stillPossible: any concrete violation (slot filled with wrong fabric)
+      // makes the rule unsatisfiable since named slots can't be re-empty.
+      return { satisfied: allFilled && ok, violatingSlots: violating, stillPossible: violating.size === 0 };
     },
   },
 
@@ -1338,9 +1992,9 @@ const RULE_KINDS = {
           if (!hasB && neighborsAllFilled) { ok = false; violating.add(i); }
           if (!neighborsAllFilled) allFilled = false;
         }
-        return { satisfied: ok && allFilled, violatingSlots: violating };
+        return { satisfied: ok && allFilled, violatingSlots: violating, stillPossible: violating.size === 0 };
       }
-      return { satisfied: ok, violatingSlots: violating };
+      return { satisfied: ok, violatingSlots: violating, stillPossible: violating.size === 0 };
     },
   },
 
@@ -1358,7 +2012,205 @@ const RULE_KINDS = {
         if (fa === null || fb === null) { allRelevantFilled = false; return; }
         if (fa !== fb) { ok = false; violating.add(a); violating.add(b); }
       });
-      return { satisfied: ok && allRelevantFilled, violatingSlots: violating };
+      return { satisfied: ok && allRelevantFilled, violatingSlots: violating, stillPossible: violating.size === 0 };
+    },
+  },
+
+  'rotational-symmetry': {
+    describe(rule) {
+      return `Block has ${rule.order}-fold rotational symmetry.`;
+    },
+    verify(rule, fabricBySlot, block) {
+      const groups = (typeof block.rotationalSymmetryGroups === 'function')
+        ? block.rotationalSymmetryGroups(rule.order) : [];
+      const violating = new Set();
+      let satisfied = true;
+      let allRelevantFilled = true;
+      for (const group of groups) {
+        const fabrics = group.map(i => fabricBySlot[i]);
+        const filled = fabrics.filter(Boolean);
+        if (filled.length < group.length) allRelevantFilled = false;
+        if (filled.length < 2) continue;
+        const allSame = filled.every(f => f === filled[0]);
+        if (!allSame) {
+          satisfied = false;
+          group.forEach(i => { if (fabricBySlot[i]) violating.add(i); });
+        }
+      }
+      return {
+        satisfied: satisfied && allRelevantFilled,
+        violatingSlots: violating,
+        stillPossible: violating.size === 0,
+      };
+    },
+  },
+
+  // pattern-property rules assert that some derived property of a slot's
+  // fabric is consistent across a constrained subset of slots. Phase 3a
+  // ships exactly one operator — effective-direction — used by Rail
+  // Fence to express "all striped fabrics must run vertically", taking
+  // the slot's stripe rotation into account.
+  //
+  // Status: no Phase 3a template currently uses this as a hard
+  // constraint. It's kept here (along with block.rotation() on Rail
+  // Fence and the effectiveDirection helper) so future templates can
+  // either use it as a hard constraint OR flag it `decorative: true`
+  // for pedagogical effect ("striped fabrics in this template run
+  // vertical — see the indigo stripes"). Adding a horizontally-
+  // striped fabric to the palette in Phase 3b will give this real
+  // teeth as a solving constraint.
+  'pattern-property': {
+    describe(rule, fabricsById) {
+      if (rule.property === 'effective-direction') {
+        const what = rule.slotConstraint
+          ? describeConstraint(rule.slotConstraint, fabricsById)
+          : 'slots';
+        return `All ${what} must run ${rule.value}.`;
+      }
+      return 'Pattern-property rule.';
+    },
+    verify(rule, fabricBySlot, block, fabricsById) {
+      if (rule.property !== 'effective-direction') {
+        return { satisfied: true, violatingSlots: new Set(), stillPossible: true };
+      }
+      const violating = new Set();
+      let satisfied = true;
+      for (let i = 0; i < fabricBySlot.length; i++) {
+        const fid = fabricBySlot[i];
+        if (!fid) continue;
+        if (rule.slotConstraint && !fabricMatches(fid, rule.slotConstraint, fabricsById)) continue;
+        const fabric = fabricsById[fid];
+        if (!fabric.direction) continue; // unconstrained: fabric has no intrinsic direction
+        const slotRot = (typeof block.rotation === 'function') ? block.rotation(i) : 0;
+        const eff = effectiveDirection(fabric.direction, slotRot);
+        if (eff !== rule.value) {
+          satisfied = false;
+          violating.add(i);
+        }
+      }
+      return {
+        satisfied,
+        violatingSlots: violating,
+        // Assigned-slot violations are permanent in the solver context.
+        stillPossible: violating.size === 0,
+      };
+    },
+  },
+
+  // ────────────────────────────────────────────────────────────────
+  // Multi-solution rule kinds (added with the solutionTarget model).
+  //
+  // These describe relationships within a named slot group without
+  // pinning to specific fabrics, so templates can intentionally admit
+  // multiple solutions ("any warm fabric in the top rails, as long as
+  // all four match"). Reach for them when the puzzle is more about
+  // the structural relationship than the specific fabric identity.
+  // ────────────────────────────────────────────────────────────────
+
+  // All slots in the named group must share one fabric. Player chooses
+  // which fabric; other rules typically constrain the choice
+  // ({hue:'warm'} positional on the same group is a common companion).
+  'all-same': {
+    describe(rule) {
+      const where = typeof rule.slot === 'string'
+        ? humanizeSlotName(rule.slot)
+        : 'these slots';
+      return `All ${where} must be the same fabric.`;
+    },
+    verify(rule, fabricBySlot, block) {
+      const target = typeof rule.slot === 'string' ? block.namedSlot(rule.slot) : rule.slot;
+      const slots = Array.isArray(target) ? target : (target === undefined ? [] : [target]);
+      const filled = slots.map(i => fabricBySlot[i]).filter(Boolean);
+      if (filled.length < 2) {
+        // 0 or 1 filled — no conflict possible yet.
+        return {
+          satisfied: filled.length === slots.length,
+          violatingSlots: new Set(),
+          stillPossible: true,
+        };
+      }
+      const first = filled[0];
+      const allMatch = filled.every(f => f === first);
+      const violating = new Set();
+      if (!allMatch) {
+        // Highlight every filled slot in the group — the disagreement
+        // doesn't belong to any single slot.
+        slots.forEach(i => { if (fabricBySlot[i]) violating.add(i); });
+      }
+      return {
+        satisfied: allMatch && filled.length === slots.length,
+        violatingSlots: violating,
+        stillPossible: violating.size === 0,
+      };
+    },
+  },
+
+  // All slots in the named group must use distinct fabrics. Useful when
+  // the group is small relative to the palette ("the 4 middle slots are
+  // all different fabrics" with a 6-fabric palette).
+  'all-different': {
+    describe(rule) {
+      const where = typeof rule.slot === 'string'
+        ? humanizeSlotName(rule.slot)
+        : 'these slots';
+      return `All ${where} must be different fabrics.`;
+    },
+    verify(rule, fabricBySlot, block) {
+      const target = typeof rule.slot === 'string' ? block.namedSlot(rule.slot) : rule.slot;
+      const slots = Array.isArray(target) ? target : (target === undefined ? [] : [target]);
+      const seen = new Map();
+      const violating = new Set();
+      let allFilled = true;
+      for (const i of slots) {
+        const fid = fabricBySlot[i];
+        if (!fid) { allFilled = false; continue; }
+        if (seen.has(fid)) {
+          violating.add(seen.get(fid));
+          violating.add(i);
+        } else {
+          seen.set(fid, i);
+        }
+      }
+      return {
+        satisfied: violating.size === 0 && allFilled,
+        violatingSlots: violating,
+        stillPossible: violating.size === 0,
+      };
+    },
+  },
+
+  // Slots in the named group alternate between two constraint classes.
+  // E.g. between: [{motif:'solid'}, {motif:'stripe'}] makes positions
+  // 0,2,4,… solid and positions 1,3,5,… striped.
+  alternating: {
+    describe(rule, fabricsById) {
+      const where = typeof rule.slot === 'string'
+        ? humanizeSlotName(rule.slot)
+        : 'these slots';
+      const a = describeConstraint(rule.between[0], fabricsById);
+      const b = describeConstraint(rule.between[1], fabricsById);
+      return `The ${where} alternate between ${a} and ${b}.`;
+    },
+    verify(rule, fabricBySlot, block, fabricsById) {
+      const target = typeof rule.slot === 'string' ? block.namedSlot(rule.slot) : rule.slot;
+      const slots = Array.isArray(target) ? target : (target === undefined ? [] : [target]);
+      const [ca, cb] = rule.between || [{}, {}];
+      const violating = new Set();
+      let allFilled = true;
+      for (let idx = 0; idx < slots.length; idx++) {
+        const i = slots[idx];
+        const fid = fabricBySlot[i];
+        if (!fid) { allFilled = false; continue; }
+        const expect = (idx % 2 === 0) ? ca : cb;
+        if (!fabricMatches(fid, expect, fabricsById)) {
+          violating.add(i);
+        }
+      }
+      return {
+        satisfied: violating.size === 0 && allFilled,
+        violatingSlots: violating,
+        stillPossible: violating.size === 0,
+      };
     },
   },
 };
@@ -1366,12 +2218,23 @@ const RULE_KINDS = {
 function evaluateRules(rules, fabricBySlot, block, fabricsById) {
   return rules.map(rule => {
     const kind = RULE_KINDS[rule.kind];
-    if (!kind) return { rule, satisfied: false, violatingSlots: new Set(), description: '(unknown rule)' };
+    if (!kind) return { rule, satisfied: false, violatingSlots: new Set(), stillPossible: true, description: '(unknown rule)' };
+    // Decorative rules: shown in the panel but never constrain.
+    if (rule.decorative) {
+      return {
+        rule,
+        satisfied: true,
+        violatingSlots: new Set(),
+        stillPossible: true,
+        description: kind.describe(rule, fabricsById),
+      };
+    }
     const result = kind.verify(rule, fabricBySlot, block, fabricsById);
     return {
       rule,
       satisfied: result.satisfied,
       violatingSlots: result.violatingSlots,
+      stillPossible: result.stillPossible !== false,
       description: kind.describe(rule, fabricsById),
     };
   });
@@ -1395,6 +2258,11 @@ function showCompletion() {
   recordCompletion();
   const data = loadStorage();
   const playDate = game.playDate || todayStr();
+  const entry = data.byDate && data.byDate[playDate];
+  // N = which find this was (1-indexed); M = total solutions the puzzle
+  // admits. M can be null for migrated v1 records (we didn't know then).
+  const N = (entry && entry.solutionsFound && entry.solutionsFound.length) || 1;
+  const M = entry ? entry.totalSolutions : null;
   const d = new Date(playDate + 'T12:00:00Z');
   const dayName = d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'America/New_York' });
   const blockName = game.block.displayName;
@@ -1406,13 +2274,41 @@ function showCompletion() {
     if (bold) node.textContent = text;
     return node;
   };
-  sub.appendChild(document.createTextNode('You solved a '));
-  sub.appendChild(make(dayName, true));
-  sub.appendChild(document.createTextNode(' '));
-  sub.appendChild(make(blockName, true));
-  sub.appendChild(document.createTextNode(' in '));
-  sub.appendChild(make(time, true));
-  sub.appendChild(document.createTextNode('.'));
+  // Headline copy varies with multi-solution state:
+  //  - Single-solution puzzle (or unknown M): legacy wording.
+  //  - Multi-solution, found N of M with more to go: "pattern N of M".
+  //  - Multi-solution, found the last one (N === M): "all M patterns".
+  if (!M || M === 1) {
+    sub.appendChild(document.createTextNode('You solved a '));
+    sub.appendChild(make(dayName, true));
+    sub.appendChild(document.createTextNode(' '));
+    sub.appendChild(make(blockName, true));
+    sub.appendChild(document.createTextNode(' in '));
+    sub.appendChild(make(time, true));
+    sub.appendChild(document.createTextNode('.'));
+  } else if (N < M) {
+    sub.appendChild(document.createTextNode('You found '));
+    sub.appendChild(make(`pattern ${N} of ${M}`, true));
+    sub.appendChild(document.createTextNode(' — a '));
+    sub.appendChild(make(dayName, true));
+    sub.appendChild(document.createTextNode(' '));
+    sub.appendChild(make(blockName, true));
+    sub.appendChild(document.createTextNode(' in '));
+    sub.appendChild(make(time, true));
+    sub.appendChild(document.createTextNode('.'));
+  } else {
+    // N === M
+    sub.appendChild(document.createTextNode('You found '));
+    sub.appendChild(make(`all ${M} patterns`, true));
+    sub.appendChild(document.createTextNode(' — today\'s '));
+    sub.appendChild(make(blockName, true));
+    sub.appendChild(document.createTextNode(' is complete.'));
+  }
+  // Show "Find another pattern" CTA only when more solutions remain.
+  const findAnotherBtn = document.getElementById('findAnotherBtn');
+  if (findAnotherBtn) {
+    findAnotherBtn.style.display = (M && N < M) ? '' : 'none';
+  }
   const streak = data.streak || 0;
   const pill = document.getElementById('completionStreak');
   if (streak > 0) {
@@ -1465,7 +2361,23 @@ function copyShareText() {
   const dateLabel = new Date(playDate + 'T12:00:00Z')
     .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
   const time = formatTime(game.elapsed);
-  const text = `Sampler · ${dateLabel} · ${game.block.displayName} · ${time}`;
+  // Multi-solution-aware share line. Reads the just-saved storage so
+  // pattern N/M reflects this find. Single-solution puzzles keep the
+  // legacy " · "-separated format; multi-solution adds an em-dash
+  // prefix for the progress phrase.
+  const stored = loadStorage();
+  const entry = stored.byDate && stored.byDate[playDate];
+  const N = (entry && entry.solutionsFound && entry.solutionsFound.length) || 0;
+  const M = entry ? entry.totalSolutions : null;
+  const blockName = game.block.displayName;
+  let text;
+  if (!M || M === 1) {
+    text = `Sampler · ${dateLabel} · ${blockName} · ${time}`;
+  } else if (N >= M) {
+    text = `Sampler · ${dateLabel} · ${blockName} — all ${M} patterns · ${time}`;
+  } else {
+    text = `Sampler · ${dateLabel} · ${blockName} — pattern ${N} of ${M} · ${time}`;
+  }
   const showFeedback = (msg) => {
     const btn = document.querySelector('.share-copy-btn');
     if (!btn) return;
@@ -1490,39 +2402,102 @@ function closeCompletion() {
   showAlreadyPlayed(stored);
 }
 
+// Clear the board for a fresh attempt while keeping the
+// already-found solutions in game.solutionsFound so duplicate
+// detection at the next win works correctly.
+//
+// Called from both the completion overlay and the alreadyPlayed
+// overlay — works the same way either place.
+function findAnotherPattern() {
+  if (!game.block) return; // nothing loaded; safety net
+  document.getElementById('completion').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  game.fabricBySlot = new Array(game.block.slotCount).fill(null);
+  game.history = [];
+  game.locked = false;
+  game.solved = false;
+  game.findingAnother = true; // recordCompletion will treat next find as a multi-solve append
+  game.selectedFabric = game.paletteIds && game.paletteIds[0] || null;
+  renderAll();
+  startPlay();
+}
+
+// Record a win as a "find" against the day's entry. First find on a
+// date initializes the entry and bumps the primary aggregate stats
+// (streak, totalSolved, totalFlawless, totalSolveSeconds). Subsequent
+// finds (multi-solution replay) append to solutionsFound and only
+// bump totalSolutionsFound — primary stats stay anchored to the first
+// attempt per puzzle, by user-requested convention.
+//
+// Pure-replay mode (`game.replay && !game.findingAnother`) doesn't
+// write — that's the legacy "play a completed day for fun" path from
+// the archive.
 function recordCompletion() {
-  // Writes the completed daily to storage. Mirrors Glossari's
-  // recordCompletion shape exactly (byDate map + aggregate counters).
-  // Replays do not write.
-  if (game.replay) return;
+  if (game.replay && !game.findingAnother) return;
   const playDate = game.playDate || todayStr();
   const isLive = playDate === todayStr();
   const data = loadStorage();
   if (!data.byDate) data.byDate = {};
-  data.byDate[playDate] = {
-    puzzleIdx: dailyIndex(playDate),
-    block: game.block.id,
-    result: {
-      elapsedSeconds: game.elapsed,
-      allSolved: true,
-      flawless: true, // no mistake system in v1
-    },
-    completedAt: Date.now(),
-    source: isLive ? 'live' : 'archive',
+
+  const existing = data.byDate[playDate];
+  const isFirstFind = !existing || !existing.solutionsFound || existing.solutionsFound.length === 0;
+
+  const newFind = {
+    fabricBySlot: game.fabricBySlot.slice(),
+    elapsedSeconds: game.elapsed,
+    foundAt: Date.now(),
+    flawless: true, // no mistake system yet
   };
-  data.totalPlayed = (data.totalPlayed || 0) + 1;
-  data.totalSolved = (data.totalSolved || 0) + 1;
-  data.totalFlawless = (data.totalFlawless || 0) + 1;
-  data.totalSolveSeconds = (data.totalSolveSeconds || 0) + game.elapsed;
-  data.solvedTimedCount = (data.solvedTimedCount || 0) + 1;
-  if (isLive) {
-    const yesterday = prevEtDate(todayStr());
-    const streakBase = data.lastPlayedDate === yesterday ? (data.streak || 0) : 0;
-    data.streak = streakBase + 1;
-    data.bestStreak = Math.max(data.bestStreak || 0, data.streak);
-    data.lastPlayedDate = todayStr();
+
+  if (isFirstFind) {
+    // Compute totalSolutions once at first find by re-solving with a
+    // generous cap. Templates declare solutionTarget; pad cap so we
+    // can report the actual count rather than just "at least cap."
+    let totalSolutions = null;
+    try {
+      const tpl = pickTemplateForDate(playDate);
+      if (tpl) {
+        const inst = instantiateTemplate(tpl, playDate);
+        const block = BLOCKS[inst.template.block];
+        const target = tpl.solutionTarget || { min: 1, max: 1 };
+        const cap = Math.max(target.max + 1, 20);
+        const result = solve(block, inst.paletteIds, inst.rules, FABRICS, cap);
+        totalSolutions = result.solutionCount;
+      }
+    } catch {}
+    data.byDate[playDate] = {
+      puzzleIdx: dailyIndex(playDate),
+      block: game.block.id,
+      templateId: game.templateId || null,
+      totalSolutions,
+      solutionsFound: [newFind],
+      firstCompletedAt: newFind.foundAt,
+      source: isLive ? 'live' : 'archive',
+    };
+    data.totalPlayed = (data.totalPlayed || 0) + 1;
+    data.totalSolved = (data.totalSolved || 0) + 1;
+    data.totalFlawless = (data.totalFlawless || 0) + (newFind.flawless ? 1 : 0);
+    data.totalSolveSeconds = (data.totalSolveSeconds || 0) + game.elapsed;
+    data.solvedTimedCount = (data.solvedTimedCount || 0) + 1;
+    if (isLive) {
+      const yesterday = prevEtDate(todayStr());
+      const streakBase = data.lastPlayedDate === yesterday ? (data.streak || 0) : 0;
+      data.streak = streakBase + 1;
+      data.bestStreak = Math.max(data.bestStreak || 0, data.streak);
+      data.lastPlayedDate = todayStr();
+    }
+  } else {
+    existing.solutionsFound.push(newFind);
   }
+  data.totalSolutionsFound = (data.totalSolutionsFound || 0) + 1;
   saveStorage(data);
+  // Keep the in-memory game state in sync so the next find-another
+  // attempt's duplicate check sees this find without a reload.
+  if (!game.solutionsFound) game.solutionsFound = [];
+  game.solutionsFound.push(newFind);
+  if (game.totalSolutions == null) {
+    game.totalSolutions = data.byDate[playDate].totalSolutions;
+  }
 }
 
 function startDailyGame(dateStr, opts) {
@@ -1548,6 +2523,13 @@ function startDailyGame(dateStr, opts) {
   }
   game.playDate = dateStr;
   game.replay = replay;
+  game.findingAnother = !!(opts && opts.findingAnother);
+  game.templateId = template.id;
+  // Hydrate previously-found solutions for this date so duplicate
+  // detection (T17) can compare against them.
+  const priorEntry = stored.byDate && stored.byDate[dateStr];
+  game.solutionsFound = (priorEntry && priorEntry.solutionsFound) ? priorEntry.solutionsFound.slice() : [];
+  game.totalSolutions = priorEntry ? priorEntry.totalSolutions : null;
   const instance = instantiateTemplate(template, dateStr);
   initGame(instance.template.block, instance.paletteIds, instance.rules);
   const isLive = dateStr === todayStr();
@@ -1596,6 +2578,27 @@ function beginDaily() {
 
 function showAlreadyPlayed(stored) {
   document.getElementById('intro').classList.remove('show');
+  // Multi-solution-aware subtitle + Find Another CTA. Reads the current
+  // game.playDate so archive replays display the right progress too.
+  const playDate = game.playDate || todayStr();
+  const entry = stored.byDate && stored.byDate[playDate];
+  const N = (entry && entry.solutionsFound && entry.solutionsFound.length) || 0;
+  const M = entry ? entry.totalSolutions : null;
+  const blockName = (entry && BLOCKS[entry.block] && BLOCKS[entry.block].displayName) || (game.block && game.block.displayName) || 'block';
+  const sub = document.getElementById('alreadyPlayedSub');
+  if (sub) {
+    if (!M || M === 1) {
+      sub.textContent = "You've already pieced today's block. New puzzle at midnight (Eastern).";
+    } else if (N < M) {
+      sub.textContent = `You've found ${N} of ${M} patterns for today's ${blockName}. Try another below, or come back tomorrow for a new block.`;
+    } else {
+      sub.textContent = `You've found all ${M} patterns for today's ${blockName}. Come back tomorrow for a new block.`;
+    }
+  }
+  const findBtn = document.getElementById('alreadyFindAnotherBtn');
+  if (findBtn) {
+    findBtn.style.display = (M && N < M) ? '' : 'none';
+  }
   const host = document.getElementById('alreadyStats');
   host.innerHTML = '';
   [
@@ -1712,11 +2715,24 @@ function renderArchive() {
       if (isToday) cell.classList.add('today');
       if (entry) {
         cell.classList.add('completed');
-        const allSolved = entry.result && entry.result.allSolved;
-        cell.classList.add(allSolved ? 'solved' : 'revealed');
+        const N = (entry.solutionsFound && entry.solutionsFound.length) || 0;
+        const M = entry.totalSolutions;
+        const solvedAtLeastOnce = N > 0;
+        cell.classList.add(solvedAtLeastOnce ? 'solved' : 'revealed');
+        // Mark text: single-solution puzzles (or unknown M) show ✓ as
+        // before; multi-solution puzzles show "N/M" so the player can
+        // scan how many patterns they've found per day. All-found days
+        // get the .all-found accent.
         const mark = document.createElement('div');
         mark.className = 'archive-mark';
-        mark.textContent = allSolved ? '✓' : '◊';
+        if (!solvedAtLeastOnce) {
+          mark.textContent = '◊';
+        } else if (!M || M === 1) {
+          mark.textContent = '✓';
+        } else {
+          mark.textContent = `${N}/${M}`;
+          if (N >= M) cell.classList.add('all-found');
+        }
         cell.appendChild(mark);
         cell.onclick = () => archiveCellClick(dateStr, true);
       } else {
@@ -1753,7 +2769,35 @@ function archiveCellClick(dateStr, isReplay) {
   if (!blocking) startPlay();
 }
 
+// True if the URL requests admin preview mode (?preview=1). Combined
+// with ?template=<id>, used by sampler-admin.html iframes to render
+// every template solved in a wall of tiny boards.
+function isPreviewMode() {
+  if (typeof location === 'undefined' || !location.search) return false;
+  return new URLSearchParams(location.search).get('preview') === '1';
+}
+
+// Boot path for ?preview=1: skip intro/storage entirely, solve the
+// forced template, paint the board with that solution, lock the game.
+// Renders just the block (chrome hidden by .preview-mode CSS).
+function bootPreview() {
+  document.body.classList.add('preview-mode');
+  const today = todayStr();
+  const template = pickTemplateForDate(today); // honors ?template= override
+  if (!template) return;
+  const instance = instantiateTemplate(template, today);
+  initGame(instance.template.block, instance.paletteIds, instance.rules);
+  const block = BLOCKS[instance.template.block];
+  const result = solve(block, instance.paletteIds, instance.rules, FABRICS, 1);
+  if (result.samples && result.samples[0]) {
+    game.fabricBySlot = result.samples[0].slice();
+    game.locked = true;
+    renderAll();
+  }
+}
+
 function bootSampler() {
+  if (isPreviewMode()) return bootPreview();
   const stored = loadStorage();
   const today = todayStr();
 
@@ -1777,6 +2821,25 @@ function bootSampler() {
 }
 
 bootSampler();
+
+// Debug / authoring tools — exposed on window for console use. Not part
+// of the public API; safe to remove if minifying for production.
+window.verifyTemplate = verifyTemplate;
+window.solve = solve;
+window.instantiateTemplate = instantiateTemplate;
+window.BLOCKS = BLOCKS;
+window.TEMPLATES = TEMPLATES;
+window.FABRICS = FABRICS;
+window.RULE_KINDS = RULE_KINDS;
+window.renderBlock = renderBlock;
+window.pickTemplateForDate = pickTemplateForDate;
+window.hasPuzzleForDate = hasPuzzleForDate;
+window.startDailyGame = startDailyGame;
+window.game = game;
+window.checkWin = checkWin;
+window.recordCompletion = recordCompletion;
+window.migrateV1ToV2 = migrateV1ToV2;
+window.showAlreadyPlayed = showAlreadyPlayed;
 </script>
 </body>
 </html>
