@@ -86,18 +86,18 @@
             },
             {
               "type": "synonym",
-              "clue": "wrongdoer, troublemaker",
+              "clue": "deceptive, dishonest, two-faced",
               "parts": [
                 "mis",
-                "be",
-                "haver"
+                "lead",
+                "ing"
               ],
-              "pos": "n.",
-              "definition": "One who behaves badly or breaks rules.",
-              "etymology": "<em>mis-</em> (badly) + <em>behave</em> + <em>-er</em> (one who)",
-              "example": "The teacher kept the <em>misbehaver</em> after class.",
-              "synonyms": "troublemaker, rule-breaker, offender",
-              "antonyms": "role model, well-behaved one"
+              "pos": "adj.",
+              "definition": "Giving a wrong idea or false impression.",
+              "etymology": "<em>mis-</em> (wrongly) + <em>lead</em> + <em>-ing</em>",
+              "example": "The label was <em>misleading</em> — the cereal had far more sugar than it claimed.",
+              "synonyms": "deceptive, confusing, false",
+              "antonyms": "clear, honest, accurate"
             },
             {
               "type": "antonym",
@@ -1240,18 +1240,18 @@
         "sets": [
           {
             "type": "definition",
-            "clue": "Able to be helped or made better.",
+            "clue": "Putting others' needs before your own; not selfish.",
             "parts": [
-              "help",
-              "a",
-              "ble"
+              "un",
+              "self",
+              "ish"
             ],
             "pos": "adj.",
-            "definition": "Able to be helped, fixed, or improved.",
-            "etymology": "<em>help</em> + <em>-able</em> (capable of)",
-            "example": "The problem was small and easily <em>helpable</em>.",
-            "synonyms": "fixable, resolvable, manageable",
-            "antonyms": "hopeless, helpless, intractable"
+            "definition": "Putting others' needs before your own; not selfish.",
+            "etymology": "<em>un-</em> (not) + <em>self</em> + <em>-ish</em> (having the character of)",
+            "example": "Her <em>unselfish</em> decision to share gave everyone a turn.",
+            "synonyms": "generous, considerate, altruistic",
+            "antonyms": "selfish, self-centered, greedy"
           },
           {
             "type": "synonym",
@@ -1307,33 +1307,33 @@
         "sets": [
           {
             "type": "definition",
-            "clue": "A person who tells what will happen in the future.",
+            "clue": "Foretelling future events; like a prophet.",
             "parts": [
-              "pre",
-              "dict",
-              "or"
+              "pro",
+              "phet",
+              "ic"
             ],
-            "pos": "n.",
-            "definition": "One who foretells events or outcomes.",
-            "etymology": "Latin <em>prae-</em> (before) + <em>dicere</em> (to say) + <em>-or</em>",
-            "example": "The economist became a respected <em>predictor</em> of market shifts.",
-            "synonyms": "forecaster, prognosticator, seer",
-            "antonyms": "observer, follower, hindsight-giver"
+            "pos": "adj.",
+            "definition": "Accurately predicting or foretelling future events.",
+            "etymology": "Greek <em>pro-</em> (before) + <em>phētēs</em> (one who speaks) + <em>-ic</em>",
+            "example": "Her warning about the storm proved <em>prophetic</em> — it struck within the hour.",
+            "synonyms": "predictive, foretelling, oracular",
+            "antonyms": "mundane, ignorant, blind"
           },
           {
             "type": "synonym",
-            "clue": "farsighted, prophetic",
+            "clue": "foreknowing, anticipatory, far-sighted",
             "parts": [
-              "fore",
-              "see",
-              "ing"
+              "pre",
+              "sci",
+              "ent"
             ],
             "pos": "adj.",
-            "definition": "Able to know or guess what will happen before it does.",
-            "etymology": "<em>fore-</em> (before) + <em>see</em> + <em>-ing</em>",
-            "example": "His <em>foreseeing</em> mind avoided every trap his rivals set.",
-            "synonyms": "prescient, prophetic, far-sighted",
-            "antonyms": "blind, unprepared, shortsighted"
+            "definition": "Having or showing knowledge of events before they take place.",
+            "etymology": "Latin <em>prae-</em> (before) + <em>scire</em> (to know) + <em>-ent</em>",
+            "example": "His <em>prescient</em> warning saved the expedition from disaster.",
+            "synonyms": "foreknowing, anticipatory, far-sighted",
+            "antonyms": "unaware, oblivious, shortsighted"
           },
           {
             "type": "antonym",
