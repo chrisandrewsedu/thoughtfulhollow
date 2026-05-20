@@ -18,7 +18,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Fascinate&family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #f7f5f0;
@@ -118,10 +118,17 @@ body {
   box-shadow: 0 4px 16px rgba(0,0,0,0.05);
 }
 .card-title {
-  font-family: 'Fraunces', Georgia, serif;
   font-size: clamp(1.35rem, 2.1vw, 1.75rem);
   font-weight: 500;
   margin-bottom: 0.35rem;
+}
+.card-title-glossari {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
+}
+.card-title-sampler {
+  font-family: 'Fascinate', Georgia, serif;
+  font-weight: 400;
 }
 .card-desc {
   font-family: 'Fraunces', Georgia, serif;
@@ -187,11 +194,11 @@ body {
 
   <div class="shelf-label">— Currently —</div>
   <a class="card" href="/glossari">
-    <div class="card-title">Glossari <span class="card-arrow">→</span></div>
+    <div class="card-title card-title-glossari">Glossari <span class="card-arrow">→</span></div>
     <div class="card-desc">A daily dictionary puzzle. Identify four headwords from clues and word segments.</div>
   </a>
   <a class="card" href="/sampler">
-    <div class="card-title">Sam·pler <span class="card-arrow">→</span></div>
+    <div class="card-title card-title-sampler">Sampler <span class="card-arrow">→</span></div>
     <div class="card-desc">a daily quilt-block puzzle</div>
   </a>
 
