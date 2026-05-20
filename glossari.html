@@ -671,6 +671,11 @@ html, body { transition: background 0.25s, color 0.25s; }
   font-size: 0.55rem; color: var(--ink-faint);
   letter-spacing: 0.04em;
 }
+.subbar-tier {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.55rem; color: var(--ink-faint);
+  letter-spacing: 0.04em; text-transform: lowercase;
+}
 .puzzle-name { flex-direction: column; align-items: center; gap: 0.05rem; }
 .puzzle-name-label {
   font-family: 'Lora', serif; font-style: italic;
@@ -759,6 +764,7 @@ body.preview-mode .page-footer,
 body.preview-mode .overlay { display: none !important; }
 body.preview-mode .subbar { padding: 0.4rem 0.8rem; border: none; }
 body.preview-mode .subbar-date,
+body.preview-mode .subbar-tier,
 body.preview-mode .timer { display: none; }
 body.preview-mode .puzzle-name { text-align: center; }
 body.preview-mode .main { padding: 0.4rem 0.6rem; max-width: none; }
@@ -791,6 +797,7 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
       <span class="puzzle-name-label">today's theme</span>
       <span class="name" id="puzzleName">— —</span>
     </div>
+    <div class="subbar-tier" id="subbarTier"></div>
     <div class="timer" id="timer">—</div>
   </div>
 
@@ -1343,6 +1350,7 @@ function loadPuzzle() {
   const d = new Date(playDate + 'T12:00:00Z');
   const dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
   document.getElementById('subbarDate').textContent = isLive ? dateLabel : 'Archive · ' + dateLabel;
+  document.getElementById('subbarTier').textContent = state.mode === 'practice' ? 'practice' : state.tier;
   renderMistakes(); renderAll(); updateSubmit(); startTimer();
 }
 
