@@ -1002,13 +1002,19 @@ const TEMPLATES = [
       { kind: 'count', constraint: { fabricId: 'ROLE:ANCHOR_A' }, exact: 4 },
     ],
   },
-  // Template 2: "Diagonal Stripes" — corners and center the same fabric,
-  // edges alternate two stripe fabrics in a pattern enforced by symmetry.
+  // Template 2: "Cross with Edges" — cream cross (center + corners),
+  // four edges fill with 2 indigo + 2 walnut, arranged so top/bottom
+  // share a fabric and left/right share the other. Two valid patterns
+  // per date (which fabric goes top/bottom vs. left/right).
+  //
+  // Audited Phase 3b: actual solution count is 2 per date — declared
+  // {2, 4} to match the Monday range.
   {
     id: 'nine-patch-diagonal-v1',
     block: 'nine-patch',
     paletteFamily: 'heritage-warm',
     paletteSize: 6,
+    solutionTarget: { min: 2, max: 4 },
     fabricRoles: {
       ANCHOR_A: 'F_CREAM',
       ANCHOR_B: 'F_INDIGO',
@@ -1025,22 +1031,29 @@ const TEMPLATES = [
       { kind: 'count', constraint: { fabricId: 'ROLE:ANCHOR_C' }, exact: 2 },
     ],
   },
-  // Template 3: "Pinwheel-of-color" — every cell has a unique role-ish
-  // but rules constrain hue counts and adjacency.
+  // Template 3: "Warm Corners, Dark Edges" — cream center, all four
+  // corners the same warm-medium fabric, all four edges the same dark
+  // fabric. Player picks which warm-medium goes in the corners (madder
+  // or weld) and which dark fabric runs around the edges (walnut or
+  // indigo). 2 × 2 = 4 solutions per date.
+  //
+  // Replaces the v1 "Pinwheel-of-color" template that audited at 100+
+  // solutions per date — its rules (hue counts + diagonal symmetry +
+  // forbid warm-warm adjacency) were too loose given the palette has
+  // 3 warms and 2 cools to spread across 8 slots with repetition.
   {
-    id: 'nine-patch-warm-cool-v1',
+    id: 'nine-patch-warm-cool-v2',
     block: 'nine-patch',
     paletteFamily: 'heritage-warm',
     paletteSize: 6,
-    fabricRoles: {
-      ANCHOR_A: 'F_CREAM',
-    },
+    solutionTarget: { min: 2, max: 4 },
+    fabricRoles: { CENTER: 'F_CREAM' },
     rules: [
-      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:ANCHOR_A' } },
-      { kind: 'count', constraint: { hue: 'warm' }, exact: 4 },
-      { kind: 'count', constraint: { hue: 'cool' }, exact: 4 },
-      { kind: 'symmetry', axis: 'diagonal' },
-      { kind: 'adjacency', a: { hue: 'warm' }, b: { hue: 'warm' }, relation: 'forbid' },
+      { kind: 'positional', slot: 'center',  constraint: { fabricId: 'ROLE:CENTER' } },
+      { kind: 'all-same',   slot: 'corners' },
+      { kind: 'positional', slot: 'corners', constraint: { hue: 'warm', value: 'medium' } },
+      { kind: 'all-same',   slot: 'edges' },
+      { kind: 'positional', slot: 'edges',   constraint: { value: 'dark' } },
     ],
   },
 
