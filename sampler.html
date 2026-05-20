@@ -605,7 +605,13 @@ document.getElementById('themeToggle').addEventListener('click', function () {
 // With N templates authored, the first N days from LAUNCH_DATE have unique
 // puzzles; subsequent days show the "Coming Soon" overlay until more
 // templates are added. Author more templates before that runway runs out.
-const STORAGE_KEY = 'sampler_daily_v1';
+// Storage schema versions. v1 (Phase 1+2) stored one completion per
+// date with a single `result.allSolved` boolean. v2 (Phase 3b) stores
+// per-date `solutionsFound: [{fabricBySlot, elapsedSeconds, foundAt,
+// flawless}]` so multi-solution puzzles can track which patterns the
+// player has discovered. Migration is one-way on first load.
+const STORAGE_KEY_V1 = 'sampler_daily_v1';
+const STORAGE_KEY = 'sampler_daily_v2';
 const LAUNCH_DATE = '2026-05-19';
 
 function todayStr() {
@@ -618,12 +624,77 @@ function etDateOffset(dateStr, offsetDays) {
 }
 function prevEtDate(dateStr) { return etDateOffset(dateStr, -1); }
 
-function loadStorage() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+// Load storage: try v2 first, fall back to migrating v1 once. Returns
+// {} for a fresh user. Silently swallows storage / parse errors —
+// behavior matches v1 + Glossari (in-memory state stays correct, just
+// doesn't persist).
+function loadStorage() {
+  try {
+    const v2raw = localStorage.getItem(STORAGE_KEY);
+    if (v2raw) return JSON.parse(v2raw);
+    // No v2 yet — try to migrate from v1.
+    const v1raw = localStorage.getItem(STORAGE_KEY_V1);
+    if (v1raw) {
+      const v1 = JSON.parse(v1raw);
+      const v2 = migrateV1ToV2(v1);
+      saveStorage(v2);
+      return v2;
+    }
+  } catch {}
+  return {};
+}
+
 // NOTE: silently swallows quota-exceeded and serialization errors. In
 // the unlikely event of storage failure, the in-memory `data` is
 // correct but won't persist — next session resets to last successful
 // save. Same behavior as Glossari.
 function saveStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {} }
+
+// One-time migration from v1 → v2 storage. v1 records a single
+// completion per date; v2 records an array of solutions found. Since
+// v1 never captured the actual fabricBySlot at completion time, we
+// synthesize one entry per migrated date with `fabricBySlot: null` —
+// the player gets credit for one find on each previously-completed
+// day, but duplicate detection can't match against an unknown layout.
+// totalSolutions is left null until the date is next played, then
+// computed and cached by recordCompletion.
+function migrateV1ToV2(v1) {
+  const v2 = {
+    schemaVersion: 2,
+    streak: v1.streak,
+    bestStreak: v1.bestStreak,
+    lastPlayedDate: v1.lastPlayedDate,
+    totalPlayed: v1.totalPlayed,
+    totalSolved: v1.totalSolved,
+    totalFlawless: v1.totalFlawless,
+    totalSolveSeconds: v1.totalSolveSeconds,
+    solvedTimedCount: v1.solvedTimedCount,
+    totalSolutionsFound: 0,
+    byDate: {},
+  };
+  if (v1.byDate) {
+    for (const [dateStr, entry] of Object.entries(v1.byDate)) {
+      if (!entry || !entry.result || !entry.result.allSolved) continue;
+      const find = {
+        fabricBySlot: null,
+        elapsedSeconds: entry.result.elapsedSeconds || null,
+        foundAt: entry.completedAt || null,
+        flawless: !!entry.result.flawless,
+      };
+      v2.byDate[dateStr] = {
+        puzzleIdx: entry.puzzleIdx,
+        block: entry.block,
+        templateId: null,
+        totalSolutions: null,
+        solutionsFound: [find],
+        firstCompletedAt: entry.completedAt || null,
+        source: entry.source,
+      };
+      v2.totalSolutionsFound++;
+    }
+  }
+  return v2;
+}
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60); const s = seconds % 60;
@@ -1987,38 +2058,74 @@ function closeCompletion() {
   showAlreadyPlayed(stored);
 }
 
+// Record a win as a "find" against the day's entry. First find on a
+// date initializes the entry and bumps the primary aggregate stats
+// (streak, totalSolved, totalFlawless, totalSolveSeconds). Subsequent
+// finds (multi-solution replay) append to solutionsFound and only
+// bump totalSolutionsFound — primary stats stay anchored to the first
+// attempt per puzzle, by user-requested convention.
+//
+// Pure-replay mode (`game.replay && !game.findingAnother`) doesn't
+// write — that's the legacy "play a completed day for fun" path from
+// the archive.
 function recordCompletion() {
-  // Writes the completed daily to storage. Mirrors Glossari's
-  // recordCompletion shape exactly (byDate map + aggregate counters).
-  // Replays do not write.
-  if (game.replay) return;
+  if (game.replay && !game.findingAnother) return;
   const playDate = game.playDate || todayStr();
   const isLive = playDate === todayStr();
   const data = loadStorage();
   if (!data.byDate) data.byDate = {};
-  data.byDate[playDate] = {
-    puzzleIdx: dailyIndex(playDate),
-    block: game.block.id,
-    result: {
-      elapsedSeconds: game.elapsed,
-      allSolved: true,
-      flawless: true, // no mistake system in v1
-    },
-    completedAt: Date.now(),
-    source: isLive ? 'live' : 'archive',
+
+  const existing = data.byDate[playDate];
+  const isFirstFind = !existing || !existing.solutionsFound || existing.solutionsFound.length === 0;
+
+  const newFind = {
+    fabricBySlot: game.fabricBySlot.slice(),
+    elapsedSeconds: game.elapsed,
+    foundAt: Date.now(),
+    flawless: true, // no mistake system yet
   };
-  data.totalPlayed = (data.totalPlayed || 0) + 1;
-  data.totalSolved = (data.totalSolved || 0) + 1;
-  data.totalFlawless = (data.totalFlawless || 0) + 1;
-  data.totalSolveSeconds = (data.totalSolveSeconds || 0) + game.elapsed;
-  data.solvedTimedCount = (data.solvedTimedCount || 0) + 1;
-  if (isLive) {
-    const yesterday = prevEtDate(todayStr());
-    const streakBase = data.lastPlayedDate === yesterday ? (data.streak || 0) : 0;
-    data.streak = streakBase + 1;
-    data.bestStreak = Math.max(data.bestStreak || 0, data.streak);
-    data.lastPlayedDate = todayStr();
+
+  if (isFirstFind) {
+    // Compute totalSolutions once at first find by re-solving with a
+    // generous cap. Templates declare solutionTarget; pad cap so we
+    // can report the actual count rather than just "at least cap."
+    let totalSolutions = null;
+    try {
+      const tpl = pickTemplateForDate(playDate);
+      if (tpl) {
+        const inst = instantiateTemplate(tpl, playDate);
+        const block = BLOCKS[inst.template.block];
+        const target = tpl.solutionTarget || { min: 1, max: 1 };
+        const cap = Math.max(target.max + 1, 20);
+        const result = solve(block, inst.paletteIds, inst.rules, FABRICS, cap);
+        totalSolutions = result.solutionCount;
+      }
+    } catch {}
+    data.byDate[playDate] = {
+      puzzleIdx: dailyIndex(playDate),
+      block: game.block.id,
+      templateId: game.templateId || null,
+      totalSolutions,
+      solutionsFound: [newFind],
+      firstCompletedAt: newFind.foundAt,
+      source: isLive ? 'live' : 'archive',
+    };
+    data.totalPlayed = (data.totalPlayed || 0) + 1;
+    data.totalSolved = (data.totalSolved || 0) + 1;
+    data.totalFlawless = (data.totalFlawless || 0) + (newFind.flawless ? 1 : 0);
+    data.totalSolveSeconds = (data.totalSolveSeconds || 0) + game.elapsed;
+    data.solvedTimedCount = (data.solvedTimedCount || 0) + 1;
+    if (isLive) {
+      const yesterday = prevEtDate(todayStr());
+      const streakBase = data.lastPlayedDate === yesterday ? (data.streak || 0) : 0;
+      data.streak = streakBase + 1;
+      data.bestStreak = Math.max(data.bestStreak || 0, data.streak);
+      data.lastPlayedDate = todayStr();
+    }
+  } else {
+    existing.solutionsFound.push(newFind);
   }
+  data.totalSolutionsFound = (data.totalSolutionsFound || 0) + 1;
   saveStorage(data);
 }
 
@@ -2045,6 +2152,13 @@ function startDailyGame(dateStr, opts) {
   }
   game.playDate = dateStr;
   game.replay = replay;
+  game.findingAnother = !!(opts && opts.findingAnother);
+  game.templateId = template.id;
+  // Hydrate previously-found solutions for this date so duplicate
+  // detection (T17) can compare against them.
+  const priorEntry = stored.byDate && stored.byDate[dateStr];
+  game.solutionsFound = (priorEntry && priorEntry.solutionsFound) ? priorEntry.solutionsFound.slice() : [];
+  game.totalSolutions = priorEntry ? priorEntry.totalSolutions : null;
   const instance = instantiateTemplate(template, dateStr);
   initGame(instance.template.block, instance.paletteIds, instance.rules);
   const isLive = dateStr === todayStr();
@@ -2209,11 +2323,11 @@ function renderArchive() {
       if (isToday) cell.classList.add('today');
       if (entry) {
         cell.classList.add('completed');
-        const allSolved = entry.result && entry.result.allSolved;
-        cell.classList.add(allSolved ? 'solved' : 'revealed');
+        const solvedAtLeastOnce = entry.solutionsFound && entry.solutionsFound.length > 0;
+        cell.classList.add(solvedAtLeastOnce ? 'solved' : 'revealed');
         const mark = document.createElement('div');
         mark.className = 'archive-mark';
-        mark.textContent = allSolved ? '✓' : '◊';
+        mark.textContent = solvedAtLeastOnce ? '✓' : '◊';
         cell.appendChild(mark);
         cell.onclick = () => archiveCellClick(dateStr, true);
       } else {
@@ -2289,6 +2403,9 @@ window.pickTemplateForDate = pickTemplateForDate;
 window.hasPuzzleForDate = hasPuzzleForDate;
 window.startDailyGame = startDailyGame;
 window.game = game;
+window.checkWin = checkWin;
+window.recordCompletion = recordCompletion;
+window.migrateV1ToV2 = migrateV1ToV2;
 </script>
 </body>
 </html>
