@@ -509,6 +509,20 @@ html, body {
 }
 .btn:hover { background: var(--ink-soft); }
 .btn:active { background: var(--ink); }
+.tier-buttons {
+  display: flex; gap: 0.6rem; justify-content: center;
+  flex-wrap: wrap; margin-bottom: 0.6rem;
+}
+.tier-btn { min-width: 5.5rem; flex: 1 1 auto; max-width: 8rem; }
+.tier-btn[disabled] {
+  opacity: 0.4; cursor: not-allowed; pointer-events: none;
+}
+.tier-btn .tier-state {
+  display: block;
+  font-family: 'Lora', serif; font-style: italic; font-weight: 400;
+  font-size: 0.55rem; letter-spacing: 0.06em; text-transform: lowercase;
+  color: var(--ink-faint); margin-top: 0.15rem;
+}
 .intro-practice-btn {
   font-family: 'Lora', serif; font-style: italic;
   font-size: 0.72rem; color: var(--ink-faint);
@@ -854,9 +868,13 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
       <div><span class="sym">≠</span><span class="lbl">Antonym</span></div>
     </div>
     <div class="intro-actions" id="introActions">
-      <button class="btn" id="beginBtn" onclick="startGame()">Begin</button>
+      <div class="tier-buttons" id="tierButtons">
+        <button class="btn tier-btn" data-tier="easy"   onclick="startGame('easy')">Easy</button>
+        <button class="btn tier-btn" data-tier="medium" onclick="startGame('medium')">Medium</button>
+        <button class="btn tier-btn" data-tier="hard"   onclick="startGame('hard')">Hard</button>
+      </div>
       <div class="intro-actions-row">
-        <button class="btn-secondary" id="introPracticeBtn" onclick="startPracticeGame()">Practice</button>
+        <button class="btn-secondary" id="introPracticeBtn" onclick="openPracticePicker()">Practice</button>
         <button class="btn-secondary" id="introArchiveBtn" onclick="openArchive()">Archive</button>
       </div>
     </div>
@@ -1094,6 +1112,9 @@ let state = {
   playDate: null, replay: false, inProgress: false,
 };
 
+// Stub — full implementation in Task 6 (per-tier storage).
+function getTierDayState(tier, dateStr) { return null; }
+
 function shuffle(a) {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; }
@@ -1298,24 +1319,47 @@ function archiveCellClick(dateStr, isReplay) {
 
 function resetGameState() { state.puzzlesSolved = 0; state.flawless = 0; state.totalMistakes = 0; state.puzzleMarksByEntry = []; }
 
-function updateStartBtn() {
-  document.getElementById('beginBtn').textContent = state.inProgress ? 'Resume' : 'Begin';
-}
-
 function goHome() {
   if (!state.inProgress) return;
   stopTimer();
-  updateStartBtn();
+  refreshIntroButtons();
   document.getElementById('intro').classList.add('show');
 }
 
-function startGame() {
-  if (state.inProgress) {
-    document.getElementById('intro').classList.remove('show');
-    resumeTimer();
-    return;
+function startGame(tier) {
+  if (!TIERS.includes(tier)) return;
+  if (!tierAvailable(dailyIndex(todayStr()), tier)) return;
+  state.tier = tier;
+  startDailyGame(undefined, { tier });
+}
+
+// Refresh the three tier buttons on the landing page to reflect each
+// tier's per-day state. Called on intro show and after completions.
+function refreshIntroButtons() {
+  const themeIdx = dailyIndex(todayStr());
+  const today = todayStr();
+  for (const tier of TIERS) {
+    const btn = document.querySelector(`.tier-btn[data-tier="${tier}"]`);
+    if (!btn) continue;
+    const available = tierAvailable(themeIdx, tier);
+    const tierState = getTierDayState(tier, today);
+    let label = tier.charAt(0).toUpperCase() + tier.slice(1);
+    let sub = '';
+    if (!available) {
+      btn.disabled = true;
+      sub = 'unavailable today';
+    } else if (tierState && tierState.result) {
+      btn.disabled = false;
+      sub = tierState.result.allSolved ? '✓ played' : '◊ played';
+    } else if (tierState && tierState.inProgress) {
+      btn.disabled = false;
+      sub = 'resume';
+    } else {
+      btn.disabled = false;
+      sub = 'begin';
+    }
+    btn.innerHTML = `${label}<span class="tier-state">${sub}</span>`;
   }
-  startDailyGame();
 }
 
 function loadPuzzle() {
