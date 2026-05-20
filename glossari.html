@@ -1314,7 +1314,20 @@ function startGame() {
 function loadPuzzle() {
   state.inProgress = true;
   document.getElementById('practiceLink').style.display = 'none';
-  const puzzle = PUZZLES[state.puzzleIdx];
+  // Daily mode: look up tier variant on the current theme.
+  // Practice mode: state.puzzleSource holds the resolved puzzle object directly (set by startPracticeGame).
+  let puzzle;
+  if (state.mode === 'practice') {
+    puzzle = state.puzzleSource;
+  } else {
+    const variant = getTierVariant(state.puzzleIdx, state.tier);
+    if (!variant) {
+      console.error('No variant for theme', state.puzzleIdx, 'tier', state.tier);
+      return;
+    }
+    // The theme provides name; the variant provides sets.
+    puzzle = { name: THEMES[state.puzzleIdx].name, sets: variant.sets };
+  }
   state.mistakes = 0; state.locked = false; state.selectedIds = new Set();
   state.guessLog = [];
   state.items = []; let id = 0;
@@ -1324,6 +1337,7 @@ function loadPuzzle() {
   state.items.push(...shuffle(tileItems));
   state.solvedSets = puzzle.sets.map(_ => false); state.revealedSets = puzzle.sets.map(_ => false);
   document.getElementById('puzzleName').textContent = puzzle.name;
+  state.currentPuzzle = puzzle; // cache for showReveal/copyResult use
   const playDate = state.playDate || todayStr();
   const isLive = playDate === todayStr();
   const d = new Date(playDate + 'T12:00:00Z');
@@ -1505,7 +1519,7 @@ function updatePreviewRow() {
 
 
 function computeGuessMark(bestSetIdx) {
-  const set = PUZZLES[state.puzzleIdx].sets[bestSetIdx];
+  const set = state.currentPuzzle.sets[bestSetIdx];
   const sel = [...state.selectedIds].map(id => itemById(id));
   const clue = sel.find(it => it.type === 'clue');
   const tiles = sel.filter(it => it.type === 'tile');
@@ -1519,7 +1533,7 @@ function computeGuessMark(bestSetIdx) {
 }
 
 function tilesMatchOrder(setIdx) {
-  const set = PUZZLES[state.puzzleIdx].sets[setIdx];
+  const set = state.currentPuzzle.sets[setIdx];
   const sel = [...state.selectedIds].map(id => itemById(id));
   const tiles = sel.filter(it => it && it.type === 'tile');
   if (tiles.length !== 3) return false;
@@ -1527,7 +1541,7 @@ function tilesMatchOrder(setIdx) {
 }
 
 function matchAgainstSet(setIdx) {
-  const set = PUZZLES[state.puzzleIdx].sets[setIdx]; const selected = [...state.selectedIds].map(id => itemById(id));
+  const set = state.currentPuzzle.sets[setIdx]; const selected = [...state.selectedIds].map(id => itemById(id));
   let matches = 0;
   selected.forEach(it => { if (it.type === 'clue' && it.setIdx === setIdx) matches++; });
   const need = {}; set.parts.forEach(p => need[p] = (need[p] || 0) + 1);
@@ -1536,7 +1550,7 @@ function matchAgainstSet(setIdx) {
 }
 
 function findBestMatch() {
-  const puzzle = PUZZLES[state.puzzleIdx]; let best = { setIdx: -1, count: -1 };
+  const puzzle = state.currentPuzzle; let best = { setIdx: -1, count: -1 };
   for (let i = 0; i < puzzle.sets.length; i++) {
     if (state.solvedSets[i] || state.revealedSets[i]) continue;
     const m = matchAgainstSet(i); if (m > best.count) best = { setIdx: i, count: m };
