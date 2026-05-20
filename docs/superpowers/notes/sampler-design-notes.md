@@ -9,20 +9,22 @@ Cross-phase decisions and discoveries that affect future phases. The canonical d
 - Resolve each note as it's addressed: prefix with ✓ when handled, ✗ when explicitly rejected, leave bare when still open.
 - Date format: `YYYY-MM-DD`.
 
-## Current status (2026-05-19)
+## Current status (2026-05-20)
 
 - ✓ **Phase 1+2 — Engine + Monday block + Archive parity** (shipped)
 - ✓ **Phase 3a — Rail Fence + foundations** (shipped: 2×2 basket-weave, 12 stripe slots, three rank-based templates, all foundational refactors per the notes below)
 - ✓ **Phase 3b — Multi-solution UX layer** (shipped: solution-range engine, three new rule kinds, storage v2 with v1 migration, duplicate detection, find-another flow, "pattern N of M" overlay copy, archive N/M badges, Nine-Patch template audit)
-- **Phase 3c — Log Cabin (Wednesday block)** ← *next up*
-- Future: Churn Dash (Thu), Sawtooth Star (Fri), Dresden Plate (Sat), Sampler quilt (Sun), polish & launch.
+- ✓ **Phase 3c — Log Cabin (Wednesday block)** (shipped: 13-slot spiral with 3 concentric rings, first real `ring()` implementation, three multi-solution templates — Hearth / Light-Dark Diagonal / Cross — all 4–6 solutions per Wed across the launch year)
+- **Phase 3d — Churn Dash (Thursday block)** ← *next up*
+- Future: Sawtooth Star (Fri), Dresden Plate (Sat), Sampler quilt (Sun), polish & launch.
 
-**Starting a new session on Phase 3c?** Read this file end-to-end first. The key things to know:
-- The block interface is in `sampler.html` at the `BLOCKS` object (currently `nine-patch` + `rail-fence`). Log Cabin needs to add `ring(i)` (currently stubbed `undefined` on existing blocks) and probably a `concentric`-style `neighbors(i)` for the radial topology — see the §"Concentric / non-orthogonal neighbors" section below.
-- Multi-solution templates declare `solutionTarget: { min, max }`. Difficulty calibration says Wed targets 4–6 solutions (see §"Multi-solution puzzles").
-- Use the rule kinds shipped in Phase 3a/3b — `all-same`, `all-different`, `alternating`, plus the existing `count`/`positional`/`adjacency`/`symmetry`/`rotational-symmetry`/`pattern-property`. Lean on `all-same` + property positional constraints to get multi-solution puzzles cheaply.
-- The block needs `dayOfWeek: 3` so `pickTemplateForDate` routes Wednesdays to it.
+**Starting a new session on Phase 3d?** Read this file end-to-end first. The key things to know:
+- Churn Dash introduces **half-square triangles** — the first real use of `slotPath(i)` returning `{type:'polygon'}`. Phase 3a refactored the renderer to switch on slot-path type via `createSlotElement()`, so the rendering pipeline is ready; Churn Dash just authors the triangle geometry.
+- The block interface is otherwise unchanged from Log Cabin (slots, `neighbors`, `symmetryPairs`, `namedSlot`, optional `ring` — Churn Dash likely returns `undefined` from `ring` again). Add `dayOfWeek: 4` so `pickTemplateForDate` routes Thursdays to it.
+- Multi-solution targets: Thu is 4–6 solutions per the calibration table in §"Multi-solution puzzles".
+- All rule kinds from Phase 3a/3b are available (`all-same`, `all-different`, `alternating`, `count`, `positional`, `adjacency`, `symmetry`, `rotational-symmetry`, `pattern-property`). Triangle slots play well with adjacency and symmetry rules.
 - `verifyTemplate(templateId, [startDate, endDate])` is the authoring tool — exposed on `window` for console use.
+- TBD — see spec §14 for Churn Dash design details (canonical 9-square layout with HSTs in 4 of the slots, pinwheel-adjacent topology).
 
 ---
 
@@ -59,6 +61,7 @@ Log Cabin's natural adjacency is *radial*: each strip's neighbors are the previo
 
 - 2026-05-18 — Log Cabin also wants a `ring(i)` accessor (`namedSlot('ring0')` returns center, `namedSlot('ring1')` returns the first ring, etc.) so rules like "ring 2 is all warm" are expressible. Add to the block interface as an optional method.
 - partial ✓ 2026-05-19 — Phase 3a added `ring(i)` as an optional method on the block interface (Rail Fence returns `undefined`). Real implementation ships with Log Cabin in Phase 3b.
+- ✓ 2026-05-20 — Phase 3c shipped the real `ring(i)` implementation on the Log Cabin block (center = `[0]`, ring1 = `[1..4]`, ring2 = `[5..8]`, ring3 = `[9..12]`). `namedSlot('ring0'..'ring3')` returns the indices; templates like Hearth use `{kind:'all-same', slot:'ring1'}` to constrain a whole ring to one fabric.
 
 ### Symmetry pairs — what's "symmetric" for radial blocks?
 
@@ -253,8 +256,11 @@ All items below shipped in commits 3769a30 through c35391b. Key state changes:
 | Tue w0   | rail-fence-three-rails-v2  | 6 |
 | Tue w1   | rail-fence-center-stripe-v2| 3 |
 | Tue w2   | rail-fence-gradient-v1     | 6 |
+| Wed w0   | log-cabin-hearth-v1        | 6 |
+| Wed w1   | log-cabin-light-dark-v1    | 6 |
+| Wed w2   | log-cabin-cross-v1         | 6 |
 
-All six pass `verifyTemplate` against their declared `solutionTarget` ranges across 2026-05-19 → 2026-08-18.
+All nine pass `verifyTemplate` against their declared `solutionTarget` ranges. Mon/Tue templates verified across 2026-05-19 → 2026-08-18 (Phase 3b); Wed templates verified across 2026-05-20 → 2027-05-19 — 365 in-range / 0 too-few / 0 too-many for each of the three Log Cabin templates (Phase 3c final cross-task check).
 
 **Deferred (not yet built):**
 
