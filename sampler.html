@@ -188,6 +188,39 @@ html, body { transition: background 0.25s, color 0.25s; }
 }
 .slot.selected { stroke: var(--accent); stroke-width: 3; }
 .slot.violation { stroke: var(--accent-bright); stroke-width: 4; stroke-dasharray: 4 3; }
+
+/* Transient banner above the board — duplicate-solution notices, etc.
+   Shown via .show; auto-hides on a timer in JS. */
+.win-notice {
+  font-family: 'Spectral', serif;
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: var(--paper-deep);
+  border: 1px solid var(--accent);
+  padding: 0.5rem 0.9rem;
+  margin: 0 auto 0.6rem;
+  border-radius: 4px;
+  text-align: center;
+  max-width: 22rem;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  height: 0;
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-width: 0;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.win-notice.show {
+  opacity: 1;
+  transform: translateY(0);
+  height: auto;
+  padding: 0.5rem 0.9rem;
+  margin-bottom: 0.6rem;
+  border-width: 1px;
+}
 .slot-label {
   font-family: 'Spectral', serif; font-size: 9px; fill: var(--ink-faint);
   pointer-events: none;
@@ -1351,6 +1384,7 @@ let game = {
 };
 
 const STAGE_HTML = `
+  <div id="winNotice" class="win-notice"></div>
   <div class="block-stage">
     <div id="blockHost"></div>
   </div>
@@ -1422,19 +1456,58 @@ function renderAll() {
   return evaluated;
 }
 
+// Element-wise equality on two fabricBySlot arrays. Returns false if
+// either is null (migrated v1 records carry fabricBySlot:null and so
+// can't be matched against — those will always read as "not a
+// duplicate" so the player can re-find them as fresh).
+function fabricsEqual(a, b) {
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+// True if the current solution matches any previously-found solution
+// for the same date.
+function isDuplicateSolution(solution, priorFinds) {
+  if (!priorFinds || priorFinds.length === 0) return false;
+  return priorFinds.some(find => fabricsEqual(solution, find.fabricBySlot));
+}
+
+// Show a transient notice above the board.
+function showWinNotice(text, durationMs) {
+  const notice = document.getElementById('winNotice');
+  if (!notice) return;
+  notice.textContent = text;
+  notice.classList.add('show');
+  clearTimeout(showWinNotice._t);
+  showWinNotice._t = setTimeout(() => {
+    notice.classList.remove('show');
+  }, durationMs || 3500);
+}
+
 // Check the win condition. Call this AFTER any user-initiated state
 // mutation (paint, erase, undo). Returns true if a win was triggered.
+//
+// Multi-solution semantics: if the current arrangement matches a
+// previously-found solution for this date, soft-refuse — show a
+// transient notice instead of firing the completion overlay. The
+// player must change at least one slot before win can re-fire.
 function checkWin() {
   if (game.locked) return false;
   const allFilled = game.fabricBySlot.every(x => x !== null);
   if (!allFilled) return false;
   const evaluated = evaluateRules(game.rules || [], game.fabricBySlot, game.block, FABRICS);
   const allSatisfied = evaluated.every(r => r.satisfied);
-  if (allSatisfied) {
-    triggerWin();
-    return true;
+  if (!allSatisfied) return false;
+  if (isDuplicateSolution(game.fabricBySlot, game.solutionsFound)) {
+    showWinNotice("You've already found this pattern. Try a different one!");
+    return false;
   }
-  return false;
+  triggerWin();
+  return true;
 }
 
 function renderRules(evaluated) {
@@ -2127,6 +2200,13 @@ function recordCompletion() {
   }
   data.totalSolutionsFound = (data.totalSolutionsFound || 0) + 1;
   saveStorage(data);
+  // Keep the in-memory game state in sync so the next find-another
+  // attempt's duplicate check sees this find without a reload.
+  if (!game.solutionsFound) game.solutionsFound = [];
+  game.solutionsFound.push(newFind);
+  if (game.totalSolutions == null) {
+    game.totalSolutions = data.byDate[playDate].totalSolutions;
+  }
 }
 
 function startDailyGame(dateStr, opts) {
