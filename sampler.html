@@ -587,9 +587,10 @@ html, body { transition: background 0.25s, color 0.25s; }
     <div class="go-mark">— Daily Complete —</div>
     <div class="go-title">Come Back Tomorrow</div>
     <div class="go-rule"></div>
-    <div class="go-sub">You've already pieced today's block. New puzzle at midnight (Eastern).</div>
+    <div class="go-sub" id="alreadyPlayedSub">You've already pieced today's block. New puzzle at midnight (Eastern).</div>
     <div class="go-stats" id="alreadyStats"></div>
-    <div class="intro-actions-row" style="margin-top:1.2rem">
+    <div class="intro-actions-row" style="margin-top:1.2rem; gap:0.5rem; flex-wrap:wrap;">
+      <button class="btn" id="alreadyFindAnotherBtn" onclick="findAnotherPattern()" style="display:none">Find another pattern</button>
       <button class="btn-secondary" onclick="openArchive()">Archive</button>
     </div>
   </div>
@@ -2165,11 +2166,24 @@ function closeCompletion() {
   showAlreadyPlayed(stored);
 }
 
-// Stub — T19 wires this to clear the board, restart the timer, and
-// keep game.solutionsFound for duplicate detection on the next find.
+// Clear the board for a fresh attempt while keeping the
+// already-found solutions in game.solutionsFound so duplicate
+// detection at the next win works correctly.
+//
+// Called from both the completion overlay and the alreadyPlayed
+// overlay — works the same way either place.
 function findAnotherPattern() {
-  console.log('findAnotherPattern: stub — T19 will implement');
-  closeCompletion();
+  if (!game.block) return; // nothing loaded; safety net
+  document.getElementById('completion').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  game.fabricBySlot = new Array(game.block.slotCount).fill(null);
+  game.history = [];
+  game.locked = false;
+  game.solved = false;
+  game.findingAnother = true; // recordCompletion will treat next find as a multi-solve append
+  game.selectedFabric = game.paletteIds && game.paletteIds[0] || null;
+  renderAll();
+  startPlay();
 }
 
 // Record a win as a "find" against the day's entry. First find on a
@@ -2328,6 +2342,27 @@ function beginDaily() {
 
 function showAlreadyPlayed(stored) {
   document.getElementById('intro').classList.remove('show');
+  // Multi-solution-aware subtitle + Find Another CTA. Reads the current
+  // game.playDate so archive replays display the right progress too.
+  const playDate = game.playDate || todayStr();
+  const entry = stored.byDate && stored.byDate[playDate];
+  const N = (entry && entry.solutionsFound && entry.solutionsFound.length) || 0;
+  const M = entry ? entry.totalSolutions : null;
+  const blockName = (entry && BLOCKS[entry.block] && BLOCKS[entry.block].displayName) || (game.block && game.block.displayName) || 'block';
+  const sub = document.getElementById('alreadyPlayedSub');
+  if (sub) {
+    if (!M || M === 1) {
+      sub.textContent = "You've already pieced today's block. New puzzle at midnight (Eastern).";
+    } else if (N < M) {
+      sub.textContent = `You've found ${N} of ${M} patterns for today's ${blockName}. Try another below, or come back tomorrow for a new block.`;
+    } else {
+      sub.textContent = `You've found all ${M} patterns for today's ${blockName}. Come back tomorrow for a new block.`;
+    }
+  }
+  const findBtn = document.getElementById('alreadyFindAnotherBtn');
+  if (findBtn) {
+    findBtn.style.display = (M && N < M) ? '' : 'none';
+  }
   const host = document.getElementById('alreadyStats');
   host.innerHTML = '';
   [
@@ -2527,6 +2562,7 @@ window.game = game;
 window.checkWin = checkWin;
 window.recordCompletion = recordCompletion;
 window.migrateV1ToV2 = migrateV1ToV2;
+window.showAlreadyPlayed = showAlreadyPlayed;
 </script>
 </body>
 </html>
