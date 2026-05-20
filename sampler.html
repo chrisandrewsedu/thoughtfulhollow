@@ -558,6 +558,7 @@ html, body { transition: background 0.25s, color 0.25s; }
     <div class="go-stats" id="completionStats"></div>
     <div class="share-block" id="completionShare"></div>
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center">
+      <button class="btn" id="findAnotherBtn" onclick="findAnotherPattern()" style="display:none">Find another pattern</button>
       <button class="btn" onclick="closeCompletion()">Close</button>
     </div>
   </div>
@@ -2036,6 +2037,11 @@ function showCompletion() {
   recordCompletion();
   const data = loadStorage();
   const playDate = game.playDate || todayStr();
+  const entry = data.byDate && data.byDate[playDate];
+  // N = which find this was (1-indexed); M = total solutions the puzzle
+  // admits. M can be null for migrated v1 records (we didn't know then).
+  const N = (entry && entry.solutionsFound && entry.solutionsFound.length) || 1;
+  const M = entry ? entry.totalSolutions : null;
   const d = new Date(playDate + 'T12:00:00Z');
   const dayName = d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'America/New_York' });
   const blockName = game.block.displayName;
@@ -2047,13 +2053,41 @@ function showCompletion() {
     if (bold) node.textContent = text;
     return node;
   };
-  sub.appendChild(document.createTextNode('You solved a '));
-  sub.appendChild(make(dayName, true));
-  sub.appendChild(document.createTextNode(' '));
-  sub.appendChild(make(blockName, true));
-  sub.appendChild(document.createTextNode(' in '));
-  sub.appendChild(make(time, true));
-  sub.appendChild(document.createTextNode('.'));
+  // Headline copy varies with multi-solution state:
+  //  - Single-solution puzzle (or unknown M): legacy wording.
+  //  - Multi-solution, found N of M with more to go: "pattern N of M".
+  //  - Multi-solution, found the last one (N === M): "all M patterns".
+  if (!M || M === 1) {
+    sub.appendChild(document.createTextNode('You solved a '));
+    sub.appendChild(make(dayName, true));
+    sub.appendChild(document.createTextNode(' '));
+    sub.appendChild(make(blockName, true));
+    sub.appendChild(document.createTextNode(' in '));
+    sub.appendChild(make(time, true));
+    sub.appendChild(document.createTextNode('.'));
+  } else if (N < M) {
+    sub.appendChild(document.createTextNode('You found '));
+    sub.appendChild(make(`pattern ${N} of ${M}`, true));
+    sub.appendChild(document.createTextNode(' — a '));
+    sub.appendChild(make(dayName, true));
+    sub.appendChild(document.createTextNode(' '));
+    sub.appendChild(make(blockName, true));
+    sub.appendChild(document.createTextNode(' in '));
+    sub.appendChild(make(time, true));
+    sub.appendChild(document.createTextNode('.'));
+  } else {
+    // N === M
+    sub.appendChild(document.createTextNode('You found '));
+    sub.appendChild(make(`all ${M} patterns`, true));
+    sub.appendChild(document.createTextNode(' — today\'s '));
+    sub.appendChild(make(blockName, true));
+    sub.appendChild(document.createTextNode(' is complete.'));
+  }
+  // Show "Find another pattern" CTA only when more solutions remain.
+  const findAnotherBtn = document.getElementById('findAnotherBtn');
+  if (findAnotherBtn) {
+    findAnotherBtn.style.display = (M && N < M) ? '' : 'none';
+  }
   const streak = data.streak || 0;
   const pill = document.getElementById('completionStreak');
   if (streak > 0) {
@@ -2129,6 +2163,13 @@ function closeCompletion() {
   // a clear path forward (stats, archive, no dead-end on a locked board).
   const stored = loadStorage();
   showAlreadyPlayed(stored);
+}
+
+// Stub — T19 wires this to clear the board, restart the timer, and
+// keep game.solutionsFound for duplicate detection on the next find.
+function findAnotherPattern() {
+  console.log('findAnotherPattern: stub — T19 will implement');
+  closeCompletion();
 }
 
 // Record a win as a "find" against the day's entry. First find on a
