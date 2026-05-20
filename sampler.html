@@ -1539,6 +1539,28 @@ const TEMPLATES = [
       { kind: 'symmetry',   axis: 'horizontal', decorative: true },
     ],
   },
+
+  // Template C: "Night" — inverts Bowtie. Dark field, light dash. The
+  // foreground motif reads as a stained-glass effect against a dark
+  // ground. The decorative rotational-symmetry rule teaches the player
+  // about the block's 180° symmetry (always true here by construction).
+  //
+  // Six solutions: 3 darks × 2 lights.
+  {
+    id: 'churn-dash-night-v1',
+    block: 'churn-dash',
+    paletteFamily: 'winter-forest',
+    paletteSize: 7,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: {},
+    rules: [
+      { kind: 'all-same',            slot: 'field' },
+      { kind: 'positional',          slot: 'field', constraint: { value: 'dark' } },
+      { kind: 'all-same',            slot: 'dash' },
+      { kind: 'positional',          slot: 'dash',  constraint: { value: 'light' } },
+      { kind: 'rotational-symmetry', order: 2, decorative: true },
+    ],
+  },
 ];
 
 function resolveRoleRefs(rule, fabricRoles) {
