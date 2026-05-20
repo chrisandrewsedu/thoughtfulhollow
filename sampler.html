@@ -1488,6 +1488,34 @@ const TEMPLATES = [
       { kind: 'positional', slot: 'eastWestLogs',   constraint: { value: 'medium' } },
     ],
   },
+
+  // ─── Churn Dash templates (Phase 3d) ───
+  // All three use the winter-forest palette and target 4-6 solutions.
+  // The decorative rule on each surfaces a different symmetry property
+  // of the X-bowtie block; they're true by construction so they never
+  // constrain the solver or trigger violation highlights.
+
+  // Template A: "Bowtie" — canonical Churn Dash. Field (center + bgs +
+  // outer triangles) all one light fabric. Dash (handles + inner
+  // triangles, the visible motif) all one dark fabric. The contrast
+  // does the heavy lifting visually.
+  //
+  // Six solutions: 2 lights (SNOW, OAT) × 3 darks (PINE, CHARCOAL, OXBLOOD).
+  {
+    id: 'churn-dash-bowtie-v1',
+    block: 'churn-dash',
+    paletteFamily: 'winter-forest',
+    paletteSize: 7,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: {},
+    rules: [
+      { kind: 'all-same',   slot: 'field' },
+      { kind: 'positional', slot: 'field', constraint: { value: 'light' } },
+      { kind: 'all-same',   slot: 'dash' },
+      { kind: 'positional', slot: 'dash',  constraint: { value: 'dark' } },
+      { kind: 'symmetry',   axis: 'vertical', decorative: true },
+    ],
+  },
 ];
 
 function resolveRoleRefs(rule, fabricRoles) {
