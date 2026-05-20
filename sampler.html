@@ -1249,6 +1249,28 @@ const TEMPLATES = [
       { kind: 'positional', slot: 'ring3',  constraint: { value: 'dark' } },
     ],
   },
+  // Log Cabin Template B: "Light/Dark Diagonal" — the classic two-tone
+  // pattern. Cream anchors the center; the northeast diagonal half (N
+  // and E logs across all three rings, 6 slots) is one warm fabric; the
+  // southwest half (S and W logs, 6 slots) is one cool fabric. The
+  // diagonal split is the signature Log Cabin look.
+  //
+  // Six solutions: 1 center × 3 warm × 2 cool.
+  {
+    id: 'log-cabin-light-dark-v1',
+    block: 'log-cabin',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: { CENTER: 'F_CREAM' },
+    rules: [
+      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:CENTER' } },
+      { kind: 'all-same',   slot: 'northeastSide' },
+      { kind: 'positional', slot: 'northeastSide', constraint: { hue: 'warm' } },
+      { kind: 'all-same',   slot: 'southwestSide' },
+      { kind: 'positional', slot: 'southwestSide', constraint: { hue: 'cool' } },
+    ],
+  },
 ];
 
 function resolveRoleRefs(rule, fabricRoles) {
