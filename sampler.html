@@ -1222,6 +1222,31 @@ const TEMPLATES = [
       { kind: 'positional', slot: 'bottomRails', constraint: { value: 'dark' } },
     ],
   },
+
+  // Log Cabin Template A: "Hearth" — concentric ring values. The center
+  // is a warm hearth, ring 1 is a cream halo around it, ring 2 is the
+  // cool middle band (only forest qualifies as cool+medium), and ring 3
+  // is dark (indigo or walnut). The player chooses which warm fabric
+  // anchors the center and which dark fabric forms the outer wall.
+  //
+  // Six solutions: 3 warm × 1 light × 1 cool-medium × 2 dark.
+  {
+    id: 'log-cabin-hearth-v1',
+    block: 'log-cabin',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: {},
+    rules: [
+      { kind: 'positional', slot: 'center', constraint: { hue: 'warm' } },
+      { kind: 'all-same',   slot: 'ring1' },
+      { kind: 'positional', slot: 'ring1',  constraint: { value: 'light' } },
+      { kind: 'all-same',   slot: 'ring2' },
+      { kind: 'positional', slot: 'ring2',  constraint: { hue: 'cool', value: 'medium' } },
+      { kind: 'all-same',   slot: 'ring3' },
+      { kind: 'positional', slot: 'ring3',  constraint: { value: 'dark' } },
+    ],
+  },
 ];
 
 function resolveRoleRefs(rule, fabricRoles) {
