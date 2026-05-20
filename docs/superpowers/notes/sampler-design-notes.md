@@ -232,6 +232,20 @@ Sampler shifted from "every puzzle has exactly one solution" to "every puzzle is
 
 These are starting targets; revisit after a few weeks of play. The Spelling Bee reference frame is right — the satisfaction comes from each new find feeling earned, not from completeness. Don't let any single puzzle balloon past 6.
 
+**Variety of structure, not just fabric** — *quality bar for future template authoring.* (2026-05-20, surfaced playtesting Phase 3d.)
+
+The shipped Phase 3a–3d templates lean heavily on **`all-same` + positional property** — e.g. "all dash slots same fabric AND all dark." Within a single template, every solution is then *structurally identical* and only the fabric *identity* changes: solution 1 has pine in the dash, solution 2 has charcoal in the dash, etc. Players describe this as boring — finding solution 2 feels like a fabric swap, not a new design.
+
+For Phase 3e (Sawtooth Star) onward, deliberately seek templates whose solutions differ *visually as compositions*, not just by fabric label. Tools available:
+
+- **Drop `all-same` on at least one group** — keep the positional property (e.g. "all dash slots dark") so the *constraint* still holds, but let individual dash slots independently pick from the qualifying set. Each dash slot becomes its own choice; solutions vary in *which dark goes where*.
+- **`all-different` on a small group** — forces 3–4 distinct fabrics into a group, so the *arrangement* (which fabric occupies which slot) becomes the meaningful variation. Phase 3b shipped this rule kind but no template uses it.
+- **`alternating` between two constraint classes** — produces solutions where the alternation is fixed but the specific fabrics on each alternation step vary. Also shipped but unused.
+- **Count-based without positional pinning** — e.g. "exactly 2 dark slots in the dash" — admits a family of solutions that differ in *which 2 slots* are dark, not just in fabric ID.
+- **Mixed-discipline groups** — e.g. all-same on outer triangles + all-different on inner triangles. The two halves of the X look different in every solution.
+
+Defer revising existing Mon–Thu templates; revisit during a content-pass after Phase 3e or Phase 6. New templates (Sawtooth Star, Dresden Plate, Sunday) should aim for at least one structurally-varying solution group per template.
+
 **Engine surface:**
 
 - Templates declare `solutionTarget: { min, max }`. Default (omit the field) is `{min:1, max:1}` — legacy uniqueness.
