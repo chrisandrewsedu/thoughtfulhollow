@@ -935,81 +935,69 @@ const TEMPLATES = [
     ],
   },
 
-  // Rail Fence Template A: "Three Rails" — the canonical Rail Fence
-  // pattern. Three different fabrics, each one occupying a specific
-  // rank (top/middle/bottom rail) across all 4 squares. The basket-
-  // weave illusion emerges because the same A→B→C ordering appears in
-  // every square, perpendicular between adjacent squares.
+  // Rail Fence Template A: "Three Rails (Warm / Cool)" — the canonical
+  // A-B-C rail-fence pattern with each rank constrained by hue. The
+  // middle rail is always cream; the top is some warm fabric; the
+  // bottom is some cool fabric. Per-rank all-same forces each rank
+  // monochrome (so the basket-weave reads cleanly).
   //
-  // Cream anchors the middle rail; the top and bottom rails are
-  // date-rotated so each Tuesday's block displays a different colour
-  // story along the rails.
+  // Six solutions: 3 warm choices × 2 cool choices.
   {
-    id: 'rail-fence-three-rails-v1',
+    id: 'rail-fence-three-rails-v2',
     block: 'rail-fence',
     paletteFamily: 'heritage-warm',
     paletteSize: 6,
-    fabricRoles: {
-      RAIL_TOP: null,
-      RAIL_MID: 'F_CREAM',
-      RAIL_BOT: null,
-    },
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: { CENTER: 'F_CREAM' },
     rules: [
-      { kind: 'positional', slot: 'topRails',    constraint: { fabricId: 'ROLE:RAIL_TOP' } },
-      { kind: 'positional', slot: 'middleRails', constraint: { fabricId: 'ROLE:RAIL_MID' } },
-      { kind: 'positional', slot: 'bottomRails', constraint: { fabricId: 'ROLE:RAIL_BOT' } },
-    ],
-  },
-
-  // Rail Fence Template B: "Center Stripe" — a palindromic two-fabric
-  // variation. Top and bottom rails share one fabric (the "frame");
-  // the middle rail is a contrasting accent. Each square reads as
-  // A-B-A around the center stripe.
-  //
-  // Frame is date-rotated; center is anchored to cream so the puzzle
-  // always has a clean light through-line.
-  {
-    id: 'rail-fence-center-stripe-v1',
-    block: 'rail-fence',
-    paletteFamily: 'heritage-warm',
-    paletteSize: 6,
-    fabricRoles: {
-      FRAME:  null,
-      CENTER: 'F_CREAM',
-    },
-    rules: [
-      { kind: 'positional', slot: 'topRails',    constraint: { fabricId: 'ROLE:FRAME' } },
-      { kind: 'positional', slot: 'bottomRails', constraint: { fabricId: 'ROLE:FRAME' } },
       { kind: 'positional', slot: 'middleRails', constraint: { fabricId: 'ROLE:CENTER' } },
+      { kind: 'all-same',   slot: 'topRails' },
+      { kind: 'positional', slot: 'topRails',    constraint: { hue: 'warm' } },
+      { kind: 'all-same',   slot: 'bottomRails' },
+      { kind: 'positional', slot: 'bottomRails', constraint: { hue: 'cool' } },
     ],
   },
 
-  // Rail Fence Template C: "Mirror Pairs" — every slot equals its
-  // 180°-rotated partner. The player paints 6 stripes (the upper-half
-  // squares: TL + TR); the rotational-symmetry rule forces the lower
-  // half (BL + BR) to match. The center stripe of TR is anchored to
-  // cream; the other five pair-anchors are date-rotated.
+  // Rail Fence Template B: "One-Frame Center" — the eight outer-rail
+  // stripes all share one warm fabric (the "frame"); the four middle
+  // rails are cream. Palindromic A-B-A reading per square.
+  //
+  // Three solutions: one per warm fabric (madder, weld, walnut).
   {
-    id: 'rail-fence-mirror-pairs-v1',
+    id: 'rail-fence-center-stripe-v2',
     block: 'rail-fence',
     paletteFamily: 'heritage-warm',
     paletteSize: 6,
-    fabricRoles: {
-      CENTER: 'F_CREAM',
-      P0: null, P1: null, P2: null, P3: null, P5: null,
-    },
+    solutionTarget: { min: 2, max: 4 },
+    fabricRoles: { CENTER: 'F_CREAM' },
     rules: [
-      // Headline rule: 2-fold rotational symmetry. Pairs are (0,11)
-      // (1,10)(2,9)(3,8)(4,7)(5,6).
-      { kind: 'rotational-symmetry', order: 2 },
-      // Pin the upper half (squares TL and TR); the lower half follows
-      // from the rotation rule.
-      { kind: 'positional', slot: 0, constraint: { fabricId: 'ROLE:P0' } },
-      { kind: 'positional', slot: 1, constraint: { fabricId: 'ROLE:P1' } },
-      { kind: 'positional', slot: 2, constraint: { fabricId: 'ROLE:P2' } },
-      { kind: 'positional', slot: 3, constraint: { fabricId: 'ROLE:P3' } },
-      { kind: 'positional', slot: 4, constraint: { fabricId: 'ROLE:CENTER' } },
-      { kind: 'positional', slot: 5, constraint: { fabricId: 'ROLE:P5' } },
+      { kind: 'positional', slot: 'middleRails', constraint: { fabricId: 'ROLE:CENTER' } },
+      { kind: 'all-same',   slot: 'frameRails' },
+      { kind: 'positional', slot: 'frameRails',  constraint: { hue: 'warm' } },
+    ],
+  },
+
+  // Rail Fence Template C: "Light → Medium → Dark Gradient" — value
+  // gradient across the three ranks. Top rails light, middle medium,
+  // bottom dark; each rank monochrome via all-same. The light fabric
+  // is the constrained "anchor clue" (only cream is light in the
+  // current palette), which then unlocks the medium and dark choices.
+  //
+  // Six solutions: 1 light × 3 medium × 2 dark.
+  {
+    id: 'rail-fence-gradient-v1',
+    block: 'rail-fence',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: {},
+    rules: [
+      { kind: 'all-same',   slot: 'topRails' },
+      { kind: 'positional', slot: 'topRails',    constraint: { value: 'light' } },
+      { kind: 'all-same',   slot: 'middleRails' },
+      { kind: 'positional', slot: 'middleRails', constraint: { value: 'medium' } },
+      { kind: 'all-same',   slot: 'bottomRails' },
+      { kind: 'positional', slot: 'bottomRails', constraint: { value: 'dark' } },
     ],
   },
 ];
