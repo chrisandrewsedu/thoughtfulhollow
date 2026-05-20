@@ -61,7 +61,7 @@ Log Cabin's natural adjacency is *radial*: each strip's neighbors are the previo
 
 - 2026-05-18 — Log Cabin also wants a `ring(i)` accessor (`namedSlot('ring0')` returns center, `namedSlot('ring1')` returns the first ring, etc.) so rules like "ring 2 is all warm" are expressible. Add to the block interface as an optional method.
 - partial ✓ 2026-05-19 — Phase 3a added `ring(i)` as an optional method on the block interface (Rail Fence returns `undefined`). Real implementation ships with Log Cabin in Phase 3b.
-- ✓ 2026-05-20 — Phase 3c shipped the real `ring(i)` implementation on the Log Cabin block (center = `[0]`, ring1 = `[1..4]`, ring2 = `[5..8]`, ring3 = `[9..12]`). `namedSlot('ring0'..'ring3')` returns the indices; templates like Hearth use `{kind:'all-same', slot:'ring1'}` to constrain a whole ring to one fabric.
+- ✓ 2026-05-20 — Phase 3c shipped the real `ring(i)` implementation on the Log Cabin block: `ring(0)=0`, `ring(1..4)=1`, `ring(5..8)=2`, `ring(9..12)=3`. Slot 0 is also reachable via `namedSlot('center')`; the three log rings are exposed as `namedSlot('ring1'|'ring2'|'ring3')`. Templates like Hearth use `{kind:'all-same', slot:'ring1'}` to constrain a whole ring to one fabric.
 
 ### Symmetry pairs — what's "symmetric" for radial blocks?
 
