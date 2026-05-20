@@ -1271,6 +1271,27 @@ const TEMPLATES = [
       { kind: 'positional', slot: 'southwestSide', constraint: { hue: 'cool' } },
     ],
   },
+  // Log Cabin Template C: "Cross" — orthogonal cross-axis pattern. Cream
+  // center; the six north-south logs (top + bottom across all three
+  // rings) share one dark fabric; the six east-west logs share one
+  // medium fabric. Reads as a plus sign through the block.
+  //
+  // Six solutions: 1 center × 2 dark × 3 medium.
+  {
+    id: 'log-cabin-cross-v1',
+    block: 'log-cabin',
+    paletteFamily: 'heritage-warm',
+    paletteSize: 6,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: { CENTER: 'F_CREAM' },
+    rules: [
+      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:CENTER' } },
+      { kind: 'all-same',   slot: 'northSouthLogs' },
+      { kind: 'positional', slot: 'northSouthLogs', constraint: { value: 'dark' } },
+      { kind: 'all-same',   slot: 'eastWestLogs' },
+      { kind: 'positional', slot: 'eastWestLogs',   constraint: { value: 'medium' } },
+    ],
+  },
 ];
 
 function resolveRoleRefs(rule, fabricRoles) {
