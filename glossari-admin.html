@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glossari — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fascinate&family=Spectral:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #ffffff;
+  --paper-deep: #f7f7f5;
+  --paper-shadow: #e8e8e4;
+  --ink: #111111;
+  --ink-soft: #444444;
+  --ink-faint: #888888;
+  --accent: #3a5a3a;
+  --accent-bright: #4f7a4f;
+  --border: #d8d8d4;
+}
+:root[data-theme="dark"] {
+  --paper: #111111;
+  --paper-deep: #181818;
+  --paper-shadow: #222222;
+  --ink: #f0f0ee;
+  --ink-soft: #c0c0bc;
+  --ink-faint: #787878;
+  --accent: #6a9870;
+  --accent-bright: #88b48f;
+  --border: #2c2c2c;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--paper); color: var(--ink); font-family: 'Spectral', serif; }
+.app { max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.4rem; }
+h1 { font-family: 'Fascinate', serif; font-weight: 400; font-size: 1.6rem; color: var(--accent); }
+.subtitle { color: var(--ink-faint); font-size: 0.9rem; }
+
+.hint {
+  color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem;
+  padding: 0.6rem 0.85rem; background: var(--paper-deep);
+  border-left: 3px solid var(--accent); border-radius: 2px;
+}
+.hint code { font-family: ui-monospace, Menlo, monospace; background: var(--paper-shadow); padding: 0 0.3em; border-radius: 2px; }
+
+.error {
+  color: #c01818; background: #fff5f5; border-left-color: #c01818;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.card {
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--paper-deep); padding: 0.85rem;
+  display: flex; flex-direction: column; gap: 0.6rem;
+}
+.card-frame {
+  width: 100%; aspect-ratio: 4 / 5;
+  border-radius: 4px; overflow: hidden;
+  background: var(--paper);
+  border: 1px solid var(--border);
+}
+.card-frame iframe { width: 100%; height: 100%; border: none; display: block; }
+
+.card-meta { display: flex; flex-direction: column; gap: 0.2rem; }
+.card-num { color: var(--ink-faint); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.card-name { font-weight: 600; font-size: 1.02rem; color: var(--ink); }
+.card-slug { color: var(--ink-faint); font-size: 0.75rem; font-family: ui-monospace, Menlo, monospace; }
+
+.card-actions { display: flex; gap: 0.5rem; margin-top: 0.2rem; }
+.play-btn, .open-btn {
+  flex: 1; text-align: center; padding: 0.5rem 0.75rem;
+  border-radius: 4px; font-family: 'Spectral', serif; font-size: 0.9rem;
+  text-decoration: none; cursor: pointer; border: 1px solid transparent;
+  transition: background 0.12s ease;
+}
+.play-btn {
+  background: var(--accent); color: var(--paper);
+}
+.play-btn:hover { background: var(--accent-bright); }
+.open-btn {
+  background: transparent; color: var(--ink-soft); border-color: var(--border);
+}
+.open-btn:hover { background: var(--paper-shadow); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>Glossari</h1>
+    <span class="subtitle">Admin — all puzzles</span>
+  </header>
+  <div class="hint" id="hint">
+    Each card shows the puzzle in its <i>solved</i> state — all four clue cards revealed with definitions and assembled parts. <b>Play</b> launches the puzzle blank in a new tab. <b>Reveal</b> opens the solved preview full-screen.
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+function slugify(s) {
+  return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function cardFor(puzzle, idx) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  const slug = slugify(puzzle.name);
+  card.innerHTML = `
+    <div class="card-frame">
+      <iframe src="glossari.html?puzzle=${idx}&preview=1" loading="lazy" title="${puzzle.name} preview"></iframe>
+    </div>
+    <div class="card-meta">
+      <div class="card-num">No. ${String(idx + 1).padStart(2, '0')}</div>
+      <div class="card-name">${puzzle.name}</div>
+      <div class="card-slug">?puzzle=${slug}</div>
+    </div>
+    <div class="card-actions">
+      <a class="play-btn" href="glossari.html?puzzle=${idx}" target="_blank" rel="noopener">Play</a>
+      <a class="open-btn" href="glossari.html?puzzle=${idx}&preview=1" target="_blank" rel="noopener">Reveal</a>
+    </div>
+  `;
+  return card;
+}
+
+// Source of truth: pull the puzzle list from the same glossari.json the
+// main game loads. Keeps the admin page in sync without manual upkeep.
+fetch('glossari.json')
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(puzzles => {
+    const grid = document.getElementById('grid');
+    puzzles.forEach((p, i) => grid.appendChild(cardFor(p, i)));
+    document.getElementById('hint').innerHTML += ` &nbsp;<span style="color:var(--ink-faint)">(${puzzles.length} puzzles loaded)</span>`;
+  })
+  .catch(err => {
+    const hint = document.getElementById('hint');
+    hint.className = 'hint error';
+    hint.innerHTML = `Could not load <code>glossari.json</code>: ${err.message}. Make sure you're serving this page over HTTP (<code>python3 -m http.server 8000</code> in this folder), not opening it via file://.`;
+  });
+
+// Respect system theme.
+if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  document.documentElement.setAttribute('data-theme', 'dark');
+}
+</script>
+
+</body>
+</html>

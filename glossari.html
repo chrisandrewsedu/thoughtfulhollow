@@ -744,6 +744,26 @@ html, body { transition: background 0.25s, color 0.25s; }
   transition: opacity 0.15s;
 }
 .page-footer-link:hover { opacity: 1; }
+
+/* Admin preview mode — used by glossari-admin.html iframes.
+   ?preview=1 strips the page down to just the solved clue grid + the
+   puzzle theme name, so the admin page can show all 16 puzzles'
+   solved state at a glance. Not user-facing; not linked from the main UI. */
+body.preview-mode .header,
+body.preview-mode .badge,
+body.preview-mode .tile-bank,
+body.preview-mode .submit-preview,
+body.preview-mode .controls,
+body.preview-mode .section-label,
+body.preview-mode .page-footer,
+body.preview-mode .overlay { display: none !important; }
+body.preview-mode .subbar { padding: 0.4rem 0.8rem; border: none; }
+body.preview-mode .subbar-date,
+body.preview-mode .timer { display: none; }
+body.preview-mode .puzzle-name { text-align: center; }
+body.preview-mode .main { padding: 0.4rem 0.6rem; max-width: none; }
+body.preview-mode .clues-grid { gap: 0.4rem; }
+body.preview-mode .clue-card { pointer-events: none; cursor: default; }
 </style>
 </head>
 <body>
@@ -911,10 +931,50 @@ const CLUE_META = {
 
 let PUZZLES = [];
 
+// Admin/dev override: ?puzzle=<idx-or-name> in the URL forces a specific
+// puzzle regardless of date routing. Used by glossari-admin.html to
+// browse and play any puzzle on demand. Names are slugified for matching
+// (e.g. ?puzzle=fault-faithlessness). Returns null if no override or
+// the requested puzzle doesn't exist.
+function slugifyName(s) {
+  return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+function forcedPuzzleIdx() {
+  if (typeof location === 'undefined' || !location.search) return null;
+  const raw = new URLSearchParams(location.search).get('puzzle');
+  if (raw == null) return null;
+  const n = Number(raw);
+  if (Number.isInteger(n) && n >= 0 && n < PUZZLES.length) return n;
+  const slug = slugifyName(raw);
+  const byName = PUZZLES.findIndex(p => slugifyName(p.name) === slug);
+  return byName >= 0 ? byName : null;
+}
+function isPreviewMode() {
+  if (typeof location === 'undefined' || !location.search) return false;
+  return new URLSearchParams(location.search).get('preview') === '1';
+}
+
+// Boot path for ?preview=1: skip intro/tutorial entirely, render the
+// forced puzzle with every set marked solved so all definitions and
+// assembled parts are visible. Chrome hidden via .preview-mode CSS.
+function bootPreview() {
+  document.body.classList.add('preview-mode');
+  state.mode = 'preview';
+  state.playDate = todayStr();
+  state.puzzleIdx = forcedPuzzleIdx() ?? 0;
+  resetGameState();
+  loadPuzzle();
+  state.solvedSets = state.solvedSets.map(_ => true);
+  state.locked = true;
+  stopTimer();
+  renderAll();
+}
+
 fetch('glossari.json')
   .then(r => { if (!r.ok) throw new Error('Failed to load puzzles'); return r.json(); })
   .then(data => {
     PUZZLES = data;
+    if (isPreviewMode()) { bootPreview(); return; }
     let seenTutorial = false;
     try { seenTutorial = localStorage.getItem('tutorial_seen') === '1'; } catch (e) {}
     updateStartBtn();
@@ -1049,7 +1109,10 @@ function startDailyGame(dateStr, opts) {
   state.mode = 'daily';
   state.playDate = dateStr;
   state.replay = replay;
-  state.puzzleIdx = dailyIndex(dateStr);
+  // Honor ?puzzle=<idx-or-name> override; fall through to date routing
+  // if the param is missing or doesn't resolve to a known puzzle.
+  const forced = forcedPuzzleIdx();
+  state.puzzleIdx = forced != null ? forced : dailyIndex(dateStr);
   resetGameState();
   document.getElementById('intro').classList.remove('show');
   document.getElementById('alreadyPlayed').classList.remove('show');
