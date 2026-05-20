@@ -8,3 +8,8 @@ node_modules/
 
 # Throwaway prototypes from the design phase — not shipped content.
 sketches/
+
+# Local-only dev admin pages (template previews + force-route URLs).
+# Recreate by reading docs/superpowers/plans/ or copying from another
+# machine — pages reference sampler.html/glossari.html in the repo root.
+admin/
