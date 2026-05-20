@@ -848,6 +848,8 @@ const BLOCKS = {
         topRails:    [0, 3, 6, 9],
         middleRails: [1, 4, 7, 10],
         bottomRails: [2, 5, 8, 11],
+        // Top + bottom rails together — the "frame" around the middle.
+        frameRails:  [0, 2, 3, 5, 6, 8, 9, 11],
         // Per-orientation groups (handy for direction-aware rules).
         verticalSquares:   [0, 1, 2, 9, 10, 11], // TL + BR
         horizontalSquares: [3, 4, 5, 6, 7, 8],   // TR + BL
@@ -1117,27 +1119,42 @@ function solve(block, paletteIds, rules, fabricsById, cap) {
   return { solutionCount: solutions.length, samples: solutions };
 }
 
+// Verify a template across a date range. Each date instantiates the
+// template with its date-seeded roles, then the solver counts solutions
+// up to cap = solutionTarget.max + 1 (so "more than max" is detectable).
+//
+// Templates declare their target as `solutionTarget: { min, max }`.
+// Templates without it default to { min: 1, max: 1 } — the legacy
+// uniqueness requirement.
+//
+// Output: "X in-range / Y too-few / Z too-many (of N)" plus the first
+// few offending dates if any.
 function verifyTemplate(templateId, dateRange) {
   const template = TEMPLATES.find(t => t.id === templateId);
   if (!template) { console.error('No template:', templateId); return; }
   dateRange = dateRange || ['2026-06-01', '2026-06-30'];
   const [start, end] = dateRange;
+  const target = template.solutionTarget || { min: 1, max: 1 };
+  const cap = target.max + 1;
   const results = [];
   let d = start;
   while (d <= end) {
     const instance = instantiateTemplate(template, d);
     const block = BLOCKS[instance.template.block];
-    const result = solve(block, instance.paletteIds, instance.rules, FABRICS, 2);
+    const result = solve(block, instance.paletteIds, instance.rules, FABRICS, cap);
     results.push({ date: d, solutionCount: result.solutionCount });
     d = etDateOffset(d, 1);
   }
-  const unique = results.filter(r => r.solutionCount === 1).length;
-  const none = results.filter(r => r.solutionCount === 0).length;
-  const many = results.filter(r => r.solutionCount >= 2).length;
-  console.log(`Template ${templateId}: ${unique} unique / ${none} none / ${many} multiple (of ${results.length})`);
-  if (none > 0 || many > 0) {
-    console.log('First failing dates:',
-      results.filter(r => r.solutionCount !== 1).slice(0, 5).map(r => `${r.date} (${r.solutionCount})`).join(', '));
+  const inRange = results.filter(r => r.solutionCount >= target.min && r.solutionCount <= target.max).length;
+  const tooFew = results.filter(r => r.solutionCount < target.min).length;
+  const tooMany = results.filter(r => r.solutionCount > target.max).length;
+  console.log(`Template ${templateId} (target ${target.min}-${target.max}): ${inRange} in-range / ${tooFew} too-few / ${tooMany} too-many (of ${results.length})`);
+  if (tooFew > 0 || tooMany > 0) {
+    const offenders = results.filter(r => r.solutionCount < target.min || r.solutionCount > target.max);
+    const hitCap = offenders.some(r => r.solutionCount === cap);
+    console.log('First out-of-range dates:',
+      offenders.slice(0, 5).map(r => `${r.date} (${r.solutionCount === cap ? '≥' + cap : r.solutionCount})`).join(', '));
+    if (hitCap) console.log(`(solver stopped at cap=${cap}; ≥${cap} means "at least this many solutions exist")`);
   }
   return results;
 }
@@ -1721,6 +1738,123 @@ const RULE_KINDS = {
         satisfied,
         violatingSlots: violating,
         // Assigned-slot violations are permanent in the solver context.
+        stillPossible: violating.size === 0,
+      };
+    },
+  },
+
+  // ────────────────────────────────────────────────────────────────
+  // Multi-solution rule kinds (added with the solutionTarget model).
+  //
+  // These describe relationships within a named slot group without
+  // pinning to specific fabrics, so templates can intentionally admit
+  // multiple solutions ("any warm fabric in the top rails, as long as
+  // all four match"). Reach for them when the puzzle is more about
+  // the structural relationship than the specific fabric identity.
+  // ────────────────────────────────────────────────────────────────
+
+  // All slots in the named group must share one fabric. Player chooses
+  // which fabric; other rules typically constrain the choice
+  // ({hue:'warm'} positional on the same group is a common companion).
+  'all-same': {
+    describe(rule) {
+      const where = typeof rule.slot === 'string'
+        ? humanizeSlotName(rule.slot)
+        : 'these slots';
+      return `All ${where} must be the same fabric.`;
+    },
+    verify(rule, fabricBySlot, block) {
+      const target = typeof rule.slot === 'string' ? block.namedSlot(rule.slot) : rule.slot;
+      const slots = Array.isArray(target) ? target : (target === undefined ? [] : [target]);
+      const filled = slots.map(i => fabricBySlot[i]).filter(Boolean);
+      if (filled.length < 2) {
+        // 0 or 1 filled — no conflict possible yet.
+        return {
+          satisfied: filled.length === slots.length,
+          violatingSlots: new Set(),
+          stillPossible: true,
+        };
+      }
+      const first = filled[0];
+      const allMatch = filled.every(f => f === first);
+      const violating = new Set();
+      if (!allMatch) {
+        // Highlight every filled slot in the group — the disagreement
+        // doesn't belong to any single slot.
+        slots.forEach(i => { if (fabricBySlot[i]) violating.add(i); });
+      }
+      return {
+        satisfied: allMatch && filled.length === slots.length,
+        violatingSlots: violating,
+        stillPossible: violating.size === 0,
+      };
+    },
+  },
+
+  // All slots in the named group must use distinct fabrics. Useful when
+  // the group is small relative to the palette ("the 4 middle slots are
+  // all different fabrics" with a 6-fabric palette).
+  'all-different': {
+    describe(rule) {
+      const where = typeof rule.slot === 'string'
+        ? humanizeSlotName(rule.slot)
+        : 'these slots';
+      return `All ${where} must be different fabrics.`;
+    },
+    verify(rule, fabricBySlot, block) {
+      const target = typeof rule.slot === 'string' ? block.namedSlot(rule.slot) : rule.slot;
+      const slots = Array.isArray(target) ? target : (target === undefined ? [] : [target]);
+      const seen = new Map();
+      const violating = new Set();
+      let allFilled = true;
+      for (const i of slots) {
+        const fid = fabricBySlot[i];
+        if (!fid) { allFilled = false; continue; }
+        if (seen.has(fid)) {
+          violating.add(seen.get(fid));
+          violating.add(i);
+        } else {
+          seen.set(fid, i);
+        }
+      }
+      return {
+        satisfied: violating.size === 0 && allFilled,
+        violatingSlots: violating,
+        stillPossible: violating.size === 0,
+      };
+    },
+  },
+
+  // Slots in the named group alternate between two constraint classes.
+  // E.g. between: [{motif:'solid'}, {motif:'stripe'}] makes positions
+  // 0,2,4,… solid and positions 1,3,5,… striped.
+  alternating: {
+    describe(rule, fabricsById) {
+      const where = typeof rule.slot === 'string'
+        ? humanizeSlotName(rule.slot)
+        : 'these slots';
+      const a = describeConstraint(rule.between[0], fabricsById);
+      const b = describeConstraint(rule.between[1], fabricsById);
+      return `The ${where} alternate between ${a} and ${b}.`;
+    },
+    verify(rule, fabricBySlot, block, fabricsById) {
+      const target = typeof rule.slot === 'string' ? block.namedSlot(rule.slot) : rule.slot;
+      const slots = Array.isArray(target) ? target : (target === undefined ? [] : [target]);
+      const [ca, cb] = rule.between || [{}, {}];
+      const violating = new Set();
+      let allFilled = true;
+      for (let idx = 0; idx < slots.length; idx++) {
+        const i = slots[idx];
+        const fid = fabricBySlot[i];
+        if (!fid) { allFilled = false; continue; }
+        const expect = (idx % 2 === 0) ? ca : cb;
+        if (!fabricMatches(fid, expect, fabricsById)) {
+          violating.add(i);
+        }
+      }
+      return {
+        satisfied: violating.size === 0 && allFilled,
+        violatingSlots: violating,
         stillPossible: violating.size === 0,
       };
     },
