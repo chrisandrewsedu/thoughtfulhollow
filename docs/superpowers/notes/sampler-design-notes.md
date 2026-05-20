@@ -15,16 +15,17 @@ Cross-phase decisions and discoveries that affect future phases. The canonical d
 - ✓ **Phase 3a — Rail Fence + foundations** (shipped: 2×2 basket-weave, 12 stripe slots, three rank-based templates, all foundational refactors per the notes below)
 - ✓ **Phase 3b — Multi-solution UX layer** (shipped: solution-range engine, three new rule kinds, storage v2 with v1 migration, duplicate detection, find-another flow, "pattern N of M" overlay copy, archive N/M badges, Nine-Patch template audit)
 - ✓ **Phase 3c — Log Cabin (Wednesday block)** (shipped: 13-slot spiral with 3 concentric rings, first real `ring()` implementation, three multi-solution templates — Hearth / Light-Dark Diagonal / Cross — all 4–6 solutions per Wed across the launch year)
-- **Phase 3d — Churn Dash (Thursday block)** ← *next up*
-- Future: Sawtooth Star (Fri), Dresden Plate (Sat), Sampler quilt (Sun), polish & launch.
+- ✓ **Phase 3d — Churn Dash + winter-forest** (shipped: 17-slot X-bowtie block with first real `{type:'polygon'}` slots, 7-fabric winter-forest palette, three templates — Bowtie / Locket / Night — all at 6 solutions per Thu across the launch year)
+- **Phase 3e — Sawtooth Star (Friday block)** ← *next up*
+- Future: Dresden Plate (Sat), Sampler quilt (Sun), polish & launch.
 
-**Starting a new session on Phase 3d?** Read this file end-to-end first. The key things to know:
-- Churn Dash introduces **half-square triangles** — the first real use of `slotPath(i)` returning `{type:'polygon'}`. Phase 3a refactored the renderer to switch on slot-path type via `createSlotElement()`, so the rendering pipeline is ready; Churn Dash just authors the triangle geometry.
-- The block interface is otherwise unchanged from Log Cabin (slots, `neighbors`, `symmetryPairs`, `namedSlot`, optional `ring` — Churn Dash likely returns `undefined` from `ring` again). Add `dayOfWeek: 4` so `pickTemplateForDate` routes Thursdays to it.
-- Multi-solution targets: Thu is 4–6 solutions per the calibration table in §"Multi-solution puzzles".
-- All rule kinds from Phase 3a/3b are available (`all-same`, `all-different`, `alternating`, `count`, `positional`, `adjacency`, `symmetry`, `rotational-symmetry`, `pattern-property`). Triangle slots play well with adjacency and symmetry rules.
+**Starting a new session on Phase 3e?** Read this file end-to-end first. The key things to know:
+- Sawtooth Star is the first block with a larger slot count in the 13–16 range — benchmark `verifyTemplate` early. Per the solver-scaling note below, if a year-wide verify exceeds 5s for a single template, add per-rule forward-pruning. Churn Dash (17 slots × 7 fabrics) verified in 74–267 ms per template — use that as a reference baseline.
+- The block interface is unchanged (slots, `neighbors`, `symmetryPairs`, `namedSlot`, optional `ring`). Add `dayOfWeek: 5` so `pickTemplateForDate` routes Fridays to it.
+- Multi-solution targets: Fri is 4–6 solutions per the calibration table in §"Multi-solution puzzles".
+- All rule kinds from Phase 3a–3d are available. The `decorative: true` convention (established in Phase 3d) is: decorative rule goes LAST in the rules list.
 - `verifyTemplate(templateId, [startDate, endDate])` is the authoring tool — exposed on `window` for console use.
-- TBD — see spec §14 for Churn Dash design details (canonical 9-square layout with HSTs in 4 of the slots, pinwheel-adjacent topology).
+- See spec §14 for Sawtooth Star design details.
 
 ---
 
@@ -76,6 +77,18 @@ Spec §6 defines these for Wed+ blocks but they don't exist yet. Implementation 
 - **Pattern-property** (e.g., "all stripes must run the same direction"): scan filled slots, gather fabrics matching the constraint, check the named property is consistent. Same structure as `count` but the predicate is "values of property X are all equal" instead of "count is N."
 - **Connectivity** (e.g., "warm colors form one connected region"): for each filled slot matching constraint, do a BFS over `neighbors(i)` restricted to other matching slots; assert exactly one component (and no isolated singletons unless explicitly allowed).
   - 2026-05-18 — Connectivity rules are nondeterministic during partial fill — an empty slot might or might not eventually contribute. The `evaluateRules` contract right now returns `{satisfied, violatingSlots}`; connectivity needs to gracefully say "not yet decidable" when partial. Suggest a third state: `{satisfied: false, violatingSlots, indeterminate: true}` and only highlight violations when `!indeterminate`.
+
+### Churn Dash retrospective (Phase 3d, 2026-05-20)
+
+Key decisions recorded for future phases:
+
+- **X-bowtie chirality chosen over pinwheel.** X-bowtie gives full reflection symmetry on V, H, and main-diagonal axes plus 180° rotational symmetry. Trade-off: no order-4 rotation (that would require pinwheel chirality). The templates deliberately surface this via decorative symmetry rules so players can learn what Churn Dash's symmetry actually is.
+- **17-slot variant chosen over 13-slot (split-handle edges).** Each of the 4 edge cells splits into 2 parallel rectangles: the inner "handle" bar adjacent to center, and the outer "bg" bar against the block boundary. Preserves the authentic quilter structure of a Churn Dash (the "handle" is the visible motif element, the "bg" is background behind it). The 13-slot variant collapses each edge pair into one rectangle, losing that distinction. 17 slots exceeds the spec §3 "9–13" range; the choice was deliberate and is documented.
+- **All three templates use decorative symmetry rules for pedagogy.** Bowtie: `{kind:'symmetry', axis:'vertical', decorative:true}`. Locket: `{kind:'symmetry', axis:'horizontal', decorative:true}`. Night: `{kind:'rotational-symmetry', order:2, decorative:true}`. Each surfaces a different structural property of the X-bowtie block; none constrain the solver.
+- **New convention established: `decorative: true` rules go LAST in the template's rules list.** Phase 3d is the first phase to ship `decorative: true` in any template (the engine has supported it since Phase 3a, but no prior template exercised it). "Last" means after all hard-constraint rules; this makes the rules panel read constraint-first, decorative-note-last. Apply this order in all future templates.
+- **Winter-forest is the second palette family (7 fabrics).** Heritage-warm shipped with 6; winter-forest ships with 7. The 7th fabric (`F_OAT`, warm-light dot) gives a second light option so template math lands at 6 solutions cleanly: Bowtie = 2 lights × 3 darks; Night = 3 darks × 2 lights; Locket = 1 pinned center × 2 mediums × 3 darks. Palette-growth commitment back on track.
+- **Solver performance: 17 slots × 7 fabrics × full year (53 Thursdays) verifies in 74–267 ms per template.** Bowtie 267 ms, Locket 74 ms, Night 86 ms. Well under the 5s flag threshold. Use this as a reference baseline for Sawtooth Star (Phase 3e) tuning.
+- **Two in-phase scope expansions driven by playtesting.** The plan promised "purely additive content, no engine refactors." Playtesting surfaced two engine-touching improvements that landed as Phase 3d closure commits rather than getting deferred: (1) Rules-panel readability (`5788f97`) — multi-slot named groups now render as "All X slots (i, j, k) must be ..." with pluralization and slot-index suffix; affects all four blocks' templates retroactively (the change is universally an improvement so no per-template re-verification needed). (2) Live-violation feedback follow-up note (`ec4bb84`) — captured as a Phase 6 polish item with three resolution options. The shipped change here is just the design note; the actual UX change is deferred.
 
 ---
 
@@ -141,6 +154,12 @@ Suggest (a) for Sunday: render a coarse 3×3 hue summary from each of the 4 sub-
 - **Tutorial overlay.** Glossari has one; Sampler doesn't. First-time-player onboarding teaches paint mode, rules panel, the win condition. Match Glossari's tutorial idiom (sessionStorage flag `sampler_tutorial_seen`).
 - **Cross-promo card to Glossari** on the completion screen. Glossari has nothing back to Sampler; consider symmetric promo on Glossari completion when Sampler launches.
 
+### Live-violation feedback — revisit before launch
+
+- 2026-05-20 — User feedback during Phase 3d testing: the `.violation` highlight on slots and the `×` mark on rules in the rules panel fire **immediately** as soon as a fabric is placed that violates an `all-same` / positional / etc. rule. This punishes exploration — players should be able to compose a board without being told they're "wrong" mid-placement.
+- Options to evaluate: (a) move violation feedback behind an explicit "Check" action; (b) delay highlight by N seconds; (c) settings toggle (default off). The current `evaluateRules` + `.violation` class wiring is the source — decoupling the live highlight from the underlying rule evaluation is the main work (the rules engine itself still needs to evaluate to gate `checkWin` and detect `solutionsFound` for find-another).
+- Cross-cutting: affects every block, every template. Not a Churn Dash-specific fix.
+
 ### Accessibility audit
 
 - Keyboard nav: tab through palette swatches, arrow keys to move slot focus, enter to paint.
@@ -181,8 +200,8 @@ The `sampler_daily_v1` shape has a `block` field per-date entry. This is enough 
 
 Phase 1 ships one palette family (`heritage-warm`). Plan to add at least one new family per block in Phase 3, so the week has visual variety across blocks. Candidate families to author:
 
-- `heritage-warm` — madder, cream, indigo, weld, forest, walnut (current)
-- `winter-forest` — slate, cream, pine, charcoal, snow, oxblood
+- `heritage-warm` — madder, cream, indigo, weld, forest, walnut (shipped Phase 1; 6 fabrics)
+- ✓ `winter-forest` — snow, oat, slate, rust, pine, charcoal, oxblood (shipped Phase 3d; 7 fabrics). Heritage-warm shipped with 6; winter-forest ships with 7 — the 7th fabric (`F_OAT`, warm-light dot) gives a second light option, enabling a 2-light × 3-dark structure for clean 6-solution math on Thu templates. Composition: 2 lights (SNOW neutral, OAT warm) / 2 mediums (SLATE cool, RUST warm) / 3 darks (PINE cool, CHARCOAL neutral, OXBLOOD warm).
 - `summer-meadow` — buttercup, sky, fern, dove, sunset, cream
 - `autumn-leaves` — rust, ochre, walnut, sage, cream, smoke
 
@@ -213,6 +232,20 @@ Sampler shifted from "every puzzle has exactly one solution" to "every puzzle is
 | Sun (Sampler quilt) | TBD — likely tighter per sub-block + cross-block constraints |
 
 These are starting targets; revisit after a few weeks of play. The Spelling Bee reference frame is right — the satisfaction comes from each new find feeling earned, not from completeness. Don't let any single puzzle balloon past 6.
+
+**Variety of structure, not just fabric** — *quality bar for future template authoring.* (2026-05-20, surfaced playtesting Phase 3d.)
+
+The shipped Phase 3a–3d templates lean heavily on **`all-same` + positional property** — e.g. "all dash slots same fabric AND all dark." Within a single template, every solution is then *structurally identical* and only the fabric *identity* changes: solution 1 has pine in the dash, solution 2 has charcoal in the dash, etc. Players describe this as boring — finding solution 2 feels like a fabric swap, not a new design.
+
+For Phase 3e (Sawtooth Star) onward, deliberately seek templates whose solutions differ *visually as compositions*, not just by fabric label. Tools available:
+
+- **Drop `all-same` on at least one group** — keep the positional property (e.g. "all dash slots dark") so the *constraint* still holds, but let individual dash slots independently pick from the qualifying set. Each dash slot becomes its own choice; solutions vary in *which dark goes where*.
+- **`all-different` on a small group** — forces 3–4 distinct fabrics into a group, so the *arrangement* (which fabric occupies which slot) becomes the meaningful variation. Phase 3b shipped this rule kind but no template uses it.
+- **`alternating` between two constraint classes** — produces solutions where the alternation is fixed but the specific fabrics on each alternation step vary. Also shipped but unused.
+- **Count-based without positional pinning** — e.g. "exactly 2 dark slots in the dash" — admits a family of solutions that differ in *which 2 slots* are dark, not just in fabric ID.
+- **Mixed-discipline groups** — e.g. all-same on outer triangles + all-different on inner triangles. The two halves of the X look different in every solution.
+
+Defer revising existing Mon–Thu templates; revisit during a content-pass after Phase 3e or Phase 6. New templates (Sawtooth Star, Dresden Plate, Sunday) should aim for at least one structurally-varying solution group per template.
 
 **Engine surface:**
 
@@ -259,8 +292,11 @@ All items below shipped in commits 3769a30 through c35391b. Key state changes:
 | Wed w0   | log-cabin-hearth-v1        | 6 |
 | Wed w1   | log-cabin-light-dark-v1    | 6 |
 | Wed w2   | log-cabin-cross-v1         | 6 |
+| Thu w0   | churn-dash-bowtie-v1       | 6 |
+| Thu w1   | churn-dash-locket-v1       | 6 |
+| Thu w2   | churn-dash-night-v1        | 6 |
 
-All nine pass `verifyTemplate` against their declared `solutionTarget` ranges. Mon/Tue templates verified across 2026-05-19 → 2026-08-18 (Phase 3b); Wed templates verified across 2026-05-20 → 2027-05-19 — 365 in-range / 0 too-few / 0 too-many for each of the three Log Cabin templates (Phase 3c final cross-task check).
+All twelve pass `verifyTemplate` against their declared `solutionTarget` ranges. Mon/Tue templates verified across 2026-05-19 → 2026-08-18 (Phase 3b); Wed templates verified across 2026-05-20 → 2027-05-19 — 365 in-range / 0 too-few / 0 too-many for each of the three Log Cabin templates (Phase 3c final cross-task check). Thu templates verified across 2026-05-21 → 2027-05-20 — 53/53 Thursdays in-range / 0 too-few / 0 too-many for each of the three Churn Dash templates; exactly 6 solutions per Thursday (Phase 3d final cross-task check).
 
 **Deferred (not yet built):**
 
