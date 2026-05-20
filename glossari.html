@@ -1817,18 +1817,21 @@ function buildCurrentResult() {
 
 function showReveal() {
   state.inProgress = false;
-  const puzzle = PUZZLES[state.puzzleIdx]; const stored = loadStorage();
+  const puzzle = state.currentPuzzle || (state.mode === 'practice' ? state.puzzleSource : { name: THEMES[state.puzzleIdx].name, sets: getTierVariant(state.puzzleIdx, state.tier).sets });
+  const all = loadStorage();
   const playDate = state.playDate || todayStr();
   const dateStr = new Date(playDate + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/New_York' });
-  const persisted = stored.byDate && stored.byDate[playDate];
+  const persisted = state.mode === 'daily' ? (all.tiers[state.tier].byDate || {})[playDate] : null;
   const result = state.mode === 'daily' && persisted && !state.replay
     ? persisted.result
     : buildCurrentResult();
   if (state.mode === 'daily') {
     const puzzleNum = dailyIndex(playDate) + 1;
-    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Daily No. ${puzzleNum} —</div><div class="reveal-title">${puzzle.name}</div><div class="reveal-date">${dateStr}</div>`;
+    const tierLabel = state.tier.charAt(0).toUpperCase() + state.tier.slice(1);
+    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Daily No. ${puzzleNum} · ${tierLabel} —</div><div class="reveal-title">${puzzle.name}</div><div class="reveal-date">${dateStr}</div>`;
   } else {
-    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Practice —</div><div class="reveal-title">${puzzle.name}</div>`;
+    const tierLabel = state.tier.charAt(0).toUpperCase() + state.tier.slice(1);
+    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Practice · ${tierLabel} —</div><div class="reveal-title">${puzzle.name}</div>`;
   }
   const clueItems = state.items.filter(it => it.type === 'clue').sort((a, b) => a.id - b.id);
   const entriesEl = document.getElementById('revealEntries'); entriesEl.innerHTML = '';
@@ -1840,9 +1843,9 @@ function showReveal() {
     entriesEl.appendChild(div);
   });
   const puzzleNum = state.mode === 'daily' ? dailyIndex(state.playDate || todayStr()) + 1 : null;
-  const shareStored = state.mode === 'daily' ? stored : {};
+  const tierStats = state.mode === 'daily' ? all.tiers[state.tier] : emptyTierState();
   const sharePlayDate = state.mode === 'daily' ? (state.playDate || todayStr()) : null;
-  document.getElementById('shareBlock').innerHTML = buildShareBlockHTML(shareStored, puzzle, puzzleNum, result, sharePlayDate);
+  document.getElementById('shareBlock').innerHTML = buildShareBlockHTML(tierStats, puzzle, puzzleNum, result, sharePlayDate, state.tier);
   document.getElementById('practiceLink').style.display = 'inline';
   document.getElementById('reveal').classList.add('show');
 }
@@ -1863,13 +1866,16 @@ const PERF_WORDS = [
 
 function perfWordFor(result) { return PERF_WORDS.find(p => p.condition(result)); }
 
-function buildShareBlockHTML(stored, puzzle, puzzleNum, result, playDate) {
+function buildShareBlockHTML(tierStats, puzzle, puzzleNum, result, playDate, tier) {
   const marks = result.marks || [];
   const timeStr = result.elapsedSeconds != null ? formatTime(result.elapsedSeconds) : '—';
   const errStr = result.mistakesUsed === 0 ? 'no errors' : result.mistakesUsed === 1 ? '1 mistake' : `${result.mistakesUsed} mistakes`;
   const solvedCount = marks.filter(m => m === 'solved').length;
   const perf = perfWordFor(result);
-  const puzzleLabel = puzzleNum != null ? `No. ${puzzleNum}` : 'Practice';
+  const tierLabel = tier ? (tier.charAt(0).toUpperCase() + tier.slice(1)) : '';
+  const puzzleLabel = puzzleNum != null
+    ? `No. ${puzzleNum} · ${tierLabel}`
+    : (tier ? `Practice · ${tierLabel}` : 'Practice');
   const dateStr = playDate
     ? new Date(playDate + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' })
     : new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -1888,7 +1894,7 @@ function buildShareBlockHTML(stored, puzzle, puzzleNum, result, playDate) {
     ).join('')}</div>`
   ).join('');
 
-  return `<div class="share-block" data-puzzle-num="${puzzleNum ?? ''}">
+  return `<div class="share-block" data-puzzle-num="${puzzleNum ?? ''}" data-tier="${tier ?? ''}">
     <div class="share-brand">
       <div class="share-game-title">Glos<span class="share-dot">·</span>sa<span class="share-dot">·</span>ri</div>
       <div class="share-game-sub">${puzzleLabel} · <em>"${puzzle.name}"</em></div>
@@ -1901,10 +1907,10 @@ function buildShareBlockHTML(stored, puzzle, puzzleNum, result, playDate) {
     <div class="share-summary">${solvedCount} of ${marks.length} · ${timeStr} · ${errStr}</div>
     <hr class="share-divider">
     <div class="share-stats">
-      <div class="share-stat"><div class="share-stat-num">${stored.streak || 0}</div><div class="share-stat-lbl">Streak</div></div>
-      <div class="share-stat"><div class="share-stat-num">${stored.totalPlayed || 0}</div><div class="share-stat-lbl">Played</div></div>
-      <div class="share-stat"><div class="share-stat-num">${stored.totalFlawless || 0}</div><div class="share-stat-lbl">Flawless</div></div>
-      <div class="share-stat"><div class="share-stat-num">${formatAvgTime(stored)}</div><div class="share-stat-lbl">Avg Time</div></div>
+      <div class="share-stat"><div class="share-stat-num">${tierStats.streak || 0}</div><div class="share-stat-lbl">Streak</div></div>
+      <div class="share-stat"><div class="share-stat-num">${tierStats.totalPlayed || 0}</div><div class="share-stat-lbl">Played</div></div>
+      <div class="share-stat"><div class="share-stat-num">${tierStats.totalFlawless || 0}</div><div class="share-stat-lbl">Flawless</div></div>
+      <div class="share-stat"><div class="share-stat-num">${formatAvgTime(tierStats)}</div><div class="share-stat-lbl">Avg Time</div></div>
     </div>
     <div class="share-perf">
       <div class="share-perf-word"><span class="share-sym">❦</span>${perf.word}<span class="share-perf-pos">${perf.pos}</span></div>
@@ -1914,12 +1920,15 @@ function buildShareBlockHTML(stored, puzzle, puzzleNum, result, playDate) {
   </div>`;
 }
 
-function generateShareText(puzzle, puzzleNum, result) {
+function generateShareText(puzzle, puzzleNum, result, tier) {
   const marks = result.marks || [];
   const timeStr = result.elapsedSeconds != null ? formatTime(result.elapsedSeconds) : '—';
   const errStr = result.mistakesUsed === 0 ? 'no errors' : result.mistakesUsed === 1 ? '1 mistake' : `${result.mistakesUsed} mistakes`;
   const solvedCount = marks.filter(m => m === 'solved').length;
-  const header = puzzleNum != null ? `Glos·sa·ri — No. ${puzzleNum}` : 'Glos·sa·ri — Practice';
+  const tierLabel = tier ? (tier.charAt(0).toUpperCase() + tier.slice(1)) : '';
+  const header = puzzleNum != null
+    ? `Glos·sa·ri — No. ${puzzleNum} · ${tierLabel}`
+    : (tier ? `Glos·sa·ri — Practice · ${tierLabel}` : 'Glos·sa·ri — Practice');
   const SYM = { correct: '❧', partial: '◆', wrong: '·' };
   const guessLog = state.guessLog || [];
   const grid = guessLog.map(row => row.map(m => SYM[m]).join(' ')).join('\n');
@@ -1934,10 +1943,13 @@ function generateShareText(puzzle, puzzleNum, result) {
 }
 
 function copyResult() {
-  const result = buildCurrentResult(); const puzzle = PUZZLES[state.puzzleIdx];
-  const raw = document.querySelector('.share-block')?.dataset.puzzleNum;
-  const puzzleNum = raw ? parseInt(raw, 10) : null;
-  const text = generateShareText(puzzle, puzzleNum, result);
+  const result = buildCurrentResult();
+  const puzzle = state.currentPuzzle || (state.mode === 'practice' ? state.puzzleSource : { name: THEMES[state.puzzleIdx].name, sets: getTierVariant(state.puzzleIdx, state.tier).sets });
+  const block = document.querySelector('.share-block');
+  const rawNum = block?.dataset.puzzleNum;
+  const puzzleNum = rawNum ? parseInt(rawNum, 10) : null;
+  const tier = block?.dataset.tier || state.tier;
+  const text = generateShareText(puzzle, puzzleNum, result, tier);
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.querySelector('.share-copy-btn'); const orig = btn.textContent;
     btn.textContent = 'Copied ✓'; setTimeout(() => { btn.textContent = orig; }, 1800);
