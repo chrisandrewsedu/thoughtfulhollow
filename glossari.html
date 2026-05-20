@@ -1234,21 +1234,28 @@ function resumeTimer() {
 
 function startDailyGame(dateStr, opts) {
   dateStr = dateStr || todayStr();
-  const replay = !!(opts && opts.replay);
-  const stored = loadStorage();
-  const existing = stored.byDate && stored.byDate[dateStr];
+  opts = opts || {};
+  const replay = !!opts.replay;
+  if (opts.tier && TIERS.includes(opts.tier)) state.tier = opts.tier;
+  if (!state.tier) state.tier = 'hard';
+  const all = loadStorage();
+  const tierData = all.tiers[state.tier];
+  const existing = tierData.byDate && tierData.byDate[dateStr];
   if (existing && !replay) {
-    if (dateStr === todayStr()) { showAlreadyPlayed(stored); return; }
-    // shouldn't normally happen — archive cell click for completed day always passes replay:true
-    showAlreadyPlayed(stored); return;
+    showAlreadyPlayed(all, state.tier); return;
   }
   state.mode = 'daily';
   state.playDate = dateStr;
   state.replay = replay;
-  // Honor ?puzzle=<idx-or-name> override; fall through to date routing
-  // if the param is missing or doesn't resolve to a known puzzle.
   const forced = forcedPuzzleIdx();
   state.puzzleIdx = forced != null ? forced : dailyIndex(dateStr);
+  // If the chosen tier doesn't have a variant for this theme, bail with a
+  // gentle message rather than crashing.
+  if (!tierAvailable(state.puzzleIdx, state.tier)) {
+    alert(`This tier isn't available for today's puzzle.`);
+    document.getElementById('intro').classList.add('show');
+    return;
+  }
   resetGameState();
   document.getElementById('intro').classList.remove('show');
   document.getElementById('alreadyPlayed').classList.remove('show');
@@ -1287,10 +1294,11 @@ function openArchive() {
 
 function closeArchive() {
   document.getElementById('archive').classList.remove('show');
-  const stored = loadStorage();
+  const all = loadStorage();
   const today = todayStr();
-  if (stored.byDate && stored.byDate[today]) {
-    showAlreadyPlayed(stored);
+  const t = all.tiers[state.tier] || emptyTierState();
+  if (t.byDate && t.byDate[today]) {
+    showAlreadyPlayed(all, state.tier);
   } else {
     document.getElementById('intro').classList.add('show');
   }
@@ -1725,34 +1733,36 @@ function finishPuzzle(success) {
 
 function recordCompletion() {
   if (state.replay) return;
+  if (state.mode === 'practice') return; // practice never affects stats
   const playDate = state.playDate || todayStr();
   const isLive = playDate === todayStr();
   const result = buildCurrentResult();
   const allSolved = result.allSolved;
-  const data = loadStorage();
-  if (!data.byDate) data.byDate = {};
-  data.byDate[playDate] = {
+  const all = loadStorage();
+  const t = all.tiers[state.tier];
+  if (!t.byDate) t.byDate = {};
+  t.byDate[playDate] = {
     puzzleIdx: state.puzzleIdx,
     result,
     completedAt: Date.now(),
     source: isLive ? 'live' : 'archive',
   };
-  data.totalPlayed = (data.totalPlayed || 0) + 1;
+  t.totalPlayed = (t.totalPlayed || 0) + 1;
   if (allSolved) {
-    data.totalSolved = (data.totalSolved || 0) + 1;
-    data.totalSolveSeconds = (data.totalSolveSeconds || 0) + state.elapsed;
-    data.solvedTimedCount = (data.solvedTimedCount || 0) + 1;
-    if (result.flawless) data.totalFlawless = (data.totalFlawless || 0) + 1;
+    t.totalSolved = (t.totalSolved || 0) + 1;
+    t.totalSolveSeconds = (t.totalSolveSeconds || 0) + state.elapsed;
+    t.solvedTimedCount = (t.solvedTimedCount || 0) + 1;
+    if (result.flawless) t.totalFlawless = (t.totalFlawless || 0) + 1;
   }
   if (isLive) {
     const yesterday = prevEtDate(todayStr());
-    const streakBase = data.lastPlayedDate === yesterday ? (data.streak || 0) : 0;
+    const streakBase = t.lastPlayedDate === yesterday ? (t.streak || 0) : 0;
     const newStreak = allSolved ? streakBase + 1 : 0;
-    data.streak = newStreak;
-    data.bestStreak = Math.max(newStreak, data.bestStreak || 0);
-    data.lastPlayedDate = todayStr();
+    t.streak = newStreak;
+    t.bestStreak = Math.max(newStreak, t.bestStreak || 0);
+    t.lastPlayedDate = todayStr();
   }
-  saveStorage(data);
+  saveStorage(all);
 }
 
 function buildCurrentResult() {
@@ -1892,10 +1902,11 @@ function copyResult() {
   });
 }
 
-function showAlreadyPlayed(stored) {
+function showAlreadyPlayed(all, tier) {
   document.getElementById('intro').classList.remove('show');
+  const t = (all && all.tiers && all.tiers[tier]) || emptyTierState();
   const statsEl = document.getElementById('alreadyStats'); statsEl.textContent = '';
-  [['Streak', stored.streak || 0], ['Played', stored.totalPlayed || 0], ['Flawless', stored.totalFlawless || 0], ['Avg Time', formatAvgTime(stored)]].forEach(([label, val]) => {
+  [['Streak', t.streak || 0], ['Played', t.totalPlayed || 0], ['Flawless', t.totalFlawless || 0], ['Avg Time', formatAvgTime(t)]].forEach(([label, val]) => {
     const div = document.createElement('div'); div.className = 'go-stat';
     const num = document.createElement('div'); num.className = 'go-stat-num'; num.textContent = val;
     const lbl = document.createElement('div'); lbl.className = 'go-stat-label'; lbl.textContent = label;
