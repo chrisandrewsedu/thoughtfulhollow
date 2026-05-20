@@ -1832,6 +1832,43 @@ const TEMPLATES = [
       { kind: 'symmetry',      axis: 'vertical', decorative: true },
     ],
   },
+  // Template C: "Pinwheel" — `alternating` on bgsCyclic forces the 8
+  // bg triangles to alternate warm-medium / cool-medium going
+  // clockwise around the block, creating a visual pinwheel. Hard
+  // `rotational-symmetry` order 4 forces the two order-4 bg orbits
+  // (bgsLeading [9,11,13,15], bgsTrailing [10,12,14,16]) to each be
+  // internally uniform, plus corners + points each uniform across
+  // their 4-slot orbits. So the alternation collapses to: leading
+  // orbit = one warm-medium fabric, trailing orbit = one cool-medium.
+  //
+  // Four solutions: 2 warm-mediums (HONEY, PEACH) for leading bgs × 2
+  // cool-mediums (FERN, LAVENDER) for trailing bgs. Center and
+  // corners are pinned by role (CORE = the lone light, F_DOVE),
+  // points pinned to cool-dark via constraint.
+  //
+  // Exercises both `alternating` and hard `rotational-symmetry` in a
+  // template for the first time. Note: the alternating arrangement
+  // BREAKS reflection symmetry — vertical reflection would map a warm
+  // leading bg to a cool trailing position. So this template
+  // intentionally has NO `symmetry`-axis decorative rule.
+  {
+    id: 'sawtooth-star-pinwheel-v1',
+    block: 'sawtooth-star',
+    paletteFamily: 'summer-meadow',
+    paletteSize: 7,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: { CORE: 'F_DOVE' },
+    rules: [
+      { kind: 'positional',          slot: 'center',  constraint: { fabricId: 'ROLE:CORE' } },
+      { kind: 'rotational-symmetry', order: 4 },
+      { kind: 'positional',          slot: 'corners', constraint: { fabricId: 'ROLE:CORE' } },
+      { kind: 'positional',          slot: 'points',  constraint: { value: 'dark', hue: 'cool' } },
+      { kind: 'alternating',         slot: 'bgsCyclic', between: [
+        { hue: 'warm', value: 'medium' },
+        { hue: 'cool', value: 'medium' },
+      ]},
+    ],
+  },
 ];
 
 function resolveRoleRefs(rule, fabricRoles) {
