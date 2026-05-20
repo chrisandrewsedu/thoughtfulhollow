@@ -978,9 +978,15 @@ const BLOCKS = {
     slotCount: 13,
     dayOfWeek: 3, // Wednesday
     // Log Cabin: a center "hearth" + 3 concentric rings of 4 logs each.
-    // The spiral construction makes each log one cell longer (on its long
-    // axis) than the previous ring's log. 7×7 cell grid in 200×200 viewBox,
-    // PAD=2, CELL=28, no gaps (the .slot stroke draws the log seams).
+    // Logs grow in length around the spiral (N=1, E=2, S=2, W=3 in the
+    // inner ring), with each outer ring's logs two cells longer than its
+    // inner-ring counterpart. 7×7 cell grid in 200×200 viewBox, PAD=2,
+    // CELL=28, no gaps (the .slot stroke draws the log seams).
+    //
+    // Spiral chirality: the longer logs of each ring accumulate on the S
+    // and W sides (the traditional "dark" half); the shorter logs on the
+    // N and E sides (the "light" half). namedSlot('northeastSide') and
+    // 'southwestSide' expose this split for templates.
     //
     // Slot indices, by ring:
     //   0:  center C
