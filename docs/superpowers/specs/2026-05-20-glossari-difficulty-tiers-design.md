@@ -45,7 +45,7 @@ If a theme has no variant for a chosen tier, that tier's button is disabled for 
 
 ## Data Model
 
-`glossari.json` changes from a flat array of puzzle objects to an array of theme objects, each with a `tiers` map.
+`glossari.json` changes from a flat array of puzzle objects to a top-level object with two collections: `themes` (the daily rotation, tiered per theme) and `practice` (a separate sandbox pool, grouped by tier).
 
 **Before:**
 
@@ -62,24 +62,32 @@ If a theme has no variant for a chosen tier, that tier's button is disabled for 
 **After:**
 
 ```json
-[
-  {
-    "name": "Light & Shadow",
-    "tiers": {
-      "easy":   { "sets": [ ... 4 entries, parts always length 3 ... ] },
-      "medium": { "sets": [ ... ] },
-      "hard":   { "sets": [ ... ] }
-    }
-  },
-  ...
-]
+{
+  "themes": [
+    {
+      "name": "Light & Shadow",
+      "tiers": {
+        "easy":   { "sets": [ ... 4 entries, parts always length 3 ... ] },
+        "medium": { "sets": [ ... ] },
+        "hard":   { "sets": [ ... ] }
+      }
+    },
+    ...
+  ],
+  "practice": {
+    "easy":   [ { "name": "...", "sets": [ ... 4 entries ... ] }, ... ],
+    "medium": [ ... ],
+    "hard":   [ ... ]
+  }
+}
 ```
 
-- Each set within a tier keeps its current shape: `type`, `clue`, `parts`, `pos`, `definition`, `etymology`, `example`, `synonyms`, `antonyms`.
-- `tiers.easy` and `tiers.medium` are optional in the schema (to support future days where they're not yet authored); `tiers.hard` is required.
-- `parts` array is always exactly length 3 in every tier — enforced by an admin-side validator.
+- Each set in either collection keeps its current shape: `type`, `clue`, `parts`, `pos`, `definition`, `etymology`, `example`, `synonyms`, `antonyms`.
+- `themes[].tiers.easy` and `themes[].tiers.medium` are optional in the schema (to support future days where they're not yet authored); `themes[].tiers.hard` is required.
+- `practice` puzzles do not have a `tiers` wrapper — each puzzle stands alone under its tier key. Practice puzzles do not share themes with the daily rotation and are not surfaced anywhere except Practice mode.
+- `parts` array is always exactly length 3 in every puzzle, daily or practice — enforced by an admin-side validator.
 
-**Migration:** the existing 16 puzzles are mechanically rewritten so each puzzle's current `sets` array moves under `tiers.hard`. No content changes during migration.
+**Migration:** the existing 16 puzzles are mechanically rewritten so each puzzle's current `sets` array moves under `themes[i].tiers.hard`. The top-level array becomes the new top-level object. No content changes during migration; practice puzzles are authored fresh.
 
 ## Landing Page
 
@@ -162,20 +170,23 @@ The archive grid stays one cell per day, showing the theme name (as today). Tapp
 
 ## Practice Mode
 
-Today Practice picks a random puzzle from the full catalog and plays it untimed and outside daily state. Under tiers:
+Practice gets its own dedicated puzzle pool — **3 puzzles per tier, 9 total**. These puzzles are authored specifically for practice and live in `practice` in the data file. They are independent of the daily rotation and **must never be drawn from the daily theme catalog**, so playing Practice can never spoil a current or future daily puzzle.
 
 - The Practice button opens a tier picker (same three-button affordance as the landing page).
-- Selecting a tier loads a random puzzle from that tier's available content.
-- Tiers with no authored content (none expected at v1 launch, but possible if a tier is ever introduced with empty inventory) are grayed out.
+- Selecting a tier loads a random puzzle from that tier's practice pool.
+- Tiers with no practice content are grayed out (none expected at v1 launch — all three pools ship populated).
 - Practice plays remain outside per-tier stats and streaks, matching current behavior.
+
+The pool size is intentional: enough variety for a player to get a sense of the game at their chosen tier, small enough to keep authoring tractable. If a player runs through all three repeatedly, that's fine — practice is a sandbox, not a streak driver.
 
 ## Admin / Authoring (`admin/glossari-admin.html`)
 
 Today's admin lets you browse and preview all puzzles via the `?puzzle=` override. Extend it:
 
-- Each puzzle in the admin view shows three editable slots: Easy / Medium / Hard. Each slot can be edited and previewed independently.
-- The `?puzzle=` and `?preview=` URL overrides gain a `&tier=easy|medium|hard` companion so any specific tier can be previewed in isolation.
-- Validator: flag any tier with a set whose `parts.length !== 3`. Surfaces in the admin UI; does not block the live site (which will only load published content).
+- Each theme in the admin view shows three editable slots: Easy / Medium / Hard. Each slot can be edited and previewed independently.
+- A separate **Practice** section in the admin lists the 9 practice puzzles (3 per tier), each editable and previewable.
+- The `?puzzle=` and `?preview=` URL overrides gain a `&tier=easy|medium|hard` companion so any specific theme tier can be previewed in isolation. A `?practice=<tier>:<index>` override (or similar) loads a specific practice puzzle.
+- Validator: flag any puzzle (daily or practice) with a set whose `parts.length !== 3`. Surfaces in the admin UI; does not block the live site (which will only load published content).
 
 ## Rollout
 
@@ -188,7 +199,10 @@ Today's admin lets you browse and preview all puzzles via the `?puzzle=` overrid
 1. Schema migration: convert `glossari.json` to the new shape (Hard-only, no content changes).
 2. Code changes: tier-aware loader, landing-page three-button UX, in-puzzle tier label, per-tier localStorage with one-time migration from old keys, per-tier stats/share, archive tier picker.
 3. Admin: per-tier editing slots and `&tier=` override.
-4. Content authoring: 16 themes × 2 new tiers = 32 new puzzles (4 entries each, 3 parts each).
+4. Content authoring:
+   - 16 themes × 2 new tiers = 32 new daily puzzles (Easy + Medium for every existing theme).
+   - 9 practice puzzles (3 Easy + 3 Medium + 3 Hard), authored fresh — not drawn from the daily catalog.
+   - Total: 41 new puzzles, each with 4 entries and 3-part headwords.
 5. Ship.
 
 The order between (2), (3), and (4) is flexible — (3) unlocks (4), and (4) is the long pole. The planning phase will sequence them concretely.
