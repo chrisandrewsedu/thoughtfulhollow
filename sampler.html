@@ -2092,10 +2092,31 @@ function fabricMatches(fid, constraint, fabricsById) {
   });
 }
 
-// "topRails" → "top rails". Used by rules-panel labels so named-slot
-// identifiers read as natural English in the UI.
+// "topRails" → "top rails", "ring1" → "ring 1". Used by rules-panel
+// labels so named-slot identifiers read as natural English in the UI.
 function humanizeSlotName(name) {
-  return name.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
+  return name
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/([a-z])(\d)/g, '$1 $2')
+    .toLowerCase();
+}
+
+// Build the rules-panel label for a named-slot reference. Multi-slot
+// groups get a "slots" suffix and a parenthesized index list using i+1
+// (matching the on-block numeric labels). Single-slot groups read as
+// singular without the suffix. Returns the bare humanized name if the
+// block doesn't have the named slot (defensive — shouldn't happen with
+// well-authored templates).
+function slotGroupLabel(slotName, block) {
+  const hum = humanizeSlotName(slotName);
+  if (!block || typeof block.namedSlot !== 'function') return hum;
+  const target = block.namedSlot(slotName);
+  if (target === undefined) return hum;
+  const indices = Array.isArray(target) ? target : [target];
+  const labels = '(' + indices.map(i => i + 1).join(', ') + ')';
+  // Single slot reads as singular ("center (1)"); multi-slot adds the
+  // "slots" suffix ("field slots (1, 6, 7, ...)").
+  return indices.length === 1 ? `${hum} ${labels}` : `${hum} slots ${labels}`;
 }
 
 function describeConstraint(c, fabricsById) {
@@ -2185,13 +2206,17 @@ const RULE_KINDS = {
   },
 
   positional: {
-    describe(rule, fabricsById) {
+    describe(rule, fabricsById, block) {
       const c = describeConstraint(rule.constraint, fabricsById);
-      const where = typeof rule.slot === 'string'
-        ? humanizeSlotName(rule.slot)
-        : 'slot ' + (rule.slot + 1);
       const must = rule.must === false ? 'must NOT be' : 'must be';
-      return `The ${where} ${must} ${c}.`;
+      if (typeof rule.slot !== 'string') {
+        return `The slot ${rule.slot + 1} ${must} ${c}.`;
+      }
+      const target = block && typeof block.namedSlot === 'function' ? block.namedSlot(rule.slot) : undefined;
+      const isMulti = Array.isArray(target);
+      const label = slotGroupLabel(rule.slot, block);
+      const prefix = isMulti ? 'All' : 'The';
+      return `${prefix} ${label} ${must} ${c}.`;
     },
     verify(rule, fabricBySlot, block, fabricsById) {
       const target = typeof rule.slot === 'string' ? block.namedSlot(rule.slot) : rule.slot;
@@ -2364,9 +2389,9 @@ const RULE_KINDS = {
   // which fabric; other rules typically constrain the choice
   // ({hue:'warm'} positional on the same group is a common companion).
   'all-same': {
-    describe(rule) {
+    describe(rule, fabricsById, block) {
       const where = typeof rule.slot === 'string'
-        ? humanizeSlotName(rule.slot)
+        ? slotGroupLabel(rule.slot, block)
         : 'these slots';
       return `All ${where} must be the same fabric.`;
     },
@@ -2402,9 +2427,9 @@ const RULE_KINDS = {
   // the group is small relative to the palette ("the 4 middle slots are
   // all different fabrics" with a 6-fabric palette).
   'all-different': {
-    describe(rule) {
+    describe(rule, fabricsById, block) {
       const where = typeof rule.slot === 'string'
-        ? humanizeSlotName(rule.slot)
+        ? slotGroupLabel(rule.slot, block)
         : 'these slots';
       return `All ${where} must be different fabrics.`;
     },
@@ -2436,9 +2461,9 @@ const RULE_KINDS = {
   // E.g. between: [{motif:'solid'}, {motif:'stripe'}] makes positions
   // 0,2,4,… solid and positions 1,3,5,… striped.
   alternating: {
-    describe(rule, fabricsById) {
+    describe(rule, fabricsById, block) {
       const where = typeof rule.slot === 'string'
-        ? humanizeSlotName(rule.slot)
+        ? slotGroupLabel(rule.slot, block)
         : 'these slots';
       const a = describeConstraint(rule.between[0], fabricsById);
       const b = describeConstraint(rule.between[1], fabricsById);
@@ -2479,7 +2504,7 @@ function evaluateRules(rules, fabricBySlot, block, fabricsById) {
         satisfied: true,
         violatingSlots: new Set(),
         stillPossible: true,
-        description: kind.describe(rule, fabricsById),
+        description: kind.describe(rule, fabricsById, block),
       };
     }
     const result = kind.verify(rule, fabricBySlot, block, fabricsById);
@@ -2488,7 +2513,7 @@ function evaluateRules(rules, fabricBySlot, block, fabricsById) {
       satisfied: result.satisfied,
       violatingSlots: result.violatingSlots,
       stillPossible: result.stillPossible !== false,
-      description: kind.describe(rule, fabricsById),
+      description: kind.describe(rule, fabricsById, block),
     };
   });
 }
