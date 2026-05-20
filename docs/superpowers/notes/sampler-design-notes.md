@@ -153,6 +153,12 @@ Suggest (a) for Sunday: render a coarse 3×3 hue summary from each of the 4 sub-
 - **Tutorial overlay.** Glossari has one; Sampler doesn't. First-time-player onboarding teaches paint mode, rules panel, the win condition. Match Glossari's tutorial idiom (sessionStorage flag `sampler_tutorial_seen`).
 - **Cross-promo card to Glossari** on the completion screen. Glossari has nothing back to Sampler; consider symmetric promo on Glossari completion when Sampler launches.
 
+### Live-violation feedback — revisit before launch
+
+- 2026-05-20 — User feedback during Phase 3d testing: the `.violation` highlight on slots and the `×` mark on rules in the rules panel fire **immediately** as soon as a fabric is placed that violates an `all-same` / positional / etc. rule. This punishes exploration — players should be able to compose a board without being told they're "wrong" mid-placement.
+- Options to evaluate: (a) move violation feedback behind an explicit "Check" action; (b) delay highlight by N seconds; (c) settings toggle (default off). The current `evaluateRules` + `.violation` class wiring is the source — decoupling the live highlight from the underlying rule evaluation is the main work (the rules engine itself still needs to evaluate to gate `checkWin` and detect `solutionsFound` for find-another).
+- Cross-cutting: affects every block, every template. Not a Churn Dash-specific fix.
+
 ### Accessibility audit
 
 - Keyboard nav: tab through palette swatches, arrow keys to move slot focus, enter to paint.
