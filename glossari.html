@@ -1306,6 +1306,7 @@ function startDailyGame(dateStr, opts) {
   state.mode = 'daily';
   state.playDate = dateStr;
   state.replay = replay;
+  state.puzzleSource = null; // clear practice-mode source so daily loadPuzzle reads via getTierVariant
   const forced = forcedPuzzleIdx();
   state.puzzleIdx = forced != null ? forced : dailyIndex(dateStr);
   // If the chosen tier doesn't have a variant for this theme, bail with a
