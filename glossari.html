@@ -1337,6 +1337,7 @@ function openPracticePicker() {
 
 function closePracticePicker() {
   document.getElementById('practicePicker').classList.remove('show');
+  refreshIntroButtons();
   document.getElementById('intro').classList.add('show');
 }
 
@@ -1387,6 +1388,7 @@ function closeArchive() {
   if (t.byDate && t.byDate[today]) {
     showAlreadyPlayed(all, state.tier);
   } else {
+    refreshIntroButtons();
     document.getElementById('intro').classList.add('show');
   }
 }
