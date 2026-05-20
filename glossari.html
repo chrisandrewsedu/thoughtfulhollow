@@ -1062,9 +1062,32 @@ function etDateOffset(dateStr, offsetDays) {
 }
 function prevEtDate(dateStr) { return etDateOffset(dateStr, -1); }
 
-function migrateStorageIfNeeded() {
+function emptyTierState() {
+  return {
+    byDate: {},
+    streak: 0,
+    bestStreak: 0,
+    lastPlayedDate: null,
+    totalPlayed: 0,
+    totalSolved: 0,
+    totalFlawless: 0,
+    totalSolveSeconds: 0,
+    solvedTimedCount: 0,
+  };
+}
+
+function emptyV3() {
+  return {
+    v: 3,
+    tiers: { easy: emptyTierState(), medium: emptyTierState(), hard: emptyTierState() },
+  };
+}
+
+// v1 → v2 (existing logic from prior release, preserved). Used as an
+// intermediate step when migrating v1 storage forward to v3.
+function migrateV1toV2() {
   try {
-    if (localStorage.getItem(STORAGE_KEY)) return;
+    if (localStorage.getItem(STORAGE_KEY_V2)) return;
     const rawV1 = localStorage.getItem(STORAGE_KEY_V1);
     if (!rawV1) return;
     const v1 = JSON.parse(rawV1) || {};
@@ -1091,15 +1114,72 @@ function migrateStorageIfNeeded() {
         v2.solvedTimedCount = 1;
       }
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(v2));
+    localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(v2));
   } catch {}
+}
+
+// v2 → v3: move all top-level fields into tiers.hard (existing players are
+// all hard-tier players). Leaves v2 key in place for one release as a
+// safety net; can be removed later.
+function migrateV2toV3() {
+  try {
+    if (localStorage.getItem(STORAGE_KEY)) return;
+    const rawV2 = localStorage.getItem(STORAGE_KEY_V2);
+    const v3 = emptyV3();
+    if (rawV2) {
+      const v2 = JSON.parse(rawV2) || {};
+      v3.tiers.hard = {
+        byDate: v2.byDate || {},
+        streak: v2.streak || 0,
+        bestStreak: v2.bestStreak || 0,
+        lastPlayedDate: v2.lastPlayedDate || null,
+        totalPlayed: v2.totalPlayed || 0,
+        totalSolved: v2.totalSolved || 0,
+        totalFlawless: v2.totalFlawless || 0,
+        totalSolveSeconds: v2.totalSolveSeconds || 0,
+        solvedTimedCount: v2.solvedTimedCount || 0,
+      };
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(v3));
+  } catch {}
+}
+
+function migrateStorageIfNeeded() {
+  migrateV1toV2();
+  migrateV2toV3();
 }
 
 function loadStorage() {
   migrateStorageIfNeeded();
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!parsed || parsed.v !== 3 || !parsed.tiers) return emptyV3();
+    // Defensive: ensure each tier exists.
+    for (const t of TIERS) {
+      if (!parsed.tiers[t]) parsed.tiers[t] = emptyTierState();
+    }
+    return parsed;
+  } catch {
+    return emptyV3();
+  }
 }
-function saveStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {} }
+
+function saveStorage(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+}
+
+function tierStorage(tier) {
+  const all = loadStorage();
+  return all.tiers[tier] || emptyTierState();
+}
+
+// Replace the stub from Task 5.
+function getTierDayState(tier, dateStr) {
+  const ts = tierStorage(tier);
+  const entry = ts.byDate && ts.byDate[dateStr];
+  if (!entry) return null;
+  return { result: entry.result, inProgress: false };
+}
 
 const MAX_MISTAKES = 4;
 
@@ -1111,9 +1191,6 @@ let state = {
   guessLog: [],
   playDate: null, replay: false, inProgress: false,
 };
-
-// Stub — full implementation in Task 6 (per-tier storage).
-function getTierDayState(tier, dateStr) { return null; }
 
 function shuffle(a) {
   const b = [...a];
