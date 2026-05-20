@@ -16,8 +16,9 @@ Cross-phase decisions and discoveries that affect future phases. The canonical d
 - ✓ **Phase 3b — Multi-solution UX layer** (shipped: solution-range engine, three new rule kinds, storage v2 with v1 migration, duplicate detection, find-another flow, "pattern N of M" overlay copy, archive N/M badges, Nine-Patch template audit)
 - ✓ **Phase 3c — Log Cabin (Wednesday block)** (shipped: 13-slot spiral with 3 concentric rings, first real `ring()` implementation, three multi-solution templates — Hearth / Light-Dark Diagonal / Cross — all 4–6 solutions per Wed across the launch year)
 - ✓ **Phase 3d — Churn Dash + winter-forest** (shipped: 17-slot X-bowtie block with first real `{type:'polygon'}` slots, 7-fabric winter-forest palette, three templates — Bowtie / Locket / Night — all at 6 solutions per Thu across the launch year)
-- **Phase 3e — Sawtooth Star (Friday block)** ← *next up*
-- Future: Dresden Plate (Sat), Sampler quilt (Sun), polish & launch.
+- ✓ **Phase 3e — Sawtooth Star + summer-meadow** (shipped: 17-slot block with first shipped order-4 rotational symmetry, 7-fabric summer-meadow palette, three templates including the first real uses of `all-different` and `alternating` rule kinds)
+- **Phase 4 — Dresden Plate (Saturday block)** ← *next up*
+- Future: Sampler quilt (Sun), polish & launch.
 
 **Starting a new session on Phase 3e?** Read this file end-to-end first. The key things to know:
 - Sawtooth Star is the first block with a larger slot count in the 13–16 range — benchmark `verifyTemplate` early. Per the solver-scaling note below, if a year-wide verify exceeds 5s for a single template, add per-rule forward-pruning. Churn Dash (17 slots × 7 fabrics) verified in 74–267 ms per template — use that as a reference baseline.
@@ -89,6 +90,16 @@ Key decisions recorded for future phases:
 - **Winter-forest is the second palette family (7 fabrics).** Heritage-warm shipped with 6; winter-forest ships with 7. The 7th fabric (`F_OAT`, warm-light dot) gives a second light option so template math lands at 6 solutions cleanly: Bowtie = 2 lights × 3 darks; Night = 3 darks × 2 lights; Locket = 1 pinned center × 2 mediums × 3 darks. Palette-growth commitment back on track.
 - **Solver performance: 17 slots × 7 fabrics × full year (53 Thursdays) verifies in 74–267 ms per template.** Bowtie 267 ms, Locket 74 ms, Night 86 ms. Well under the 5s flag threshold. Use this as a reference baseline for Sawtooth Star (Phase 3e) tuning.
 - **Two in-phase scope expansions driven by playtesting.** The plan promised "purely additive content, no engine refactors." Playtesting surfaced two engine-touching improvements that landed as Phase 3d closure commits rather than getting deferred: (1) Rules-panel readability (`5788f97`) — multi-slot named groups now render as "All X slots (i, j, k) must be ..." with pluralization and slot-index suffix; affects all four blocks' templates retroactively (the change is universally an improvement so no per-template re-verification needed). (2) Live-violation feedback follow-up note (`ec4bb84`) — captured as a Phase 6 polish item with three resolution options. The shipped change here is just the design note; the actual UX change is deferred.
+
+### Sawtooth Star retrospective (Phase 3e, 2026-05-20)
+
+Notable execution-time decisions:
+
+- **17 slots, not 16.** The spec said "approx 16," but a 17-slot decomposition (1 large center + 4 corners + 4 large isoceles point triangles + 8 mid-edge bg triangles, 2 per side) is the cleanest construction. The 2-bg-per-side arrangement matches the canonical "flying geese" unit and gives templates 4 distinct mid-edge regions to constrain per side instead of a degenerate single-triangle-per-side variant. Same end count as Phase 3d's Churn Dash.
+- **First shipped block with order-4 rotational symmetry.** Rail Fence (order 2), Churn Dash (order 2, X-bowtie chirality), and Log Cabin (chiral spiral, no rotation) all topped out at order 2 or less. Sawtooth Star's clean 4-fold construction gives `rotationalSymmetryGroups(4)` four 4-slot orbits and `rotationalSymmetryGroups(2)` eight pairs.
+- **`bgsCyclic` as a semantic alias of `bgs`.** The two named slots return identical arrays `[9,10,11,12,13,14,15,16]`. `bgs` reads as "the set of all bg triangles" (for `all-same`-style uses); `bgsCyclic` reads as "the bgs in clockwise order around the block" (for `alternating`-style uses). Template C uses `bgsCyclic` specifically; the name carries the design intent even though the value is the same.
+- **First real uses of `all-different` (Template B Quartet) and `alternating` (Template C Pinwheel).** Both rule kinds shipped in Phase 3b but no prior template exercised them. Templates B and C close the Phase 3d retrospective's "structural variety, not just fabric" gap: their solutions vary by *fabric arrangement* at the points / bg orbits, not just by *fabric color* in fixed positions.
+- **Solver performance.** verifyTemplate over a full year (365 dates) per template lands at: Template A (Compass, all-same heavy) — ~1000ms; Template B (Quartet, `all-different` over 4 mediums) — ~962ms; Template C (Pinwheel, hard rotational-symmetry order 4 + `alternating`) — ~471ms. Pinwheel is the fastest because hard order-4 rotational symmetry prunes the search space aggressively (each filled slot transitively constrains 3 others). Same 17×7 problem size as Churn Dash. Dresden Plate (Phase 4 — 16–24 slots and potentially 8+ rules per template) is the next checkpoint to revisit per-rule forward-pruning.
 
 ---
 
@@ -181,6 +192,7 @@ Phase 1's solver is **naive backtracking with rule-evaluation pruning**. For 9 s
 
 - 2026-05-18 — Profile on Sawtooth Star (16 slots) in Phase 3. If verifyTemplate over a year of dates takes > 30s per template, switch to forward checking. Don't optimize before measuring.
 - ✓ 2026-05-19 — Phase 3a implemented `stillPossible` on the `verify()` contract. `count` rule has real forward-pruning (`matched > max` or `matched + slotsRemaining < min`). Other rules (positional/adjacency/symmetry/rotational-symmetry/pattern-property) return `stillPossible: violating.size === 0` since assigned-slot violations are permanent in solver context. Measured: warm-cool Nine-Patch verifyTemplate dropped from ~99ms to ~43ms over June 2026. Add per-rule predicates for other kinds if Sawtooth Star is slow.
+- ✓ 2026-05-20 — Phase 3e Sawtooth Star verifyTemplate over a year of dates lands at Compass ~1000ms / Quartet ~962ms / Pinwheel ~471ms per template (see Sawtooth Star retrospective below for the breakdown). Same 17×7 problem size as Churn Dash; the hard `rotational-symmetry` order-4 rule on Template C prunes the search space aggressively (~471ms — fastest of the three). No new rule kinds needed forward-pruning beyond what Phase 3a/3b shipped. Dresden Plate (Phase 4) is the next place to revisit per-rule forward-pruning if needed.
 
 ### Template assignment is rotation-by-date-index, not pool-pick
 
@@ -202,7 +214,7 @@ Phase 1 ships one palette family (`heritage-warm`). Plan to add at least one new
 
 - `heritage-warm` — madder, cream, indigo, weld, forest, walnut (shipped Phase 1; 6 fabrics)
 - ✓ `winter-forest` — snow, oat, slate, rust, pine, charcoal, oxblood (shipped Phase 3d; 7 fabrics). Heritage-warm shipped with 6; winter-forest ships with 7 — the 7th fabric (`F_OAT`, warm-light dot) gives a second light option, enabling a 2-light × 3-dark structure for clean 6-solution math on Thu templates. Composition: 2 lights (SNOW neutral, OAT warm) / 2 mediums (SLATE cool, RUST warm) / 3 darks (PINE cool, CHARCOAL neutral, OXBLOOD warm).
-- `summer-meadow` — buttercup, sky, fern, dove, sunset, cream
+- ✓ `summer-meadow` — dove, honey, fern, peach, lavender, plum, night (shipped Phase 3e; 7 fabrics). 1 light (DOVE neutral) / 4 mediums (HONEY warm, FERN cool, PEACH warm, LAVENDER cool) / 2 darks (PLUM warm, NIGHT cool). The 2-warm + 2-cool medium split is what makes Template B Quartet land at exactly 4 structural permutations — each valid assignment picks one warm and one cool point pair from 2×2 combinations.
 - `autumn-leaves` — rust, ochre, walnut, sage, cream, smoke
 
 Each family has 6–10 fabrics with their own SVG patterns. Authoring fabric SVG is real work — budget time for it.
@@ -295,8 +307,11 @@ All items below shipped in commits 3769a30 through c35391b. Key state changes:
 | Thu w0   | churn-dash-bowtie-v1       | 6 |
 | Thu w1   | churn-dash-locket-v1       | 6 |
 | Thu w2   | churn-dash-night-v1        | 6 |
+| Fri w0   | sawtooth-star-compass-v1   | 6 |
+| Fri w1   | sawtooth-star-quartet-v1   | 4 |
+| Fri w2   | sawtooth-star-pinwheel-v1  | 4 |
 
-All twelve pass `verifyTemplate` against their declared `solutionTarget` ranges. Mon/Tue templates verified across 2026-05-19 → 2026-08-18 (Phase 3b); Wed templates verified across 2026-05-20 → 2027-05-19 — 365 in-range / 0 too-few / 0 too-many for each of the three Log Cabin templates (Phase 3c final cross-task check). Thu templates verified across 2026-05-21 → 2027-05-20 — 53/53 Thursdays in-range / 0 too-few / 0 too-many for each of the three Churn Dash templates; exactly 6 solutions per Thursday (Phase 3d final cross-task check).
+All fifteen pass `verifyTemplate` against their declared `solutionTarget` ranges. Mon/Tue templates verified across 2026-05-19 → 2026-08-18 (Phase 3b); Wed templates verified across 2026-05-20 → 2027-05-19 — 365 in-range / 0 too-few / 0 too-many for each of the three Log Cabin templates (Phase 3c final cross-task check). Thu templates verified across 2026-05-21 → 2027-05-20 — 53/53 Thursdays in-range / 0 too-few / 0 too-many for each of the three Churn Dash templates; exactly 6 solutions per Thursday (Phase 3d final cross-task check). Fri templates verified across 2026-05-22 → 2027-05-21 — 365 dates in-range / 0 too-few / 0 too-many for each of the three Sawtooth Star templates (Compass 6, Quartet 4, Pinwheel 4 solutions per date) (Phase 3e final cross-task check).
 
 **Deferred (not yet built):**
 
