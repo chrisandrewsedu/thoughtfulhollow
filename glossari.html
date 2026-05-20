@@ -794,7 +794,7 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
       <div class="vol">daily</div>
     </div>
     <div class="header-actions">
-      <button class="practice-link" id="practiceLink" onclick="startPracticeGame()">Practice</button>
+      <button class="practice-link" id="practiceLink" onclick="openPracticePicker()">Practice</button>
       <button class="header-icon-btn" id="helpBtn" aria-label="How to play" type="button" onclick="openTutorial()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
       </button>
@@ -919,8 +919,25 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     <div class="intro-rules" style="margin-bottom:1.1rem">You've already played today's puzzle. New puzzle at midnight.</div>
     <div class="go-stats" id="alreadyStats"></div>
     <div class="intro-actions-row" style="margin-bottom:0.8rem">
-      <button class="btn-secondary" onclick="startPracticeGame()">Practice</button>
+      <button class="btn-secondary" onclick="openPracticePicker()">Practice</button>
       <button class="btn-secondary" onclick="openArchive()">Archive</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="practicePicker">
+    <div class="dict-entry-head">
+      <div class="dict-headword-large">Practice</div>
+      <div class="dict-tagline">Pick a difficulty</div>
+    </div>
+    <div class="go-rule"></div>
+    <div class="intro-rules" style="margin-bottom:1.1rem; text-align:center">A standalone puzzle outside the daily rotation. Doesn't affect your streak.</div>
+    <div class="tier-buttons" id="practiceTierButtons">
+      <button class="btn tier-btn" data-tier="easy"   onclick="startPracticeGame('easy')">Easy</button>
+      <button class="btn tier-btn" data-tier="medium" onclick="startPracticeGame('medium')">Medium</button>
+      <button class="btn tier-btn" data-tier="hard"   onclick="startPracticeGame('hard')">Hard</button>
+    </div>
+    <div class="intro-actions-row" style="margin-top:0.9rem">
+      <button class="btn-secondary" onclick="closePracticePicker()">Back</button>
     </div>
   </div>
 
@@ -1263,10 +1280,38 @@ function startDailyGame(dateStr, opts) {
   loadPuzzle();
 }
 
-function startPracticeGame() {
-  state.mode = 'practice'; state.puzzleIdx = Math.floor(Math.random() * PUZZLES.length);
+function openPracticePicker() {
+  document.getElementById('intro').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+  // Disable tier buttons that have no practice content.
+  for (const tier of TIERS) {
+    const btn = document.querySelector(`#practiceTierButtons .tier-btn[data-tier="${tier}"]`);
+    if (!btn) continue;
+    const hasContent = Array.isArray(PRACTICE[tier]) && PRACTICE[tier].length > 0;
+    btn.disabled = !hasContent;
+  }
+  document.getElementById('practicePicker').classList.add('show');
+}
+
+function closePracticePicker() {
+  document.getElementById('practicePicker').classList.remove('show');
+  document.getElementById('intro').classList.add('show');
+}
+
+function startPracticeGame(tier) {
+  if (!TIERS.includes(tier)) return;
+  const pool = PRACTICE[tier] || [];
+  if (pool.length === 0) return;
+  // Honor ?practice=tier:idx if present.
+  const forced = forcedPracticeRef();
+  const idx = (forced && forced.tier === tier) ? forced.idx : Math.floor(Math.random() * pool.length);
+  state.mode = 'practice';
+  state.tier = tier;
+  state.puzzleSource = pool[idx];
+  state.puzzleIdx = -1; // not a theme idx
   resetGameState();
   document.getElementById('intro').classList.remove('show');
+  document.getElementById('practicePicker').classList.remove('show');
   document.getElementById('alreadyPlayed').classList.remove('show');
   document.getElementById('reveal').classList.remove('show');
   loadPuzzle();
