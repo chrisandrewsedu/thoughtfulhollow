@@ -1229,7 +1229,9 @@ const TEMPLATES = [
   // is dark (indigo or walnut). The player chooses which warm fabric
   // anchors the center and which dark fabric forms the outer wall.
   //
-  // Six solutions: 3 warm × 1 light × 1 cool-medium × 2 dark.
+  // Six solutions: 3 warm × 1 light × 1 cool-medium × 2 dark. Note that
+  // walnut (warm-dark) can validly appear in both center and ring 3 — no
+  // rule forbids fabric reuse across rings, and the count depends on it.
   {
     id: 'log-cabin-hearth-v1',
     block: 'log-cabin',
