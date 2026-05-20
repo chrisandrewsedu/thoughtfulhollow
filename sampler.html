@@ -523,6 +523,23 @@ html, body { transition: background 0.25s, color 0.25s; }
   font-family: 'Spectral', serif; font-size: 0.55rem; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--ink-faint); margin-top: 0.18rem;
 }
+
+/* Admin preview mode — used by sampler-admin.html iframes.
+   ?preview=1 strips the page down to just the rendered block so a wall
+   of small iframes can show every template's visual identity at a
+   glance. Not a user-facing mode; not linked from the main UI. */
+body.preview-mode .header,
+body.preview-mode .subbar,
+body.preview-mode .palette,
+body.preview-mode .toolbar,
+body.preview-mode .rules-panel,
+body.preview-mode .win-notice,
+body.preview-mode .overlay { display: none !important; }
+body.preview-mode { background: var(--paper); }
+body.preview-mode .app { padding: 0.5rem; max-width: none; }
+body.preview-mode .main { padding: 0; }
+body.preview-mode .block-stage { padding: 0; margin: 0; }
+body.preview-mode .slot { pointer-events: none; cursor: default; }
 </style>
 </head>
 <body>
@@ -1337,7 +1354,24 @@ function instantiateTemplate(template, dateStr) {
   return { template, resolvedRoles, paletteIds: displayPalette, rules };
 }
 
+// Admin/dev override: ?template=<id> in the URL forces a specific
+// template regardless of date routing. Used by sampler-admin.html to
+// browse and play any template on demand. Returns null if no override
+// is present or the URL has no search string (e.g. file:// loads).
+function forcedTemplateId() {
+  if (typeof location === 'undefined' || !location.search) return null;
+  return new URLSearchParams(location.search).get('template');
+}
+
 function pickTemplateForDate(dateStr) {
+  // Honor the admin override first. If the requested template doesn't
+  // exist (typo, stale link), fall through to normal date routing
+  // rather than failing — keeps the daily game playable.
+  const forced = forcedTemplateId();
+  if (forced) {
+    const t = TEMPLATES.find(t => t.id === forced);
+    if (t) return t;
+  }
   // No puzzles before launch.
   const daysSince = dailyIndex(dateStr);
   if (daysSince < 0) return null;
@@ -2735,7 +2769,35 @@ function archiveCellClick(dateStr, isReplay) {
   if (!blocking) startPlay();
 }
 
+// True if the URL requests admin preview mode (?preview=1). Combined
+// with ?template=<id>, used by sampler-admin.html iframes to render
+// every template solved in a wall of tiny boards.
+function isPreviewMode() {
+  if (typeof location === 'undefined' || !location.search) return false;
+  return new URLSearchParams(location.search).get('preview') === '1';
+}
+
+// Boot path for ?preview=1: skip intro/storage entirely, solve the
+// forced template, paint the board with that solution, lock the game.
+// Renders just the block (chrome hidden by .preview-mode CSS).
+function bootPreview() {
+  document.body.classList.add('preview-mode');
+  const today = todayStr();
+  const template = pickTemplateForDate(today); // honors ?template= override
+  if (!template) return;
+  const instance = instantiateTemplate(template, today);
+  initGame(instance.template.block, instance.paletteIds, instance.rules);
+  const block = BLOCKS[instance.template.block];
+  const result = solve(block, instance.paletteIds, instance.rules, FABRICS, 1);
+  if (result.samples && result.samples[0]) {
+    game.fabricBySlot = result.samples[0].slice();
+    game.locked = true;
+    renderAll();
+  }
+}
+
 function bootSampler() {
+  if (isPreviewMode()) return bootPreview();
   const stored = loadStorage();
   const today = todayStr();
 
