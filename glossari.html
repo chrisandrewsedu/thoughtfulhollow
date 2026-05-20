@@ -436,6 +436,28 @@ html, body {
 }
 .archive-cell.solved .archive-mark { color: var(--green); }
 .archive-cell.revealed .archive-mark { color: var(--gold); }
+.archive-tier-picker {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--paper); border: 1px solid var(--border);
+  border-radius: 6px; padding: 1rem 1.2rem;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.18);
+  z-index: 20; display: none;
+}
+.archive-tier-picker.show { display: block; }
+.archive-tier-picker .picker-title {
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  text-align: center; margin-bottom: 0.4rem;
+}
+.archive-tier-picker .picker-sub {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.6rem; color: var(--ink-faint);
+  text-align: center; margin-bottom: 0.8rem;
+}
+.archive-tier-picker .tier-buttons { margin-top: 0.3rem; }
+.archive-tier-picker .picker-close {
+  display: block; margin: 0.8rem auto 0;
+}
 .archive-stats {
   display: flex; justify-content: center; gap: 1.6rem;
   margin-top: 1.4rem; width: 100%;
@@ -447,6 +469,16 @@ html, body {
 .archive-stats .archive-stat-lbl {
   font-family: 'Lora', serif; font-size: 0.55rem; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--ink-faint); margin-top: 0.18rem;
+}
+.archive-stat-row {
+  display: grid; grid-template-columns: 4rem 1fr 1fr 1fr 1fr;
+  gap: 0.4rem; align-items: center; padding: 0.3rem 0;
+  border-top: 1px solid var(--paper-shadow);
+}
+.archive-stat-tier {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.7rem; color: var(--ink-soft);
+  text-align: left;
 }
 
 .go-mark {
@@ -959,6 +991,16 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
       <div class="archive-grid" id="archiveGrid"></div>
       <div class="archive-stats" id="archiveStats"></div>
     </div>
+      <div class="archive-tier-picker" id="archiveTierPicker">
+        <div class="picker-title" id="archivePickerTitle">—</div>
+        <div class="picker-sub" id="archivePickerSub">—</div>
+        <div class="tier-buttons" id="archivePickerButtons">
+          <button class="btn tier-btn" data-tier="easy"   onclick="archiveTierPick('easy')">Easy</button>
+          <button class="btn tier-btn" data-tier="medium" onclick="archiveTierPick('medium')">Medium</button>
+          <button class="btn tier-btn" data-tier="hard"   onclick="archiveTierPick('hard')">Hard</button>
+        </div>
+        <button class="btn-secondary picker-close" onclick="closeArchiveTierPicker()">Back</button>
+      </div>
   </div>
 </div>
 
@@ -1378,8 +1420,7 @@ function renderArchive() {
   prevBtn.disabled = lastOfPrevMonth < launchDate;
   nextBtn.disabled = firstOfNextMonth > todayDate;
 
-  const stored = loadStorage();
-  const byDate = stored.byDate || {};
+  const all = loadStorage();
 
   const grid = document.getElementById('archiveGrid');
   grid.innerHTML = '';
@@ -1402,49 +1443,84 @@ function renderArchive() {
     const isBeforeLaunch = dateObj < launchDate;
     const isFuture = dateObj > todayDate;
     const isToday = dateStr === today;
-    const entry = byDate[dateStr];
+    const playedTiers = TIERS.filter(t => all.tiers[t].byDate && all.tiers[t].byDate[dateStr]);
+    const hasAnyPlay = playedTiers.length > 0;
+    const allSolvedOnAnyTier = hasAnyPlay && playedTiers.some(t => all.tiers[t].byDate[dateStr].result && all.tiers[t].byDate[dateStr].result.allSolved);
 
     if (isBeforeLaunch || isFuture) {
       cell.classList.add(isFuture ? 'future' : 'empty');
       if (isBeforeLaunch) cell.classList.add('empty');
     } else {
       if (isToday) cell.classList.add('today');
-      if (entry) {
+      if (hasAnyPlay) {
         cell.classList.add('completed');
-        const allSolved = entry.result && entry.result.allSolved;
-        cell.classList.add(allSolved ? 'solved' : 'revealed');
+        cell.classList.add(allSolvedOnAnyTier ? 'solved' : 'revealed');
         const mark = document.createElement('div');
         mark.className = 'archive-mark';
-        mark.textContent = allSolved ? '✓' : '◊';
+        mark.textContent = allSolvedOnAnyTier ? '✓' : '◊';
         cell.appendChild(mark);
-        cell.onclick = () => archiveCellClick(dateStr, true);
       } else {
         cell.classList.add('available');
-        cell.onclick = () => archiveCellClick(dateStr, false);
       }
+      cell.onclick = () => archiveCellClick(dateStr);
     }
     grid.appendChild(cell);
   }
 
   const statsEl = document.getElementById('archiveStats');
   statsEl.innerHTML = '';
-  [
-    ['Streak', stored.streak || 0],
-    ['Played', stored.totalPlayed || 0],
-    ['Flawless', stored.totalFlawless || 0],
-    ['Avg Time', formatAvgTime(stored)],
-  ].forEach(([label, val]) => {
-    const stat = document.createElement('div');
-    stat.className = 'archive-stat';
-    const num = document.createElement('div'); num.className = 'archive-stat-num'; num.textContent = val;
-    const lbl = document.createElement('div'); lbl.className = 'archive-stat-lbl'; lbl.textContent = label;
-    stat.appendChild(num); stat.appendChild(lbl); statsEl.appendChild(stat);
-  });
+  // Per-tier rows: always show all three so other tiers stay discoverable.
+  for (const tier of TIERS) {
+    const t = all.tiers[tier];
+    const row = document.createElement('div');
+    row.className = 'archive-stat-row';
+    row.innerHTML = `<div class="archive-stat-tier">${tier.charAt(0).toUpperCase() + tier.slice(1)}</div>` +
+      [['Streak', t.streak || 0], ['Played', t.totalPlayed || 0], ['Flawless', t.totalFlawless || 0], ['Avg', formatAvgTime(t)]]
+        .map(([label, val]) => `<div class="archive-stat"><div class="archive-stat-num">${val}</div><div class="archive-stat-lbl">${label}</div></div>`)
+        .join('');
+    statsEl.appendChild(row);
+  }
 }
 
-function archiveCellClick(dateStr, isReplay) {
+let archivePickerDate = null;
+
+function archiveCellClick(dateStr) {
+  archivePickerDate = dateStr;
+  const themeIdx = dailyIndex(dateStr);
+  const theme = THEMES[themeIdx];
+  const d = new Date(dateStr + 'T12:00:00Z');
+  const dateLabel = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+  document.getElementById('archivePickerTitle').textContent = theme.name;
+  document.getElementById('archivePickerSub').textContent = dateLabel;
+  // Enable each tier button only if a variant exists for that date.
+  const all = loadStorage();
+  for (const tier of TIERS) {
+    const btn = document.querySelector(`#archivePickerButtons .tier-btn[data-tier="${tier}"]`);
+    if (!btn) continue;
+    const available = tierAvailable(themeIdx, tier);
+    const tEntry = all.tiers[tier].byDate && all.tiers[tier].byDate[dateStr];
+    const sub = !available ? 'unavailable' : (tEntry ? (tEntry.result.allSolved ? '✓ played' : '◊ played') : 'play');
+    btn.disabled = !available;
+    btn.innerHTML = `${tier.charAt(0).toUpperCase() + tier.slice(1)}<span class="tier-state">${sub}</span>`;
+  }
+  document.getElementById('archiveTierPicker').classList.add('show');
+}
+
+function closeArchiveTierPicker() {
+  document.getElementById('archiveTierPicker').classList.remove('show');
+  archivePickerDate = null;
+}
+
+function archiveTierPick(tier) {
+  if (!archivePickerDate) return;
+  if (!tierAvailable(dailyIndex(archivePickerDate), tier)) return;
+  const date = archivePickerDate;
+  closeArchiveTierPicker();
   document.getElementById('archive').classList.remove('show');
-  startDailyGame(dateStr, { replay: isReplay });
+  const all = loadStorage();
+  const entry = all.tiers[tier].byDate && all.tiers[tier].byDate[date];
+  // If already played, replay; otherwise play fresh.
+  startDailyGame(date, { tier, replay: !!entry });
 }
 
 function resetGameState() { state.puzzlesSolved = 0; state.flawless = 0; state.totalMistakes = 0; state.puzzleMarksByEntry = []; }
