@@ -178,6 +178,51 @@ The user explicitly named "collaboration with the algorithm" as the model: autho
 - 2026-05-18 — When verifyTemplate reports failures, the failure message should name **which rule** is over- or under-constraining. The current implementation just reports counts. Improve before Phase 4 (when Saturday templates with 6+ entangled rules become hard to debug).
 - 2026-05-19 — **Open bug discovered during Phase 3a:** `nine-patch-diagonal-v1` and `nine-patch-warm-cool-v1` both report `0 unique / 0 none / 30 multiple` under `verifyTemplate`. The breakage pre-dates Phase 3a (confirmed by running verifyTemplate against `HEAD~10`). Templates were authored without verification or the rules drifted. Mon-week-1 and Mon-week-2 currently serve non-unique puzzles. **Action:** re-author or tighten the two templates before Phase 3b ships. `nine-patch-greek-cross-v1` still verifies unique, so Mon week 0 is fine.
 
+### Multi-solution puzzles (added Phase 3a)
+
+Sampler shifted from "every puzzle has exactly one solution" to "every puzzle is a small family of solutions; replayability is finding more of them." Replay still works the same way (the game treats *any* valid solution as complete); future Phase 3b work tracks which solutions a player has actually found.
+
+**Difficulty calibration** by solution count (cap at ~6 across the board so each find feels earned — going higher tips into grind):
+
+| Day | Target range |
+|---|---|
+| Mon (Nine-Patch)    | 2–4 solutions |
+| Tue (Rail Fence)    | 2–6 solutions |
+| Wed (Log Cabin)     | 4–6 solutions |
+| Thu (Churn Dash)    | 4–6 solutions |
+| Fri (Sawtooth Star) | 4–6 solutions |
+| Sat (Dresden Plate) | 4–6 solutions |
+| Sun (Sampler quilt) | TBD — likely tighter per sub-block + cross-block constraints |
+
+These are starting targets; revisit after a few weeks of play. The Spelling Bee reference frame is right — the satisfaction comes from each new find feeling earned, not from completeness. Don't let any single puzzle balloon past 6.
+
+**Engine surface:**
+
+- Templates declare `solutionTarget: { min, max }`. Default (omit the field) is `{min:1, max:1}` — legacy uniqueness.
+- `verifyTemplate` reports `in-range / too-few / too-many` against the target. Solver runs with `cap = max + 1` so "more than max" is detectable.
+- New rule kinds for structural rather than fabric-specific constraints:
+  - `all-same` — slots in a named group share one fabric (player picks which). Pairs naturally with a property positional rule like `{hue:'warm'}`.
+  - `all-different` — slots in a named group use distinct fabrics. Useful when the group is small relative to the palette.
+  - `alternating` — slots alternate between two constraint classes. `between:[{motif:'solid'},{motif:'stripe'}]` for example.
+- Property positional rules already supported (`{kind:'positional', slot:'topRails', constraint:{hue:'warm'}}`); they just weren't used at multi-solution scale before.
+
+**Reference: Phase 3a Rail Fence templates as built (post-rewrite):**
+
+- `rail-fence-three-rails-v2` — middle cream; top all-same+warm; bottom all-same+cool → 6 solutions.
+- `rail-fence-center-stripe-v2` — middle cream; frame (top+bottom) all-same+warm → 3 solutions.
+- `rail-fence-gradient-v1` — top light, middle medium, bottom dark; each rank all-same → 6 solutions (constrained by 1 light × 3 medium × 2 dark).
+
+The dropped `rail-fence-mirror-pairs-v1` template is worth bringing back when we either (a) have a cross-group equality primitive that plays nicely with rotational-symmetry, or (b) add a horizontally-striped fabric to a palette so `pattern-property` has solving teeth.
+
+**Deferred to Phase 3b (multi-solution UX & cleanup):**
+
+- Storage shape v2 — track which solutions a player has actually found. Probably `byDate[d].solutionsFound: [fabricBySlot, ...]` plus `solutionCountAtPlayTime: int`. Migration from v1 needed.
+- Completion overlay rewrite — "You found a Rail Fence — pattern 1 of 5. Play again to find another."
+- Archive cell badges — small "3/5" indicator on completed days.
+- Share string evolution — convey "found 3 of 5 patterns this puzzle allows."
+- Retroactive audit of the broken Nine-Patch templates (`nine-patch-diagonal-v1`, `nine-patch-warm-cool-v1`). They currently report "too-many" against the default `{1,1}` target. Phase 3b should run them through the solver, decide a reasonable `solutionTarget`, possibly tighten rules if the count is too loose, and re-author if needed.
+- Decision: does "complete" remain `≥1 solution found` (current behavior, casual-friendly) or graduate to `all N solutions found` (hardcore)? Probably stay with the former and have a separate "completionist" achievement.
+
 ### Decorative rules (added Phase 3a)
 
 Templates can now flag any rule with `decorative: true`. `evaluateRules` short-circuits decorative rules to `{satisfied:true, violatingSlots:∅, stillPossible:true}` — they appear in the rules panel via `kind.describe()` but never constrain the solver or trigger violation highlights.
@@ -190,21 +235,23 @@ Use cases (to be exercised by Phase 3b+ templates):
 
 The `pattern-property` rule kind and `block.rotation()` on Rail Fence are unused by current Phase 3a templates — they stay in the codebase so future templates can either use them as hard constraints (once a horizontally-striped fabric exists in some palette and gives them solving teeth) or as decorative pedagogy.
 
-### Rail Fence — quilter-authentic templates (Phase 3a)
+### Rail Fence — template evolution (Phase 3a)
 
-The first pass at Rail Fence templates pinned whole squares to one fabric ("each square is monochrome"). That's not how real quilters use Rail Fence — the canonical pattern is **three different fabrics per square, same A-B-C rank ordering across all four squares**, which is what creates the basket-weave illusion when blocks tile.
+Three iterations during Phase 3a, each correcting a different design mismatch:
 
-Phase 3a's final template set, all using `topRails / middleRails / bottomRails` named slots:
+1. **v1 (Four Squares)** — each rail-fence square pinned to one fabric. Mechanically worked but not how real quilters use Rail Fence; each square should have *three different fabrics* in its three stripes.
+2. **v1b (Three Rails, prescriptive)** — rewrote around rank-based rules (`topRails`/`middleRails`/`bottomRails`), each rank pinned to a specific fabric via ROLE. Visually canonical but every puzzle had exactly one solution.
+3. **v2 (multi-solution, current)** — same rank-based structure but rules describe *categories* (hue, value) plus `all-same` per rank, so each puzzle admits a small family of solutions.
 
-- **rail-fence-three-rails-v1** — canonical 3-fabric A-B-C. Cream anchors the middle rail; top and bottom rails are date-rotated.
-- **rail-fence-center-stripe-v1** — palindromic 2-fabric A-B-A around a cream center.
-- **rail-fence-mirror-pairs-v1** — `rotational-symmetry order 2` + slot pins on the upper-half squares.
+Shipped templates are documented in the "Multi-solution puzzles" section above. The lesson: Rail Fence rules should describe **structural relationships between ranks** (this rank monochrome, this rank a particular hue / value class), not pin to specific fabrics.
 
 Future Rail Fence template ideas worth authoring in Phase 3b:
 
-- **Light-Medium-Dark gradient** — value-based positional constraints (e.g. `topRails = {value:'light'}, middleRails = {value:'medium'}, bottomRails = {value:'dark'}`) instead of fabric-ID pins. Needs more medium/dark fabrics or a forced-monochrome-per-rank rule.
-- **Diagonal stripe** — fabric A on `topRails`, fabric B on `middleRails`, fabric C on `bottomRails`, with the values arranged so the gradient reads diagonally across the assembled block.
-- **Direction-aware stripe rule** — once a horizontally-striped fabric joins the palette, `pattern-property` can express "striped fabrics must run with their rail" as a real constraint instead of a decorative one.
+- **Alternating outer ranks** — top rails alternate `{hue:'warm'}` / `{hue:'cool'}` across the 4 squares. Uses the `alternating` rule kind (shipped but not yet used by any template).
+- **All-different middle** — middle rails use 4 distinct fabrics (forcing variety without specifying which). Currently impossible with the 6-fabric palette + cream-pinned middle; needs more fabrics first.
+- **Diagonal value gradient** — top rails light, middle medium, bottom dark, *but* with a twist that breaks the strict A-B-C uniformity across squares (e.g. one square inverts the gradient to read as a diagonal sash).
+- **Mirror Pairs revival** — bring back the rotational-symmetry template once we have either (a) a cross-group equality primitive that plays nicely with the rotational-pair structure, or (b) a horizontally-striped fabric that gives `pattern-property` solving teeth.
+- **Direction-aware stripe rule** — once a horizontally-striped fabric joins a palette, `pattern-property` can express "striped fabrics must run with their rail" as a real constraint instead of decoratively.
 
 ### Existing-file impact (cross-phase)
 
