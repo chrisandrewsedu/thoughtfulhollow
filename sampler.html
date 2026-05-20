@@ -1765,6 +1765,41 @@ const TEMPLATES = [
       { kind: 'rotational-symmetry', order: 2, decorative: true },
     ],
   },
+
+  // ─── Sawtooth Star templates (Phase 3e) ───
+  // All three use the summer-meadow palette and target 4-6 solutions.
+  // Templates B (Quartet) and C (Pinwheel) intentionally exercise the
+  // `all-different` and `alternating` rule kinds — shipped in Phase 3b
+  // but unused by any prior template — to deliver structural variety
+  // (solutions vary by fabric *arrangement*, not just fabric color in
+  // fixed positions). Template A is the canonical rotationally
+  // symmetric Sawtooth Star, anchoring the pool with a familiar look.
+
+  // Template A: "Compass" — canonical Sawtooth Star. Light center,
+  // cool-dark corners, warm star points (all-same), cool-medium bgs
+  // (all-same). The 4-group construction is rotationally symmetric by
+  // construction; the decorative rule surfaces it to the player.
+  //
+  // Six solutions: 3 warm fabrics for points (HONEY, PEACH medium;
+  // PLUM dark) × 2 cool-medium fabrics for bgs (FERN, LAVENDER).
+  {
+    id: 'sawtooth-star-compass-v1',
+    block: 'sawtooth-star',
+    paletteFamily: 'summer-meadow',
+    paletteSize: 7,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: {},
+    rules: [
+      { kind: 'positional', slot: 'center',  constraint: { value: 'light' } },
+      { kind: 'all-same',   slot: 'corners' },
+      { kind: 'positional', slot: 'corners', constraint: { value: 'dark', hue: 'cool' } },
+      { kind: 'all-same',   slot: 'points' },
+      { kind: 'positional', slot: 'points',  constraint: { hue: 'warm' } },
+      { kind: 'all-same',   slot: 'bgs' },
+      { kind: 'positional', slot: 'bgs',     constraint: { value: 'medium', hue: 'cool' } },
+      { kind: 'rotational-symmetry', order: 4, decorative: true },
+    ],
+  },
 ];
 
 function resolveRoleRefs(rule, fabricRoles) {
