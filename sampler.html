@@ -2075,7 +2075,11 @@ function undoMove() {
 
 // ─── Rules ───────────────────────────────────────────────────────────
 // Each rule kind has:
-//   - describe(rule, fabricsById) → human-readable text
+//   - describe(rule, fabricsById, block?) → human-readable text
+//     (`block` is optional; consumed by kinds that reference named slot
+//     groups — positional, all-same, all-different, alternating — so the
+//     panel copy can pluralize and surface slot indices. Other kinds
+//     ignore the arg.)
 //   - verify(rule, fabricBySlot, block, fabricsById) → { satisfied, violatingSlots: Set<int> }
 //
 // Rules in templates are objects: { kind, ...params }. The runtime resolves
