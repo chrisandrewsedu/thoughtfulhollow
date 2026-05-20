@@ -508,6 +508,9 @@ html, body { transition: background 0.25s, color 0.25s; }
 }
 .archive-cell.solved .archive-mark { color: var(--green); }
 .archive-cell.revealed .archive-mark { color: var(--gold); }
+/* All-patterns-found gets a brighter accent so the player can scan the
+   calendar for completionist days at a glance. */
+.archive-cell.solved.all-found .archive-mark { color: var(--gold); font-weight: 600; }
 .archive-stats {
   display: flex; justify-content: center; gap: 1.6rem;
   margin-top: 1.2rem; max-width: 22rem; margin-left: auto; margin-right: auto;
@@ -2141,7 +2144,23 @@ function copyShareText() {
   const dateLabel = new Date(playDate + 'T12:00:00Z')
     .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
   const time = formatTime(game.elapsed);
-  const text = `Sampler · ${dateLabel} · ${game.block.displayName} · ${time}`;
+  // Multi-solution-aware share line. Reads the just-saved storage so
+  // pattern N/M reflects this find. Single-solution puzzles keep the
+  // legacy " · "-separated format; multi-solution adds an em-dash
+  // prefix for the progress phrase.
+  const stored = loadStorage();
+  const entry = stored.byDate && stored.byDate[playDate];
+  const N = (entry && entry.solutionsFound && entry.solutionsFound.length) || 0;
+  const M = entry ? entry.totalSolutions : null;
+  const blockName = game.block.displayName;
+  let text;
+  if (!M || M === 1) {
+    text = `Sampler · ${dateLabel} · ${blockName} · ${time}`;
+  } else if (N >= M) {
+    text = `Sampler · ${dateLabel} · ${blockName} — all ${M} patterns · ${time}`;
+  } else {
+    text = `Sampler · ${dateLabel} · ${blockName} — pattern ${N} of ${M} · ${time}`;
+  }
   const showFeedback = (msg) => {
     const btn = document.querySelector('.share-copy-btn');
     if (!btn) return;
@@ -2479,11 +2498,24 @@ function renderArchive() {
       if (isToday) cell.classList.add('today');
       if (entry) {
         cell.classList.add('completed');
-        const solvedAtLeastOnce = entry.solutionsFound && entry.solutionsFound.length > 0;
+        const N = (entry.solutionsFound && entry.solutionsFound.length) || 0;
+        const M = entry.totalSolutions;
+        const solvedAtLeastOnce = N > 0;
         cell.classList.add(solvedAtLeastOnce ? 'solved' : 'revealed');
+        // Mark text: single-solution puzzles (or unknown M) show ✓ as
+        // before; multi-solution puzzles show "N/M" so the player can
+        // scan how many patterns they've found per day. All-found days
+        // get the .all-found accent.
         const mark = document.createElement('div');
         mark.className = 'archive-mark';
-        mark.textContent = solvedAtLeastOnce ? '✓' : '◊';
+        if (!solvedAtLeastOnce) {
+          mark.textContent = '◊';
+        } else if (!M || M === 1) {
+          mark.textContent = '✓';
+        } else {
+          mark.textContent = `${N}/${M}`;
+          if (N >= M) cell.classList.add('all-found');
+        }
         cell.appendChild(mark);
         cell.onclick = () => archiveCellClick(dateStr, true);
       } else {
