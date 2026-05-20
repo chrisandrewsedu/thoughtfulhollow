@@ -1516,6 +1516,29 @@ const TEMPLATES = [
       { kind: 'symmetry',   axis: 'vertical', decorative: true },
     ],
   },
+
+  // Template B: "Locket" — center pinned to F_SNOW; dash all-same medium;
+  // frame (field minus center) all-same dark. The pinned center reads as
+  // a snow "stone" set in a layered backing of darker fabrics.
+  //
+  // Six solutions: 1 pinned center × 2 mediums (SLATE, RUST) × 3 darks
+  // (PINE, CHARCOAL, OXBLOOD).
+  {
+    id: 'churn-dash-locket-v1',
+    block: 'churn-dash',
+    paletteFamily: 'winter-forest',
+    paletteSize: 7,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: { CENTER: 'F_SNOW' },
+    rules: [
+      { kind: 'positional', slot: 'center', constraint: { fabricId: 'ROLE:CENTER' } },
+      { kind: 'all-same',   slot: 'dash' },
+      { kind: 'positional', slot: 'dash',   constraint: { value: 'medium' } },
+      { kind: 'all-same',   slot: 'frame' },
+      { kind: 'positional', slot: 'frame',  constraint: { value: 'dark' } },
+      { kind: 'symmetry',   axis: 'horizontal', decorative: true },
+    ],
+  },
 ];
 
 function resolveRoleRefs(rule, fabricRoles) {
