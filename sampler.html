@@ -1800,6 +1800,38 @@ const TEMPLATES = [
       { kind: 'rotational-symmetry', order: 4, decorative: true },
     ],
   },
+  // Template B: "Quartet" — `all-different` across the 4 star points
+  // forces 4 distinct fabrics. The `pointsNS`/`pointsEW` positional
+  // rules split the points by hue: north+south cool-medium,
+  // east+west warm-medium. With exactly 2 cool-mediums (FERN,
+  // LAVENDER) and 2 warm-mediums (HONEY, PEACH) in summer-meadow,
+  // all four mediums are placed at points — but the player chooses
+  // which cool goes N vs S and which warm goes E vs W.
+  //
+  // Four solutions: 2 (N/S cool perms) × 2 (E/W warm perms). All four
+  // are STRUCTURALLY distinct — different fabric arrangements, not
+  // just different colors in fixed positions. Solves the Phase 3d
+  // retrospective's "structural variety" quality bar.
+  {
+    id: 'sawtooth-star-quartet-v1',
+    block: 'sawtooth-star',
+    paletteFamily: 'summer-meadow',
+    paletteSize: 7,
+    solutionTarget: { min: 4, max: 6 },
+    fabricRoles: {},
+    rules: [
+      { kind: 'positional',    slot: 'center',   constraint: { value: 'light' } },
+      { kind: 'all-different', slot: 'points' },
+      { kind: 'positional',    slot: 'points',   constraint: { value: 'medium' } },
+      { kind: 'positional',    slot: 'pointsNS', constraint: { hue: 'cool' } },
+      { kind: 'positional',    slot: 'pointsEW', constraint: { hue: 'warm' } },
+      { kind: 'all-same',      slot: 'corners' },
+      { kind: 'positional',    slot: 'corners',  constraint: { value: 'dark', hue: 'cool' } },
+      { kind: 'all-same',      slot: 'bgs' },
+      { kind: 'positional',    slot: 'bgs',      constraint: { value: 'light' } },
+      { kind: 'symmetry',      axis: 'vertical', decorative: true },
+    ],
+  },
 ];
 
 function resolveRoleRefs(rule, fabricRoles) {
