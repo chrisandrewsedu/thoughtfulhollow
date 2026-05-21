@@ -773,6 +773,12 @@ html, body { transition: background 0.25s, color 0.25s; }
   border-style: dashed;
 }
 
+/* On wide+short viewports the min-width font scaling (120–130%) inflates rem units
+   and defeats the max-height breakpoints below. Reset to 100% so rem stays at 16px. */
+@media (min-width: 700px) and (max-height: 900px) {
+  html { font-size: 100%; }
+}
+
 @media (max-height: 840px) {
   .header { padding: 0.65rem 1rem 0.5rem; }
   .dict-headword-large { font-size: clamp(1.9rem, 5.5vw, 2.8rem); }
