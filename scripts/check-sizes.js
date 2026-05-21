@@ -64,6 +64,8 @@ async function main() {
       await page.setViewportSize({ width: w, height: h });
       await page.goto(`${BASE}/glossari.html`);
       await page.waitForLoadState('networkidle');
+      // Wait for JS to show the intro overlay after JSON is fetched
+      await page.waitForSelector('.overlay.show', { timeout: 4000 }).catch(() => {});
 
       const overflow = await page.evaluate(() => {
         // Use documentElement (html) for the page-level overflow check: this reflects

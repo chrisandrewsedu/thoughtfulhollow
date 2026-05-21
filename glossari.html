@@ -1555,7 +1555,7 @@ function archiveCellClick(dateStr) {
     const available = tierAvailable(themeIdx, tier);
     const tEntry = all.tiers[tier].byDate && all.tiers[tier].byDate[dateStr];
     const dataState = !available ? 'unavailable' : (tEntry ? 'done' : 'fresh');
-    const indicator = tEntry ? (tEntry.result.allSolved ? '●' : '◌') : '';
+    const indicator = tEntry ? (tEntry.result?.allSolved ? '●' : '◌') : '';
     const label = tier.charAt(0).toUpperCase() + tier.slice(1);
     btn.disabled = !available;
     btn.setAttribute('data-state', dataState);
@@ -1612,6 +1612,7 @@ function refreshIntroButtons() {
     let indicator = '';
     if (!available) {
       btn.disabled = true;
+      dataState = 'unavailable';
     } else if (tierState && tierState.result) {
       btn.disabled = false;
       dataState = 'done';
