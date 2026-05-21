@@ -16,3 +16,5 @@ admin/
 
 # Git worktrees for isolated feature work.
 .worktrees/
+
+scripts/size-check-output/
