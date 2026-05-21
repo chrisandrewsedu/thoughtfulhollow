@@ -20,33 +20,33 @@ const OUT  = path.resolve(__dirname, 'size-check-output');
 
 async function main() {
   fs.mkdirSync(OUT, { recursive: true });
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ args: ['--allow-file-access-from-files'] });
   const results = [];
 
-  for (const { label, w, h } of SIZES) {
-    const page = await browser.newPage();
-    await page.setViewportSize({ width: w, height: h });
-    await page.goto(`file://${FILE}`);
-    await page.waitForLoadState('networkidle');
+  try {
+    for (const { label, w, h } of SIZES) {
+      const page = await browser.newPage();
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto(`file://${FILE}`);
+      await page.waitForLoadState('networkidle');
 
-    const overflow = await page.evaluate(() => {
-      const body = document.body;
-      const bodyOverflows = body.scrollHeight > body.clientHeight;
-      const overlay = document.querySelector('.overlay.show');
-      const overlayOverflows = overlay
-        ? overlay.scrollHeight > overlay.clientHeight
-        : false;
-      return { body: bodyOverflows, overlay: overlayOverflows };
-    });
+      const overflow = await page.evaluate(() => {
+        const body = document.body;
+        const bodyOverflows = body.scrollHeight > body.clientHeight;
+        const overlays = Array.from(document.querySelectorAll('.overlay.show'));
+        const overlayOverflows = overlays.some(el => el.scrollHeight > el.clientHeight);
+        return { body: bodyOverflows, overlay: overlayOverflows };
+      });
 
-    const pass = !overflow.body && !overflow.overlay;
-    const screenshotPath = path.join(OUT, `${w}x${h}.png`);
-    await page.screenshot({ path: screenshotPath, fullPage: false });
-    results.push({ label, w, h, pass, overflow });
-    await page.close();
+      const pass = !overflow.body && !overflow.overlay;
+      const screenshotPath = path.join(OUT, `${w}x${h}.png`);
+      await page.screenshot({ path: screenshotPath, fullPage: false });
+      results.push({ label, w, h, pass, overflow });
+      await page.close();
+    }
+  } finally {
+    await browser.close();
   }
-
-  await browser.close();
 
   console.log('\n── Glossari Size Check ─────────────────────────────');
   for (const { label, w, h, pass, overflow } of results) {
