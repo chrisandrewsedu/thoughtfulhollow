@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Thoughtful Hollow</title>
-<meta name="description" content="A small workshop for word puzzles and other thoughtful things.">
+<meta name="description" content="A small workshop for puzzles and other thoughtful things.">
 <script>
   (function () {
     try {
@@ -125,10 +125,41 @@ body {
 .card-title-glossari {
   font-family: 'DM Serif Display', Georgia, serif;
   font-weight: 400;
+  font-style: italic;
+}
+.card-title-mark {
+  color: var(--accent);
+  font-style: normal;
 }
 .card-title-sampler {
   font-family: 'Fascinate', Georgia, serif;
   font-weight: 400;
+}
+.card-coming-soon {
+  pointer-events: none;
+  opacity: 0.6;
+  cursor: default;
+}
+.card-coming-soon:hover {
+  transform: none;
+  border-color: var(--card-border);
+  box-shadow: none;
+}
+.coming-soon-badge {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  border: 1px solid var(--fg-faint);
+  border-radius: 3px;
+  padding: 0.1em 0.45em;
+  margin-left: 0.6rem;
+  vertical-align: middle;
+  position: relative;
+  top: -0.1em;
 }
 .card-desc {
   font-family: 'Fraunces', Georgia, serif;
@@ -189,18 +220,18 @@ body {
 
   <div class="hero">
     <h1 class="wordmark">Thoughtful Hollow</h1>
-    <p class="tagline">A small workshop for word puzzles and other thoughtful things.</p>
+    <p class="tagline">A small workshop for puzzles and other thoughtful things.</p>
   </div>
 
   <div class="shelf-label">— Currently —</div>
   <a class="card" href="/glossari">
-    <div class="card-title card-title-glossari">Glossari <span class="card-arrow">→</span></div>
+    <div class="card-title card-title-glossari">Glos<span class="card-title-mark">·</span>sa<span class="card-title-mark">·</span>ri <span class="card-arrow">→</span></div>
     <div class="card-desc">A daily dictionary puzzle. Identify four headwords from clues and word segments.</div>
   </a>
-  <a class="card" href="/sampler">
-    <div class="card-title card-title-sampler">Sampler <span class="card-arrow">→</span></div>
+  <div class="card card-coming-soon">
+    <div class="card-title card-title-sampler">Sampler <span class="coming-soon-badge">Coming Soon</span></div>
     <div class="card-desc">a daily quilt-block puzzle</div>
-  </a>
+  </div>
 
   <div class="footer">© 2026 Thoughtful Hollow &nbsp;·&nbsp; <a class="footer-link" href="https://ko-fi.com/chrisandrewsedu" target="_blank" rel="noopener">Support on Ko-fi</a></div>
 </div>

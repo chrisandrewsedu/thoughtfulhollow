@@ -1,6 +1,6 @@
 # Thoughtful Hollow
 
-A small workshop for word puzzles and other thoughtful things.
+A small workshop for puzzles and other thoughtful things.
 
 Live site: https://thoughtfulhollow.com
 
@@ -38,6 +38,7 @@ Or from the glossari worktree directory directly — the game fetches `glossari.
 
 - `/` — landing
 - `/glossari` — Glossari daily puzzle (`glossari.html` + `glossari.json`)
+- `/sampler` — coming soon
 
 ## Deployment
 
