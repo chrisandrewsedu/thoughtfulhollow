@@ -14,6 +14,7 @@ sketches/
 # machine — pages reference sampler.html/glossari.html in the repo root.
 admin/
 tests/
+docs/superpowers/
 
 # Git worktrees for isolated feature work.
 .worktrees/
