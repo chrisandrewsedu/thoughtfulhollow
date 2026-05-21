@@ -1555,7 +1555,7 @@ function archiveCellClick(dateStr) {
     if (!btn) continue;
     const available = tierAvailable(themeIdx, tier);
     const tEntry = all.tiers[tier].byDate && all.tiers[tier].byDate[dateStr];
-    const dataState = !available ? 'fresh' : (tEntry ? 'done' : 'fresh');
+    const dataState = !available ? 'unavailable' : (tEntry ? 'done' : 'fresh');
     const indicator = tEntry ? (tEntry.result.allSolved ? '●' : '◌') : '';
     const label = tier.charAt(0).toUpperCase() + tier.slice(1);
     btn.disabled = !available;
@@ -1604,7 +1604,7 @@ function refreshIntroButtons() {
   const themeIdx = dailyIndex(todayStr());
   const today = todayStr();
   for (const tier of TIERS) {
-    const btn = document.querySelector(`.tier-btn[data-tier="${tier}"]`);
+    const btn = document.querySelector(`#tierButtons .tier-btn[data-tier="${tier}"]`);
     if (!btn) continue;
     const available = tierAvailable(themeIdx, tier);
     const tierState = getTierDayState(tier, today);
