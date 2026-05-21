@@ -56,7 +56,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  height: 100%;
+  height: 100dvh;
   background: var(--paper);
   color: var(--ink);
   font-family: 'Lora', Georgia, serif;
@@ -367,7 +367,7 @@ html, body {
   display: none; flex-direction: column;
   align-items: center; justify-content: center;
   padding: 1.6rem 1.3rem;
-  z-index: 10; text-align: center; overflow-y: auto;
+  z-index: 10; text-align: center; overflow-y: hidden;
 }
 .overlay.show { display: flex; }
 
@@ -375,6 +375,8 @@ html, body {
   padding: 1.6rem 1rem;
   justify-content: flex-start;
 }
+#reveal  { overflow-y: auto; }
+#archive { overflow-y: auto; }
 .archive-inner {
   position: relative;
   width: 100%; max-width: 24rem;
@@ -767,6 +769,53 @@ html, body { transition: background 0.25s, color 0.25s; }
   border-style: dashed;
 }
 
+@media (max-height: 840px) {
+  .header { padding: 0.65rem 1rem 0.5rem; }
+  .dict-headword-large { font-size: clamp(1.9rem, 5.5vw, 2.8rem); }
+  .go-rule { margin: 0.6rem auto 0.85rem; }
+  .intro-rules { margin-bottom: 0.7rem; }
+  .legend { margin-bottom: 0.8rem; }
+}
+@media (max-height: 720px) {
+  .header { padding: 0.45rem 1rem 0.4rem; }
+  .dict-headword-large { font-size: clamp(1.6rem, 4.5vw, 2.2rem); }
+  .dict-pron { margin-bottom: 0.2rem; }
+  .go-rule { margin: 0.45rem auto 0.6rem; }
+  .intro-rules { font-size: 0.8rem; margin-bottom: 0.5rem; }
+  .legend { margin-bottom: 0.5rem; font-size: 0.66rem; }
+  .tier-buttons { margin-bottom: 0.35rem; }
+  .controls { margin-top: 0.5rem; }
+  .main { padding: 0.25rem 1rem 0; }
+  .section-label { margin: 0.35rem 0 0.3rem; }
+}
+@media (max-height: 620px) {
+  .header { padding: 0.35rem 1rem 0.3rem; }
+  .title { font-size: 1.25rem; }
+  .dict-headword-large { font-size: clamp(1.35rem, 4vw, 1.8rem); }
+  .go-rule { margin: 0.3rem auto 0.4rem; }
+  .intro-rules { font-size: 0.74rem; line-height: 1.5; margin-bottom: 0.35rem; }
+  .legend { gap: 0.12rem 0.5rem; margin-bottom: 0.3rem; }
+  .controls { margin-top: 0.35rem; }
+  .main { padding: 0.15rem 1rem 0; }
+  .overlay { padding: 0.9rem 1.3rem; }
+  .tut-intro { font-size: 0.78rem; line-height: 1.45; margin-bottom: 0.55rem; }
+  .tut-controls { margin-top: 0.45rem; margin-bottom: 0.2rem; }
+}
+@media (max-height: 540px) {
+  .header { padding: 0.25rem 1rem 0.22rem; }
+  .title { font-size: 1.1rem; }
+  .subbar { padding: 0.1rem 1rem 0.12rem; }
+  .dict-headword-large { font-size: 1.2rem; }
+  .go-rule { margin: 0.2rem auto 0.3rem; }
+  .intro-rules { font-size: 0.68rem; line-height: 1.38; margin-bottom: 0.2rem; }
+  .legend { gap: 0.1rem 0.35rem; margin-bottom: 0.22rem; font-size: 0.58rem; }
+  .tier-buttons { gap: 0.3rem; margin-bottom: 0.22rem; }
+  .btn { padding: 0.5rem 1.2rem; font-size: 0.78rem; }
+  .intro-actions-row { margin-top: 0.3rem; }
+  .btn-secondary { padding: 0.32rem 0.7rem; font-size: 0.74rem; }
+  .controls { margin-top: 0.25rem; }
+  .main { padding: 0.1rem 1rem 0; }
+}
 @media (max-height: 780px) {
   .clue-card { min-height: 4.8rem; padding: 0.38rem 0.48rem 0.44rem; }
   .clue-text { font-size: 0.76rem; line-height: 1.28; }
