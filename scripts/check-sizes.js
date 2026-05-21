@@ -64,8 +64,18 @@ async function main() {
       await page.setViewportSize({ width: w, height: h });
       await page.goto(`${BASE}/glossari.html`);
       await page.waitForLoadState('networkidle');
-      // Wait for JS to show the intro overlay after JSON is fetched
       await page.waitForSelector('.overlay.show', { timeout: 4000 }).catch(() => {});
+
+      // Skip tutorial if it's the first-visit screen
+      if (await page.locator('#tutorial.show').isVisible().catch(() => false)) {
+        await page.click('#tutSkipBtn');
+        await page.waitForSelector('#intro.show', { timeout: 3000 }).catch(() => {});
+      }
+      // Start an Easy game so we screenshot the actual puzzle, not the landing screen
+      if (await page.locator('#intro.show').isVisible().catch(() => false)) {
+        await page.click('#tierButtons .tier-btn[data-tier="easy"]');
+        await page.waitForSelector('.clue-card', { timeout: 4000 }).catch(() => {});
+      }
 
       const overflow = await page.evaluate(() => {
         // Use documentElement (html) for the page-level overflow check: this reflects
