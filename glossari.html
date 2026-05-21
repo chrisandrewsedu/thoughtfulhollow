@@ -56,7 +56,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  height: 100%;
+  height: 100dvh;
   background: var(--paper);
   color: var(--ink);
   font-family: 'Lora', Georgia, serif;
@@ -367,14 +367,16 @@ html, body {
   display: none; flex-direction: column;
   align-items: center; justify-content: center;
   padding: 1.6rem 1.3rem;
-  z-index: 10; text-align: center; overflow-y: auto;
+  z-index: 10; text-align: center; overflow-y: hidden;
 }
 .overlay.show { display: flex; }
 
 #archive {
   padding: 1.6rem 1rem;
   justify-content: flex-start;
+  overflow-y: auto;
 }
+#reveal { overflow-y: auto; }
 .archive-inner {
   position: relative;
   width: 100%; max-width: 24rem;
@@ -529,8 +531,8 @@ html, body {
   text-align: left; font-family: 'Lora', serif;
   font-size: 0.74rem; color: var(--ink-soft);
 }
-.legend .sym { color: var(--accent); margin-right: 0.28rem; }
-.legend .lbl { font-family: 'Lora', serif; font-style: italic; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; }
+.legend .sym { color: var(--accent); margin-right: 0.28rem; font-size: 1rem; }
+.legend .lbl { font-family: 'Lora', serif; font-style: italic; font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; }
 .btn {
   font-family: 'Lora', serif; font-style: italic; font-size: 0.9rem;
   padding: 0.8rem 2.2rem;
@@ -545,16 +547,20 @@ html, body {
   display: flex; gap: 0.6rem; justify-content: center;
   flex-wrap: wrap; margin-bottom: 0.6rem;
 }
-.tier-btn { min-width: 5.5rem; flex: 1 1 auto; max-width: 8rem; }
+.tier-btn { min-width: 5.5rem; flex: 1 1 0; max-width: 8rem; }
 .tier-btn[disabled] {
   opacity: 0.4; cursor: not-allowed; pointer-events: none;
 }
-.tier-btn .tier-state {
+.tier-btn .tier-indicator {
   display: block;
-  font-family: 'Lora', serif; font-style: italic; font-weight: 400;
-  font-size: 0.55rem; letter-spacing: 0.06em; text-transform: lowercase;
-  color: var(--ink-faint); margin-top: 0.15rem;
+  height: 0.65rem;
+  font-size: 0.5rem;
+  line-height: 1;
+  margin-top: 0.12rem;
+  color: transparent;
 }
+.tier-btn[data-state="done"]   .tier-indicator { color: var(--green); }
+.tier-btn[data-state="resume"] .tier-indicator { color: var(--gold); }
 .intro-practice-btn {
   font-family: 'Lora', serif; font-style: italic;
   font-size: 0.72rem; color: var(--ink-faint);
@@ -767,6 +773,53 @@ html, body { transition: background 0.25s, color 0.25s; }
   border-style: dashed;
 }
 
+@media (max-height: 840px) {
+  .header { padding: 0.65rem 1rem 0.5rem; }
+  .dict-headword-large { font-size: clamp(1.9rem, 5.5vw, 2.8rem); }
+  .go-rule { margin: 0.6rem auto 0.85rem; }
+  .intro-rules { margin-bottom: 0.7rem; }
+  .legend { margin-bottom: 0.8rem; }
+}
+@media (max-height: 720px) {
+  .header { padding: 0.45rem 1rem 0.4rem; }
+  .dict-headword-large { font-size: clamp(1.6rem, 4.5vw, 2.2rem); }
+  .dict-pron { margin-bottom: 0.2rem; }
+  .go-rule { margin: 0.45rem auto 0.6rem; }
+  .intro-rules { font-size: 0.8rem; margin-bottom: 0.5rem; }
+  .legend { margin-bottom: 0.5rem; font-size: 0.66rem; }
+  .tier-buttons { margin-bottom: 0.35rem; }
+  .controls { margin-top: 0.5rem; }
+  .main { padding: 0.25rem 1rem 0; }
+  .section-label { margin: 0.35rem 0 0.3rem; }
+}
+@media (max-height: 620px) {
+  .header { padding: 0.35rem 1rem 0.3rem; }
+  .title { font-size: 1.25rem; }
+  .dict-headword-large { font-size: clamp(1.35rem, 4vw, 1.8rem); }
+  .go-rule { margin: 0.3rem auto 0.4rem; }
+  .intro-rules { font-size: 0.74rem; line-height: 1.5; margin-bottom: 0.35rem; }
+  .legend { gap: 0.12rem 0.5rem; margin-bottom: 0.3rem; }
+  .controls { margin-top: 0.35rem; }
+  .main { padding: 0.15rem 1rem 0; }
+  .overlay { padding: 0.9rem 1.3rem; }
+  .tut-intro { font-size: 0.78rem; line-height: 1.45; margin-bottom: 0.55rem; }
+  .tut-controls { margin-top: 0.45rem; margin-bottom: 0.2rem; }
+}
+@media (max-height: 540px) {
+  .header { padding: 0.25rem 1rem 0.22rem; }
+  .title { font-size: 1.1rem; }
+  .subbar { padding: 0.1rem 1rem 0.12rem; }
+  .dict-headword-large { font-size: 1.2rem; }
+  .go-rule { margin: 0.2rem auto 0.3rem; }
+  .intro-rules { font-size: 0.68rem; line-height: 1.38; margin-bottom: 0.2rem; }
+  .legend { gap: 0.1rem 0.35rem; margin-bottom: 0.22rem; font-size: 0.58rem; }
+  .tier-buttons { gap: 0.3rem; margin-bottom: 0.22rem; }
+  .btn { padding: 0.5rem 1.2rem; font-size: 0.78rem; }
+  .intro-actions-row { margin-top: 0.3rem; }
+  .btn-secondary { padding: 0.32rem 0.7rem; font-size: 0.74rem; }
+  .controls { margin-top: 0.25rem; }
+  .main { padding: 0.1rem 1rem 0; }
+}
 @media (max-height: 780px) {
   .clue-card { min-height: 4.8rem; padding: 0.38rem 0.48rem 0.44rem; }
   .clue-text { font-size: 0.76rem; line-height: 1.28; }
@@ -888,10 +941,9 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     </div>
     <div class="go-rule"></div>
     <div class="intro-rules">
-      <div class="rules-row"><span class="rules-num">1.</span><span>Each puzzle has four dictionary entries — clues like <b>definitions, synonyms, antonyms,</b> and <b>examples</b>.</span></div>
+      <div class="rules-row"><span class="rules-num">1.</span><span>Each puzzle has four clues drawn from dictionary entries — <b>definitions, synonyms, antonyms,</b> and <b>examples</b>.</span></div>
       <div class="rules-row"><span class="rules-num">2.</span><span>Pick <b>one clue card</b> and <b>three word segments in order</b> to assemble the headword that entry describes.</span></div>
-      <div class="rules-row"><span class="rules-num">3.</span><span>Right segments, wrong order? <b>You'll be told</b> — like Wordle's yellow.</span></div>
-      <div class="rules-row"><span class="rules-num">4.</span><span>You have <b>four mistakes</b> per puzzle.</span></div>
+      <div class="rules-row"><span class="rules-num">3.</span><span>You have <b>four mistakes</b> per puzzle.</span></div>
     </div>
     <div class="legend">
       <div><span class="sym">❦</span><span class="lbl">Definition</span></div>
@@ -901,9 +953,9 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     </div>
     <div class="intro-actions" id="introActions">
       <div class="tier-buttons" id="tierButtons">
-        <button class="btn tier-btn" data-tier="easy"   onclick="startGame('easy')">Easy</button>
-        <button class="btn tier-btn" data-tier="medium" onclick="startGame('medium')">Medium</button>
-        <button class="btn tier-btn" data-tier="hard"   onclick="startGame('hard')">Hard</button>
+        <button class="btn tier-btn" data-tier="easy"   data-state="fresh" onclick="startGame('easy')">Easy<span class="tier-indicator" aria-hidden="true"></span></button>
+        <button class="btn tier-btn" data-tier="medium" data-state="fresh" onclick="startGame('medium')">Medium<span class="tier-indicator" aria-hidden="true"></span></button>
+        <button class="btn tier-btn" data-tier="hard"   data-state="fresh" onclick="startGame('hard')">Hard<span class="tier-indicator" aria-hidden="true"></span></button>
       </div>
       <div class="intro-actions-row">
         <button class="btn-secondary" id="introPracticeBtn" onclick="openPracticePicker()">Practice</button>
@@ -964,9 +1016,9 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     <div class="go-rule"></div>
     <div class="intro-rules" style="margin-bottom:1.1rem; text-align:center">A standalone puzzle outside the daily rotation. Doesn't affect your streak.</div>
     <div class="tier-buttons" id="practiceTierButtons">
-      <button class="btn tier-btn" data-tier="easy"   onclick="startPracticeGame('easy')">Easy</button>
-      <button class="btn tier-btn" data-tier="medium" onclick="startPracticeGame('medium')">Medium</button>
-      <button class="btn tier-btn" data-tier="hard"   onclick="startPracticeGame('hard')">Hard</button>
+      <button class="btn tier-btn" data-tier="easy"   data-state="fresh" onclick="startPracticeGame('easy')">Easy<span class="tier-indicator" aria-hidden="true"></span></button>
+      <button class="btn tier-btn" data-tier="medium" data-state="fresh" onclick="startPracticeGame('medium')">Medium<span class="tier-indicator" aria-hidden="true"></span></button>
+      <button class="btn tier-btn" data-tier="hard"   data-state="fresh" onclick="startPracticeGame('hard')">Hard<span class="tier-indicator" aria-hidden="true"></span></button>
     </div>
     <div class="intro-actions-row" style="margin-top:0.9rem">
       <button class="btn-secondary" onclick="closePracticePicker()">Back</button>
@@ -995,9 +1047,9 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
         <div class="picker-title" id="archivePickerTitle">—</div>
         <div class="picker-sub" id="archivePickerSub">—</div>
         <div class="tier-buttons" id="archivePickerButtons">
-          <button class="btn tier-btn" data-tier="easy"   onclick="archiveTierPick('easy')">Easy</button>
-          <button class="btn tier-btn" data-tier="medium" onclick="archiveTierPick('medium')">Medium</button>
-          <button class="btn tier-btn" data-tier="hard"   onclick="archiveTierPick('hard')">Hard</button>
+          <button class="btn tier-btn" data-tier="easy"   data-state="fresh" onclick="archiveTierPick('easy')">Easy<span class="tier-indicator" aria-hidden="true"></span></button>
+          <button class="btn tier-btn" data-tier="medium" data-state="fresh" onclick="archiveTierPick('medium')">Medium<span class="tier-indicator" aria-hidden="true"></span></button>
+          <button class="btn tier-btn" data-tier="hard"   data-state="fresh" onclick="archiveTierPick('hard')">Hard<span class="tier-indicator" aria-hidden="true"></span></button>
         </div>
         <button class="btn-secondary picker-close" onclick="closeArchiveTierPicker()">Back</button>
       </div>
@@ -1502,9 +1554,12 @@ function archiveCellClick(dateStr) {
     if (!btn) continue;
     const available = tierAvailable(themeIdx, tier);
     const tEntry = all.tiers[tier].byDate && all.tiers[tier].byDate[dateStr];
-    const sub = !available ? 'unavailable' : (tEntry ? (tEntry.result.allSolved ? '✓ played' : '◊ played') : 'play');
+    const dataState = !available ? 'unavailable' : (tEntry ? 'done' : 'fresh');
+    const indicator = tEntry ? (tEntry.result?.allSolved ? '●' : '◌') : '';
+    const label = tier.charAt(0).toUpperCase() + tier.slice(1);
     btn.disabled = !available;
-    btn.innerHTML = `${tier.charAt(0).toUpperCase() + tier.slice(1)}<span class="tier-state">${sub}</span>`;
+    btn.setAttribute('data-state', dataState);
+    btn.innerHTML = `${label}<span class="tier-indicator" aria-hidden="true">${indicator}</span>`;
   }
   document.getElementById('archiveTierPicker').classList.add('show');
 }
@@ -1548,26 +1603,29 @@ function refreshIntroButtons() {
   const themeIdx = dailyIndex(todayStr());
   const today = todayStr();
   for (const tier of TIERS) {
-    const btn = document.querySelector(`.tier-btn[data-tier="${tier}"]`);
+    const btn = document.querySelector(`#tierButtons .tier-btn[data-tier="${tier}"]`);
     if (!btn) continue;
     const available = tierAvailable(themeIdx, tier);
     const tierState = getTierDayState(tier, today);
-    let label = tier.charAt(0).toUpperCase() + tier.slice(1);
-    let sub = '';
+    const label = tier.charAt(0).toUpperCase() + tier.slice(1);
+    let dataState = 'fresh';
+    let indicator = '';
     if (!available) {
       btn.disabled = true;
-      sub = 'unavailable today';
+      dataState = 'unavailable';
     } else if (tierState && tierState.result) {
       btn.disabled = false;
-      sub = tierState.result.allSolved ? '✓ played' : '◊ played';
+      dataState = 'done';
+      indicator = tierState.result.allSolved ? '●' : '◌';
     } else if (tierState && tierState.inProgress) {
       btn.disabled = false;
-      sub = 'resume';
+      dataState = 'resume';
+      indicator = '◌';
     } else {
       btn.disabled = false;
-      sub = 'begin';
     }
-    btn.innerHTML = `${label}<span class="tier-state">${sub}</span>`;
+    btn.setAttribute('data-state', dataState);
+    btn.innerHTML = `${label}<span class="tier-indicator" aria-hidden="true">${indicator}</span>`;
   }
 }
 
