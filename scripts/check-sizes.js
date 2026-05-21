@@ -33,6 +33,9 @@ function startServer(port) {
     const server = http.createServer((req, res) => {
       const urlPath = req.url.split('?')[0];
       const filePath = path.join(ROOT, urlPath === '/' ? 'glossari.html' : urlPath);
+      if (!filePath.startsWith(ROOT + path.sep) && filePath !== ROOT) {
+        res.writeHead(403); res.end('Forbidden'); return;
+      }
       const ext = path.extname(filePath);
       fs.readFile(filePath, (err, data) => {
         if (err) { res.writeHead(404); res.end('Not found'); return; }
