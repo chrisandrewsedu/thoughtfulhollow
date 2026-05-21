@@ -1507,21 +1507,19 @@ function renderArchive() {
     const isBeforeLaunch = dateObj < launchDate;
     const isFuture = dateObj > todayDate;
     const isToday = dateStr === today;
-    const playedTiers = TIERS.filter(t => all.tiers[t].byDate && all.tiers[t].byDate[dateStr]);
-    const hasAnyPlay = playedTiers.length > 0;
-    const allSolvedOnAnyTier = hasAnyPlay && playedTiers.some(t => all.tiers[t].byDate[dateStr].result && all.tiers[t].byDate[dateStr].result.allSolved);
+    const playedCount = TIERS.filter(t => all.tiers[t].byDate && all.tiers[t].byDate[dateStr]).length;
 
     if (isBeforeLaunch || isFuture) {
       cell.classList.add(isFuture ? 'future' : 'empty');
       if (isBeforeLaunch) cell.classList.add('empty');
     } else {
       if (isToday) cell.classList.add('today');
-      if (hasAnyPlay) {
+      if (playedCount > 0) {
         cell.classList.add('completed');
-        cell.classList.add(allSolvedOnAnyTier ? 'solved' : 'revealed');
+        cell.classList.add(playedCount === 3 ? 'solved' : 'revealed');
         const mark = document.createElement('div');
         mark.className = 'archive-mark';
-        mark.textContent = allSolvedOnAnyTier ? '✓' : '◊';
+        mark.textContent = `${playedCount}/3`;
         cell.appendChild(mark);
       } else {
         cell.classList.add('available');
