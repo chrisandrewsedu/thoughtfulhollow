@@ -547,16 +547,20 @@ html, body {
   display: flex; gap: 0.6rem; justify-content: center;
   flex-wrap: wrap; margin-bottom: 0.6rem;
 }
-.tier-btn { min-width: 5.5rem; flex: 1 1 auto; max-width: 8rem; }
+.tier-btn { min-width: 5.5rem; flex: 1 1 0; max-width: 8rem; }
 .tier-btn[disabled] {
   opacity: 0.4; cursor: not-allowed; pointer-events: none;
 }
-.tier-btn .tier-state {
+.tier-btn .tier-indicator {
   display: block;
-  font-family: 'Lora', serif; font-style: italic; font-weight: 400;
-  font-size: 0.55rem; letter-spacing: 0.06em; text-transform: lowercase;
-  color: var(--ink-faint); margin-top: 0.15rem;
+  height: 0.65rem;
+  font-size: 0.5rem;
+  line-height: 1;
+  margin-top: 0.12rem;
+  color: transparent;
 }
+.tier-btn[data-state="done"]   .tier-indicator { color: var(--green); }
+.tier-btn[data-state="resume"] .tier-indicator { color: var(--gold); }
 .intro-practice-btn {
   font-family: 'Lora', serif; font-style: italic;
   font-size: 0.72rem; color: var(--ink-faint);
@@ -950,9 +954,9 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     </div>
     <div class="intro-actions" id="introActions">
       <div class="tier-buttons" id="tierButtons">
-        <button class="btn tier-btn" data-tier="easy"   onclick="startGame('easy')">Easy</button>
-        <button class="btn tier-btn" data-tier="medium" onclick="startGame('medium')">Medium</button>
-        <button class="btn tier-btn" data-tier="hard"   onclick="startGame('hard')">Hard</button>
+        <button class="btn tier-btn" data-tier="easy"   data-state="fresh" onclick="startGame('easy')">Easy<span class="tier-indicator" aria-hidden="true"></span></button>
+        <button class="btn tier-btn" data-tier="medium" data-state="fresh" onclick="startGame('medium')">Medium<span class="tier-indicator" aria-hidden="true"></span></button>
+        <button class="btn tier-btn" data-tier="hard"   data-state="fresh" onclick="startGame('hard')">Hard<span class="tier-indicator" aria-hidden="true"></span></button>
       </div>
       <div class="intro-actions-row">
         <button class="btn-secondary" id="introPracticeBtn" onclick="openPracticePicker()">Practice</button>
@@ -1013,9 +1017,9 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     <div class="go-rule"></div>
     <div class="intro-rules" style="margin-bottom:1.1rem; text-align:center">A standalone puzzle outside the daily rotation. Doesn't affect your streak.</div>
     <div class="tier-buttons" id="practiceTierButtons">
-      <button class="btn tier-btn" data-tier="easy"   onclick="startPracticeGame('easy')">Easy</button>
-      <button class="btn tier-btn" data-tier="medium" onclick="startPracticeGame('medium')">Medium</button>
-      <button class="btn tier-btn" data-tier="hard"   onclick="startPracticeGame('hard')">Hard</button>
+      <button class="btn tier-btn" data-tier="easy"   data-state="fresh" onclick="startPracticeGame('easy')">Easy<span class="tier-indicator" aria-hidden="true"></span></button>
+      <button class="btn tier-btn" data-tier="medium" data-state="fresh" onclick="startPracticeGame('medium')">Medium<span class="tier-indicator" aria-hidden="true"></span></button>
+      <button class="btn tier-btn" data-tier="hard"   data-state="fresh" onclick="startPracticeGame('hard')">Hard<span class="tier-indicator" aria-hidden="true"></span></button>
     </div>
     <div class="intro-actions-row" style="margin-top:0.9rem">
       <button class="btn-secondary" onclick="closePracticePicker()">Back</button>
@@ -1044,9 +1048,9 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
         <div class="picker-title" id="archivePickerTitle">—</div>
         <div class="picker-sub" id="archivePickerSub">—</div>
         <div class="tier-buttons" id="archivePickerButtons">
-          <button class="btn tier-btn" data-tier="easy"   onclick="archiveTierPick('easy')">Easy</button>
-          <button class="btn tier-btn" data-tier="medium" onclick="archiveTierPick('medium')">Medium</button>
-          <button class="btn tier-btn" data-tier="hard"   onclick="archiveTierPick('hard')">Hard</button>
+          <button class="btn tier-btn" data-tier="easy"   data-state="fresh" onclick="archiveTierPick('easy')">Easy<span class="tier-indicator" aria-hidden="true"></span></button>
+          <button class="btn tier-btn" data-tier="medium" data-state="fresh" onclick="archiveTierPick('medium')">Medium<span class="tier-indicator" aria-hidden="true"></span></button>
+          <button class="btn tier-btn" data-tier="hard"   data-state="fresh" onclick="archiveTierPick('hard')">Hard<span class="tier-indicator" aria-hidden="true"></span></button>
         </div>
         <button class="btn-secondary picker-close" onclick="closeArchiveTierPicker()">Back</button>
       </div>
@@ -1551,9 +1555,12 @@ function archiveCellClick(dateStr) {
     if (!btn) continue;
     const available = tierAvailable(themeIdx, tier);
     const tEntry = all.tiers[tier].byDate && all.tiers[tier].byDate[dateStr];
-    const sub = !available ? 'unavailable' : (tEntry ? (tEntry.result.allSolved ? '✓ played' : '◊ played') : 'play');
+    const dataState = !available ? 'fresh' : (tEntry ? 'done' : 'fresh');
+    const indicator = tEntry ? (tEntry.result.allSolved ? '●' : '◌') : '';
+    const label = tier.charAt(0).toUpperCase() + tier.slice(1);
     btn.disabled = !available;
-    btn.innerHTML = `${tier.charAt(0).toUpperCase() + tier.slice(1)}<span class="tier-state">${sub}</span>`;
+    btn.setAttribute('data-state', dataState);
+    btn.innerHTML = `${label}<span class="tier-indicator" aria-hidden="true">${indicator}</span>`;
   }
   document.getElementById('archiveTierPicker').classList.add('show');
 }
@@ -1601,22 +1608,24 @@ function refreshIntroButtons() {
     if (!btn) continue;
     const available = tierAvailable(themeIdx, tier);
     const tierState = getTierDayState(tier, today);
-    let label = tier.charAt(0).toUpperCase() + tier.slice(1);
-    let sub = '';
+    const label = tier.charAt(0).toUpperCase() + tier.slice(1);
+    let dataState = 'fresh';
+    let indicator = '';
     if (!available) {
       btn.disabled = true;
-      sub = 'unavailable today';
     } else if (tierState && tierState.result) {
       btn.disabled = false;
-      sub = tierState.result.allSolved ? '✓ played' : '◊ played';
+      dataState = 'done';
+      indicator = tierState.result.allSolved ? '●' : '◌';
     } else if (tierState && tierState.inProgress) {
       btn.disabled = false;
-      sub = 'resume';
+      dataState = 'resume';
+      indicator = '◌';
     } else {
       btn.disabled = false;
-      sub = 'begin';
     }
-    btn.innerHTML = `${label}<span class="tier-state">${sub}</span>`;
+    btn.setAttribute('data-state', dataState);
+    btn.innerHTML = `${label}<span class="tier-indicator" aria-hidden="true">${indicator}</span>`;
   }
 }
 
