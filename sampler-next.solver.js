@@ -32,29 +32,29 @@ function cellCandidates(kitLeft, palette, allowShapes) {
   return out;
 }
 
-// Derive shape constraints for each cell from the rule set.
-// Returns an array of length N where each entry is null (any shape) or
-// an array of allowed shape strings.
+// Per-cell allowed shapes, used to prune the search. Derived from the
+// design's positional rules: each cellsAreShape instance pins its cells to
+// one shape. The legacy hardcoded positional rules are still recognised
+// (the full block-library effort removes them).
 function shapeConstraints(N, ruleKeys) {
   const constraints = new Array(N).fill(null);
+  // legacy hardcoded positional rules (Phase B — removed in the full effort)
   if (ruleKeys.includes('cornersTriangles')) {
-    const CORNERS = [0, 3, N - 4, N - 1]; // works for size=4 (N=16)
     for (let i = 0; i < N; i++) {
-      if (CORNERS.includes(i)) {
-        constraints[i] = ['triangle'];
-      } else {
-        // non-corners cannot be triangles
-        constraints[i] = ['curve', 'square'];
-      }
+      constraints[i] = [0, 3, N - 4, N - 1].includes(i) ? ['triangle'] : ['curve', 'square'];
     }
   }
   if (ruleKeys.includes('centreCurves')) {
-    const CENTRE = [5, 6, 9, 10]; // hardcoded for size=4
-    for (const i of CENTRE) {
-      constraints[i] = ['curve'];
+    for (const i of [5, 6, 9, 10]) constraints[i] = ['curve'];
+  }
+  // data-driven frame: cellsAreShape instances
+  for (const entry of ruleKeys) {
+    if (entry && typeof entry === 'object' && entry.rule === 'cellsAreShape') {
+      for (const c of entry.cells) {
+        if (constraints[c] && constraints[c].includes(entry.shape)) continue;
+        constraints[c] = [entry.shape];
+      }
     }
-    // If cornersTriangles also active, edge cells already have ['curve','square']
-    // and centre cells override to ['curve']
   }
   return constraints;
 }
