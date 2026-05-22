@@ -456,9 +456,20 @@
 </div>
 
 <script src="sampler-next.engine.js"></script>
-<script src="sampler-next.puzzle.js"></script>
+<script src="sampler-next.templates.js"></script>
+<script src="sampler-next.solver.js"></script>
+<script src="sampler-next.generator.js"></script>
 <script>
 'use strict';
+
+// ── Today's puzzle ───────────────────────────────────────────────
+// Phase B retires hand-authoring: the daily puzzle is generated from a
+// constraint-template, seeded by the date. ?date=YYYY-MM-DD force-routes.
+function forcedDate() {
+  const m = /[?&]date=(\d{4}-\d{2}-\d{2})/.exec(location.search);
+  return m ? m[1] : null;
+}
+const PUZZLE = generateDaily(forcedDate() || todayStr());
 
 // ── Board sizing ─────────────────────────────────────────────────
 // Compute the side length (px) for the board SVG element.
@@ -765,21 +776,26 @@ function afterMove() {
 }
 
 // Apply board sizing then start the game
-applyBoardSize();
-reset();
-
-document.getElementById('eraseBtn').addEventListener('click', () => selectKit('erase', null, 1));
-document.getElementById('resetBtn').addEventListener('click', () => {
-  document.getElementById('winOverlay').classList.remove('show');
+if (!PUZZLE) {
+  document.querySelector('.stage').innerHTML =
+    '<p style="padding:1.2rem;font-size:0.95rem">No Sampler puzzle is available for this date yet.</p>';
+} else {
+  applyBoardSize();
   reset();
-});
-document.getElementById('assistToggle').addEventListener('change', e => {
-  assist = e.target.checked;
-  render();
-});
-document.getElementById('lookAgainBtn').addEventListener('click', () => {
-  document.getElementById('winOverlay').classList.remove('show');
-});
+
+  document.getElementById('eraseBtn').addEventListener('click', () => selectKit('erase', null, 1));
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    document.getElementById('winOverlay').classList.remove('show');
+    reset();
+  });
+  document.getElementById('assistToggle').addEventListener('change', e => {
+    assist = e.target.checked;
+    render();
+  });
+  document.getElementById('lookAgainBtn').addEventListener('click', () => {
+    document.getElementById('winOverlay').classList.remove('show');
+  });
+}
 </script>
 </body>
 </html>
