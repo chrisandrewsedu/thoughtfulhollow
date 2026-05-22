@@ -679,36 +679,21 @@ function renderPanels(results) {
 
 function renderRules(results) {
   const panel = document.getElementById('rulesPanel');
-
-  // Status marks come from the threaded evaluation — only shown with Assist on.
-  let statusMap = null;
-  if (assist) {
-    statusMap = {};
-    for (const r of results) statusMap[r.key] = r.ok;
-  }
-
   const groups = ['structure', 'colour'];
   const groupLabel = { structure: 'Structure', colour: 'Colour' };
-
-  const rows = PUZZLE.ruleKeys.map(key => {
-    const def = RULES[key];
-    let mark = '';
-    let markStyle = '';
-    if (statusMap !== null) {
-      const ok = statusMap[key];
-      mark = ok ? '✓' : '·';
-      markStyle = `color:${ok ? 'var(--green)' : 'var(--ink-soft)'}`;
-    }
-    return { key, group: def.group, label: def.label, mark, markStyle };
-  });
-
   let html = '';
   for (const g of groups) {
-    const groupRows = rows.filter(r => r.group === g);
+    const groupRows = results.filter(r => r.group === g);
     if (groupRows.length === 0) continue;
     html += `<div class="rule-head">${groupLabel[g]}</div>`;
     for (const r of groupRows) {
-      html += `<li><span class="mark" style="${r.markStyle}">${r.mark}</span>${r.label}</li>`;
+      let mark = '';
+      let markStyle = '';
+      if (assist) {
+        mark = r.ok ? '✓' : '·';
+        markStyle = `color:${r.ok ? 'var(--green)' : 'var(--ink-soft)'}`;
+      }
+      html += `<li><span class="mark" style="${markStyle}">${mark}</span>${r.label}</li>`;
     }
   }
   panel.innerHTML = html;
