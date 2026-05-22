@@ -123,6 +123,29 @@ function fullyColoured(state) {
     p && partsOf(p.shape).every(part => colors[i + ':' + part]));
 }
 
+// every placed cell of `shape` has its `part` region coloured — lets a colour
+// rule complete once its own regions are done, rather than waiting on the
+// whole board to be coloured.
+function partFilled(state, shape, part) {
+  const { grid, colors } = state;
+  return grid.every((p, i) => !p || p.shape !== shape || !!colors[i + ':' + part]);
+}
+
+// how many cells of `shape` are placed on the board
+function shapeCount(grid, shape) {
+  let n = 0;
+  for (const p of grid) if (p && p.shape === shape) n++;
+  return n;
+}
+
+// are all of `shape` placed? With the puzzle's kit totals (state.kit) a colour
+// rule can complete as soon as its own shape is fully down — even while other
+// shapes are still missing. Falls back to "the whole board is placed".
+function allShapePlaced(state, shape) {
+  const { grid, kit } = state;
+  return kit ? shapeCount(grid, shape) === kit[shape] : filledAll(grid);
+}
+
 // every curve's disc (part A) is the same fabric
 function ruleDiscsUnified(state) {
   const { grid, colors } = state;
@@ -138,7 +161,7 @@ function ruleDiscsUnified(state) {
   if (discs.length && !same) {
     for (const [i] of discs) violations.add(i);
   }
-  return { ok: fullyColoured(state) && same, violations };
+  return { ok: allShapePlaced(state, 'curve') && partFilled(state, 'curve', 'A') && same, violations };
 }
 
 // each triangle's two halves differ in hue
@@ -150,7 +173,12 @@ function ruleTriangleHalvesDifferHue(state) {
     const a = colors[i + ':A'], b = colors[i + ':B'];
     if (a && b && FABRICS[a].hue === FABRICS[b].hue) violations.add(i);
   }
-  return { ok: fullyColoured(state) && violations.size === 0, violations };
+  return {
+    ok: allShapePlaced(state, 'triangle')
+      && partFilled(state, 'triangle', 'A') && partFilled(state, 'triangle', 'B')
+      && violations.size === 0,
+    violations,
+  };
 }
 
 // curve background fields (part B) stay cool or neutral
@@ -162,7 +190,10 @@ function ruleFieldHue(state) {
     const b = colors[i + ':B'];
     if (b && FABRICS[b].hue === 'warm') violations.add(i);
   }
-  return { ok: fullyColoured(state) && violations.size === 0, violations };
+  return {
+    ok: allShapePlaced(state, 'curve') && partFilled(state, 'curve', 'B') && violations.size === 0,
+    violations,
+  };
 }
 
 // no two touching squares share a fabric
@@ -181,7 +212,10 @@ function ruleNoAdjacentSquaresSameFabric(state) {
       }
     }
   }
-  return { ok: fullyColoured(state) && violations.size === 0, violations };
+  return {
+    ok: allShapePlaced(state, 'square') && partFilled(state, 'square', 'W') && violations.size === 0,
+    violations,
+  };
 }
 
 // ── Rule registry ────────────────────────────────────────────────

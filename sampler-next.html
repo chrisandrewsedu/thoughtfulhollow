@@ -10,7 +10,12 @@
 <style>
   :root {
     --paper:#faf6ec; --paper-deep:#f0e9d6; --ink:#2a2520; --ink-soft:#6a6258;
-    --accent:#c01818; --green:#3a5a3a; --gold:#8a6c18;
+    --accent:#c01818; --green:#3a5a3a; --gold:#8a6c18; --line:#c9bd9c;
+    /* Board surface — tokenised so a future dark theme overrides in one place. */
+    --board-bg:#efe6cf; --cell-line:#9c8f6e;
+    --cell-empty:#f3ecd8; --cell-empty-edge:#cdc1a0;
+    --region-blank:#e8e3d5; --region-edge:#b3a585; --baste:#a8946a;
+    --piece-shade:#cdbf9b;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
 
@@ -83,30 +88,106 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--ink-soft);
-    margin-top: 0.28rem;
-  }
-  .kit {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.26rem;
-  }
-  .kititem {
-    display: flex;
-    align-items: center;
-    gap: 0.38rem;
-    padding: 0.2rem 0.32rem;
-    border: 1.5px solid var(--ink-soft);
-    border-radius: 5px;
-    cursor: pointer;
+    margin: 0.22rem 0 0.16rem;
   }
   .hitE { cursor: pointer; }
-  .kititem:hover { background: var(--paper-deep); }
-  .kititem.sel { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); }
-  .kititem.out { opacity: 0.4; }
-  .kit-name { font-size: 0.78rem; }
-  .kit-count { font-size: 0.8rem; font-weight: 600; }
+
+  /* Unified tiles — one component for every pickable thing */
+  .trow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.34rem;
+    align-items: flex-start;
+  }
+  .tw {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.12rem;
+    width: 48px;
+  }
+  .tile {
+    width: 48px;
+    height: 48px;
+    border: 1.5px solid var(--ink-soft);
+    border-radius: 7px;
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .tile svg { width: 72%; height: 72%; display: block; }
+  .tile:hover { background: var(--paper-deep); }
+  .tile.swatch { border-color: var(--line); }
+  .tile.sel { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); }
+  .tile.out { opacity: 0.4; }
+  .badge {
+    position: absolute;
+    right: 2px;
+    bottom: 1px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--paper);
+    border-radius: 3px;
+    padding: 0 0.12rem;
+    line-height: 1.3;
+  }
+  .cap {
+    font-size: 0.6rem;
+    color: var(--ink-soft);
+  }
+
+  /* ── ACTIONS: erase + reset, one matched pair ── */
+  .hr {
+    height: 1px;
+    border: 0;
+    background: var(--line);
+    opacity: 0.7;
+    margin: 0.42rem 0 0.4rem;
+  }
+  .actions {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .actbtn {
+    flex: 1;
+    height: 48px;
+    border-radius: 7px;
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.34rem;
+    font-family: 'Spectral', serif;
+    font-size: 0.84rem;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .actbtn svg { width: 20px; height: 20px; }
+  .actbtn.erase { border: 1.5px solid var(--ink-soft); }
+  .actbtn.erase:hover { background: var(--paper-deep); }
+  .actbtn.erase.sel { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); }
+  .actbtn.reset { border: 1.5px solid var(--ink); }
+  .actbtn.reset:hover { background: var(--ink); color: var(--paper); }
 
   /* ── RULES ── */
+  .rulespanel {
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--paper-deep);
+    padding: 0.38rem 0.55rem 0.48rem;
+  }
+  .rphead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.08rem;
+  }
+  .rphead .side-label { margin: 0; }
   .rules {
     list-style: none;
   }
@@ -115,11 +196,11 @@
     letter-spacing: 0.09em;
     text-transform: uppercase;
     color: var(--ink-soft);
-    margin: 0.32rem 0 0.06rem;
+    margin: 0.3rem 0 0.06rem;
   }
   .rules li {
-    padding: 0.15rem 0;
-    font-size: 0.82rem;
+    padding: 0.14rem 0;
+    font-size: 0.8rem;
     display: flex;
     gap: 0.42rem;
     align-items: baseline;
@@ -130,13 +211,59 @@
     flex-shrink: 0;
   }
 
-  /* ── CONTROLS ── */
-  .controls {
+  /* ── ASSIST TOGGLE ── */
+  .toggle {
     display: flex;
-    gap: 0.4rem;
-    margin-top: 0.4rem;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.34rem;
+    cursor: pointer;
+    user-select: none;
   }
+  .toggle .tlabel {
+    font-size: 0.66rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+  .switch {
+    width: 34px;
+    height: 19px;
+    border-radius: 999px;
+    border: 1.5px solid var(--ink-soft);
+    background: var(--paper);
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .knob {
+    position: absolute;
+    top: 1.5px;
+    left: 1.5px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--ink-soft);
+    transition: left 0.12s, background 0.12s;
+  }
+  .toggle input:checked ~ .switch {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .toggle input:checked ~ .switch .knob {
+    left: 16.5px;
+    background: var(--paper);
+  }
+  .toggle input:focus-visible ~ .switch {
+    box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--accent);
+  }
+
+  /* ── CONTROLS (win-overlay button) ── */
   button {
     font-family: 'Spectral', serif;
     font-size: 0.78rem;
@@ -148,13 +275,6 @@
     cursor: pointer;
   }
   button:hover { background: var(--ink); color: var(--paper); }
-  label.assist {
-    font-size: 0.78rem;
-    display: flex;
-    align-items: center;
-    gap: 0.32rem;
-    margin-top: 0.32rem;
-  }
 
   /* ── PHONE PORTRAIT: kit section above rules ── */
   /* On phones we have one column; kit-section shows above rules-section */
@@ -171,23 +291,26 @@
     h1 { font-size: 1.1rem; }
     .stage { gap: 0.25rem; }
     .side { gap: 0.1rem; }
-    .side-label { font-size: 0.6rem; margin-top: 0.15rem; }
-    .kititem { padding: 0.14rem 0.22rem; gap: 0.24rem; }
-    .kit-name { font-size: 0.7rem; }
-    .kit-count { font-size: 0.7rem; }
-    .kit { gap: 0.18rem; }
-    /* Fabrics: single row, all 5 swatches side by side */
-    #kitFabrics .kit-name { display: none; }
-    #kitFabrics .kititem { padding: 0.1rem 0.1rem; }
-    /* Lift tool: shorter label */
-    #kitTools .kititem { padding: 0.1rem 0.22rem; }
-    /* Assist + Reset on one row */
-    label.assist { margin-top: 0.1rem; font-size: 0.7rem; }
-    .controls { margin-top: 0.1rem; }
-    button { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
+    .side-label { font-size: 0.6rem; margin: 0.14rem 0 0.1rem; }
+    /* Tiles shrink and go icon-only — shapes & colours read fine without captions */
+    .trow { gap: 0.22rem; }
+    .tw { width: 36px; gap: 0; }
+    .tile { width: 36px; height: 36px; border-radius: 5px; }
+    .cap { display: none; }
+    .badge { font-size: 0.55rem; }
+    .hr { margin: 0.22rem 0; }
+    .actions { gap: 0.3rem; }
+    .actbtn { height: 34px; font-size: 0.74rem; }
+    .actbtn svg { width: 17px; height: 17px; }
+    /* Rules card flattens to a plain list to reclaim height */
+    .rulespanel { border: 0; background: none; border-radius: 0; padding: 0; }
     .rule-head { font-size: 0.56rem; margin: 0.15rem 0 0.03rem; }
     .rules li { font-size: 0.72rem; padding: 0.06rem 0; gap: 0.28rem; }
     .rules .mark { width: 0.9rem; }
+    .toggle .tlabel { font-size: 0.58rem; }
+    .switch { width: 30px; height: 17px; }
+    .knob { width: 11px; height: 11px; }
+    .toggle input:checked ~ .switch .knob { left: 14.5px; }
   }
 
   /* ── VERY SHORT PHONES: iPhone SE (667px) and similar ── */
@@ -197,12 +320,15 @@
     .header { margin-bottom: 0.12rem; }
     .stage { gap: 0.18rem; }
     .side { gap: 0.08rem; }
-    .side-label { font-size: 0.55rem; margin-top: 0.1rem; }
+    .side-label { font-size: 0.55rem; margin: 0.1rem 0 0.07rem; }
+    .tw { width: 33px; }
+    .tile { width: 33px; height: 33px; }
+    .hr { margin: 0.16rem 0; }
+    .actbtn { height: 31px; font-size: 0.7rem; }
     .rule-head { font-size: 0.52rem; margin: 0.1rem 0 0.02rem; }
     .rules li { font-size: 0.66rem; padding: 0.04rem 0; }
     .rules .mark { width: 0.8rem; }
-    label.assist { font-size: 0.64rem; }
-    button { font-size: 0.64rem; padding: 0.16rem 0.42rem; }
+    .toggle .tlabel { font-size: 0.54rem; }
   }
 
   /* ── WIDE/LANDSCAPE: board left, side right ── */
@@ -232,6 +358,16 @@
     h1 { font-size: 1.2rem; }
     .header { margin-bottom: 0.2rem; }
     .app { padding: 0.35rem 0.7rem 0.35rem; }
+    /* Compact the side panel so it fits beside the board without scroll */
+    .side-label { margin: 0.1rem 0 0.1rem; }
+    .tw { width: 40px; gap: 0; }
+    .tile { width: 40px; height: 40px; }
+    .cap { display: none; }
+    .hr { margin: 0.26rem 0; }
+    .actbtn { height: 40px; }
+    .rulespanel { padding: 0.3rem 0.5rem 0.36rem; }
+    .rule-head { margin: 0.2rem 0 0.04rem; }
+    .rules li { padding: 0.1rem 0; }
   }
 
   /* ── RESPONSIVE FONT SCALING ── */
@@ -280,21 +416,34 @@
       <svg id="board" viewBox="0 0 344 344"></svg>
     </div>
     <div class="side">
-      <!-- Kit section (shapes/fabrics/controls) — shown first on phones -->
+      <!-- Kit section (shapes/fabrics/erase/reset) — shown first on phones -->
       <div class="kit-section">
         <div class="side-label">Shapes</div>
-        <div class="kit" id="kitShapes"></div>
+        <div class="trow" id="kitShapes"></div>
         <div class="side-label">Fabrics</div>
-        <div class="kit" id="kitFabrics"></div>
-        <div class="kit" id="kitTools" style="margin-top:0.18rem"></div>
-        <label class="assist"><input type="checkbox" id="assistToggle"> Assist (show rule status)</label>
-        <div class="controls">
-          <button id="resetBtn">Reset</button>
+        <div class="trow" id="kitFabrics"></div>
+        <hr class="hr">
+        <div class="actions">
+          <div class="actbtn erase" id="eraseBtn">
+            <svg viewBox="0 0 82 82" aria-hidden="true"><g transform="rotate(-40 41 41)"><rect x="14" y="30" width="54" height="24" rx="5" fill="#d8cbab" stroke="#8a7d5e" stroke-width="3"/><rect x="14" y="30" width="20" height="24" rx="5" fill="#c0b088" stroke="#8a7d5e" stroke-width="3"/></g></svg>
+            <span>Erase</span>
+          </div>
+          <button class="actbtn reset" id="resetBtn">Reset</button>
         </div>
       </div>
       <!-- Rules section — shown below kit on phones, above kit on wider screens -->
       <div class="rules-section">
-        <ul class="rules" id="rulesPanel"></ul>
+        <div class="rulespanel">
+          <div class="rphead">
+            <span class="side-label">Rules</span>
+            <label class="toggle">
+              <span class="tlabel">Assist</span>
+              <input type="checkbox" id="assistToggle">
+              <span class="switch"><span class="knob"></span></span>
+            </label>
+          </div>
+          <ul class="rules" id="rulesPanel"></ul>
+        </div>
       </div>
     </div>
   </div>
@@ -316,7 +465,7 @@
 // The SVG has viewBox="0 0 344 344" so we just set width=height=N.
 //
 // CRITICAL CONSTRAINT: no inner-scroll anywhere. The board + all side
-// content (shapes, fabrics, lift, assist, reset, all 8 rules) must fit
+// content (shapes, fabrics, erase, reset, assist, all 8 rules) must fit
 // simultaneously in the viewport on every screen size.
 //
 // Empirical side-panel heights (after CSS compaction):
@@ -343,10 +492,9 @@ function computeBoardSize() {
     // We compact heavily on tiny screens so the side panel shrinks too.
     let sideH;
     if (vh <= 680) {
-      // iPhone SE (375×667): very compact CSS. Side content includes:
-      // shapes row (~26px) + fabrics row (~26px) + lift row (~26px)
-      // + assist row (~22px) + reset row (~24px) + structure head+4 rules (~86px)
-      // + colour head+4 rules (~80px) + label gaps/margins (~30px) = ~320px
+      // iPhone SE (375×667): very compact CSS — icon-only 33px tiles, flat
+      // rules list. Side content: shapes + fabrics tile rows, erase/reset row,
+      // rules header + 2 group heads + 8 rule rows + label gaps/margins.
       sideH = 322;
     } else if (vh <= 780) {
       // Small phones (360×780 etc.) — slightly more vertical space, less cramped CSS
@@ -413,33 +561,49 @@ function regionShapes(shape) {
 // ── render ───────────────────────────────────────────────────────
 function render() {
   const isGiven = i => PUZZLE.givens.includes(i);
-  const results = assist ? evaluateAll({ grid, colors }, PUZZLE.ruleKeys) : null;
+  const results = assist ? evaluateAll({ grid, colors, kit: PUZZLE.kit }, PUZZLE.ruleKeys) : null;
   const bad = new Set();
   if (results) for (const r of results) for (const v of r.violations) bad.add(v);
 
   const svg = [];
-  svg.push(`<rect x="${PAD}" y="${PAD}" width="${GRID*CELL}" height="${GRID*CELL}" fill="#efe6cf"/>`);
+  svg.push(`<rect x="${PAD}" y="${PAD}" width="${GRID*CELL}" height="${GRID*CELL}" fill="var(--board-bg)"/>`);
   for (let i = 0; i < NCELL; i++) {
     const x = PAD + (i % GRID) * CELL, y = PAD + Math.floor(i / GRID) * CELL;
     const cell = grid[i];
     svg.push(`<g transform="translate(${x},${y})">`);
     if (!cell) {
       svg.push(`<rect class="hitE" data-i="${i}" width="${CELL}" height="${CELL}"
-        fill="#f3ecd8" stroke="#cdc1a0" stroke-width="1" stroke-dasharray="4 3"/>`);
+        fill="var(--cell-empty)" stroke="var(--cell-empty-edge)" stroke-width="1" stroke-dasharray="4 3"/>`);
     } else {
       for (const rg of regionShapes(cell.shape)) {
         const fab = colors[ckey(i, rg.part)];
-        const fill = fab ? FABRICS[fab].col : '#e7ddc4';
+        const fill = fab ? FABRICS[fab].col : 'var(--region-blank)';
         const o = rg.rot ? `<g transform="rotate(${cell.rot*90} ${CELL/2} ${CELL/2})">` : '';
         const c = rg.rot ? '</g>' : '';
+        // Coloured regions get a clean solid edge ("sewn down"). Uncoloured
+        // regions are drawn edgeless here — a basting overlay is added below.
+        const edge = fab ? ` stroke="var(--region-edge)" stroke-width="1.1"` : ` stroke="none"`;
         svg.push(`${o}<${rg.tag} class="hitR" data-i="${i}" data-part="${rg.part}" ${rg.attr}`
-          + ` fill="${fill}" stroke="#b3a585" stroke-width="1.1"/>${c}`);
+          + ` fill="${fill}"${edge}/>${c}`);
       }
     }
-    const border = (assist && bad.has(i)) ? 'var(--accent)' : '#9c8f6e';
+    const border = (assist && bad.has(i)) ? 'var(--accent)' : 'var(--cell-line)';
     const bw = (assist && bad.has(i)) ? 3 : 1.4;
     svg.push(`<rect width="${CELL}" height="${CELL}" fill="none" pointer-events="none"
       stroke="${border}" stroke-width="${bw}"/>`);
+    // Basting stitches mark every uncoloured region — drawn on top of the cell
+    // border so nothing can hide them. A fabric fill (solid or pattern) can
+    // never produce a dashed edge, so "uncoloured" stays unmistakable for any
+    // puzzle's palette.
+    if (cell) {
+      for (const rg of regionShapes(cell.shape)) {
+        if (colors[ckey(i, rg.part)]) continue;
+        const o = rg.rot ? `<g transform="rotate(${cell.rot*90} ${CELL/2} ${CELL/2})">` : '';
+        const c = rg.rot ? '</g>' : '';
+        svg.push(`${o}<${rg.tag} ${rg.attr} fill="none" pointer-events="none"`
+          + ` stroke="var(--baste)" stroke-width="2.2" stroke-dasharray="4 3"/>${c}`);
+      }
+    }
     if (isGiven(i)) svg.push(`<circle cx="${CELL-9}" cy="9" r="3.3" fill="var(--gold)"
       stroke="#2a2520" stroke-width="0.6" pointer-events="none"/>`);
     svg.push(`</g>`);
@@ -458,47 +622,43 @@ const SHAPE_ORDER = ['curve', 'triangle', 'square'];
 const SHAPE_LABEL = { curve: 'Curve', triangle: 'Triangle', square: 'Square' };
 
 function miniPiece(shape) {
-  const S = CELL, lite = '#e7ddc4', dark = '#cdbf9b';
+  const S = CELL, lite = 'var(--region-blank)', dark = 'var(--piece-shade)';
   if (shape === 'square')
-    return `<rect width="${S}" height="${S}" fill="${lite}" stroke="#b3a585" stroke-width="3"/>`;
+    return `<rect width="${S}" height="${S}" fill="${lite}" stroke="var(--region-edge)" stroke-width="3"/>`;
   if (shape === 'triangle')
-    return `<polygon points="0,0 ${S},0 ${S},${S}" fill="${dark}" stroke="#b3a585" stroke-width="3"/>`
-         + `<polygon points="0,0 0,${S} ${S},${S}" fill="${lite}" stroke="#b3a585" stroke-width="3"/>`;
-  return `<rect width="${S}" height="${S}" fill="${lite}" stroke="#b3a585" stroke-width="3"/>`
-       + `<path d="M ${S/2},0 A ${S/2},${S/2} 0 0,1 0,${S/2} L 0,0 Z" fill="${dark}" stroke="#b3a585" stroke-width="3"/>`;
+    return `<polygon points="0,0 ${S},0 ${S},${S}" fill="${dark}" stroke="var(--region-edge)" stroke-width="3"/>`
+         + `<polygon points="0,0 0,${S} ${S},${S}" fill="${lite}" stroke="var(--region-edge)" stroke-width="3"/>`;
+  return `<rect width="${S}" height="${S}" fill="${lite}" stroke="var(--region-edge)" stroke-width="3"/>`
+       + `<path d="M ${S/2},0 A ${S/2},${S/2} 0 0,1 0,${S/2} L 0,0 Z" fill="${dark}" stroke="var(--region-edge)" stroke-width="3"/>`;
 }
 
 function renderPanels() {
-  // shapes
+  // shapes — uniform tile + count badge + caption
   const ks = document.getElementById('kitShapes'); ks.innerHTML = '';
   for (const s of SHAPE_ORDER) {
     const left = shapeKit[s] || 0;
-    const d = document.createElement('div');
-    d.className = 'kititem' + (selKind === 'shape' && sel === s ? ' sel' : '')
+    const tw = document.createElement('div');
+    tw.className = 'tw';
+    const cls = 'tile' + (selKind === 'shape' && sel === s ? ' sel' : '')
       + (left <= 0 ? ' out' : '');
-    d.innerHTML = `<svg width="22" height="22" viewBox="0 0 ${CELL} ${CELL}">${miniPiece(s)}</svg>`
-      + `<span class="kit-name">${SHAPE_LABEL[s]}</span><span class="kit-count">&times;${left}</span>`;
-    d.addEventListener('click', () => selectKit('shape', s, left));
-    ks.appendChild(d);
+    tw.innerHTML = `<div class="${cls}"><svg viewBox="0 0 ${CELL} ${CELL}">${miniPiece(s)}</svg>`
+      + `<span class="badge">${left}</span></div><span class="cap">${SHAPE_LABEL[s]}</span>`;
+    tw.querySelector('.tile').addEventListener('click', () => selectKit('shape', s, left));
+    ks.appendChild(tw);
   }
-  // fabrics
+  // fabrics — uniform tile, full-bleed colour swatch + caption
   const kf = document.getElementById('kitFabrics'); kf.innerHTML = '';
   for (const f of PUZZLE.fabrics) {
-    const d = document.createElement('div');
-    d.className = 'kititem' + (selKind === 'fab' && sel === f ? ' sel' : '');
-    d.innerHTML = `<svg width="22" height="22"><rect width="22" height="22" fill="${FABRICS[f].col}"/>`
-      + `<rect width="22" height="22" fill="none" stroke="#b3a585" stroke-width="1.5"/></svg>`
-      + `<span class="kit-name">${FABRICS[f].name}</span>`;
-    d.addEventListener('click', () => selectKit('fab', f, 1));
-    kf.appendChild(d);
+    const tw = document.createElement('div');
+    tw.className = 'tw';
+    const cls = 'tile swatch' + (selKind === 'fab' && sel === f ? ' sel' : '');
+    tw.innerHTML = `<div class="${cls}" style="background:${FABRICS[f].col}"></div>`
+      + `<span class="cap">${FABRICS[f].name}</span>`;
+    tw.querySelector('.tile').addEventListener('click', () => selectKit('fab', f, 1));
+    kf.appendChild(tw);
   }
-  // lift tool
-  const kt = document.getElementById('kitTools'); kt.innerHTML = '';
-  const lift = document.createElement('div');
-  lift.className = 'kititem' + (selKind === 'lift' ? ' sel' : '');
-  lift.innerHTML = `<span class="kit-name">Lift &mdash; remove a piece or its colour</span>`;
-  lift.addEventListener('click', () => selectKit('lift', null, 1));
-  kt.appendChild(lift);
+  // erase tool — static element, just sync its selected state
+  document.getElementById('eraseBtn').classList.toggle('sel', selKind === 'erase');
   // rules panel
   renderRules();
 }
@@ -509,7 +669,7 @@ function renderRules() {
   // Only evaluate when Assist is ON
   let statusMap = null;
   if (assist) {
-    const results = evaluateAll({ grid, colors }, PUZZLE.ruleKeys);
+    const results = evaluateAll({ grid, colors, kit: PUZZLE.kit }, PUZZLE.ruleKeys);
     statusMap = {};
     for (const r of results) statusMap[r.key] = r.ok;
   }
@@ -543,7 +703,7 @@ function renderRules() {
 }
 
 function selectKit(kind, value, available) {
-  if (kind !== 'lift' && available <= 0 && !(selKind === kind && sel === value)) return;
+  if (kind !== 'erase' && available <= 0 && !(selKind === kind && sel === value)) return;
   if (selKind === kind && sel === value) { selKind = null; sel = null; }
   else { selKind = kind; sel = value; }
   render();
@@ -565,7 +725,8 @@ function rotateShape(i) {
   grid[i].rot = (grid[i].rot + 1) % 4;
 }
 
-function liftCell(i) {
+// Erase removes the whole piece — shape and its colours together.
+function eraseCell(i) {
   if (isGivenCell(i) || !grid[i]) return;
   shapeKit[grid[i].shape]++;
   grid[i] = null;
@@ -574,8 +735,7 @@ function liftCell(i) {
 
 function paint(i, part, fab) {
   if (isGivenCell(i) || !grid[i]) return;
-  if (fab === null) delete colors[ckey(i, part)];
-  else colors[ckey(i, part)] = fab;
+  colors[ckey(i, part)] = fab;
 }
 
 function onEmptyCell(i) {
@@ -589,9 +749,8 @@ function onRegion(i, part) {
     else placeShape(i, sel);
   } else if (selKind === 'fab') {
     paint(i, part, sel);
-  } else if (selKind === 'lift') {
-    if (colors[ckey(i, part)]) paint(i, part, null);
-    else liftCell(i);
+  } else if (selKind === 'erase') {
+    eraseCell(i);
   } else if (grid[i]) {
     rotateShape(i);
   }
@@ -600,7 +759,7 @@ function onRegion(i, part) {
 
 function afterMove() {
   render();
-  if (isSolved({ grid, colors }, PUZZLE.ruleKeys)) {
+  if (isSolved({ grid, colors, kit: PUZZLE.kit }, PUZZLE.ruleKeys)) {
     setTimeout(() => document.getElementById('winOverlay').classList.add('show'), 220);
   }
 }
@@ -609,6 +768,7 @@ function afterMove() {
 applyBoardSize();
 reset();
 
+document.getElementById('eraseBtn').addEventListener('click', () => selectKit('erase', null, 1));
 document.getElementById('resetBtn').addEventListener('click', () => {
   document.getElementById('winOverlay').classList.remove('show');
   reset();
