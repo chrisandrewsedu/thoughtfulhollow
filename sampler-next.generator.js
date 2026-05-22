@@ -74,14 +74,21 @@ function resolvePalette(family, rng) {
 // ── Generation (implemented in Task 8) ───────────────────────────
 function range(n) { const a = []; for (let i = 0; i < n; i++) a.push(i); return a; }
 
-// Instantiate a daily puzzle from `template` for `dateStr`. Returns a puzzle
-// object that passes all four checks, or null if no given set was found.
+// Instantiate a daily puzzle from `template` for `dateStr` (spec §9).
+//
+// Count-targeting: the solution count decreases monotonically as givens are
+// added, so for each re-rolled cell order we add givens one at a time until
+// the count first lands at or below the band maximum. If at that point the
+// puzzle passes all four checks it is returned; otherwise the order overshot
+// the band (count fell below the minimum, or the in-band puzzle was not
+// dead-end-free) and the cell order is re-rolled.
 function generate(template, dateStr, opts) {
   opts = opts || {};
-  const maxRerolls = opts.maxRerolls || 50;
+  const maxRerolls = opts.maxRerolls || 60;
   const rng = mulberry32(seedFromDate(dateStr + ':' + template.id));
   const fabrics = resolvePalette(template.paletteFamily, rng);
   const N = template.size * template.size;
+  const band = template.solutionBand || { min: 2, max: 8 };
 
   // a reference solution of the bare template under this palette
   const bare = { size: template.size, ruleKeys: template.ruleKeys,
@@ -90,18 +97,23 @@ function generate(template, dateStr, opts) {
   if (found.length === 0) return null;          // unsatisfiable under this palette
   const refSol = found[0];
 
-  // re-roll the given set until the four checks pass
   for (let attempt = 0; attempt < maxRerolls; attempt++) {
-    const givens = seededShuffle(range(N), rng)
-      .slice(0, template.givenPolicy.count)
-      .sort(function (a, b) { return a - b; });
-    const puzzle = {
-      size: template.size, templateId: template.id, dateStr,
-      ruleKeys: template.ruleKeys, kit: template.kit, fabrics,
-      solutionBand: template.solutionBand, givens, solution: refSol,
-    };
-    const a = _analyze(puzzle);
-    if (a.pass) { puzzle.analysis = a; return puzzle; }
+    const order = seededShuffle(range(N), rng);
+    const givens = [];
+    for (const cell of order) {
+      givens.push(cell);
+      const puzzle = {
+        size: template.size, templateId: template.id, dateStr,
+        ruleKeys: template.ruleKeys, kit: template.kit, fabrics,
+        solutionBand: band, solution: refSol,
+        givens: givens.slice().sort(function (a, b) { return a - b; }),
+      };
+      const a = _analyze(puzzle);
+      if (a.count <= band.max) {
+        if (a.pass) { puzzle.analysis = a; return puzzle; }
+        break;   // overshot the band — re-roll the cell order
+      }
+    }
   }
   return null;
 }

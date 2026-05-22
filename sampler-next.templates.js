@@ -22,10 +22,8 @@ const TEMPLATES = [
       size: 5,
       require: { warm: 1, cool: 1, neutral: 1 },
     },
-    // how many cells are revealed pre-placed; the seed chooses which.
-    givenPolicy: { count: 8 },
     // acceptable solution-count band (spec §5)
-    solutionBand: { min: 1, max: 10 },
+    solutionBand: { min: 2, max: 8 },
   },
 ];
 
