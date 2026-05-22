@@ -72,8 +72,49 @@ function resolvePalette(family, rng) {
 }
 
 // ── Generation (implemented in Task 8) ───────────────────────────
-function generate() { return null; }
-function generateDaily() { return null; }
+function range(n) { const a = []; for (let i = 0; i < n; i++) a.push(i); return a; }
+
+// Instantiate a daily puzzle from `template` for `dateStr`. Returns a puzzle
+// object that passes all four checks, or null if no given set was found.
+function generate(template, dateStr, opts) {
+  opts = opts || {};
+  const maxRerolls = opts.maxRerolls || 50;
+  const rng = mulberry32(seedFromDate(dateStr + ':' + template.id));
+  const fabrics = resolvePalette(template.paletteFamily, rng);
+  const N = template.size * template.size;
+
+  // a reference solution of the bare template under this palette
+  const bare = { size: template.size, ruleKeys: template.ruleKeys,
+                 kit: template.kit, fabrics, givens: [], solution: null };
+  const found = _solve(bare, { cap: 1 });
+  if (found.length === 0) return null;          // unsatisfiable under this palette
+  const refSol = found[0];
+
+  // re-roll the given set until the four checks pass
+  for (let attempt = 0; attempt < maxRerolls; attempt++) {
+    const givens = seededShuffle(range(N), rng)
+      .slice(0, template.givenPolicy.count)
+      .sort(function (a, b) { return a - b; });
+    const puzzle = {
+      size: template.size, templateId: template.id, dateStr,
+      ruleKeys: template.ruleKeys, kit: template.kit, fabrics,
+      solutionBand: template.solutionBand, givens, solution: refSol,
+    };
+    const a = _analyze(puzzle);
+    if (a.pass) { puzzle.analysis = a; return puzzle; }
+  }
+  return null;
+}
+
+// First template (in list order) that yields a passing puzzle for the date.
+function generateDaily(dateStr, templates) {
+  templates = templates || _TEMPLATES;
+  for (const t of templates) {
+    const p = generate(t, dateStr);
+    if (p) return p;
+  }
+  return null;
+}
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
