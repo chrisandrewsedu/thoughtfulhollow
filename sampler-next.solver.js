@@ -201,7 +201,25 @@ function solve(puzzle, opts) {
   recurse(0);
   return solutions;
 }
-function checkIndependence() { return true; }
+// a stable per-cell value key — two cells are "the same" iff this matches
+function cellKey(c) {
+  if (c.shape === 'square') return 'sq|' + c.col.W;
+  return c.shape[0] + '|' + c.rot + '|' + c.col.A + '|' + c.col.B;
+}
+
+// dead-end-free ⇔ the solution set is the exact Cartesian product of the
+// per-cell options where solutions differ (spec §5/§13).
+function checkIndependence(solutions) {
+  if (solutions.length <= 1) return true;
+  const N = solutions[0].length;
+  let product = 1;
+  for (let i = 0; i < N; i++) {
+    const vals = new Set(solutions.map(s => cellKey(s[i])));
+    product *= vals.size;
+    if (product > solutions.length) return false;   // can never be a full product
+  }
+  return product === solutions.length;
+}
 function analyze() { return {}; }
 
 if (typeof module !== 'undefined' && module.exports) {
