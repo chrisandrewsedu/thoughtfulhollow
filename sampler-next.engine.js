@@ -364,13 +364,85 @@ function ruleNoLargeBlock(state, params) {
   return { ok: filledAll(grid) && violations.size === 0, violations };
 }
 
+// All cells of params.shape form one orthogonally-connected group. Only
+// judged once every cell of the shape is placed (uses state.kit).
+function ruleConnectedShape(state, params) {
+  const { grid } = state;
+  const cells = [];
+  for (let i = 0; i < NCELL; i++) if (grid[i] && grid[i].shape === params.shape) cells.push(i);
+  if (!allShapePlaced(state, params.shape)) return { ok: false, violations: new Set() };
+  if (cells.length === 0) return { ok: true, violations: new Set() };
+  const set = new Set(cells);
+  const visited = new Set([cells[0]]);
+  const queue = [cells[0]];
+  while (queue.length) {
+    const i = queue.shift();
+    for (const d of DIRS) {
+      const j = neighbor(i, d);
+      if (j !== -1 && set.has(j) && !visited.has(j)) { visited.add(j); queue.push(j); }
+    }
+  }
+  if (visited.size === cells.length) return { ok: true, violations: new Set() };
+  const violations = new Set();
+  for (const i of cells) if (!visited.has(i)) violations.add(i);
+  return { ok: false, violations };
+}
+
+// Exactly params.count cells of params.shape within params.cells. Over-count
+// is always a permanent violation; under-count is only judged once the
+// region (or the shape) is fully placed.
+function ruleCountShapeInRegion(state, params) {
+  const { grid } = state;
+  let placedCount = 0;
+  let regionFilled = true;
+  for (const i of params.cells) {
+    if (!grid[i]) { regionFilled = false; continue; }
+    if (grid[i].shape === params.shape) placedCount++;
+  }
+  const violations = new Set();
+  if (placedCount > params.count) {
+    for (const i of params.cells) if (grid[i] && grid[i].shape === params.shape) violations.add(i);
+    return { ok: false, violations };
+  }
+  const judgable = regionFilled || allShapePlaced(state, params.shape);
+  if (judgable && placedCount !== params.count) {
+    for (const i of params.cells) violations.add(i);
+    return { ok: false, violations };
+  }
+  return { ok: regionFilled && placedCount === params.count, violations };
+}
+
+// Every cell of params.shape has at least one orthogonal neighbour of
+// params.adjacentTo. A cell is judged only when all of its on-board
+// neighbours are placed.
+function ruleMustBeAdjacent(state, params) {
+  const { grid } = state;
+  const violations = new Set();
+  for (let i = 0; i < NCELL; i++) {
+    if (!grid[i] || grid[i].shape !== params.shape) continue;
+    let hasAdj = false, allNeighbsPlaced = true;
+    for (const d of DIRS) {
+      const j = neighbor(i, d);
+      if (j === -1) continue;
+      if (!grid[j]) { allNeighbsPlaced = false; continue; }
+      if (grid[j].shape === params.adjacentTo) { hasAdj = true; break; }
+    }
+    if (!hasAdj && allNeighbsPlaced) violations.add(i);
+  }
+  const allShapeDown = allShapePlaced(state, params.shape);
+  return { ok: allShapeDown && filledAll(grid) && violations.size === 0, violations };
+}
+
 const PARAM_RULES = {
-  cellsAreShape:     { group: 'structure', fn: ruleCellsAreShape },
-  noAdjacentShape:   { group: 'structure', fn: ruleNoAdjacentShape },
-  cellsAvoidShape:   { group: 'structure', fn: ruleCellsAvoidShape },
-  distinctRotations: { group: 'structure', fn: ruleDistinctRotations },
-  symmetryMirror:    { group: 'structure', fn: ruleSymmetryMirror },
-  noLargeBlock:      { group: 'structure', fn: ruleNoLargeBlock },
+  cellsAreShape:      { group: 'structure', fn: ruleCellsAreShape },
+  noAdjacentShape:    { group: 'structure', fn: ruleNoAdjacentShape },
+  cellsAvoidShape:    { group: 'structure', fn: ruleCellsAvoidShape },
+  distinctRotations:  { group: 'structure', fn: ruleDistinctRotations },
+  symmetryMirror:     { group: 'structure', fn: ruleSymmetryMirror },
+  noLargeBlock:       { group: 'structure', fn: ruleNoLargeBlock },
+  connectedShape:     { group: 'structure', fn: ruleConnectedShape },
+  countShapeInRegion: { group: 'structure', fn: ruleCountShapeInRegion },
+  mustBeAdjacent:     { group: 'structure', fn: ruleMustBeAdjacent },
 };
 
 // ── Rule registry ────────────────────────────────────────────────
@@ -421,6 +493,7 @@ if (typeof module !== 'undefined' && module.exports) {
     rot90, ruleSymmetry4, ruleNoAdjacentShape,
     ruleCellsAreShape, ruleCellsAvoidShape, ruleDistinctRotations,
     mirrorPartner, mirrorRot, ruleSymmetryMirror, ruleNoLargeBlock,
+    ruleConnectedShape, ruleCountShapeInRegion, ruleMustBeAdjacent,
     PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };

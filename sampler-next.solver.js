@@ -129,7 +129,7 @@ function solve(puzzle, opts) {
   // any non-empty violation set on the partial board is a permanent dead
   // branch (every rule is monotonic) — prune it.
   function violates() {
-    const res = _evaluateAll({ grid, colors }, ruleKeys);
+    const res = _evaluateAll({ grid, colors, kit: puzzle.kit }, ruleKeys);
     for (const r of res) if (r.violations.size > 0) return true;
     return false;
   }
@@ -147,7 +147,7 @@ function solve(puzzle, opts) {
   function recurse(step) {
     if (solutions.length >= cap) return;
     if (step === pairs.length) {
-      if (_isSolved({ grid, colors }, ruleKeys)) solutions.push(snapshot());
+      if (_isSolved({ grid, colors, kit: puzzle.kit }, ruleKeys)) solutions.push(snapshot());
       return;
     }
     const [i, partner] = pairs[step];
