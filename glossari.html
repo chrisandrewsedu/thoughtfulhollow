@@ -681,6 +681,7 @@ html, body {
 .share-guess-col.correct { color: var(--green); }
 .share-guess-col.partial { color: var(--gold-bright); }
 .share-guess-col.wrong { color: var(--ink-ghost); }
+.share-guess-col.share-guess-clue { color: var(--ink-soft); }
 .share-guess-sep {
   width: 1px; height: 0.9rem;
   background: var(--paper-shadow); flex-shrink: 0;
@@ -1879,6 +1880,14 @@ function computeGuessMark(bestSetIdx) {
   return [clueMark, ...tileMarks];
 }
 
+// Which entry the player was attempting on this guess — the clue card they
+// selected, since that uniquely identifies the dictionary entry. Falls back
+// to the resolved best-match set when no clue was selected.
+function triedSetIdx(bestSetIdx) {
+  const clue = [...state.selectedIds].map(id => itemById(id)).find(it => it && it.type === 'clue');
+  return (clue && clue.setIdx != null) ? clue.setIdx : bestSetIdx;
+}
+
 function tilesMatchOrder(setIdx) {
   const set = state.currentPuzzle.sets[setIdx];
   const sel = [...state.selectedIds].map(id => itemById(id));
@@ -1909,14 +1918,14 @@ function submit() {
   if (state.locked) return; if (state.selectedIds.size !== 4) return;
   const best = findBestMatch(); state.locked = true;
   if (best.count === 4 && tilesMatchOrder(best.setIdx)) {
-    state.guessLog.push(['correct', 'correct', 'correct', 'correct']);
+    state.guessLog.push({ setIdx: best.setIdx, marks: ['correct', 'correct', 'correct', 'correct'] });
     state.solvedSets[best.setIdx] = true;
     showBadge('correct', 'Correct', 'headword assembled');
     state.selectedIds.clear(); renderAll();
     if (state.solvedSets.every(Boolean)) { setTimeout(() => finishPuzzle(true), 950); }
     else { state.locked = false; updateSubmit(); }
   } else {
-    state.guessLog.push(computeGuessMark(best.setIdx));
+    state.guessLog.push({ setIdx: triedSetIdx(best.setIdx), marks: computeGuessMark(best.setIdx) });
     state.mistakes++; state.totalMistakes++;
     document.querySelectorAll('.clue-card.selected, .tile.selected').forEach(el => { el.classList.add('shaking'); setTimeout(() => el.classList.remove('shaking'), 500); });
     if (best.count === 4) showBadge('partial', 'Right Parts', 'wrong order');
@@ -1954,7 +1963,9 @@ function recordCompletion() {
   t.byDate[playDate] = {
     puzzleIdx: state.puzzleIdx,
     result,
-    guessLog: (state.guessLog || []).map(row => row.slice()),
+    guessLog: (state.guessLog || []).map(row =>
+      Array.isArray(row) ? row.slice() : { setIdx: row.setIdx, marks: (row.marks || []).slice() }
+    ),
     completedAt: Date.now(),
     source: isLive ? 'live' : 'archive',
   };
@@ -2034,6 +2045,22 @@ const PERF_WORDS = [
 
 function perfWordFor(result) { return PERF_WORDS.find(p => p.condition(result)); }
 
+// Normalize a guessLog row across formats: legacy rows were a 4-element marks
+// array; current rows are { setIdx, marks }. setIdx null means "unknown entry".
+function normGuessRow(row) {
+  if (Array.isArray(row)) return { setIdx: null, marks: row };
+  if (row && Array.isArray(row.marks)) return { setIdx: (row.setIdx != null ? row.setIdx : null), marks: row.marks };
+  return { setIdx: null, marks: [] };
+}
+
+// The clue-type glyph (❦ § ¶ ≡ ≠) for a puzzle entry, used in the share grid
+// so each guess row shows which entry was attempted.
+function clueSymForSet(setIdx) {
+  const sets = (state.currentPuzzle && state.currentPuzzle.sets) || [];
+  const meta = sets[setIdx] && CLUE_META[sets[setIdx].type];
+  return meta ? meta.sym : '·';
+}
+
 function buildShareBlockHTML(tierStats, puzzle, puzzleNum, result, playDate, tier) {
   const marks = result.marks || [];
   const timeStr = result.elapsedSeconds != null ? formatTime(result.elapsedSeconds) : '—';
@@ -2055,12 +2082,17 @@ function buildShareBlockHTML(tierStats, puzzle, puzzleNum, result, playDate, tie
     (i === 1 ? '<div class="share-guess-sep"></div>' : '') +
     `<div class="share-guess-col" style="font-family:'Lora',serif;font-size:0.42rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);font-style:italic;">${h}</div>`
   ).join('');
-  const rowsHtml = guessLog.map(row =>
-    `<div class="share-guess-row">${row.map((m, i) =>
-      (i === 1 ? '<div class="share-guess-sep"></div>' : '') +
-      `<div class="share-guess-col ${m}">${SYM[m]}</div>`
-    ).join('')}</div>`
-  ).join('');
+  const rowsHtml = guessLog.map(rawRow => {
+    const row = normGuessRow(rawRow);
+    const marks = row.marks;
+    const clueCell = row.setIdx != null
+      ? `<div class="share-guess-col share-guess-clue">${clueSymForSet(row.setIdx)}</div>`
+      : `<div class="share-guess-col ${marks[0] || 'wrong'}">${SYM[marks[0]] || ''}</div>`;
+    const tileCells = [1, 2, 3].map(i =>
+      `<div class="share-guess-col ${marks[i] || 'wrong'}">${SYM[marks[i]] || ''}</div>`
+    ).join('');
+    return `<div class="share-guess-row">${clueCell}<div class="share-guess-sep"></div>${tileCells}</div>`;
+  }).join('');
   const gridHtml = guessLog.length
     ? `<div class="share-guess-grid"><div class="share-guess-row">${headerHtml}</div>${rowsHtml}</div>`
     : '';
@@ -2102,7 +2134,12 @@ function generateShareText(puzzle, puzzleNum, result, tier) {
   const guessLog = state.guessLog || [];
   const lines = [header, `"${puzzle.name}"`];
   if (guessLog.length) {
-    lines.push('', guessLog.map(row => row.map(m => SYM[m]).join(' ')).join('\n'));
+    lines.push('', guessLog.map(rawRow => {
+      const row = normGuessRow(rawRow);
+      const clueChar = row.setIdx != null ? clueSymForSet(row.setIdx) : (SYM[row.marks[0]] || '·');
+      const tileChars = [1, 2, 3].map(i => SYM[row.marks[i]] || '·').join(' ');
+      return clueChar + ' ' + tileChars;
+    }).join('\n'));
   }
   lines.push('', `${solvedCount} of ${marks.length} · ${timeStr} · ${errStr}`);
   return lines.join('\n');
