@@ -613,14 +613,15 @@ html, body {
 .reveal-title { font-family: 'DM Serif Display', serif; font-weight: 400; font-style: italic; font-size: 1.85rem; line-height: 1; margin-bottom: 0.12rem; }
 .reveal-date { font-family: 'Lora', serif; font-style: italic; font-size: 0.64rem; color: var(--ink-faint); }
 .header-rule { color: var(--ink-ghost); margin: 0.3rem 0 1rem; font-size: 0.9rem; }
-.dict-entry { margin-bottom: 1.1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--paper-shadow); }
+.dict-entry { margin-bottom: 1.1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--paper-shadow); text-align: left; }
 .dict-entry:last-of-type { border-bottom: none; }
 .dict-entry.revealed .dict-headword { color: var(--gold); }
 .dict-entry.revealed .dict-sym { color: var(--gold); }
 .dict-entry.revealed .dict-badge { color: var(--gold); border-color: var(--gold-bright); background: color-mix(in srgb, var(--paper) 92%, var(--gold) 8%); }
-.dict-headword { font-family: 'DM Serif Display', serif; font-weight: 400; font-style: italic; font-size: 1.12rem; line-height: 1.1; margin-bottom: 0.06rem; }
+.dict-headrow { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.1rem 0.6rem; margin-bottom: 0.42rem; }
+.dict-headword { font-family: 'DM Serif Display', serif; font-weight: 400; font-style: italic; font-size: 1.12rem; line-height: 1.1; }
 .dict-headword .dict-sep { color: var(--ink-ghost); font-style: normal; margin: 0 1px; }
-.dict-pos { font-family: 'Lora', serif; font-style: italic; font-size: 0.68rem; color: var(--ink-faint); margin-bottom: 0.42rem; display: flex; align-items: center; gap: 0.5rem; }
+.dict-pos { font-family: 'Lora', serif; font-style: italic; font-size: 0.68rem; color: var(--ink-faint); display: flex; align-items: center; gap: 0.5rem; }
 .dict-badge { font-style: normal; font-family: 'Lora', serif; font-size: 0.52rem; letter-spacing: 0.16em; text-transform: uppercase; padding: 1px 7px; border-radius: 10px; border: 1px solid var(--green); background: color-mix(in srgb, var(--paper) 92%, var(--green) 8%); color: var(--green); }
 :root[data-theme="dark"] .dict-badge { background: #0e2018; }
 :root[data-theme="dark"] .dict-entry.revealed .dict-badge { background: #1e1a0a; }
@@ -2016,7 +2017,7 @@ function showReveal() {
     const s = it.clueObj; const isSolved = state.solvedSets[it.setIdx];
     const partsHtml = s.parts.map((p, i) => (i > 0 ? '<span class="dict-sep">·</span>' : '') + p).join('');
     const div = document.createElement('div'); div.className = 'dict-entry' + (isSolved ? '' : ' revealed');
-    div.innerHTML = `<div class="dict-headword">${partsHtml}</div><div class="dict-pos">${s.pos} <span class="dict-badge">${isSolved ? 'Solved' : 'Revealed'}</span></div><div class="dict-row"><span class="dict-sym">❦</span><span class="dict-text">${s.definition}</span></div><div class="dict-row"><span class="dict-sym">§</span><span class="dict-text">${s.etymology}</span></div><div class="dict-row"><span class="dict-sym">¶</span><span class="dict-text">${s.example}</span></div><div class="dict-row"><span class="dict-sym">≡</span><span class="dict-text">${s.synonyms}</span></div><div class="dict-row"><span class="dict-sym">≠</span><span class="dict-text">${s.antonyms}</span></div>`;
+    div.innerHTML = `<div class="dict-headrow"><div class="dict-headword">${partsHtml}</div><div class="dict-pos">${s.pos} <span class="dict-badge">${isSolved ? 'Solved' : 'Revealed'}</span></div></div><div class="dict-row"><span class="dict-sym">❦</span><span class="dict-text">${s.definition}</span></div><div class="dict-row"><span class="dict-sym">§</span><span class="dict-text">${s.etymology}</span></div><div class="dict-row"><span class="dict-sym">¶</span><span class="dict-text">${s.example}</span></div><div class="dict-row"><span class="dict-sym">≡</span><span class="dict-text">${s.synonyms}</span></div><div class="dict-row"><span class="dict-sym">≠</span><span class="dict-text">${s.antonyms}</span></div>`;
     entriesEl.appendChild(div);
   });
   const puzzleNum = state.mode === 'daily' ? dailyIndex(state.playDate || todayStr()) + 1 : null;
