@@ -237,14 +237,60 @@ function ruleCellsAreShape(state, params) {
   return { ok: allFilled && violations.size === 0, violations };
 }
 
+// 90°-clockwise image of cell `i` on the GRID×GRID board.
+function rot90(i) {
+  const r = Math.floor(i / GRID), c = i % GRID;
+  return c * GRID + (GRID - 1 - r);
+}
+
+// 4-fold rotational symmetry: the block is invariant under a 90° turn.
+// Each cell must match its 90° image — same shape, rotation stepped by +1
+// (squares are rotation-invariant), and each region's colour equal.
+function ruleSymmetry4(state) {
+  const { grid, colors } = state;
+  const violations = new Set();
+  for (let i = 0; i < NCELL; i++) {
+    const j = rot90(i);
+    const a = grid[i], b = grid[j];
+    if (!a || !b) continue;
+    let bad = a.shape !== b.shape;
+    if (!bad && a.shape !== 'square') bad = ((a.rot + 1) % 4) !== b.rot;
+    if (!bad) {
+      for (const part of partsOf(a.shape)) {
+        if (colors[i + ':' + part] !== colors[j + ':' + part]) bad = true;
+      }
+    }
+    if (bad) { violations.add(i); violations.add(j); }
+  }
+  return { ok: filledAll(grid) && violations.size === 0, violations };
+}
+
+// parameterized: no two cells of params.shape are orthogonally adjacent.
+function ruleNoAdjacentShape(state, params) {
+  const { grid } = state;
+  const violations = new Set();
+  for (let i = 0; i < NCELL; i++) {
+    if (!grid[i] || grid[i].shape !== params.shape) continue;
+    for (const d of ['E', 'S']) {
+      const j = neighbor(i, d);
+      if (j !== -1 && grid[j] && grid[j].shape === params.shape) {
+        violations.add(i); violations.add(j);
+      }
+    }
+  }
+  return { ok: filledAll(grid) && violations.size === 0, violations };
+}
+
 const PARAM_RULES = {
-  cellsAreShape: { group: 'structure', fn: ruleCellsAreShape },
+  cellsAreShape:   { group: 'structure', fn: ruleCellsAreShape },
+  noAdjacentShape: { group: 'structure', fn: ruleNoAdjacentShape },
 };
 
 // ── Rule registry ────────────────────────────────────────────────
 const RULES = {
   continuity:        { group: 'structure', label: 'Curves continue across every seam',          fn: ruleContinuity },
   symmetry:          { group: 'structure', label: 'The block has half-turn (180°) symmetry',     fn: ruleSymmetry },
+  symmetry4:         { group: 'structure', label: 'The block has 4-fold rotational symmetry',    fn: ruleSymmetry4 },
   cornersTriangles:  { group: 'structure', label: 'Triangles fill the corners — and only there', fn: ruleCornersAreTriangles },
   centreCurves:      { group: 'structure', label: 'The four centre cells are curves',            fn: ruleCentreIsCurves },
   discsUnified:      { group: 'colour',    label: 'Every curve’s disc is the same fabric',        fn: ruleDiscsUnified },
@@ -285,6 +331,7 @@ if (typeof module !== 'undefined' && module.exports) {
     partsOf, portsOf, CURVE_PORTS, FABRICS, CORNERS, CENTRE,
     ruleContinuity, ruleSymmetry, ruleCornersAreTriangles, ruleCentreIsCurves,
     ruleDiscsUnified, ruleTriangleHalvesDifferHue, ruleFieldHue, ruleNoAdjacentSquaresSameFabric, fullyColoured,
+    rot90, ruleSymmetry4, ruleNoAdjacentShape,
     ruleCellsAreShape, PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };
