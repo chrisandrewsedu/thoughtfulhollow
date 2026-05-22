@@ -115,11 +115,81 @@ function ruleCentreIsCurves(state) {
   return { ok: centreFilled && violations.size === 0, violations };
 }
 
+// ── Colour rules ─────────────────────────────────────────────────
+// every region of every placed piece has a colour
+function fullyColoured(state) {
+  const { grid, colors } = state;
+  return grid.every((p, i) =>
+    p && partsOf(p.shape).every(part => colors[i + ':' + part]));
+}
+
+// every curve's disc (part A) is the same fabric
+function ruleDiscsUnified(state) {
+  const { grid, colors } = state;
+  const violations = new Set();
+  const discs = [];
+  for (let i = 0; i < NCELL; i++) {
+    if (grid[i] && grid[i].shape === 'curve') {
+      const f = colors[i + ':A'];
+      if (f) discs.push([i, f]);
+    }
+  }
+  const same = discs.length > 0 && discs.every(([, f]) => f === discs[0][1]);
+  if (discs.length && !same) {
+    for (const [i, f] of discs) if (f !== discs[0][1]) violations.add(i);
+  }
+  return { ok: fullyColoured(state) && same, violations };
+}
+
+// each triangle's two halves differ in hue
+function ruleTriangleHalvesDifferHue(state) {
+  const { grid, colors } = state;
+  const violations = new Set();
+  for (let i = 0; i < NCELL; i++) {
+    if (!grid[i] || grid[i].shape !== 'triangle') continue;
+    const a = colors[i + ':A'], b = colors[i + ':B'];
+    if (a && b && FABRICS[a].hue === FABRICS[b].hue) violations.add(i);
+  }
+  return { ok: fullyColoured(state) && violations.size === 0, violations };
+}
+
+// curve background fields (part B) stay cool or neutral
+function ruleFieldHue(state) {
+  const { grid, colors } = state;
+  const violations = new Set();
+  for (let i = 0; i < NCELL; i++) {
+    if (!grid[i] || grid[i].shape !== 'curve') continue;
+    const b = colors[i + ':B'];
+    if (b && FABRICS[b].hue === 'warm') violations.add(i);
+  }
+  return { ok: fullyColoured(state) && violations.size === 0, violations };
+}
+
+// no two touching squares share a fabric
+function ruleNoAdjacentSquaresSameFabric(state) {
+  const { grid, colors } = state;
+  const violations = new Set();
+  for (let i = 0; i < NCELL; i++) {
+    if (!grid[i] || grid[i].shape !== 'square') continue;
+    const f = colors[i + ':W'];
+    if (!f) continue;
+    for (const d of ['E', 'S']) {
+      const j = neighbor(i, d);
+      if (j !== -1 && grid[j] && grid[j].shape === 'square'
+          && colors[j + ':W'] === f) {
+        violations.add(i); violations.add(j);
+      }
+    }
+  }
+  return { ok: fullyColoured(state) && violations.size === 0, violations };
+}
+
 // ── exports (Node) ───────────────────────────────────────────────
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     GRID, NCELL, DIRS, OPP, neighbor, partnerOf,
     partsOf, portsOf, CURVE_PORTS, FABRICS, CORNERS, CENTRE,
     ruleContinuity, ruleSymmetry, ruleCornersAreTriangles, ruleCentreIsCurves,
+    ruleDiscsUnified, ruleTriangleHalvesDifferHue, ruleFieldHue, ruleNoAdjacentSquaresSameFabric, fullyColoured,
   };
 }
