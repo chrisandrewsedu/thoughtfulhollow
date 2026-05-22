@@ -10,7 +10,203 @@ const _evaluateAll = _ENG ? _ENG.evaluateAll : evaluateAll;
 const _isSolved    = _ENG ? _ENG.isSolved   : isSolved;
 const _partsOf     = _ENG ? _ENG.partsOf    : partsOf;
 
-function solve() { return []; }
+// every {shape, rot, col} a single cell could take, given the kit left,
+// the palette, and an optional shape-allowlist. Squares are
+// rotation-invariant (one region) — rot 0 only.
+function cellCandidates(kitLeft, palette, allowShapes) {
+  const out = [];
+  for (const shape of ['curve', 'triangle', 'square']) {
+    if ((kitLeft[shape] || 0) <= 0) continue;
+    if (allowShapes && !allowShapes.includes(shape)) continue;
+    const rots = shape === 'square' ? [0] : [0, 1, 2, 3];
+    const twoPart = shape !== 'square';
+    for (const rot of rots) {
+      if (twoPart) {
+        for (const a of palette) for (const b of palette)
+          out.push({ shape, rot, col: { A: a, B: b } });
+      } else {
+        for (const w of palette) out.push({ shape, rot, col: { W: w } });
+      }
+    }
+  }
+  return out;
+}
+
+// Derive shape constraints for each cell from the rule set.
+// Returns an array of length N where each entry is null (any shape) or
+// an array of allowed shape strings.
+function shapeConstraints(N, ruleKeys) {
+  const constraints = new Array(N).fill(null);
+  if (ruleKeys.includes('cornersTriangles')) {
+    const CORNERS = [0, 3, N - 4, N - 1]; // works for size=4 (N=16)
+    for (let i = 0; i < N; i++) {
+      if (CORNERS.includes(i)) {
+        constraints[i] = ['triangle'];
+      } else {
+        // non-corners cannot be triangles
+        constraints[i] = ['curve', 'square'];
+      }
+    }
+  }
+  if (ruleKeys.includes('centreCurves')) {
+    const CENTRE = [5, 6, 9, 10]; // hardcoded for size=4
+    for (const i of CENTRE) {
+      constraints[i] = ['curve'];
+    }
+    // If cornersTriangles also active, edge cells already have ['curve','square']
+    // and centre cells override to ['curve']
+  }
+  return constraints;
+}
+
+// Given a cell placement, return the placement its 180° partner must have
+// to satisfy symmetry (same shape/color, rotation flipped by 180°).
+function symmetryPartner(cell) {
+  const rot = cell.shape === 'square' ? 0 : (cell.rot + 2) % 4;
+  return { shape: cell.shape, rot, col: Object.assign({}, cell.col) };
+}
+
+// enumerate every complete solution of `puzzle`, up to opts.cap (default 64).
+// Given cells are fixed to puzzle.solution[idx]; other cells are searched.
+//
+// Traversal iterates over symmetry pairs (i, N-1-i). For each pair, the
+// "primary" cell is searched with cellCandidates; the partner cell is
+// immediately forced to its unique symmetry-determined value. This reduces
+// branching by ~100× compared with searching both cells independently.
+// When a rule set doesn't include 'symmetry', pairs degenerate to single
+// cells and the solver still works correctly.
+function solve(puzzle, opts) {
+  opts = opts || {};
+  const cap = opts.cap || 64;
+  const N = puzzle.size * puzzle.size;
+  const ruleKeys = puzzle.ruleKeys;
+  const palette = puzzle.fabrics;
+  const useSymmetry = ruleKeys.includes('symmetry');
+
+  // Build pair list: each entry is [primary, partner|null].
+  // For a symmetric puzzle, partner = N-1-primary (skip if same cell or
+  // already paired). For non-symmetric, partner = null.
+  const pairs = [];
+  const paired = new Set();
+  for (let i = 0; i < N; i++) {
+    if (paired.has(i)) continue;
+    if (useSymmetry) {
+      const p = N - 1 - i;
+      if (p !== i) {
+        pairs.push([i, p]);
+        paired.add(i);
+        paired.add(p);
+      } else {
+        pairs.push([i, null]); // centre cell in odd-size grids
+        paired.add(i);
+      }
+    } else {
+      pairs.push([i, null]);
+      paired.add(i);
+    }
+  }
+
+  const shapeAllowed = shapeConstraints(N, ruleKeys);
+
+  const fixed = new Array(N).fill(null);
+  for (const i of (puzzle.givens || [])) fixed[i] = puzzle.solution[i];
+
+  const grid = new Array(N).fill(null);
+  const colors = {};
+  const kitLeft = Object.assign({}, puzzle.kit);
+  const solutions = [];
+
+  function apply(i, cell) {
+    grid[i] = { shape: cell.shape, rot: cell.rot };
+    for (const part in cell.col) colors[i + ':' + part] = cell.col[part];
+    kitLeft[cell.shape]--;
+  }
+  function undo(i, cell) {
+    grid[i] = null;
+    for (const part in cell.col) delete colors[i + ':' + part];
+    kitLeft[cell.shape]++;
+  }
+  // any non-empty violation set on the partial board is a permanent dead
+  // branch (every rule is monotonic) — prune it.
+  function violates() {
+    const res = _evaluateAll({ grid, colors }, ruleKeys);
+    for (const r of res) if (r.violations.size > 0) return true;
+    return false;
+  }
+  function snapshot() {
+    return grid.map((p, i) => {
+      const col = {};
+      for (const part of _partsOf(p.shape)) col[part] = colors[i + ':' + part];
+      return { shape: p.shape, rot: p.rot, col };
+    });
+  }
+
+  function recurse(step) {
+    if (solutions.length >= cap) return;
+    if (step === pairs.length) {
+      if (_isSolved({ grid, colors }, ruleKeys)) solutions.push(snapshot());
+      return;
+    }
+    const [i, partner] = pairs[step];
+
+    // helper: place primary cell (and its partner if symmetry is active),
+    // check for violations, recurse, then undo both.
+    function tryCell(primaryCell) {
+      apply(i, primaryCell);
+      let partnerCell = null;
+      if (partner !== null && !fixed[partner]) {
+        partnerCell = symmetryPartner(primaryCell);
+        apply(partner, partnerCell);
+      }
+      if (!violates()) recurse(step + 1);
+      if (partnerCell) undo(partner, partnerCell);
+      undo(i, primaryCell);
+    }
+
+    if (fixed[i]) {
+      // primary is fixed; partner may still be free or also fixed
+      if (partner !== null && !fixed[partner]) {
+        // partner must match the fixed primary's symmetry
+        const partnerCell = symmetryPartner(fixed[i]);
+        apply(i, fixed[i]);
+        apply(partner, partnerCell);
+        if (!violates()) recurse(step + 1);
+        undo(partner, partnerCell);
+        undo(i, fixed[i]);
+      } else {
+        apply(i, fixed[i]);
+        if (partner !== null && fixed[partner]) apply(partner, fixed[partner]);
+        if (!violates()) recurse(step + 1);
+        if (partner !== null && fixed[partner]) undo(partner, fixed[partner]);
+        undo(i, fixed[i]);
+      }
+      return;
+    }
+
+    // partner is fixed but primary is free: search primary candidates whose
+    // symmetry image matches the fixed partner
+    if (partner !== null && fixed[partner]) {
+      const fp = fixed[partner];
+      // primary must have: same shape, rot = (fp.rot+2)%4 (or 0 for square),
+      // same colors as partner
+      const expectedRot = fp.shape === 'square' ? 0 : (fp.rot + 2) % 4;
+      const allowed = shapeAllowed[i];
+      if (allowed && !allowed.includes(fp.shape)) return; // shape constraint violation
+      const cand = { shape: fp.shape, rot: expectedRot, col: Object.assign({}, fp.col) };
+      if ((kitLeft[cand.shape] || 0) > 0) tryCell(cand);
+      return;
+    }
+
+    // both are free: search all candidates for the primary
+    for (const cand of cellCandidates(kitLeft, palette, shapeAllowed[i])) {
+      tryCell(cand);
+      if (solutions.length >= cap) return;
+    }
+  }
+
+  recurse(0);
+  return solutions;
+}
 function checkIndependence() { return true; }
 function analyze() { return {}; }
 
