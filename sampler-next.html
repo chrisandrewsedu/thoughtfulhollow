@@ -156,6 +156,12 @@ function render() {
     svg.push(`</g>`);
   }
   document.getElementById('board').innerHTML = svg.join('');
+  document.querySelectorAll('.hitE').forEach(el =>
+    el.addEventListener('click', () => onEmptyCell(+el.dataset.i)));
+  document.querySelectorAll('.hitR').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => onRegion(+el.dataset.i, el.dataset.part));
+  });
   renderPanels();
 }
 
@@ -226,7 +232,68 @@ function selectKit(kind, value, available) {
   render();
 }
 
+function isGivenCell(i) { return PUZZLE.givens.includes(i); }
+
+function placeShape(i, shape) {
+  if (isGivenCell(i)) return;
+  if (grid[i]) shapeKit[grid[i].shape]++;       // free the old piece
+  if ((shapeKit[shape] || 0) <= 0) { if (grid[i]) shapeKit[grid[i].shape]--; return; }
+  // clear colours of whatever was here
+  for (const part of ['A', 'B', 'W']) delete colors[ckey(i, part)];
+  grid[i] = { shape, rot: 0 };
+  shapeKit[shape]--;
+}
+
+function rotateShape(i) {
+  if (isGivenCell(i) || !grid[i]) return;
+  grid[i].rot = (grid[i].rot + 1) % 4;
+}
+
+function liftCell(i) {
+  if (isGivenCell(i) || !grid[i]) return;
+  shapeKit[grid[i].shape]++;
+  grid[i] = null;
+  for (const part of ['A', 'B', 'W']) delete colors[ckey(i, part)];
+}
+
+function paint(i, part, fab) {
+  if (isGivenCell(i) || !grid[i]) return;
+  if (fab === null) delete colors[ckey(i, part)];
+  else colors[ckey(i, part)] = fab;
+}
+
+function onEmptyCell(i) {
+  if (selKind === 'shape') placeShape(i, sel);
+  afterMove();
+}
+
+function onRegion(i, part) {
+  if (selKind === 'shape') {
+    if (grid[i] && grid[i].shape === sel) rotateShape(i);
+    else placeShape(i, sel);
+  } else if (selKind === 'fab') {
+    paint(i, part, sel);
+  } else if (selKind === 'lift') {
+    if (colors[ckey(i, part)]) paint(i, part, null);   // colour first
+    else liftCell(i);                                   // else the whole piece
+  } else if (grid[i]) {
+    rotateShape(i);                                     // no tool selected → rotate
+  }
+  afterMove();
+}
+
+function afterMove() {
+  render();
+  if (isSolved({ grid, colors }, PUZZLE.ruleKeys)) {
+    setTimeout(() => document.getElementById('winOverlay').classList.add('show'), 220);
+  }
+}
+
 reset();
+document.getElementById('resetBtn').addEventListener('click', () => {
+  document.getElementById('winOverlay').classList.remove('show');
+  reset();
+});
 </script>
 </body>
 </html>
