@@ -294,6 +294,10 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.getElementById('winOverlay').classList.remove('show');
   reset();
 });
+document.getElementById('assistToggle').addEventListener('change', e => {
+  assist = e.target.checked;
+  render();
+});
 </script>
 </body>
 </html>
