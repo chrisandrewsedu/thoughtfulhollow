@@ -38,10 +38,14 @@ function portsOf(piece) {
 // ── Fabrics ──────────────────────────────────────────────────────
 const FABRICS = {
   LINEN:    { name: 'Linen',    col: '#ece0c8', hue: 'neutral' },
+  FLAX:     { name: 'Flax',     col: '#d6c79b', hue: 'neutral' },
+  SAGE:     { name: 'Sage',     col: '#b3b89a', hue: 'neutral' },
   MADDER:   { name: 'Madder',   col: '#a8392f', hue: 'warm' },
   MARIGOLD: { name: 'Marigold', col: '#d99838', hue: 'warm' },
+  CLARET:   { name: 'Claret',   col: '#7d2933', hue: 'warm' },
   INDIGO:   { name: 'Indigo',   col: '#2b3a5e', hue: 'cool' },
   SLATE:    { name: 'Slate',    col: '#5f7b87', hue: 'cool' },
+  TEAL:     { name: 'Teal',     col: '#2f6d6a', hue: 'cool' },
 };
 
 // ── Structure rules ──────────────────────────────────────────────
