@@ -220,7 +220,19 @@ function checkIndependence(solutions) {
   }
   return product === solutions.length;
 }
-function analyze() { return {}; }
+// run the spec §9 checks on a concrete puzzle.
+function analyze(puzzle) {
+  const band = puzzle.solutionBand || { min: 2, max: 8 };
+  const cap = band.max + 1;                      // +1 detects over-band cheaply
+  const solutions = solve(puzzle, { cap });
+  const count = solutions.length;
+  const solvable = count >= 1;
+  const overBand = count > band.max;
+  const inBand = solvable && !overBand && count >= band.min;
+  const deadEndFree = !overBand && checkIndependence(solutions);
+  const pass = solvable && inBand && deadEndFree;
+  return { solvable, count, overBand, inBand, deadEndFree, pass, band, solutions };
+}
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { solve, analyze, checkIndependence };
