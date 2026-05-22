@@ -184,6 +184,34 @@ function ruleNoAdjacentSquaresSameFabric(state) {
   return { ok: fullyColoured(state) && violations.size === 0, violations };
 }
 
+// ── Rule registry ────────────────────────────────────────────────
+const RULES = {
+  continuity:        { group: 'structure', label: 'Curves continue across every seam',          fn: ruleContinuity },
+  symmetry:          { group: 'structure', label: 'The block has half-turn (180°) symmetry',     fn: ruleSymmetry },
+  cornersTriangles:  { group: 'structure', label: 'Triangles fill the corners — and only there', fn: ruleCornersAreTriangles },
+  centreCurves:      { group: 'structure', label: 'The four centre cells are curves',            fn: ruleCentreIsCurves },
+  discsUnified:      { group: 'colour',    label: 'Every curve’s disc is the same fabric',        fn: ruleDiscsUnified },
+  triangleHues:      { group: 'colour',    label: 'Each triangle’s two halves differ in hue',     fn: ruleTriangleHalvesDifferHue },
+  fieldHue:          { group: 'colour',    label: 'Curve background fields stay cool or neutral', fn: ruleFieldHue },
+  squaresDiffer:     { group: 'colour',    label: 'No two touching squares share a fabric',       fn: ruleNoAdjacentSquaresSameFabric },
+};
+
+// run the named rules; returns [{ key, group, label, ok, violations }]
+function evaluateAll(state, ruleKeys) {
+  return ruleKeys.map(key => {
+    const def = RULES[key];
+    const res = def.fn(state);
+    return { key, group: def.group, label: def.label, ok: res.ok, violations: res.violations };
+  });
+}
+
+// solved = board fully placed, fully coloured, every named rule satisfied
+function isSolved(state, ruleKeys) {
+  if (!state.grid.every(Boolean)) return false;
+  if (!fullyColoured(state)) return false;
+  return evaluateAll(state, ruleKeys).every(r => r.ok);
+}
+
 // ── exports (Node) ───────────────────────────────────────────────
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -191,5 +219,6 @@ if (typeof module !== 'undefined' && module.exports) {
     partsOf, portsOf, CURVE_PORTS, FABRICS, CORNERS, CENTRE,
     ruleContinuity, ruleSymmetry, ruleCornersAreTriangles, ruleCentreIsCurves,
     ruleDiscsUnified, ruleTriangleHalvesDifferHue, ruleFieldHue, ruleNoAdjacentSquaresSameFabric, fullyColoured,
+    RULES, evaluateAll, isSolved,
   };
 }
