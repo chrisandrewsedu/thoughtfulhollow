@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Glossari · Daily</title>
 <script>
   (function () {
@@ -26,8 +26,9 @@
   --paper-shadow: #e8e8e4;
   --ink: #111111;
   --ink-soft: #444444;
-  --ink-faint: #888888;
+  --ink-faint: #686868;
   --ink-ghost: #cccccc;
+  --line: #8a8a8a;
   --accent: #c01818;
   --accent-bright: #d83030;
   --accent-deep: #8a0f0f;
@@ -42,9 +43,10 @@
   --paper-shadow: #222222;
   --ink: #f0f0ee;
   --ink-soft: #c0c0bc;
-  --ink-faint: #787878;
+  --ink-faint: #8a8a8a;
   --ink-ghost: #333333;
-  --accent: #e04040;
+  --line: #6e6e6e;
+  --accent: #e85a5a;
   --accent-bright: #ee6060;
   --accent-deep: #c01818;
   --gold: #c09040;
@@ -110,7 +112,7 @@ html, body {
 }
 .header::after { display: none; }
 
-.brand { display: flex; align-items: baseline; gap: 0.5rem; cursor: pointer; }
+.brand { display: flex; align-items: baseline; gap: 0.5rem; cursor: pointer; appearance: none; -webkit-appearance: none; background: none; border: none; font: inherit; color: inherit; }
 .title {
   font-family: 'DM Serif Display', serif;
   font-weight: 400;
@@ -131,6 +133,7 @@ html, body {
   color: var(--ink-faint);
 }
 .practice-link {
+  position: relative;
   font-family: 'Lora', serif;
   font-style: italic;
   font-size: 0.65rem;
@@ -138,16 +141,29 @@ html, body {
   background: none; border: none; cursor: pointer;
   padding: 0; text-decoration: underline; text-underline-offset: 2px;
 }
+/* Extend the tap target to >=44px tall without shifting layout. */
+.practice-link::after {
+  content: ''; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: calc(100% + 16px); height: 44px;
+}
 .practice-link:hover { color: var(--accent); }
 .header-actions { display: flex; align-items: center; gap: 0.35rem; }
 .header-icon-btn {
+  position: relative;
   background: transparent;
-  border: 1px solid var(--ink-ghost);
+  border: 1px solid var(--line);
   border-radius: 50%;
-  width: 26px; height: 26px;
+  width: 28px; height: 28px;
   display: inline-flex; align-items: center; justify-content: center;
   cursor: pointer; color: var(--ink-faint); padding: 0;
   transition: color 0.15s, border-color 0.15s;
+}
+/* Extend the tap target to 44x44 without enlarging the visible circle. */
+.header-icon-btn::after {
+  content: ''; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 44px; height: 44px;
 }
 .header-icon-btn:hover { color: var(--accent); border-color: var(--accent); }
 
@@ -182,7 +198,7 @@ html, body {
 .timer { font-family: 'Lora', serif; font-style: italic; font-size: 0.6rem; color: var(--ink-faint); min-width: 2.4rem; text-align: right; justify-self: end; }
 .mistakes-dots { display: flex; gap: 3px; }
 .mistake-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); transition: all 0.3s; }
-.mistake-dot.spent { background: transparent; border: 1px solid var(--ink-ghost); transform: scale(0.8); }
+.mistake-dot.spent { background: transparent; border: 1px solid var(--line); transform: scale(0.8); }
 .preview-mistakes-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; margin-left: 0.3rem; }
 .mistakes-label { font-family: 'Lora', serif; font-style: italic; font-size: 0.44rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
 
@@ -198,7 +214,7 @@ html, body {
   display: flex; align-items: center;
   margin: 0.5rem 0 0.42rem;
   font-family: 'Lora', serif;
-  font-size: 0.5rem; font-style: italic;
+  font-size: 0.5rem; font-style: italic; font-weight: 400;
   letter-spacing: 0.28em; text-transform: uppercase;
   color: var(--ink-faint);
   gap: 0.55rem;
@@ -216,8 +232,10 @@ html, body {
 }
 .clue-card {
   position: relative;
+  appearance: none; -webkit-appearance: none;
+  width: 100%; text-align: left; font: inherit; color: inherit;
   background: var(--paper);
-  border: 1px solid var(--ink-ghost);
+  border: 1px solid var(--line);
   border-radius: 3px;
   padding: 0.5rem 0.55rem 0.55rem;
   cursor: pointer;
@@ -297,7 +315,7 @@ html, body {
   font-size: 1.1rem; font-weight: 400;
   padding: 0.62rem 0.4rem;
   background: var(--paper-deep);
-  border: 1px solid var(--ink-ghost);
+  border: 1px solid var(--line);
   border-radius: 3px;
   cursor: pointer;
   transition: border-color 0.12s, box-shadow 0.12s, opacity 0.2s, background 0.15s;
@@ -326,9 +344,9 @@ html, body {
   font-family: 'Lora', serif; font-style: italic;
   font-size: 0.85rem; font-weight: 400;
   letter-spacing: 0.04em;
-  padding: 0.72rem 0.4rem;
+  padding: 0.82rem 0.4rem;
   border-radius: 3px; cursor: pointer;
-  border: 1px solid var(--ink-ghost);
+  border: 1px solid var(--line);
   transition: border-color 0.12s, background 0.12s;
 }
 .btn-clear { background: transparent; color: var(--ink); }
@@ -400,11 +418,16 @@ html, body {
   font-size: 1.2rem; cursor: pointer; padding: 0.4rem 0.55rem;
   line-height: 1;
 }
+.archive-close::after {
+  content: ''; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 44px; height: 44px;
+}
 .archive-close:hover { color: var(--ink); }
 .archive-header { text-align: center; margin-bottom: 1.1rem; }
 .archive-title {
   font-family: 'DM Serif Display', serif; font-style: italic;
-  font-size: 1.85rem; line-height: 1;
+  font-weight: 400; font-size: 1.85rem; line-height: 1;
 }
 .archive-subtitle {
   font-family: 'Lora', serif; font-size: 0.7rem; color: var(--ink-faint);
@@ -415,8 +438,14 @@ html, body {
   margin-bottom: 0.7rem;
 }
 .archive-navbtn {
+  position: relative;
   background: transparent; border: none; color: var(--ink-soft);
   font-size: 1.2rem; cursor: pointer; padding: 0.2rem 0.6rem;
+}
+.archive-navbtn::after {
+  content: ''; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 44px; height: 44px;
 }
 .archive-navbtn:disabled { color: var(--ink-ghost); cursor: default; }
 .archive-monthlabel {
@@ -434,6 +463,7 @@ html, body {
 }
 .archive-cell {
   aspect-ratio: 1 / 1;
+  appearance: none; -webkit-appearance: none;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   font-family: 'Lora', serif; font-size: 0.95rem;
   border: 1px solid transparent; border-radius: 4px;
@@ -441,7 +471,7 @@ html, body {
   position: relative;
 }
 .archive-cell.empty { visibility: hidden; }
-.archive-cell.future { color: var(--ink-ghost); cursor: default; }
+.archive-cell.future { color: var(--ink-faint); cursor: default; }
 .archive-cell.today { border-color: var(--accent); }
 .archive-cell.available:hover { background: var(--paper-shadow); }
 .archive-cell.completed { cursor: pointer; }
@@ -453,7 +483,7 @@ html, body {
 .archive-tier-picker {
   position: absolute; left: 50%; top: 50%;
   transform: translate(-50%, -50%);
-  background: var(--paper); border: 1px solid var(--border);
+  background: var(--paper); border: 1px solid var(--line);
   border-radius: 6px; padding: 1rem 1.2rem;
   box-shadow: 0 6px 32px rgba(0,0,0,0.18);
   z-index: 20; display: none;
@@ -461,6 +491,7 @@ html, body {
 .archive-tier-picker.show { display: block; }
 .archive-tier-picker .picker-title {
   font-family: 'DM Serif Display', serif; font-style: italic;
+  font-weight: 400; font-size: 1.1rem;
   text-align: center; margin-bottom: 0.4rem;
 }
 .archive-tier-picker .picker-sub {
@@ -576,10 +607,16 @@ html, body {
 .tier-btn[data-state="done"]   .tier-indicator { color: var(--green); }
 .tier-btn[data-state="resume"] .tier-indicator { color: var(--gold); }
 .intro-practice-btn {
+  position: relative;
   font-family: 'Lora', serif; font-style: italic;
   font-size: 0.72rem; color: var(--ink-faint);
   background: none; border: none; cursor: pointer;
   margin-top: 0.4rem; text-decoration: underline; text-underline-offset: 2px;
+}
+.intro-practice-btn::after {
+  content: ''; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: calc(100% + 24px); height: 44px;
 }
 .intro-practice-btn:hover { color: var(--accent); }
 .intro-actions-row {
@@ -588,7 +625,7 @@ html, body {
 }
 .btn-secondary {
   font-family: 'Lora', serif; font-style: italic; font-size: 0.85rem;
-  padding: 0.5rem 1.1rem; border-radius: 4px;
+  padding: 0.72rem 1.1rem; border-radius: 4px;
   background: transparent; color: var(--ink-soft);
   border: 1px solid var(--ink-faint); cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -617,7 +654,7 @@ html, body {
 .dict-entry:last-of-type { border-bottom: none; }
 .dict-entry.revealed .dict-headword { color: var(--gold); }
 .dict-entry.revealed .dict-sym { color: var(--gold); }
-.dict-entry.revealed .dict-badge { color: var(--gold); border-color: var(--gold-bright); background: color-mix(in srgb, var(--paper) 92%, var(--gold) 8%); }
+.dict-entry.revealed .dict-badge { color: var(--gold); border-color: var(--gold-bright); background: color-mix(in srgb, var(--paper) 96%, var(--gold) 4%); }
 .dict-headrow { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.1rem 0.6rem; margin-bottom: 0.42rem; }
 .dict-headword { font-family: 'DM Serif Display', serif; font-weight: 400; font-style: italic; font-size: 1.12rem; line-height: 1.1; }
 .dict-headword .dict-sep { color: var(--ink-ghost); font-style: normal; margin: 0 1px; }
@@ -680,9 +717,11 @@ html, body {
   line-height: 1;
 }
 .share-guess-col.correct { color: var(--green); }
-.share-guess-col.partial { color: var(--gold-bright); }
-.share-guess-col.wrong { color: var(--ink-ghost); }
+.share-guess-col.partial { color: var(--gold); }
+.share-guess-col.wrong { color: var(--ink-faint); }
 .share-guess-col.share-guess-clue { color: var(--ink-soft); }
+.share-guess-outcome.solved { color: var(--green); }
+.share-guess-outcome.miss { color: var(--accent); }
 .share-guess-sep {
   width: 1px; height: 0.9rem;
   background: var(--paper-shadow); flex-shrink: 0;
@@ -717,16 +756,16 @@ html, body {
 .share-perf-def { font-family: 'Lora', serif; font-size: 0.7rem; line-height: 1.45; color: var(--ink-soft); }
 .share-copy-btn {
   font-family: 'Lora', serif; font-style: italic; font-size: 0.85rem;
-  padding: 0.6rem 2rem; width: 100%;
+  padding: 0.8rem 2rem; width: 100%;
   background: var(--ink); color: var(--paper);
   border: none; border-radius: 3px; cursor: pointer; transition: background 0.12s;
 }
 .share-copy-btn:hover { background: var(--ink-soft); }
 .share-more-btn {
   font-family: 'Lora', serif; font-style: italic; font-size: 0.78rem;
-  padding: 0.45rem 1rem; width: 100%; margin-top: 0.5rem;
+  padding: 0.72rem 1rem; width: 100%; margin-top: 0.5rem;
   background: transparent; color: var(--ink-faint);
-  border: 1px solid var(--ink-ghost); border-radius: 3px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 3px; cursor: pointer;
   transition: color 0.12s, border-color 0.12s;
 }
 .share-more-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
@@ -771,7 +810,7 @@ html, body { transition: background 0.25s, color 0.25s; }
 .preview-def {
   flex: 1; font-family: 'Lora', serif; font-style: italic;
   font-size: 0.68rem; line-height: 1.3;
-  color: var(--ink-ghost);
+  color: var(--ink-faint);
   overflow: hidden; display: -webkit-box;
   -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   transition: color 0.15s;
@@ -779,7 +818,7 @@ html, body { transition: background 0.25s, color 0.25s; }
 .preview-def.filled { color: var(--ink-soft); }
 .preview-arrow {
   font-family: 'Lora', serif; font-size: 0.75rem;
-  color: var(--ink-ghost); flex-shrink: 0;
+  color: var(--ink-faint); flex-shrink: 0;
   transition: color 0.15s;
 }
 .preview-arrow.filled { color: var(--accent); }
@@ -787,13 +826,13 @@ html, body { transition: background 0.25s, color 0.25s; }
 .preview-tile {
   font-family: 'DM Serif Display', serif; font-style: italic;
   font-size: 0.82rem; padding: 0.2rem 0.45rem;
-  border: 1px solid var(--ink-ghost); border-radius: 3px;
+  border: 1px solid var(--line); border-radius: 3px;
   min-width: 2rem; text-align: center;
   color: var(--ink); background: var(--paper-deep);
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 .preview-tile.empty {
-  color: var(--ink-ghost); background: transparent;
+  color: var(--ink-faint); background: transparent;
   border-style: dashed;
 }
 
@@ -899,15 +938,41 @@ body.preview-mode .puzzle-name { text-align: center; }
 body.preview-mode .main { padding: 0.4rem 0.6rem; max-width: none; }
 body.preview-mode .clues-grid { gap: 0.4rem; }
 body.preview-mode .clue-card { pointer-events: none; cursor: default; }
+
+/* ── ACCESSIBILITY ── */
+/* Visible keyboard focus indicator (3:1+ vs. paper in both themes). */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+/* Dialog containers are focused programmatically on open — no ring needed. */
+.overlay:focus, .overlay:focus-visible,
+#archiveTierPicker:focus, #archiveTierPicker:focus-visible { outline: none; }
+
+/* Visually-hidden text for screen-reader-only labels. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; }
+  .shaking { animation: none !important; }
+  /* The badge fades in via animation; without it, show it statically. */
+  .badge.show { animation: none !important; opacity: 1 !important; }
+  .clue-check { transition: none !important; }
+}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="header">
-    <div class="brand" onclick="goHome()">
-      <div class="title">Glos<span class="title-mark">·</span>sa<span class="title-mark">·</span>ri</div>
-      <div class="vol">daily</div>
-    </div>
+    <button class="brand" type="button" onclick="goHome()" aria-label="Glossari — back to start">
+      <span class="title">Glos<span class="title-mark" aria-hidden="true">·</span>sa<span class="title-mark" aria-hidden="true">·</span>ri</span>
+      <span class="vol">daily</span>
+    </button>
     <div class="header-actions">
       <button class="practice-link" id="practiceLink" onclick="openPracticePicker()">Practice</button>
       <button class="header-icon-btn" id="helpBtn" aria-label="How to play" type="button" onclick="openTutorial()">
@@ -928,18 +993,18 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
       <span class="name" id="puzzleName">— —</span>
     </div>
     <div class="subbar-tier" id="subbarTier"></div>
-    <div class="timer" id="timer">—</div>
+    <div class="timer" id="timer" role="timer" aria-label="Elapsed time">—</div>
   </div>
 
   <main class="main">
-    <div class="section-label">
-      <span class="orn"></span>Clues<span class="orn"></span>
-    </div>
+    <h2 class="section-label">
+      <span class="orn" aria-hidden="true"></span>Clues<span class="orn" aria-hidden="true"></span>
+    </h2>
     <div class="clues-grid" id="cluesGrid"></div>
 
-    <div class="section-label">
-      <span class="orn"></span>Word Segments<span class="orn"></span>
-    </div>
+    <h2 class="section-label">
+      <span class="orn" aria-hidden="true"></span>Word Segments<span class="orn" aria-hidden="true"></span>
+    </h2>
     <div class="tile-bank" id="tileBank"></div>
 
     <div class="submit-preview" id="submitPreview">
@@ -962,11 +1027,11 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     </div>
   </main>
 
-  <div class="badge" id="badge"></div>
+  <div class="badge" id="badge" role="status" aria-live="polite" aria-atomic="true"></div>
 
-  <div class="overlay" id="intro">
+  <div class="overlay" id="intro" role="dialog" aria-label="Glossari">
     <div class="dict-entry-head">
-      <div class="dict-headword-large">Glos<span class="dict-sep">·</span>sa<span class="dict-sep">·</span>ri</div>
+      <h1 class="dict-headword-large">Glos<span class="dict-sep" aria-hidden="true">·</span>sa<span class="dict-sep" aria-hidden="true">·</span>ri</h1>
       <div class="dict-pron"><span class="dict-pron-pos">n.</span>&nbsp;<span class="dict-pron-ipa">/ˈglä-sə-rē/</span></div>
       <div class="dict-tagline">a daily word puzzle</div>
     </div>
@@ -977,10 +1042,10 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
       <div class="rules-row"><span class="rules-num">3.</span><span>You have <b>four mistakes</b> per puzzle.</span></div>
     </div>
     <div class="legend">
-      <div><span class="sym">❦</span><span class="lbl">Definition</span></div>
-      <div><span class="sym">¶</span><span class="lbl">Example</span></div>
-      <div><span class="sym">≡</span><span class="lbl">Synonym</span></div>
-      <div><span class="sym">≠</span><span class="lbl">Antonym</span></div>
+      <div><span class="sym" aria-hidden="true">❦</span><span class="lbl">Definition</span></div>
+      <div><span class="sym" aria-hidden="true">¶</span><span class="lbl">Example</span></div>
+      <div><span class="sym" aria-hidden="true">≡</span><span class="lbl">Synonym</span></div>
+      <div><span class="sym" aria-hidden="true">≠</span><span class="lbl">Antonym</span></div>
     </div>
     <div class="intro-actions" id="introActions">
       <div class="tier-buttons" id="tierButtons">
@@ -995,9 +1060,9 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     </div>
   </div>
 
-  <div class="overlay" id="reveal" style="justify-content:flex-start;padding-top:1.1rem;">
+  <div class="overlay" id="reveal" role="dialog" aria-label="Results" style="justify-content:flex-start;padding-top:1.1rem;">
     <div class="reveal-header" id="revealHeader"></div>
-    <div class="header-rule"><span>·</span></div>
+    <div class="header-rule" aria-hidden="true"><span>·</span></div>
     <div id="revealEntries"></div>
     <div id="shareBlock"></div>
     <div id="revealCountdown" style="display:none; text-align:center; margin:1.5rem auto 0.5rem;">
@@ -1006,21 +1071,21 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     </div>
   </div>
 
-  <div class="overlay" id="tutorial">
+  <div class="overlay" id="tutorial" role="dialog" aria-label="How to play">
     <div class="dict-entry-head">
-      <div class="dict-headword-large">How to play</div>
+      <h1 class="dict-headword-large">How to play</h1>
       <div class="dict-tagline">A 30-second walkthrough</div>
     </div>
-    <div class="go-rule"></div>
+    <div class="go-rule" aria-hidden="true"></div>
     <div class="tut-intro">A dictionary entry describes its <b>headword</b> — the word being defined — through clues: definitions, synonyms, antonyms, examples. In Glossari, the headword is missing. Read the clue, then assemble the headword from <b>three word segments in the right order</b>.</div>
-    <div class="tut-section-label section-label"><span class="orn"></span>Definition<span class="orn"></span><span class="sel-slots" id="tutEntrySlots" aria-hidden="true"><span class="slot"></span></span></div>
+    <h2 class="tut-section-label section-label"><span class="orn" aria-hidden="true"></span>Definition<span class="orn" aria-hidden="true"></span><span class="sel-slots" id="tutEntrySlots" aria-hidden="true"><span class="slot"></span></span></h2>
     <div class="tut-card-wrap">
-      <div class="clue-card" id="tutClueCard">
-        <div class="clue-head"><span class="clue-symbol">❦</span><span class="clue-type">Definition</span><span class="clue-check">✓</span></div>
+      <button class="clue-card" id="tutClueCard" type="button">
+        <div class="clue-head"><span class="clue-symbol" aria-hidden="true">❦</span><span class="clue-type">Definition</span><span class="clue-check" aria-hidden="true">✓</span></div>
         <div class="clue-text">Not friendly or welcoming.</div>
-      </div>
+      </button>
     </div>
-    <div class="tut-section-label section-label"><span class="orn"></span>Word Segments<span class="orn"></span><span class="sel-slots" id="tutTileSlots" aria-hidden="true"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span></div>
+    <h2 class="tut-section-label section-label"><span class="orn" aria-hidden="true"></span>Word Segments<span class="orn" aria-hidden="true"></span><span class="sel-slots" id="tutTileSlots" aria-hidden="true"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span></h2>
     <div class="tut-tile-bank">
       <button class="tile" id="tutTile-un" type="button">un</button>
       <button class="tile" id="tutTile-friend" type="button">friend</button>
@@ -1031,12 +1096,12 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     <button class="intro-practice-btn" id="tutSkipBtn" type="button">Skip</button>
   </div>
 
-  <div class="overlay" id="practicePicker">
+  <div class="overlay" id="practicePicker" role="dialog" aria-label="Practice">
     <div class="dict-entry-head">
-      <div class="dict-headword-large">Practice</div>
+      <h1 class="dict-headword-large">Practice</h1>
       <div class="dict-tagline">Pick a difficulty</div>
     </div>
-    <div class="go-rule"></div>
+    <div class="go-rule" aria-hidden="true"></div>
     <div class="intro-rules" style="margin-bottom:1.1rem; text-align:center">A standalone puzzle outside the daily rotation. Doesn't affect your streak.</div>
     <div class="tier-buttons" id="practiceTierButtons">
       <button class="btn tier-btn" data-tier="easy"   data-state="fresh" onclick="startPracticeGame('easy')">Easy<span class="tier-indicator" aria-hidden="true"></span></button>
@@ -1048,17 +1113,17 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     </div>
   </div>
 
-  <div class="overlay" id="archive" role="dialog" aria-modal="true" aria-label="Puzzle archive">
+  <div class="overlay" id="archive" role="dialog" aria-label="Puzzle archive">
     <div class="archive-inner">
       <button class="archive-close" type="button" onclick="closeArchive()" aria-label="Close archive">✕</button>
       <div class="archive-header">
-        <div class="archive-title">Archive</div>
+        <h1 class="archive-title">Archive</h1>
         <div class="archive-subtitle"><em>Glossari · since May 17, 2026</em></div>
       </div>
       <div class="archive-monthnav">
-        <button class="archive-navbtn" type="button" id="archivePrevBtn" onclick="archiveShiftMonth(-1)">‹</button>
+        <button class="archive-navbtn" type="button" id="archivePrevBtn" onclick="archiveShiftMonth(-1)" aria-label="Previous month"><span aria-hidden="true">‹</span></button>
         <div class="archive-monthlabel" id="archiveMonthLabel">—</div>
-        <button class="archive-navbtn" type="button" id="archiveNextBtn" onclick="archiveShiftMonth(1)">›</button>
+        <button class="archive-navbtn" type="button" id="archiveNextBtn" onclick="archiveShiftMonth(1)" aria-label="Next month"><span aria-hidden="true">›</span></button>
       </div>
       <div class="archive-weekhead">
         <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
@@ -1066,8 +1131,8 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
       <div class="archive-grid" id="archiveGrid"></div>
       <div class="archive-stats" id="archiveStats"></div>
     </div>
-      <div class="archive-tier-picker" id="archiveTierPicker">
-        <div class="picker-title" id="archivePickerTitle">—</div>
+      <div class="archive-tier-picker" id="archiveTierPicker" role="dialog" aria-label="Choose a difficulty">
+        <h2 class="picker-title" id="archivePickerTitle">—</h2>
         <div class="picker-sub" id="archivePickerSub">—</div>
         <div class="tier-buttons" id="archivePickerButtons">
           <button class="btn tier-btn" data-tier="easy"   data-state="fresh" onclick="archiveTierPick('easy')">Easy<span class="tier-indicator" aria-hidden="true"></span></button>
@@ -1438,14 +1503,6 @@ function startPracticeGame(tier) {
 
 let archiveViewMonth = null; // {year, month} where month is 0-indexed
 
-document.addEventListener('keydown', (e) => {
-  if (e.key !== 'Escape') return;
-  const archiveEl = document.getElementById('archive');
-  if (archiveEl && archiveEl.classList.contains('show')) {
-    closeArchive();
-  }
-});
-
 function openArchive() {
   document.getElementById('intro').classList.remove('show');
   const today = todayStr();
@@ -1511,32 +1568,40 @@ function renderArchive() {
   for (let day = 1; day <= daysInMonth; day++) {
     const dateObj = new Date(year, month, day);
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const cell = document.createElement('div');
-    cell.className = 'archive-cell';
-    const numEl = document.createElement('div');
-    numEl.textContent = day;
-    cell.appendChild(numEl);
-
     const isBeforeLaunch = dateObj < launchDate;
     const isFuture = dateObj > todayDate;
     const isToday = dateStr === today;
     const playedCount = TIERS.filter(t => all.tiers[t].byDate && all.tiers[t].byDate[dateStr]).length;
+    const interactive = !isBeforeLaunch && !isFuture;
+
+    const cell = document.createElement(interactive ? 'button' : 'div');
+    cell.className = 'archive-cell';
+    if (interactive) cell.type = 'button';
+    const numEl = document.createElement('div');
+    numEl.textContent = day;
+    cell.appendChild(numEl);
 
     if (isBeforeLaunch || isFuture) {
       cell.classList.add(isFuture ? 'future' : 'empty');
       if (isBeforeLaunch) cell.classList.add('empty');
+      if (isFuture) cell.setAttribute('aria-hidden', 'true');
     } else {
       if (isToday) cell.classList.add('today');
+      const dayLabel = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+      let stateLabel = ', not yet played';
       if (playedCount > 0) {
         cell.classList.add('completed');
         cell.classList.add(playedCount === 3 ? 'solved' : 'revealed');
         const mark = document.createElement('div');
         mark.className = 'archive-mark';
+        mark.setAttribute('aria-hidden', 'true');
         mark.textContent = `${playedCount}/3`;
         cell.appendChild(mark);
+        stateLabel = `, ${playedCount} of 3 tiers played`;
       } else {
         cell.classList.add('available');
       }
+      cell.setAttribute('aria-label', dayLabel + (isToday ? ', today' : '') + stateLabel);
       cell.onclick = () => archiveCellClick(dateStr);
     }
     grid.appendChild(cell);
@@ -1579,6 +1644,7 @@ function archiveCellClick(dateStr) {
     const label = tier.charAt(0).toUpperCase() + tier.slice(1);
     btn.disabled = !available;
     btn.setAttribute('data-state', dataState);
+    btn.setAttribute('aria-label', label + (!available ? ', not available' : (tEntry ? ', played' : '')));
     btn.innerHTML = `${label}<span class="tier-indicator" aria-hidden="true">${indicator}</span>`;
   }
   document.getElementById('archiveTierPicker').classList.add('show');
@@ -1656,6 +1722,10 @@ function refreshIntroButtons() {
       btn.disabled = false;
     }
     btn.setAttribute('data-state', dataState);
+    const stateText = dataState === 'done' ? ', completed today'
+      : dataState === 'resume' ? ', in progress'
+      : dataState === 'unavailable' ? ', not available today' : '';
+    btn.setAttribute('aria-label', label + stateText);
     btn.innerHTML = `${label}<span class="tier-indicator" aria-hidden="true">${indicator}</span>`;
   }
 }
@@ -1702,9 +1772,10 @@ function openTutorial() {
   tutState = { clueSelected: false, tilesSelected: new Set(), solved: false };
   const card = document.getElementById('tutClueCard');
   card.classList.remove('selected', 'solved'); card.style.cursor = 'pointer';
+  card.disabled = false; card.setAttribute('aria-pressed', 'false');
   const oldAsm = card.querySelector('.assembled'); if (oldAsm) oldAsm.remove();
   card.onclick = tutClueClick;
-  ['un', 'friend', 'ly'].forEach(t => { const el = document.getElementById('tutTile-' + t); el.classList.remove('selected', 'placed'); el.onclick = () => tutTileClick(t); });
+  ['un', 'friend', 'ly'].forEach(t => { const el = document.getElementById('tutTile-' + t); el.classList.remove('selected', 'placed'); el.disabled = false; el.setAttribute('aria-pressed', 'false'); el.onclick = () => tutTileClick(t); });
   document.getElementById('tutSuccessCaption').classList.remove('show');
   const btn = document.getElementById('tutSubmitBtn'); btn.disabled = true; btn.textContent = 'Submit (0/4)'; btn.onclick = tutSubmit;
   const skipBtn = document.getElementById('tutSkipBtn'); skipBtn.onclick = closeTutorial; skipBtn.textContent = 'Skip'; skipBtn.style.display = '';
@@ -1723,7 +1794,9 @@ function closeTutorial() {
 function tutClueClick() {
   if (tutState.solved) return;
   tutState.clueSelected = !tutState.clueSelected;
-  document.getElementById('tutClueCard').classList.toggle('selected', tutState.clueSelected);
+  const c = document.getElementById('tutClueCard');
+  c.classList.toggle('selected', tutState.clueSelected);
+  c.setAttribute('aria-pressed', tutState.clueSelected ? 'true' : 'false');
   updateTutSlots(); updateTutSubmit();
 }
 
@@ -1731,7 +1804,9 @@ function tutTileClick(part) {
   if (tutState.solved) return;
   if (tutState.tilesSelected.has(part)) { tutState.tilesSelected.delete(part); }
   else { if (tutState.tilesSelected.size >= 3) return; tutState.tilesSelected.add(part); }
-  document.getElementById('tutTile-' + part).classList.toggle('selected', tutState.tilesSelected.has(part));
+  const tl = document.getElementById('tutTile-' + part);
+  tl.classList.toggle('selected', tutState.tilesSelected.has(part));
+  tl.setAttribute('aria-pressed', tutState.tilesSelected.has(part) ? 'true' : 'false');
   updateTutSlots(); updateTutSubmit();
 }
 
@@ -1753,10 +1828,11 @@ function tutSubmit() {
   tutState.solved = true;
   const card = document.getElementById('tutClueCard');
   card.classList.remove('selected'); card.classList.add('solved'); card.style.cursor = 'default';
+  card.disabled = true; card.removeAttribute('aria-pressed');
   const asm = document.createElement('div'); asm.className = 'assembled';
-  asm.innerHTML = '<span class="arrow">→</span>un<span class="part-dot">·</span>friend<span class="part-dot">·</span>ly';
+  asm.innerHTML = '<span class="arrow" aria-hidden="true">→</span>un<span class="part-dot" aria-hidden="true">·</span>friend<span class="part-dot" aria-hidden="true">·</span>ly';
   card.appendChild(asm);
-  ['un', 'friend', 'ly'].forEach(t => { document.getElementById('tutTile-' + t).classList.add('placed'); });
+  ['un', 'friend', 'ly'].forEach(t => { const el = document.getElementById('tutTile-' + t); el.classList.add('placed'); el.disabled = true; });
   document.getElementById('tutSuccessCaption').classList.add('show');
   const btn = document.getElementById('tutSubmitBtn'); btn.disabled = false; btn.textContent = 'Continue'; btn.onclick = closeTutorial;
   document.getElementById('tutSkipBtn').style.display = 'none';
@@ -1765,7 +1841,9 @@ function tutSubmit() {
 
 function renderMistakes() {
   const md = document.getElementById('mistakesDots'); md.innerHTML = '';
-  for (let i = 0; i < MAX_MISTAKES; i++) { const d = document.createElement('div'); d.className = 'mistake-dot' + (i < state.mistakes ? ' spent' : ''); md.appendChild(d); }
+  for (let i = 0; i < MAX_MISTAKES; i++) { const d = document.createElement('div'); d.className = 'mistake-dot' + (i < state.mistakes ? ' spent' : ''); d.setAttribute('aria-hidden', 'true'); md.appendChild(d); }
+  md.setAttribute('role', 'img');
+  md.setAttribute('aria-label', `${state.mistakes} of ${MAX_MISTAKES} mistakes used`);
 }
 
 function renderAll() { renderClues(); renderBank(); }
@@ -1774,21 +1852,28 @@ function renderClues() {
   const grid = document.getElementById('cluesGrid'); grid.innerHTML = '';
   state.items.filter(it => it.type === 'clue').forEach(it => {
     const meta = CLUE_META[it.clueObj.type];
-    const card = document.createElement('div'); card.className = 'clue-card'; card.dataset.id = it.id;
+    const card = document.createElement('button'); card.type = 'button';
+    card.className = 'clue-card'; card.dataset.id = it.id;
     const isSolved = state.solvedSets[it.setIdx]; const isRevealed = state.revealedSets[it.setIdx];
     if (isSolved) card.classList.add('solved');
     if (isRevealed) card.classList.add('revealed');
-    if (state.selectedIds.has(it.id)) card.classList.add('selected');
+    const isSelected = state.selectedIds.has(it.id);
+    if (isSelected) card.classList.add('selected');
     const head = document.createElement('div'); head.className = 'clue-head';
-    head.innerHTML = `<span class="clue-symbol">${meta.sym}</span><span class="clue-type">${meta.label}</span><span class="clue-check">${isRevealed ? '◊' : '✓'}</span>`;
+    head.innerHTML = `<span class="clue-symbol" aria-hidden="true">${meta.sym}</span><span class="clue-type">${meta.label}</span><span class="clue-check" aria-hidden="true">${isRevealed ? '◊' : '✓'}</span>`;
     card.appendChild(head);
     const text = document.createElement('div'); text.className = 'clue-text'; text.innerHTML = it.clueObj.clue; card.appendChild(text);
     if (isSolved || isRevealed) {
       const asm = document.createElement('div'); asm.className = 'assembled';
-      const partsHtml = it.clueObj.parts.map((p, i) => (i > 0 ? '<span class="part-dot">·</span>' : '') + p).join('');
-      asm.innerHTML = '<span class="arrow">→</span>' + partsHtml; card.appendChild(asm);
+      const partsHtml = it.clueObj.parts.map((p, i) => (i > 0 ? '<span class="part-dot" aria-hidden="true">·</span>' : '') + p).join('');
+      asm.innerHTML = '<span class="arrow" aria-hidden="true">→</span>' + partsHtml; card.appendChild(asm);
     }
-    if (!isSolved && !isRevealed) { card.onclick = () => onItemClick(it.id); }
+    if (isSolved || isRevealed) {
+      card.disabled = true;
+    } else {
+      card.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+      card.onclick = () => onItemClick(it.id);
+    }
     grid.appendChild(card);
   });
 }
@@ -1796,10 +1881,17 @@ function renderClues() {
 function renderBank() {
   const bank = document.getElementById('tileBank'); bank.innerHTML = '';
   state.items.filter(it => it.type === 'tile').forEach(it => {
-    const btn = document.createElement('button'); btn.className = 'tile'; btn.textContent = it.text; btn.dataset.id = it.id;
-    if (state.selectedIds.has(it.id)) btn.classList.add('selected');
-    if (state.solvedSets[it.setIdx] || state.revealedSets[it.setIdx]) { btn.classList.add('placed'); }
-    else { btn.onclick = () => onItemClick(it.id); }
+    const btn = document.createElement('button'); btn.type = 'button';
+    btn.className = 'tile'; btn.textContent = it.text; btn.dataset.id = it.id;
+    const isSelected = state.selectedIds.has(it.id);
+    if (isSelected) btn.classList.add('selected');
+    if (state.solvedSets[it.setIdx] || state.revealedSets[it.setIdx]) {
+      btn.classList.add('placed'); btn.disabled = true;
+    } else {
+      btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+      btn.setAttribute('aria-label', 'Word segment ' + it.text);
+      btn.onclick = () => onItemClick(it.id);
+    }
     bank.appendChild(btn);
   });
 }
@@ -1824,6 +1916,10 @@ function onItemClick(id) {
     state.selectedIds.add(id);
   }
   renderAll(); updateSubmit();
+  // renderAll() rebuilds the grids, dropping DOM focus; restore it to the
+  // just-activated card/tile so keyboard users keep their place.
+  const again = document.querySelector(`#cluesGrid [data-id="${id}"], #tileBank [data-id="${id}"]`);
+  if (again && !again.disabled) again.focus();
 }
 
 function clearSelection() { if (state.locked) return; state.selectedIds.clear(); renderAll(); updateSubmit(); }
@@ -2006,18 +2102,23 @@ function showReveal() {
   if (state.mode === 'daily') {
     const puzzleNum = dailyIndex(playDate) + 1;
     const tierLabel = state.tier.charAt(0).toUpperCase() + state.tier.slice(1);
-    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Daily No. ${puzzleNum} · ${tierLabel} —</div><div class="reveal-title">${puzzle.name}</div><div class="reveal-date">${dateStr}</div>`;
+    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Daily No. ${puzzleNum} · ${tierLabel} —</div><h1 class="reveal-title">${puzzle.name}</h1><div class="reveal-date">${dateStr}</div>`;
   } else {
     const tierLabel = state.tier.charAt(0).toUpperCase() + state.tier.slice(1);
-    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Practice · ${tierLabel} —</div><div class="reveal-title">${puzzle.name}</div>`;
+    document.getElementById('revealHeader').innerHTML = `<div class="reveal-num">— Practice · ${tierLabel} —</div><h1 class="reveal-title">${puzzle.name}</h1>`;
   }
   const clueItems = state.items.filter(it => it.type === 'clue').sort((a, b) => a.id - b.id);
   const entriesEl = document.getElementById('revealEntries'); entriesEl.innerHTML = '';
   clueItems.forEach(it => {
     const s = it.clueObj; const isSolved = state.solvedSets[it.setIdx];
-    const partsHtml = s.parts.map((p, i) => (i > 0 ? '<span class="dict-sep">·</span>' : '') + p).join('');
+    const partsHtml = s.parts.map((p, i) => (i > 0 ? '<span class="dict-sep" aria-hidden="true">·</span>' : '') + p).join('');
     const div = document.createElement('div'); div.className = 'dict-entry' + (isSolved ? '' : ' revealed');
-    div.innerHTML = `<div class="dict-headrow"><div class="dict-headword">${partsHtml}</div><div class="dict-pos">${s.pos} <span class="dict-badge">${isSolved ? 'Solved' : 'Revealed'}</span></div></div><div class="dict-row"><span class="dict-sym">❦</span><span class="dict-text">${s.definition}</span></div><div class="dict-row"><span class="dict-sym">§</span><span class="dict-text">${s.etymology}</span></div><div class="dict-row"><span class="dict-sym">¶</span><span class="dict-text">${s.example}</span></div><div class="dict-row"><span class="dict-sym">≡</span><span class="dict-text">${s.synonyms}</span></div><div class="dict-row"><span class="dict-sym">≠</span><span class="dict-text">${s.antonyms}</span></div>`;
+    div.innerHTML = `<div class="dict-headrow"><h2 class="dict-headword">${partsHtml}</h2><div class="dict-pos">${s.pos} <span class="dict-badge">${isSolved ? 'Solved' : 'Revealed'}</span></div></div>`
+      + `<div class="dict-row"><span class="dict-sym" aria-hidden="true">❦</span><span class="sr-only">Definition: </span><span class="dict-text">${s.definition}</span></div>`
+      + `<div class="dict-row"><span class="dict-sym" aria-hidden="true">§</span><span class="sr-only">Etymology: </span><span class="dict-text">${s.etymology}</span></div>`
+      + `<div class="dict-row"><span class="dict-sym" aria-hidden="true">¶</span><span class="sr-only">Example: </span><span class="dict-text">${s.example}</span></div>`
+      + `<div class="dict-row"><span class="dict-sym" aria-hidden="true">≡</span><span class="sr-only">Synonyms: </span><span class="dict-text">${s.synonyms}</span></div>`
+      + `<div class="dict-row"><span class="dict-sym" aria-hidden="true">≠</span><span class="sr-only">Antonyms: </span><span class="dict-text">${s.antonyms}</span></div>`;
     entriesEl.appendChild(div);
   });
   const puzzleNum = state.mode === 'daily' ? dailyIndex(state.playDate || todayStr()) + 1 : null;
@@ -2079,28 +2180,30 @@ function buildShareBlockHTML(tierStats, puzzle, puzzleNum, result, playDate, tie
   const SYM = { correct: '❧', partial: '◆', wrong: '·' };
   const guessLog = state.guessLog || [];
   const headerCols = ['Clue', '·1', '·2', '·3'];
+  const colHeader = h => `<div class="share-guess-col" style="font-family:'Lora',serif;font-size:0.42rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);font-style:italic;">${h}</div>`;
   const headerHtml = headerCols.map((h, i) =>
-    (i === 1 ? '<div class="share-guess-sep"></div>' : '') +
-    `<div class="share-guess-col" style="font-family:'Lora',serif;font-size:0.42rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);font-style:italic;">${h}</div>`
-  ).join('');
+    (i === 1 ? '<div class="share-guess-sep"></div>' : '') + colHeader(h)
+  ).join('') + '<div class="share-guess-sep"></div>' + colHeader('');
   const rowsHtml = guessLog.map(rawRow => {
     const row = normGuessRow(rawRow);
     const marks = row.marks;
+    const solved = marks.length >= 4 && marks.slice(0, 4).every(m => m === 'correct');
     const clueCell = row.setIdx != null
       ? `<div class="share-guess-col share-guess-clue">${clueSymForSet(row.setIdx)}</div>`
       : `<div class="share-guess-col ${marks[0] || 'wrong'}">${SYM[marks[0]] || ''}</div>`;
     const tileCells = [1, 2, 3].map(i =>
       `<div class="share-guess-col ${marks[i] || 'wrong'}">${SYM[marks[i]] || ''}</div>`
     ).join('');
-    return `<div class="share-guess-row">${clueCell}<div class="share-guess-sep"></div>${tileCells}</div>`;
+    const outcomeCell = `<div class="share-guess-col share-guess-outcome ${solved ? 'solved' : 'miss'}">${solved ? '✓' : '✗'}</div>`;
+    return `<div class="share-guess-row">${clueCell}<div class="share-guess-sep"></div>${tileCells}<div class="share-guess-sep"></div>${outcomeCell}</div>`;
   }).join('');
   const gridHtml = guessLog.length
-    ? `<div class="share-guess-grid"><div class="share-guess-row">${headerHtml}</div>${rowsHtml}</div>`
+    ? `<div class="share-guess-grid" aria-hidden="true"><div class="share-guess-row">${headerHtml}</div>${rowsHtml}</div>`
     : '';
 
   return `<div class="share-block" data-puzzle-num="${puzzleNum ?? ''}" data-tier="${tier ?? ''}">
     <div class="share-brand">
-      <div class="share-game-title">Glos<span class="share-dot">·</span>sa<span class="share-dot">·</span>ri</div>
+      <div class="share-game-title">Glos<span class="share-dot" aria-hidden="true">·</span>sa<span class="share-dot" aria-hidden="true">·</span>ri</div>
       <div class="share-game-sub">${puzzleLabel} · <em>"${puzzle.name}"</em></div>
       ${puzzleNum ? `<div class="share-game-date">${dateStr}</div>` : ''}
     </div>
@@ -2114,7 +2217,7 @@ function buildShareBlockHTML(tierStats, puzzle, puzzleNum, result, playDate, tie
       <div class="share-stat"><div class="share-stat-num">${formatAvgTime(tierStats)}</div><div class="share-stat-lbl">Avg Time</div></div>
     </div>
     <div class="share-perf">
-      <div class="share-perf-word"><span class="share-sym">❦</span>${perf.word}<span class="share-perf-pos">${perf.pos}</span></div>
+      <div class="share-perf-word"><span class="share-sym" aria-hidden="true">❦</span>${perf.word}<span class="share-perf-pos">${perf.pos}</span></div>
       <div class="share-perf-def">${perf.def}</div>
     </div>
     <button class="share-copy-btn" onclick="copyResult()">Copy Result</button>
@@ -2137,9 +2240,11 @@ function generateShareText(puzzle, puzzleNum, result, tier) {
   if (guessLog.length) {
     lines.push('', guessLog.map(rawRow => {
       const row = normGuessRow(rawRow);
-      const clueChar = row.setIdx != null ? clueSymForSet(row.setIdx) : (SYM[row.marks[0]] || '·');
-      const tileChars = [1, 2, 3].map(i => SYM[row.marks[i]] || '·').join(' ');
-      return clueChar + ' ' + tileChars;
+      const m = row.marks;
+      const solved = m.length >= 4 && m.slice(0, 4).every(x => x === 'correct');
+      const clueChar = row.setIdx != null ? clueSymForSet(row.setIdx) : (SYM[m[0]] || '·');
+      const tileChars = [1, 2, 3].map(i => SYM[m[i]] || '·').join(' ');
+      return clueChar + ' ' + tileChars + ' ' + (solved ? '✓' : '✗');
     }).join('\n'));
   }
   lines.push('', `${solvedCount} of ${marks.length} · ${timeStr} · ${errStr}`);
@@ -2245,6 +2350,70 @@ function stopRevealCountdown() {
   const wrap = document.getElementById('revealCountdown');
   if (wrap) wrap.style.display = 'none';
 }
+
+/* ── Accessibility: dialog focus management ──
+   Watches overlay visibility. When an overlay opens, focus moves into it and
+   the covered game content (subbar, main, badge) plus the other overlays go
+   `inert` — which also confines Tab to the overlay and the always-visible
+   header. Focus is restored on close, and Escape triggers each overlay's
+   close action. */
+(function () {
+  const ESC = {
+    tutorial: () => closeTutorial(),
+    practicePicker: () => closePracticePicker(),
+    archive: () => closeArchive(),
+    archiveTierPicker: () => closeArchiveTierPicker(),
+    reveal: () => showMorePuzzles(),
+  };
+  function topOverlay() {
+    if (document.getElementById('archiveTierPicker').classList.contains('show')) return 'archiveTierPicker';
+    for (const id of ['reveal', 'archive', 'practicePicker', 'tutorial', 'intro']) {
+      if (document.getElementById(id).classList.contains('show')) return id;
+    }
+    return null;
+  }
+  function applyInert(activeId) {
+    const active = activeId ? document.getElementById(activeId) : null;
+    const regions = ['.subbar', '.main', '#badge', '#intro', '#tutorial',
+      '#practicePicker', '#reveal', '#archive', '.archive-inner', '#archiveTierPicker'];
+    for (const sel of regions) {
+      const r = document.querySelector(sel);
+      if (!r) continue;
+      if (!active) { r.inert = false; continue; }
+      const related = r === active || r.contains(active) || active.contains(r);
+      r.inert = !related;
+    }
+  }
+  let current = null;
+  let returnFocus = null;
+  function sync() {
+    const next = topOverlay();
+    if (next === current) return;
+    const hadOverlay = current != null;
+    current = next;
+    applyInert(next);
+    if (next) {
+      if (!hadOverlay) returnFocus = document.activeElement;
+      const el = document.getElementById(next);
+      el.setAttribute('tabindex', '-1');
+      try { el.focus(); } catch (e) {}
+    } else {
+      const rf = returnFocus; returnFocus = null;
+      if (rf && rf.focus) { try { rf.focus(); } catch (e) {} }
+    }
+  }
+  const mo = new MutationObserver(sync);
+  ['intro', 'tutorial', 'practicePicker', 'reveal', 'archive', 'archiveTierPicker'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) mo.observe(el, { attributes: true, attributeFilter: ['class'] });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const cur = topOverlay();
+    if (cur && ESC[cur]) { e.preventDefault(); ESC[cur](); }
+  });
+  sync();
+})();
 </script>
 <footer class="page-footer">© 2026 Thoughtful Hollow &nbsp;·&nbsp; <a class="page-footer-link" href="https://ko-fi.com/chrisandrewsedu" target="_blank" rel="noopener">Support on Ko-fi</a></footer>
 
