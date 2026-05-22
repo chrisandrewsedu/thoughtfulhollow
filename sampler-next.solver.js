@@ -207,18 +207,53 @@ function cellKey(c) {
   return c.shape[0] + '|' + c.rot + '|' + c.col.A + '|' + c.col.B;
 }
 
-// dead-end-free ⇔ the solution set is the exact Cartesian product of the
-// per-cell options where solutions differ (spec §5/§13).
+// Dead-end-free ⇔ the solution set factors into independent choice points
+// (spec §5/§13). A choice point is a group of cells that vary together;
+// cells that are not pairwise-independent are merged into one group via
+// union-find. The puzzle is dead-end-free when the solution count equals
+// the product of the per-group option counts — every combination of the
+// independent choices is a valid solution, so no choice can strand you.
 function checkIndependence(solutions) {
   if (solutions.length <= 1) return true;
+  const n = solutions.length;
   const N = solutions[0].length;
-  let product = 1;
+
+  // diff cells: the cells where solutions disagree
+  const diff = [];
   for (let i = 0; i < N; i++) {
-    const vals = new Set(solutions.map(s => cellKey(s[i])));
-    product *= vals.size;
-    if (product > solutions.length) return false;   // can never be a full product
+    if (new Set(solutions.map(s => cellKey(s[i]))).size > 1) diff.push(i);
   }
-  return product === solutions.length;
+  if (diff.length === 0) return true;
+
+  // union-find over diff cells: merge any two that are NOT independent
+  // (their joint projection is smaller than the product of their singles)
+  const parent = {};
+  for (const i of diff) parent[i] = i;
+  function find(x) { while (parent[x] !== x) x = parent[x] = parent[parent[x]]; return x; }
+  for (let a = 0; a < diff.length; a++) {
+    for (let b = a + 1; b < diff.length; b++) {
+      const i = diff[a], j = diff[b];
+      const pi = new Set(solutions.map(s => cellKey(s[i]))).size;
+      const pj = new Set(solutions.map(s => cellKey(s[j]))).size;
+      const pij = new Set(solutions.map(s => cellKey(s[i]) + '#' + cellKey(s[j]))).size;
+      if (pij !== pi * pj) parent[find(i)] = find(j);
+    }
+  }
+
+  // group diff cells into choice-point components, then require the count
+  // to equal the product of the per-component option counts
+  const groups = {};
+  for (const i of diff) {
+    const r = find(i);
+    (groups[r] || (groups[r] = [])).push(i);
+  }
+  let product = 1;
+  for (const r in groups) {
+    const cells = groups[r];
+    product *= new Set(solutions.map(s => cells.map(i => cellKey(s[i])).join('/'))).size;
+    if (product > n) return false;
+  }
+  return product === n;
 }
 // run the spec §9 checks on a concrete puzzle.
 function analyze(puzzle) {
