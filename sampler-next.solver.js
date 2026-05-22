@@ -141,6 +141,9 @@ function solve(puzzle, opts) {
     });
   }
 
+  // Place every given cell up-front; the search then only fills free cells.
+  for (let i = 0; i < N; i++) if (fixed[i]) apply(i, fixed[i]);
+
   function recurse(step) {
     if (solutions.length >= cap) return;
     if (step === pairs.length) {
@@ -148,58 +151,49 @@ function solve(puzzle, opts) {
       return;
     }
     const [i, partner] = pairs[step];
+    const iFixed = !!fixed[i];
+    const pFixed = partner !== null && !!fixed[partner];
 
-    // helper: place primary cell (and its partner if symmetry is active),
-    // check for violations, recurse, then undo both.
-    function tryCell(primaryCell) {
-      apply(i, primaryCell);
-      let partnerCell = null;
-      if (partner !== null && !fixed[partner]) {
-        partnerCell = symmetryPartner(primaryCell);
-        apply(partner, partnerCell);
-      }
-      if (!violates()) recurse(step + 1);
-      if (partnerCell) undo(partner, partnerCell);
-      undo(i, primaryCell);
+    // both cells already placed up-front — nothing to search
+    if (iFixed && (partner === null || pFixed)) {
+      recurse(step + 1);
+      return;
     }
 
-    if (fixed[i]) {
-      // primary is fixed; partner may still be free or also fixed
-      if (partner !== null && !fixed[partner]) {
-        // partner must match the fixed primary's symmetry
-        const partnerCell = symmetryPartner(fixed[i]);
-        apply(i, fixed[i]);
-        apply(partner, partnerCell);
+    // primary fixed, partner free — partner forced by symmetry
+    if (iFixed && !pFixed) {
+      const pc = symmetryPartner(fixed[i]);
+      if ((kitLeft[pc.shape] || 0) > 0) {
+        apply(partner, pc);
         if (!violates()) recurse(step + 1);
-        undo(partner, partnerCell);
-        undo(i, fixed[i]);
-      } else {
-        apply(i, fixed[i]);
-        if (partner !== null && fixed[partner]) apply(partner, fixed[partner]);
-        if (!violates()) recurse(step + 1);
-        if (partner !== null && fixed[partner]) undo(partner, fixed[partner]);
-        undo(i, fixed[i]);
+        undo(partner, pc);
       }
       return;
     }
 
-    // partner is fixed but primary is free: search primary candidates whose
-    // symmetry image matches the fixed partner
-    if (partner !== null && fixed[partner]) {
-      const fp = fixed[partner];
-      // primary must have: same shape, rot = (fp.rot+2)%4 (or 0 for square),
-      // same colors as partner
-      const expectedRot = fp.shape === 'square' ? 0 : (fp.rot + 2) % 4;
+    // partner fixed, primary free — primary forced by symmetry (involutive)
+    if (!iFixed && pFixed) {
+      const pc = symmetryPartner(fixed[partner]);
       const allowed = shapeAllowed[i];
-      if (allowed && !allowed.includes(fp.shape)) return; // shape constraint violation
-      const cand = { shape: fp.shape, rot: expectedRot, col: Object.assign({}, fp.col) };
-      if ((kitLeft[cand.shape] || 0) > 0) tryCell(cand);
+      if (allowed && !allowed.includes(pc.shape)) return;
+      if ((kitLeft[pc.shape] || 0) > 0) {
+        apply(i, pc);
+        if (!violates()) recurse(step + 1);
+        undo(i, pc);
+      }
       return;
     }
 
-    // both are free: search all candidates for the primary
+    // both free — search the primary; partner (if any) forced by symmetry
     for (const cand of cellCandidates(kitLeft, palette, shapeAllowed[i])) {
-      tryCell(cand);
+      const need = (partner !== null) ? 2 : 1;
+      if ((kitLeft[cand.shape] || 0) < need) continue;
+      apply(i, cand);
+      let pc = null;
+      if (partner !== null) { pc = symmetryPartner(cand); apply(partner, pc); }
+      if (!violates()) recurse(step + 1);
+      if (pc) undo(partner, pc);
+      undo(i, cand);
       if (solutions.length >= cap) return;
     }
   }
