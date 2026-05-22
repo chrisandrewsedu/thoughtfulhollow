@@ -572,7 +572,9 @@ function regionShapes(shape) {
 // ── render ───────────────────────────────────────────────────────
 function render() {
   const isGiven = i => PUZZLE.givens.includes(i);
-  const results = assist ? evaluateAll({ grid, colors, kit: PUZZLE.kit }, PUZZLE.ruleKeys) : null;
+  // Evaluate the board exactly once per render; thread the result to the
+  // panels and (via afterMove) the win check.
+  const results = evaluateAll({ grid, colors, kit: PUZZLE.kit }, PUZZLE.ruleKeys);
   const bad = new Set();
   if (results) for (const r of results) for (const v of r.violations) bad.add(v);
 
@@ -626,7 +628,8 @@ function render() {
     el.style.cursor = 'pointer';
     el.addEventListener('click', () => onRegion(+el.dataset.i, el.dataset.part));
   });
-  renderPanels();
+  renderPanels(results);
+  return results;
 }
 
 const SHAPE_ORDER = ['curve', 'triangle', 'square'];
@@ -643,7 +646,7 @@ function miniPiece(shape) {
        + `<path d="M ${S/2},0 A ${S/2},${S/2} 0 0,1 0,${S/2} L 0,0 Z" fill="${dark}" stroke="var(--region-edge)" stroke-width="3"/>`;
 }
 
-function renderPanels() {
+function renderPanels(results) {
   // shapes — uniform tile + count badge + caption
   const ks = document.getElementById('kitShapes'); ks.innerHTML = '';
   for (const s of SHAPE_ORDER) {
@@ -671,21 +674,19 @@ function renderPanels() {
   // erase tool — static element, just sync its selected state
   document.getElementById('eraseBtn').classList.toggle('sel', selKind === 'erase');
   // rules panel
-  renderRules();
+  renderRules(results);
 }
 
-function renderRules() {
+function renderRules(results) {
   const panel = document.getElementById('rulesPanel');
 
-  // Only evaluate when Assist is ON
+  // Status marks come from the threaded evaluation — only shown with Assist on.
   let statusMap = null;
   if (assist) {
-    const results = evaluateAll({ grid, colors, kit: PUZZLE.kit }, PUZZLE.ruleKeys);
     statusMap = {};
     for (const r of results) statusMap[r.key] = r.ok;
   }
 
-  // Always render the full rule list — these are the puzzle instructions
   const groups = ['structure', 'colour'];
   const groupLabel = { structure: 'Structure', colour: 'Colour' };
 
@@ -693,7 +694,7 @@ function renderRules() {
     const def = RULES[key];
     let mark = '';
     let markStyle = '';
-    if (assist && statusMap !== null) {
+    if (statusMap !== null) {
       const ok = statusMap[key];
       mark = ok ? '✓' : '·';
       markStyle = `color:${ok ? 'var(--green)' : 'var(--ink-soft)'}`;
@@ -769,8 +770,11 @@ function onRegion(i, part) {
 }
 
 function afterMove() {
-  render();
-  if (isSolved({ grid, colors, kit: PUZZLE.kit }, PUZZLE.ruleKeys)) {
+  const results = render();
+  const solved = grid.every(Boolean)
+    && fullyColoured({ grid, colors })
+    && results.every(r => r.ok);
+  if (solved) {
     setTimeout(() => document.getElementById('winOverlay').classList.add('show'), 220);
   }
 }
