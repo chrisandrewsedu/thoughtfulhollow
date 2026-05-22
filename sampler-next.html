@@ -28,6 +28,7 @@
   .kit { display:flex; flex-wrap:wrap; gap:0.34rem; }
   .kititem { display:flex; align-items:center; gap:0.5rem; padding:0.28rem 0.42rem;
     border:1.5px solid var(--ink-soft); border-radius:5px; cursor:pointer; }
+  .hitE { cursor: pointer; }
   .kititem:hover { background:var(--paper-deep); }
   .kititem.sel { border-color:var(--accent); box-shadow:0 0 0 1.5px var(--accent); }
   .kititem.out { opacity:0.4; }
@@ -77,7 +78,7 @@
 <div class="win" id="winOverlay">
   <h2>All of a piece.</h2>
   <p>Every rule met &mdash; structure and colour together.</p>
-  <button onclick="document.getElementById('winOverlay').classList.remove('show')">Look again</button>
+  <button id="lookAgainBtn">Look again</button>
 </div>
 
 <script src="sampler-next.engine.js"></script>
@@ -297,6 +298,9 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 document.getElementById('assistToggle').addEventListener('change', e => {
   assist = e.target.checked;
   render();
+});
+document.getElementById('lookAgainBtn').addEventListener('click', () => {
+  document.getElementById('winOverlay').classList.remove('show');
 });
 </script>
 </body>
