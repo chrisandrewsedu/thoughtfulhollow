@@ -222,6 +222,25 @@ function ruleNoAdjacentSquaresSameFabric(state) {
   };
 }
 
+// ── Parameterized rules ──────────────────────────────────────────
+// A parameterized rule is carried in a design's rule list as an instance
+// { rule, ...params, label } rather than a plain registry key. cellsAreShape
+// is the data-driven positional rule: the named cells must all be `shape`.
+function ruleCellsAreShape(state, params) {
+  const { grid } = state;
+  const violations = new Set();
+  let allFilled = true;
+  for (const i of params.cells) {
+    if (!grid[i]) { allFilled = false; continue; }
+    if (grid[i].shape !== params.shape) violations.add(i);
+  }
+  return { ok: allFilled && violations.size === 0, violations };
+}
+
+const PARAM_RULES = {
+  cellsAreShape: { group: 'structure', fn: ruleCellsAreShape },
+};
+
 // ── Rule registry ────────────────────────────────────────────────
 const RULES = {
   continuity:        { group: 'structure', label: 'Curves continue across every seam',          fn: ruleContinuity },
@@ -234,13 +253,21 @@ const RULES = {
   squaresDiffer:     { group: 'colour',    label: 'No two touching squares share a fabric',       fn: ruleNoAdjacentSquaresSameFabric },
 };
 
-// run the named rules; returns [{ key, group, label, ok, violations }]
-function evaluateAll(state, ruleKeys) {
-  return ruleKeys.map(key => {
-    const def = RULES[key];
-    if (!def) throw new Error(`Unknown rule key: "${key}"`);
-    const res = def.fn(state);
-    return { key, group: def.group, label: def.label, ok: res.ok, violations: res.violations };
+// run the rule list; each entry is either a plain key (a fixed rule in
+// RULES) or a parameterized instance { rule, ...params, label }.
+// returns [{ key, group, label, ok, violations }]
+function evaluateAll(state, ruleList) {
+  return ruleList.map(entry => {
+    if (typeof entry === 'string') {
+      const def = RULES[entry];
+      if (!def) throw new Error(`Unknown rule key: "${entry}"`);
+      const res = def.fn(state);
+      return { key: entry, group: def.group, label: def.label, ok: res.ok, violations: res.violations };
+    }
+    const def = PARAM_RULES[entry.rule];
+    if (!def) throw new Error(`Unknown parameterized rule: "${entry.rule}"`);
+    const res = def.fn(state, entry);
+    return { key: entry.rule, group: def.group, label: entry.label || entry.rule, ok: res.ok, violations: res.violations };
   });
 }
 
@@ -258,6 +285,7 @@ if (typeof module !== 'undefined' && module.exports) {
     partsOf, portsOf, CURVE_PORTS, FABRICS, CORNERS, CENTRE,
     ruleContinuity, ruleSymmetry, ruleCornersAreTriangles, ruleCentreIsCurves,
     ruleDiscsUnified, ruleTriangleHalvesDifferHue, ruleFieldHue, ruleNoAdjacentSquaresSameFabric, fullyColoured,
+    ruleCellsAreShape, PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };
 }
