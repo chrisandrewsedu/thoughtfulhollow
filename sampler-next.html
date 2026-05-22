@@ -156,7 +156,74 @@ function render() {
     svg.push(`</g>`);
   }
   document.getElementById('board').innerHTML = svg.join('');
-  // panels + interaction wired in later tasks
+  renderPanels();
+}
+
+const SHAPE_ORDER = ['curve', 'triangle', 'square'];
+const SHAPE_LABEL = { curve: 'Curve', triangle: 'Triangle', square: 'Square' };
+
+function miniPiece(shape) {
+  const S = CELL, lite = '#e7ddc4', dark = '#cdbf9b';
+  if (shape === 'square')
+    return `<rect width="${S}" height="${S}" fill="${lite}" stroke="#b3a585" stroke-width="3"/>`;
+  if (shape === 'triangle')
+    return `<polygon points="0,0 ${S},0 ${S},${S}" fill="${dark}" stroke="#b3a585" stroke-width="3"/>`
+         + `<polygon points="0,0 0,${S} ${S},${S}" fill="${lite}" stroke="#b3a585" stroke-width="3"/>`;
+  return `<rect width="${S}" height="${S}" fill="${lite}" stroke="#b3a585" stroke-width="3"/>`
+       + `<path d="M ${S/2},0 A ${S/2},${S/2} 0 0,1 0,${S/2} L 0,0 Z" fill="${dark}" stroke="#b3a585" stroke-width="3"/>`;
+}
+
+function renderPanels() {
+  // shapes
+  const ks = document.getElementById('kitShapes'); ks.innerHTML = '';
+  for (const s of SHAPE_ORDER) {
+    const left = shapeKit[s] || 0;
+    const d = document.createElement('div');
+    d.className = 'kititem' + (selKind === 'shape' && sel === s ? ' sel' : '')
+      + (left <= 0 ? ' out' : '');
+    d.innerHTML = `<svg width="26" height="26" viewBox="0 0 ${CELL} ${CELL}">${miniPiece(s)}</svg>`
+      + `<span class="kit-name">${SHAPE_LABEL[s]}</span><span class="kit-count">&times;${left}</span>`;
+    d.addEventListener('click', () => selectKit('shape', s, left));
+    ks.appendChild(d);
+  }
+  // fabrics
+  const kf = document.getElementById('kitFabrics'); kf.innerHTML = '';
+  for (const f of PUZZLE.fabrics) {
+    const d = document.createElement('div');
+    d.className = 'kititem' + (selKind === 'fab' && sel === f ? ' sel' : '');
+    d.innerHTML = `<svg width="26" height="26"><rect width="26" height="26" fill="${FABRICS[f].col}"/>`
+      + `<rect width="26" height="26" fill="none" stroke="#b3a585" stroke-width="1.5"/></svg>`
+      + `<span class="kit-name">${FABRICS[f].name}</span>`;
+    d.addEventListener('click', () => selectKit('fab', f, 1));
+    kf.appendChild(d);
+  }
+  // lift tool
+  const kt = document.getElementById('kitTools'); kt.innerHTML = '';
+  const lift = document.createElement('div');
+  lift.className = 'kititem' + (selKind === 'lift' ? ' sel' : '');
+  lift.innerHTML = `<span class="kit-name">Lift &mdash; remove a piece or its colour</span>`;
+  lift.addEventListener('click', () => selectKit('lift', null, 1));
+  kt.appendChild(lift);
+  // rules panel — Assist only
+  renderRules();
+}
+
+function renderRules() {
+  const panel = document.getElementById('rulesPanel');
+  if (!assist) { panel.innerHTML = ''; return; }
+  const results = evaluateAll({ grid, colors }, PUZZLE.ruleKeys);
+  const row = r => `<li><span class="mark" style="color:${r.ok?'var(--green)':'var(--ink-soft)'}">`
+    + `${r.ok?'✓':'·'}</span>${r.label}</li>`;
+  panel.innerHTML =
+    `<div class="rule-head">Structure</div>` + results.filter(r=>r.group==='structure').map(row).join('')
+    + `<div class="rule-head">Colour</div>` + results.filter(r=>r.group==='colour').map(row).join('');
+}
+
+function selectKit(kind, value, available) {
+  if (kind !== 'lift' && available <= 0 && !(selKind === kind && sel === value)) return;
+  if (selKind === kind && sel === value) { selKind = null; sel = null; }
+  else { selKind = kind; sel = value; }
+  render();
 }
 
 reset();
