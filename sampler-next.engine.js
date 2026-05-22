@@ -136,7 +136,7 @@ function ruleDiscsUnified(state) {
   }
   const same = discs.length > 0 && discs.every(([, f]) => f === discs[0][1]);
   if (discs.length && !same) {
-    for (const [i, f] of discs) if (f !== discs[0][1]) violations.add(i);
+    for (const [i] of discs) violations.add(i);
   }
   return { ok: fullyColoured(state) && same, violations };
 }
@@ -200,6 +200,7 @@ const RULES = {
 function evaluateAll(state, ruleKeys) {
   return ruleKeys.map(key => {
     const def = RULES[key];
+    if (!def) throw new Error(`Unknown rule key: "${key}"`);
     const res = def.fn(state);
     return { key, group: def.group, label: def.label, ok: res.ok, violations: res.violations };
   });
