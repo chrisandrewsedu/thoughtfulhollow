@@ -46,7 +46,7 @@
   }
 
   /* ── STAGE: default = phone portrait ── */
-  /* Board above, kit+rules below in a single scrollable column */
+  /* Board above, kit+rules below — NO inner scrolling anywhere */
   .stage {
     flex: 1;
     min-height: 0;
@@ -65,16 +65,13 @@
   #board {
     display: block;
     /* CSS var set by JS; SVG scales to whatever width we give it */
-    width: var(--board-size, 280px);
-    height: var(--board-size, 280px);
+    width: var(--board-size, 240px);
+    height: var(--board-size, 240px);
   }
 
-  /* Side panel */
+  /* Side panel — NO overflow-y scroll; content must fit naturally */
   .side {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     gap: 0.22rem;
@@ -164,6 +161,50 @@
   .kit-section { order: 1; }
   .rules-section { order: 2; }
 
+  /* ── COMPACT PHONE: very small screens (≤480px wide or ≤780px tall in portrait) ── */
+  /* Shrink everything to fit title + board + all rules + all controls with zero scroll */
+  @media (max-width: 480px), (max-height: 780px) and (max-width: 500px) {
+    .app {
+      padding: 0.25rem 0.65rem 0.25rem;
+    }
+    .header { margin-bottom: 0.18rem; }
+    h1 { font-size: 1.1rem; }
+    .stage { gap: 0.25rem; }
+    .side { gap: 0.1rem; }
+    .side-label { font-size: 0.6rem; margin-top: 0.15rem; }
+    .kititem { padding: 0.14rem 0.22rem; gap: 0.24rem; }
+    .kit-name { font-size: 0.7rem; }
+    .kit-count { font-size: 0.7rem; }
+    .kit { gap: 0.18rem; }
+    /* Fabrics: single row, all 5 swatches side by side */
+    #kitFabrics .kit-name { display: none; }
+    #kitFabrics .kititem { padding: 0.1rem 0.1rem; }
+    /* Lift tool: shorter label */
+    #kitTools .kititem { padding: 0.1rem 0.22rem; }
+    /* Assist + Reset on one row */
+    label.assist { margin-top: 0.1rem; font-size: 0.7rem; }
+    .controls { margin-top: 0.1rem; }
+    button { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
+    .rule-head { font-size: 0.56rem; margin: 0.15rem 0 0.03rem; }
+    .rules li { font-size: 0.72rem; padding: 0.06rem 0; gap: 0.28rem; }
+    .rules .mark { width: 0.9rem; }
+  }
+
+  /* ── VERY SHORT PHONES: iPhone SE (667px) and similar ── */
+  @media (max-height: 680px) and (max-width: 500px) {
+    .app { padding: 0.2rem 0.6rem 0.2rem; }
+    h1 { font-size: 1rem; }
+    .header { margin-bottom: 0.12rem; }
+    .stage { gap: 0.18rem; }
+    .side { gap: 0.08rem; }
+    .side-label { font-size: 0.55rem; margin-top: 0.1rem; }
+    .rule-head { font-size: 0.52rem; margin: 0.1rem 0 0.02rem; }
+    .rules li { font-size: 0.66rem; padding: 0.04rem 0; }
+    .rules .mark { width: 0.8rem; }
+    label.assist { font-size: 0.64rem; }
+    button { font-size: 0.64rem; padding: 0.16rem 0.42rem; }
+  }
+
   /* ── WIDE/LANDSCAPE: board left, side right ── */
   @media (min-width: 600px) {
     .stage {
@@ -175,7 +216,7 @@
       align-items: flex-start;
     }
     .side {
-      /* override column; use natural block flow */
+      /* natural block flow in side-by-side layout */
     }
     /* On wide screens, rules go ABOVE kit in reading order */
     .kit-section { order: 2; }
@@ -273,15 +314,18 @@
 // ── Board sizing ─────────────────────────────────────────────────
 // Compute the side length (px) for the board SVG element.
 // The SVG has viewBox="0 0 344 344" so we just set width=height=N.
+//
+// CRITICAL CONSTRAINT: no inner-scroll anywhere. The board + all side
+// content (shapes, fabrics, lift, assist, reset, all 8 rules) must fit
+// simultaneously in the viewport on every screen size.
+//
+// Empirical side-panel heights (after CSS compaction):
+//   – iPhone SE portrait (375×667): ~290px needed for side content
+//   – Medium phones (390–430×780+): ~270px
+//   – Tablet/desktop: side panel is beside the board, not below
 function computeBoardSize() {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const app = document.querySelector('.app');
-  const header = document.querySelector('.header');
-  const appPadV = parseFloat(getComputedStyle(app).paddingTop)
-                + parseFloat(getComputedStyle(app).paddingBottom);
-  const headerH = (header ? header.offsetHeight : 40) + 6; // + gap
-  const availH = vh - appPadV - headerH;
   const sideBySide = vw >= 600 || (vh <= 640 && vw >= 500);
 
   let size;
@@ -289,14 +333,37 @@ function computeBoardSize() {
     // board shares the row with the side panel
     // give board at most 48% of viewport width, but also must fit height
     const maxByW = Math.floor(vw * 0.47);
-    const maxByH = Math.floor(availH * 0.95);
+    // App padding (approx 0.35–0.55rem top+bottom ≈ 11–18px) + header (~28px) + gap
+    const headerAllowance = vh <= 640 ? 55 : 70;
+    const maxByH = Math.floor((vh - headerAllowance) * 0.97);
     size = Math.min(maxByW, maxByH, 460);
   } else {
-    // board stacks above; leave at least 200px for the side content below
-    const minSideH = 190; // minimum height for kit panel
-    const maxByH = Math.floor((availH - minSideH) * 0.98);
-    const maxByW = vw - 18; // minus some padding
-    size = Math.min(maxByH, maxByW, 420);
+    // Phone portrait: board stacks above side content.
+    // Determine how much height the side panel needs based on viewport.
+    // We compact heavily on tiny screens so the side panel shrinks too.
+    let sideH;
+    if (vh <= 680) {
+      // iPhone SE (375×667): very compact CSS. Side content includes:
+      // shapes row (~26px) + fabrics row (~26px) + lift row (~26px)
+      // + assist row (~22px) + reset row (~24px) + structure head+4 rules (~86px)
+      // + colour head+4 rules (~80px) + label gaps/margins (~30px) = ~320px
+      sideH = 322;
+    } else if (vh <= 780) {
+      // Small phones (360×780 etc.) — slightly more vertical space, less cramped CSS
+      sideH = 310;
+    } else if (vh <= 900) {
+      sideH = 300;
+    } else {
+      sideH = 295;
+    }
+    // App padding: small screens get 0.2–0.25rem top+bottom ≈ ~7–10px each
+    // Header: ~28–32px + margin ~0.12–0.18rem
+    const appPadV = vh <= 680 ? 8 : (vh <= 780 ? 10 : 16);
+    const headerH = vh <= 680 ? 34 : (vh <= 780 ? 36 : 44);
+    const stageGap = vh <= 680 ? 7 : (vh <= 780 ? 9 : 14);
+    const availForBoard = vh - appPadV - headerH - stageGap - sideH;
+    const maxByW = vw - 18;
+    size = Math.min(availForBoard, maxByW, 420);
   }
   size = Math.max(size, 160);
   return size;
