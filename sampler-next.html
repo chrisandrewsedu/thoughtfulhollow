@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Sampler</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,64 +13,248 @@
     --accent:#c01818; --green:#3a5a3a; --gold:#8a6c18;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body {
-    background:var(--paper); color:var(--ink); font-family:'Spectral',Georgia,serif;
-    -webkit-tap-highlight-color:transparent; padding:1.2rem 1rem 3rem;
-    max-width:780px; margin:0 auto;
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Spectral', Georgia, serif;
+    -webkit-tap-highlight-color: transparent;
   }
-  h1 { font-family:'Fascinate',serif; font-weight:400; font-size:2rem; line-height:1; }
-  .tag { font-size:0.8rem; color:var(--ink-soft); margin:0.2rem 0 0.9rem; }
-  .stage { display:flex; flex-wrap:wrap; gap:1.4rem; align-items:flex-start; }
-  #board { flex-shrink:0; }
-  .side { display:flex; flex-direction:column; gap:0.4rem; min-width:230px; }
-  .side-label { font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase;
-    color:var(--ink-soft); margin-top:0.35rem; }
-  .kit { display:flex; flex-wrap:wrap; gap:0.34rem; }
-  .kititem { display:flex; align-items:center; gap:0.5rem; padding:0.28rem 0.42rem;
-    border:1.5px solid var(--ink-soft); border-radius:5px; cursor:pointer; }
+
+  /* ── APP SHELL ── */
+  .app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0.55rem 0.9rem 0.55rem;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    flex-shrink: 0;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: 'Fascinate', serif;
+    font-weight: 400;
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  /* ── STAGE: default = phone portrait ── */
+  /* Board above, kit+rules below in a single scrollable column */
+  .stage {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow: hidden;
+  }
+
+  /* Board wrapper */
+  .board-wrap {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+  }
+  #board {
+    display: block;
+    /* CSS var set by JS; SVG scales to whatever width we give it */
+    width: var(--board-size, 280px);
+    height: var(--board-size, 280px);
+  }
+
+  /* Side panel */
+  .side {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    gap: 0.22rem;
+  }
+
+  /* ── KIT / PANEL ELEMENTS ── */
+  .side-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: 0.28rem;
+  }
+  .kit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.26rem;
+  }
+  .kititem {
+    display: flex;
+    align-items: center;
+    gap: 0.38rem;
+    padding: 0.2rem 0.32rem;
+    border: 1.5px solid var(--ink-soft);
+    border-radius: 5px;
+    cursor: pointer;
+  }
   .hitE { cursor: pointer; }
-  .kititem:hover { background:var(--paper-deep); }
-  .kititem.sel { border-color:var(--accent); box-shadow:0 0 0 1.5px var(--accent); }
-  .kititem.out { opacity:0.4; }
-  .kit-name { font-size:0.83rem; }
-  .kit-count { font-size:0.85rem; font-weight:600; }
-  .rules { list-style:none; margin-bottom:1rem; }
-  .rule-head { font-size:0.68rem; letter-spacing:0.09em; text-transform:uppercase;
-    color:var(--ink-soft); margin:0.4rem 0 0.1rem; }
-  .rules li { padding:0.22rem 0; font-size:0.89rem; display:flex; gap:0.5rem; align-items:baseline; }
-  .rules .mark { font-weight:600; width:1.1rem; flex-shrink:0; }
-  .controls { display:flex; gap:0.5rem; margin-top:0.8rem; flex-wrap:wrap; }
-  button { font-family:'Spectral',serif; font-size:0.82rem; padding:0.38rem 0.8rem;
-    border:1.5px solid var(--ink); background:var(--paper); color:var(--ink);
-    border-radius:5px; cursor:pointer; }
-  button:hover { background:var(--ink); color:var(--paper); }
-  label.assist { font-size:0.82rem; display:flex; align-items:center; gap:0.35rem; margin-top:0.6rem; }
-  .win { position:fixed; inset:0; background:rgba(42,37,32,0.93); color:var(--paper);
-    display:none; align-items:center; justify-content:center; flex-direction:column;
-    gap:0.6rem; text-align:center; padding:2rem; z-index:10; }
-  .win.show { display:flex; }
-  .win h2 { font-family:'Fascinate',serif; font-weight:400; font-size:2.2rem; }
-  .win button { background:var(--paper); margin-top:0.5rem; }
+  .kititem:hover { background: var(--paper-deep); }
+  .kititem.sel { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); }
+  .kititem.out { opacity: 0.4; }
+  .kit-name { font-size: 0.78rem; }
+  .kit-count { font-size: 0.8rem; font-weight: 600; }
+
+  /* ── RULES ── */
+  .rules {
+    list-style: none;
+  }
+  .rule-head {
+    font-size: 0.63rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0.32rem 0 0.06rem;
+  }
+  .rules li {
+    padding: 0.15rem 0;
+    font-size: 0.82rem;
+    display: flex;
+    gap: 0.42rem;
+    align-items: baseline;
+  }
+  .rules .mark {
+    font-weight: 600;
+    width: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: 'Spectral', serif;
+    font-size: 0.78rem;
+    padding: 0.28rem 0.65rem;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  button:hover { background: var(--ink); color: var(--paper); }
+  label.assist {
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 0.32rem;
+    margin-top: 0.32rem;
+  }
+
+  /* ── PHONE PORTRAIT: kit section above rules ── */
+  /* On phones we have one column; kit-section shows above rules-section */
+  .kit-section { order: 1; }
+  .rules-section { order: 2; }
+
+  /* ── WIDE/LANDSCAPE: board left, side right ── */
+  @media (min-width: 600px) {
+    .stage {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    .board-wrap {
+      flex-shrink: 0;
+      align-items: flex-start;
+    }
+    .side {
+      /* override column; use natural block flow */
+    }
+    /* On wide screens, rules go ABOVE kit in reading order */
+    .kit-section { order: 2; }
+    .rules-section { order: 1; }
+  }
+
+  /* ── SHORT LANDSCAPE (phones rotated, small laptops) ── */
+  @media (max-height: 640px) and (min-width: 500px) {
+    .stage {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    h1 { font-size: 1.2rem; }
+    .header { margin-bottom: 0.2rem; }
+    .app { padding: 0.35rem 0.7rem 0.35rem; }
+  }
+
+  /* ── RESPONSIVE FONT SCALING ── */
+  @media (min-width: 768px) {
+    html { font-size: 110%; }
+    .app { padding: 0.75rem 1.1rem; }
+  }
+  @media (min-width: 1100px) {
+    html { font-size: 118%; }
+    .app { max-width: 1020px; padding: 0.9rem 1.4rem; }
+  }
+  @media (min-width: 1400px) {
+    html { font-size: 122%; }
+    .app { max-width: 1100px; }
+  }
+
+  /* ── WIN OVERLAY ── */
+  .win {
+    position: fixed;
+    inset: 0;
+    background: rgba(42,37,32,0.93);
+    color: var(--paper);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.6rem;
+    text-align: center;
+    padding: 2rem;
+    z-index: 10;
+  }
+  .win.show { display: flex; }
+  .win h2 { font-family: 'Fascinate', serif; font-weight: 400; font-size: 2.2rem; }
+  .win button { background: var(--paper); margin-top: 0.5rem; }
 </style>
 </head>
 <body>
 
-<h1>Sampler</h1>
-<div class="tag">Piece it, print it &mdash; one block, two kinds of rule.</div>
+<div class="app">
+  <div class="header">
+    <h1>Sampler</h1>
+  </div>
 
-<ul class="rules" id="rulesPanel"></ul>
-
-<div class="stage">
-  <svg id="board" width="344" height="344" viewBox="0 0 344 344"></svg>
-  <div class="side">
-    <div class="side-label">Shapes</div>
-    <div class="kit" id="kitShapes"></div>
-    <div class="side-label">Fabrics</div>
-    <div class="kit" id="kitFabrics"></div>
-    <div class="kit" id="kitTools" style="margin-top:0.3rem"></div>
-    <label class="assist"><input type="checkbox" id="assistToggle"> Assist (show rule status)</label>
-    <div class="controls">
-      <button id="resetBtn">Reset</button>
+  <div class="stage">
+    <div class="board-wrap">
+      <svg id="board" viewBox="0 0 344 344"></svg>
+    </div>
+    <div class="side">
+      <!-- Kit section (shapes/fabrics/controls) — shown first on phones -->
+      <div class="kit-section">
+        <div class="side-label">Shapes</div>
+        <div class="kit" id="kitShapes"></div>
+        <div class="side-label">Fabrics</div>
+        <div class="kit" id="kitFabrics"></div>
+        <div class="kit" id="kitTools" style="margin-top:0.18rem"></div>
+        <label class="assist"><input type="checkbox" id="assistToggle"> Assist (show rule status)</label>
+        <div class="controls">
+          <button id="resetBtn">Reset</button>
+        </div>
+      </div>
+      <!-- Rules section — shown below kit on phones, above kit on wider screens -->
+      <div class="rules-section">
+        <ul class="rules" id="rulesPanel"></ul>
+      </div>
     </div>
   </div>
 </div>
@@ -85,6 +269,45 @@
 <script src="sampler-next.puzzle.js"></script>
 <script>
 'use strict';
+
+// ── Board sizing ─────────────────────────────────────────────────
+// Compute the side length (px) for the board SVG element.
+// The SVG has viewBox="0 0 344 344" so we just set width=height=N.
+function computeBoardSize() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const app = document.querySelector('.app');
+  const header = document.querySelector('.header');
+  const appPadV = parseFloat(getComputedStyle(app).paddingTop)
+                + parseFloat(getComputedStyle(app).paddingBottom);
+  const headerH = (header ? header.offsetHeight : 40) + 6; // + gap
+  const availH = vh - appPadV - headerH;
+  const sideBySide = vw >= 600 || (vh <= 640 && vw >= 500);
+
+  let size;
+  if (sideBySide) {
+    // board shares the row with the side panel
+    // give board at most 48% of viewport width, but also must fit height
+    const maxByW = Math.floor(vw * 0.47);
+    const maxByH = Math.floor(availH * 0.95);
+    size = Math.min(maxByW, maxByH, 460);
+  } else {
+    // board stacks above; leave at least 200px for the side content below
+    const minSideH = 190; // minimum height for kit panel
+    const maxByH = Math.floor((availH - minSideH) * 0.98);
+    const maxByW = vw - 18; // minus some padding
+    size = Math.min(maxByH, maxByW, 420);
+  }
+  size = Math.max(size, 160);
+  return size;
+}
+
+function applyBoardSize() {
+  const size = computeBoardSize();
+  document.documentElement.style.setProperty('--board-size', size + 'px');
+}
+
+window.addEventListener('resize', applyBoardSize);
 
 // ── state ────────────────────────────────────────────────────────
 const CELL = 82, PAD = 8;
@@ -107,8 +330,6 @@ function reset() {
 }
 
 // ── piece geometry (SVG) ─────────────────────────────────────────
-// region shapes within an S×S cell; `rot` true means the caller wraps
-// the element in a rotate() transform.
 function regionShapes(shape) {
   const S = CELL;
   if (shape === 'square') return [{ part: 'W', tag: 'rect', attr: `width="${S}" height="${S}"`, rot: false }];
@@ -116,7 +337,7 @@ function regionShapes(shape) {
     { part: 'A', tag: 'polygon', attr: `points="0,0 ${S},0 ${S},${S}"`, rot: true },
     { part: 'B', tag: 'polygon', attr: `points="0,0 0,${S} ${S},${S}"`, rot: true },
   ];
-  return [  // curve: field B is the whole cell; disc A sits on top
+  return [
     { part: 'B', tag: 'rect', attr: `width="${S}" height="${S}"`, rot: false },
     { part: 'A', tag: 'path', attr: `d="M ${S/2},0 A ${S/2},${S/2} 0 0,1 0,${S/2} L 0,0 Z"`, rot: true },
   ];
@@ -188,7 +409,7 @@ function renderPanels() {
     const d = document.createElement('div');
     d.className = 'kititem' + (selKind === 'shape' && sel === s ? ' sel' : '')
       + (left <= 0 ? ' out' : '');
-    d.innerHTML = `<svg width="26" height="26" viewBox="0 0 ${CELL} ${CELL}">${miniPiece(s)}</svg>`
+    d.innerHTML = `<svg width="22" height="22" viewBox="0 0 ${CELL} ${CELL}">${miniPiece(s)}</svg>`
       + `<span class="kit-name">${SHAPE_LABEL[s]}</span><span class="kit-count">&times;${left}</span>`;
     d.addEventListener('click', () => selectKit('shape', s, left));
     ks.appendChild(d);
@@ -198,8 +419,8 @@ function renderPanels() {
   for (const f of PUZZLE.fabrics) {
     const d = document.createElement('div');
     d.className = 'kititem' + (selKind === 'fab' && sel === f ? ' sel' : '');
-    d.innerHTML = `<svg width="26" height="26"><rect width="26" height="26" fill="${FABRICS[f].col}"/>`
-      + `<rect width="26" height="26" fill="none" stroke="#b3a585" stroke-width="1.5"/></svg>`
+    d.innerHTML = `<svg width="22" height="22"><rect width="22" height="22" fill="${FABRICS[f].col}"/>`
+      + `<rect width="22" height="22" fill="none" stroke="#b3a585" stroke-width="1.5"/></svg>`
       + `<span class="kit-name">${FABRICS[f].name}</span>`;
     d.addEventListener('click', () => selectKit('fab', f, 1));
     kf.appendChild(d);
@@ -211,19 +432,47 @@ function renderPanels() {
   lift.innerHTML = `<span class="kit-name">Lift &mdash; remove a piece or its colour</span>`;
   lift.addEventListener('click', () => selectKit('lift', null, 1));
   kt.appendChild(lift);
-  // rules panel — Assist only
+  // rules panel
   renderRules();
 }
 
 function renderRules() {
   const panel = document.getElementById('rulesPanel');
-  if (!assist) { panel.innerHTML = ''; return; }
-  const results = evaluateAll({ grid, colors }, PUZZLE.ruleKeys);
-  const row = r => `<li><span class="mark" style="color:${r.ok?'var(--green)':'var(--ink-soft)'}">`
-    + `${r.ok?'✓':'·'}</span>${r.label}</li>`;
-  panel.innerHTML =
-    `<div class="rule-head">Structure</div>` + results.filter(r=>r.group==='structure').map(row).join('')
-    + `<div class="rule-head">Colour</div>` + results.filter(r=>r.group==='colour').map(row).join('');
+
+  // Only evaluate when Assist is ON
+  let statusMap = null;
+  if (assist) {
+    const results = evaluateAll({ grid, colors }, PUZZLE.ruleKeys);
+    statusMap = {};
+    for (const r of results) statusMap[r.key] = r.ok;
+  }
+
+  // Always render the full rule list — these are the puzzle instructions
+  const groups = ['structure', 'colour'];
+  const groupLabel = { structure: 'Structure', colour: 'Colour' };
+
+  const rows = PUZZLE.ruleKeys.map(key => {
+    const def = RULES[key];
+    let mark = '';
+    let markStyle = '';
+    if (assist && statusMap !== null) {
+      const ok = statusMap[key];
+      mark = ok ? '✓' : '·';
+      markStyle = `color:${ok ? 'var(--green)' : 'var(--ink-soft)'}`;
+    }
+    return { key, group: def.group, label: def.label, mark, markStyle };
+  });
+
+  let html = '';
+  for (const g of groups) {
+    const groupRows = rows.filter(r => r.group === g);
+    if (groupRows.length === 0) continue;
+    html += `<div class="rule-head">${groupLabel[g]}</div>`;
+    for (const r of groupRows) {
+      html += `<li><span class="mark" style="${r.markStyle}">${r.mark}</span>${r.label}</li>`;
+    }
+  }
+  panel.innerHTML = html;
 }
 
 function selectKit(kind, value, available) {
@@ -237,9 +486,8 @@ function isGivenCell(i) { return PUZZLE.givens.includes(i); }
 
 function placeShape(i, shape) {
   if (isGivenCell(i)) return;
-  if (grid[i]) shapeKit[grid[i].shape]++;       // free the old piece
+  if (grid[i]) shapeKit[grid[i].shape]++;
   if ((shapeKit[shape] || 0) <= 0) { if (grid[i]) shapeKit[grid[i].shape]--; return; }
-  // clear colours of whatever was here
   for (const part of ['A', 'B', 'W']) delete colors[ckey(i, part)];
   grid[i] = { shape, rot: 0 };
   shapeKit[shape]--;
@@ -275,10 +523,10 @@ function onRegion(i, part) {
   } else if (selKind === 'fab') {
     paint(i, part, sel);
   } else if (selKind === 'lift') {
-    if (colors[ckey(i, part)]) paint(i, part, null);   // colour first
-    else liftCell(i);                                   // else the whole piece
+    if (colors[ckey(i, part)]) paint(i, part, null);
+    else liftCell(i);
   } else if (grid[i]) {
-    rotateShape(i);                                     // no tool selected → rotate
+    rotateShape(i);
   }
   afterMove();
 }
@@ -290,7 +538,10 @@ function afterMove() {
   }
 }
 
+// Apply board sizing then start the game
+applyBoardSize();
 reset();
+
 document.getElementById('resetBtn').addEventListener('click', () => {
   document.getElementById('winOverlay').classList.remove('show');
   reset();
