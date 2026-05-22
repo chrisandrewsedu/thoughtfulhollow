@@ -97,11 +97,13 @@ function generate(template, dateStr, opts) {
   if (found.length === 0) return null;          // unsatisfiable under this palette
   const refSol = found[0];
 
+  const maxGivens = opts.maxGivens || 5;
   for (let attempt = 0; attempt < maxRerolls; attempt++) {
     const order = seededShuffle(range(N), rng);
     const givens = [];
     for (const cell of order) {
       givens.push(cell);
+      if (givens.length > maxGivens) break;
       const puzzle = {
         size: template.size, templateId: template.id, dateStr,
         ruleKeys: template.ruleKeys, kit: template.kit, fabrics,
