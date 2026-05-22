@@ -207,12 +207,17 @@ function cellKey(c) {
   return c.shape[0] + '|' + c.rot + '|' + c.col.A + '|' + c.col.B;
 }
 
-// Dead-end-free ⇔ the solution set factors into independent choice points
-// (spec §5/§13). A choice point is a group of cells that vary together;
-// cells that are not pairwise-independent are merged into one group via
-// union-find. The puzzle is dead-end-free when the solution count equals
-// the product of the per-group option counts — every combination of the
-// independent choices is a valid solution, so no choice can strand you.
+// Dead-end-free check (spec §5/§13), via independent choice points.
+// Diff cells (where solutions disagree) are grouped by correlation into
+// choice-point components with union-find; the puzzle passes when the
+// solution count equals the product of the per-component option counts —
+// i.e. the components are mutually independent, so settling one choice
+// point never strands another.
+// A multi-cell component is treated as one atomic choice point (spec §5):
+// this check verifies independence *between* choice points, not cell-by-cell
+// safety *within* one. Per spec §13 that residual is accepted — a dead-end
+// inside a single choice point is rare and fully recoverable (the engine
+// gives no live feedback and the page's Erase is unlimited).
 function checkIndependence(solutions) {
   if (solutions.length <= 1) return true;
   const n = solutions.length;
@@ -264,6 +269,8 @@ function analyze(puzzle) {
   const solvable = count >= 1;
   const overBand = count > band.max;
   const inBand = solvable && !overBand && count >= band.min;
+  // skip the independence check when over-band: `solutions` is then a
+  // truncated (capped) set, so factoring it would be meaningless.
   const deadEndFree = !overBand && checkIndependence(solutions);
   const pass = solvable && inBand && deadEndFree;
   return { solvable, count, overBand, inBand, deadEndFree, pass, band, solutions };

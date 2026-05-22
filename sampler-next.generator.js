@@ -71,7 +71,7 @@ function resolvePalette(family, rng) {
   return chosen;
 }
 
-// ── Generation (implemented in Task 8) ───────────────────────────
+// ── Generation ───────────────────────────────────────────────────
 function range(n) { const a = []; for (let i = 0; i < n; i++) a.push(i); return a; }
 
 // Instantiate a daily puzzle from `template` for `dateStr` (spec §9).
