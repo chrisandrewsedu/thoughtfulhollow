@@ -998,6 +998,10 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     <div class="header-rule"><span>·</span></div>
     <div id="revealEntries"></div>
     <div id="shareBlock"></div>
+    <div id="revealCountdown" style="display:none; text-align:center; margin:1.5rem auto 0.5rem;">
+      <div style="font-family:'Lora',serif; font-style:italic; font-size:0.58rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:0.28rem;">Next Puzzle</div>
+      <div id="revealCountdownTime" style="font-family:'Lora',serif; font-size:1.2rem; letter-spacing:0.06em; color:var(--ink-soft); font-variant-numeric:tabular-nums;">—</div>
+    </div>
   </div>
 
   <div class="overlay" id="tutorial">
@@ -1023,21 +1027,6 @@ body.preview-mode .clue-card { pointer-events: none; cursor: default; }
     <div class="tut-success-caption" id="tutSuccessCaption">Each puzzle has four entries and twelve word segments. The mechanic stays the same — read the clue, identify the headword, assemble its three segments in the right order.</div>
     <div class="tut-controls"><button class="btn-ctrl btn-submit" id="tutSubmitBtn" type="button" disabled>Submit (0/4)</button></div>
     <button class="intro-practice-btn" id="tutSkipBtn" type="button">Skip</button>
-  </div>
-
-  <div class="overlay" id="alreadyPlayed">
-    <div class="go-mark">— Daily Complete —</div>
-    <div class="go-title">Come Back Tomorrow</div>
-    <div class="go-rule"></div>
-    <div class="intro-rules" style="margin-bottom:1.1rem">You've already played today's puzzle. New puzzle at midnight.</div>
-    <div class="go-stats" id="alreadyStats"></div>
-    <div class="intro-actions-row" style="margin-bottom:0.5rem">
-      <button class="btn-secondary" onclick="showMorePuzzles()">More Puzzles</button>
-    </div>
-    <div class="intro-actions-row" style="margin-bottom:0.8rem">
-      <button class="btn-secondary" onclick="openPracticePicker()">Practice</button>
-      <button class="btn-secondary" onclick="openArchive()">Archive</button>
-    </div>
   </div>
 
   <div class="overlay" id="practicePicker">
@@ -1386,7 +1375,7 @@ function startDailyGame(dateStr, opts) {
   const tierData = all.tiers[state.tier];
   const existing = tierData.byDate && tierData.byDate[dateStr];
   if (existing && !replay) {
-    showAlreadyPlayed(all, state.tier); return;
+    showCompletedDaily(dateStr, state.tier); return;
   }
   state.mode = 'daily';
   state.playDate = dateStr;
@@ -1403,14 +1392,13 @@ function startDailyGame(dateStr, opts) {
   }
   resetGameState();
   document.getElementById('intro').classList.remove('show');
-  document.getElementById('alreadyPlayed').classList.remove('show');
   document.getElementById('reveal').classList.remove('show');
+  stopRevealCountdown();
   loadPuzzle();
 }
 
 function openPracticePicker() {
   document.getElementById('intro').classList.remove('show');
-  document.getElementById('alreadyPlayed').classList.remove('show');
   // Disable tier buttons that have no practice content.
   for (const tier of TIERS) {
     const btn = document.querySelector(`#practiceTierButtons .tier-btn[data-tier="${tier}"]`);
@@ -1441,8 +1429,8 @@ function startPracticeGame(tier) {
   resetGameState();
   document.getElementById('intro').classList.remove('show');
   document.getElementById('practicePicker').classList.remove('show');
-  document.getElementById('alreadyPlayed').classList.remove('show');
   document.getElementById('reveal').classList.remove('show');
+  stopRevealCountdown();
   loadPuzzle();
 }
 
@@ -1458,7 +1446,6 @@ document.addEventListener('keydown', (e) => {
 
 function openArchive() {
   document.getElementById('intro').classList.remove('show');
-  document.getElementById('alreadyPlayed').classList.remove('show');
   const today = todayStr();
   const [y, m] = today.split('-').map(Number);
   archiveViewMonth = { year: y, month: m - 1 };
@@ -1472,7 +1459,7 @@ function closeArchive() {
   const today = todayStr();
   const t = all.tiers[state.tier] || emptyTierState();
   if (t.byDate && t.byDate[today]) {
-    showAlreadyPlayed(all, state.tier);
+    showCompletedDaily(today, state.tier);
   } else {
     refreshIntroButtons();
     document.getElementById('intro').classList.add('show');
@@ -1616,6 +1603,7 @@ function resetGameState() { state.puzzlesSolved = 0; state.flawless = 0; state.t
 
 function showMorePuzzles() {
   document.querySelectorAll('.overlay.show').forEach(el => el.classList.remove('show'));
+  stopRevealCountdown();
   refreshIntroButtons();
   document.getElementById('intro').classList.add('show');
 }
@@ -1726,7 +1714,6 @@ function closeTutorial() {
   try { localStorage.setItem('tutorial_seen', '1'); } catch (e) {}
   if (state.timerStart !== null) return;
   if (document.getElementById('intro').classList.contains('show')) return;
-  if (document.getElementById('alreadyPlayed').classList.contains('show')) return;
   if (document.getElementById('reveal').classList.contains('show')) return;
   startDailyGame();
 }
@@ -1967,6 +1954,7 @@ function recordCompletion() {
   t.byDate[playDate] = {
     puzzleIdx: state.puzzleIdx,
     result,
+    guessLog: (state.guessLog || []).map(row => row.slice()),
     completedAt: Date.now(),
     source: isLive ? 'live' : 'archive',
   };
@@ -2026,6 +2014,8 @@ function showReveal() {
   document.getElementById('shareBlock').innerHTML = buildShareBlockHTML(tierStats, puzzle, puzzleNum, result, sharePlayDate, state.tier);
   document.getElementById('practiceLink').style.display = 'inline';
   document.getElementById('reveal').classList.add('show');
+  if (state.mode === 'daily' && playDate === todayStr()) startRevealCountdown();
+  else stopRevealCountdown();
 }
 
 function showBadge(cls, big, small) {
@@ -2071,6 +2061,9 @@ function buildShareBlockHTML(tierStats, puzzle, puzzleNum, result, playDate, tie
       `<div class="share-guess-col ${m}">${SYM[m]}</div>`
     ).join('')}</div>`
   ).join('');
+  const gridHtml = guessLog.length
+    ? `<div class="share-guess-grid"><div class="share-guess-row">${headerHtml}</div>${rowsHtml}</div>`
+    : '';
 
   return `<div class="share-block" data-puzzle-num="${puzzleNum ?? ''}" data-tier="${tier ?? ''}">
     <div class="share-brand">
@@ -2078,10 +2071,7 @@ function buildShareBlockHTML(tierStats, puzzle, puzzleNum, result, playDate, tie
       <div class="share-game-sub">${puzzleLabel} · <em>"${puzzle.name}"</em></div>
       ${puzzleNum ? `<div class="share-game-date">${dateStr}</div>` : ''}
     </div>
-    <div class="share-guess-grid">
-      <div class="share-guess-row">${headerHtml}</div>
-      ${rowsHtml}
-    </div>
+    ${gridHtml}
     <div class="share-summary">${solvedCount} of ${marks.length} · ${timeStr} · ${errStr}</div>
     <hr class="share-divider">
     <div class="share-stats">
@@ -2110,15 +2100,12 @@ function generateShareText(puzzle, puzzleNum, result, tier) {
     : (tier ? `Glos·sa·ri — Practice · ${tierLabel}` : 'Glos·sa·ri — Practice');
   const SYM = { correct: '❧', partial: '◆', wrong: '·' };
   const guessLog = state.guessLog || [];
-  const grid = guessLog.map(row => row.map(m => SYM[m]).join(' ')).join('\n');
-  return [
-    header,
-    `"${puzzle.name}"`,
-    '',
-    grid,
-    '',
-    `${solvedCount} of ${marks.length} · ${timeStr} · ${errStr}`,
-  ].join('\n');
+  const lines = [header, `"${puzzle.name}"`];
+  if (guessLog.length) {
+    lines.push('', guessLog.map(row => row.map(m => SYM[m]).join(' ')).join('\n'));
+  }
+  lines.push('', `${solvedCount} of ${marks.length} · ${timeStr} · ${errStr}`);
+  return lines.join('\n');
 }
 
 function copyResult() {
@@ -2138,18 +2125,87 @@ function copyResult() {
   });
 }
 
-function showAlreadyPlayed(all, tier) {
+// Re-open the results page for a daily puzzle the player has already finished.
+// Rebuilds the puzzle, restores the persisted result, and shows the reveal
+// overlay so the player can review entries and copy their result again.
+function showCompletedDaily(dateStr, tier) {
+  const all = loadStorage();
+  const t = (all.tiers && all.tiers[tier]) || emptyTierState();
+  const entry = t.byDate && t.byDate[dateStr];
+  if (!entry || !entry.result) {
+    refreshIntroButtons();
+    document.getElementById('intro').classList.add('show');
+    return;
+  }
+  state.mode = 'daily';
+  state.tier = tier;
+  state.playDate = dateStr;
+  state.replay = false;
+  state.puzzleSource = null;
+  state.puzzleIdx = (entry.puzzleIdx != null) ? entry.puzzleIdx : dailyIndex(dateStr);
+  if (!tierAvailable(state.puzzleIdx, tier)) {
+    refreshIntroButtons();
+    document.getElementById('intro').classList.add('show');
+    return;
+  }
+  resetGameState();
   document.getElementById('intro').classList.remove('show');
-  const t = (all && all.tiers && all.tiers[tier]) || emptyTierState();
-  const statsEl = document.getElementById('alreadyStats'); statsEl.textContent = '';
-  [['Streak', t.streak || 0], ['Played', t.totalPlayed || 0], ['Flawless', t.totalFlawless || 0], ['Avg Time', formatAvgTime(t)]].forEach(([label, val]) => {
-    const div = document.createElement('div'); div.className = 'go-stat';
-    const num = document.createElement('div'); num.className = 'go-stat-num'; num.textContent = val;
-    const lbl = document.createElement('div'); lbl.className = 'go-stat-label'; lbl.textContent = label;
-    div.appendChild(num); div.appendChild(lbl); statsEl.appendChild(div);
-  });
-  document.getElementById('practiceLink').style.display = 'inline';
-  document.getElementById('alreadyPlayed').classList.add('show');
+  document.getElementById('practicePicker').classList.remove('show');
+  document.getElementById('archive').classList.remove('show');
+  document.getElementById('reveal').classList.remove('show');
+  loadPuzzle();
+  stopTimer();
+  state.timerStart = null;
+  state.inProgress = false;
+  const marks = entry.result.marks || [];
+  const sets = (state.currentPuzzle && state.currentPuzzle.sets) || [];
+  state.solvedSets = sets.map((_, i) => marks[i] === 'solved');
+  state.revealedSets = sets.map((_, i) => marks[i] !== 'solved');
+  state.puzzleMarksByEntry = marks.slice();
+  state.elapsed = entry.result.elapsedSeconds != null ? entry.result.elapsedSeconds : 0;
+  state.mistakes = entry.result.mistakesUsed || 0;
+  state.guessLog = Array.isArray(entry.guessLog) ? entry.guessLog : [];
+  showReveal();
+}
+
+// Seconds elapsed in the current Eastern-time day. Used to count down to the
+// next daily puzzle, which rolls over at midnight America/New_York.
+function etSecondsIntoDay() {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York', hour12: false,
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).formatToParts(new Date());
+  const get = type => { const p = parts.find(x => x.type === type); return p ? parseInt(p.value, 10) : 0; };
+  let h = get('hour'); if (h === 24) h = 0; // some engines emit hour 24 at midnight
+  return h * 3600 + get('minute') * 60 + get('second');
+}
+
+let revealCountdownInterval = null;
+
+function renderRevealCountdown() {
+  const out = document.getElementById('revealCountdownTime');
+  if (!out) return;
+  const left = 86400 - etSecondsIntoDay();
+  if (left <= 0) { out.textContent = 'Available now'; return; }
+  const h = Math.floor(left / 3600);
+  const m = Math.floor((left % 3600) / 60);
+  const s = left % 60;
+  out.textContent = h + 'h ' + String(m).padStart(2, '0') + 'm ' + String(s).padStart(2, '0') + 's';
+}
+
+function startRevealCountdown() {
+  const wrap = document.getElementById('revealCountdown');
+  if (!wrap) return;
+  stopRevealCountdown();
+  wrap.style.display = '';
+  renderRevealCountdown();
+  revealCountdownInterval = setInterval(renderRevealCountdown, 1000);
+}
+
+function stopRevealCountdown() {
+  if (revealCountdownInterval) { clearInterval(revealCountdownInterval); revealCountdownInterval = null; }
+  const wrap = document.getElementById('revealCountdown');
+  if (wrap) wrap.style.display = 'none';
 }
 </script>
 <footer class="page-footer">© 2026 Thoughtful Hollow &nbsp;·&nbsp; <a class="page-footer-link" href="https://ko-fi.com/chrisandrewsedu" target="_blank" rel="noopener">Support on Ko-fi</a></footer>
