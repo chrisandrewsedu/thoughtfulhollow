@@ -26,7 +26,7 @@ const TEMPLATES = [
     ],
     kit: { curve: 4, triangle: 4, square: 8 },
     paletteFamily: PALETTE,
-    solutionBand: { min: 2, max: 8 },
+    solutionBand: BAND,
   },
   {
     // 2 — sawtooth bands: triangle rows top and bottom, square rows centre
