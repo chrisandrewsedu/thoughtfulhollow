@@ -281,9 +281,96 @@ function ruleNoAdjacentShape(state, params) {
   return { ok: filledAll(grid) && violations.size === 0, violations };
 }
 
+// Inverse of cellsAreShape: the named cells must NOT be `shape`.
+function ruleCellsAvoidShape(state, params) {
+  const { grid } = state;
+  const violations = new Set();
+  let allFilled = true;
+  for (const i of params.cells) {
+    if (!grid[i]) { allFilled = false; continue; }
+    if (grid[i].shape === params.shape) violations.add(i);
+  }
+  return { ok: allFilled && violations.size === 0, violations };
+}
+
+// Within params.cells, cells holding params.shape must each have a distinct
+// rotation. (Two cells with the same rotation flag both.)
+function ruleDistinctRotations(state, params) {
+  const { grid } = state;
+  const violations = new Set();
+  const seen = new Map();
+  let allPlaced = true;
+  for (const i of params.cells) {
+    if (!grid[i]) { allPlaced = false; continue; }
+    if (grid[i].shape !== params.shape) continue;
+    const r = grid[i].rot;
+    if (seen.has(r)) { violations.add(i); violations.add(seen.get(r)); }
+    else seen.set(r, i);
+  }
+  return { ok: allPlaced && violations.size === 0, violations };
+}
+
+// Mirror-axis cell partner. 'v' = vertical axis (left-right mirror),
+// 'h' = horizontal axis (top-bottom mirror).
+function mirrorPartner(i, axis) {
+  const r = Math.floor(i / GRID), c = i % GRID;
+  if (axis === 'h') return (GRID - 1 - r) * GRID + c;
+  return r * GRID + (GRID - 1 - c);
+}
+// How a piece's rotation transforms under the mirror.
+function mirrorRot(rot, axis) {
+  if (axis === 'h') return 3 - rot;
+  return rot ^ 1;
+}
+
+// Mirror symmetry across the given axis.
+function ruleSymmetryMirror(state, params) {
+  const { grid, colors } = state;
+  const axis = params.axis || 'v';
+  const violations = new Set();
+  for (let i = 0; i < NCELL; i++) {
+    const j = mirrorPartner(i, axis);
+    if (j <= i) continue;
+    const a = grid[i], b = grid[j];
+    if (!a || !b) continue;
+    let bad = a.shape !== b.shape;
+    if (!bad && a.shape !== 'square') bad = mirrorRot(a.rot, axis) !== b.rot;
+    if (!bad) {
+      for (const part of partsOf(a.shape)) {
+        if (colors[i + ':' + part] !== colors[j + ':' + part]) bad = true;
+      }
+    }
+    if (bad) { violations.add(i); violations.add(j); }
+  }
+  return { ok: filledAll(grid) && violations.size === 0, violations };
+}
+
+// No 2×2 region of params.shape.
+function ruleNoLargeBlock(state, params) {
+  const { grid } = state;
+  const violations = new Set();
+  for (let r = 0; r < GRID - 1; r++) {
+    for (let c = 0; c < GRID - 1; c++) {
+      const i = r * GRID + c;
+      const a = grid[i], b = grid[i + 1], c2 = grid[i + GRID], d = grid[i + GRID + 1];
+      if (!a || !b || !c2 || !d) continue;
+      if (a.shape === params.shape && b.shape === params.shape
+       && c2.shape === params.shape && d.shape === params.shape) {
+        violations.add(i); violations.add(i + 1);
+        violations.add(i + GRID); violations.add(i + GRID + 1);
+      }
+    }
+  }
+  return { ok: filledAll(grid) && violations.size === 0, violations };
+}
+
 const PARAM_RULES = {
-  cellsAreShape:   { group: 'structure', fn: ruleCellsAreShape },
-  noAdjacentShape: { group: 'structure', fn: ruleNoAdjacentShape },
+  cellsAreShape:     { group: 'structure', fn: ruleCellsAreShape },
+  noAdjacentShape:   { group: 'structure', fn: ruleNoAdjacentShape },
+  cellsAvoidShape:   { group: 'structure', fn: ruleCellsAvoidShape },
+  distinctRotations: { group: 'structure', fn: ruleDistinctRotations },
+  symmetryMirror:    { group: 'structure', fn: ruleSymmetryMirror },
+  noLargeBlock:      { group: 'structure', fn: ruleNoLargeBlock },
 };
 
 // ── Rule registry ────────────────────────────────────────────────
@@ -332,7 +419,9 @@ if (typeof module !== 'undefined' && module.exports) {
     ruleContinuity, ruleSymmetry, ruleCornersAreTriangles, ruleCentreIsCurves,
     ruleDiscsUnified, ruleTriangleHalvesDifferHue, ruleFieldHue, ruleNoAdjacentSquaresSameFabric, fullyColoured,
     rot90, ruleSymmetry4, ruleNoAdjacentShape,
-    ruleCellsAreShape, PARAM_RULES,
+    ruleCellsAreShape, ruleCellsAvoidShape, ruleDistinctRotations,
+    mirrorPartner, mirrorRot, ruleSymmetryMirror, ruleNoLargeBlock,
+    PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };
 }
