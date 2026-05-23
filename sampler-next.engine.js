@@ -558,6 +558,39 @@ function ruleCellsShareFabric(state, params) {
   return { ok: allFilled && violations.size === 0, violations };
 }
 
+// Parameterized count rule. params.regions is a list of colour-slot keys
+// ("cellIdx:part"); exactly params.count of them must hold params.fabric.
+// The Picross-grade hint — aggregate, position-blind. Direct colour twin of
+// ruleCountShapeInRegion. Over-count is a permanent violation (every matching
+// region is flagged). Under-count is only judged once every named region is
+// coloured.
+function ruleFabricCountInRegion(state, params) {
+  const { colors } = state;
+  let count = 0;
+  let regionFilled = true;
+  const matched = [];
+  for (const regionKey of params.regions) {
+    const fab = colors[regionKey];
+    if (!fab) { regionFilled = false; continue; }
+    if (fab === params.fabric) {
+      count++;
+      matched.push(parseInt(regionKey.split(':')[0], 10));
+    }
+  }
+  const violations = new Set();
+  if (count > params.count) {
+    for (const i of matched) violations.add(i);
+    return { ok: false, violations };
+  }
+  if (regionFilled && count !== params.count) {
+    for (const regionKey of params.regions) {
+      violations.add(parseInt(regionKey.split(':')[0], 10));
+    }
+    return { ok: false, violations };
+  }
+  return { ok: regionFilled && count === params.count, violations };
+}
+
 const PARAM_RULES = {
   cellsAreShape:      { group: 'structure', fn: ruleCellsAreShape },
   cellsAreRotation:   { group: 'structure', fn: ruleCellsAreRotation },
@@ -574,6 +607,7 @@ const PARAM_RULES = {
   cellsAreHue:        { group: 'colour',    fn: ruleCellsAreHue },
   cellsAreFabricFromSet: { group: 'colour', fn: ruleCellsAreFabricFromSet },
   cellsShareFabric:     { group: 'colour', fn: ruleCellsShareFabric },
+  fabricCountInRegion:  { group: 'colour', fn: ruleFabricCountInRegion },
 };
 
 // ── Rule registry ────────────────────────────────────────────────
@@ -630,6 +664,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ruleCellsAreHue,
     ruleCellsAreFabricFromSet,
     ruleCellsShareFabric,
+    ruleFabricCountInRegion,
     PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };
