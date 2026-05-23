@@ -130,6 +130,32 @@ const TEMPLATES = [
     colorKit: { LINEN: 16, MADDER: 8 },
     solutionBand: BAND_1,
   },
+  {
+    id: 'square-in-a-square',
+    size: 4,
+    ruleKeys: [
+      'symmetry',
+      { rule: 'cellsAreShape', cells: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+        shape: 'square', label: 'Every cell is a square' },
+      { rule: 'cellsAreFabricFromSet',
+        regions: ['0:W','1:W','2:W','3:W','4:W','7:W','8:W','11:W',
+                  '12:W','13:W','14:W','15:W'],
+        fabrics: ['MADDER', 'MARIGOLD'],
+        label: 'The outer ring is warm (MADDER or MARIGOLD)' },
+      { rule: 'cellsAreFabricFromSet',
+        regions: ['5:W','6:W','9:W','10:W'],
+        fabrics: ['INDIGO', 'SLATE'],
+        label: 'The inner square is cool (INDIGO or SLATE)' },
+      { rule: 'fabricsNeverTouch', fabrics: ['MADDER', 'INDIGO'],
+        label: 'MADDER and INDIGO never share an edge' },
+      { rule: 'colorKitExact',
+        kit: { MADDER: 8, MARIGOLD: 4, INDIGO: 2, SLATE: 2 },
+        label: 'Use 8 MADDER, 4 MARIGOLD, 2 INDIGO, 2 SLATE' },
+    ],
+    kit: { square: 16 },
+    colorKit: { MADDER: 8, MARIGOLD: 4, INDIGO: 2, SLATE: 2 },
+    solutionBand: BAND_1,
+  },
 ];
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { TEMPLATES };
