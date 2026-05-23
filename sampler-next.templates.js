@@ -99,6 +99,37 @@ const TEMPLATES = [
     colorKit: { LINEN: 8, MADDER: 8 },
     solutionBand: BAND_1,
   },
+  {
+    id: 'sawtooth-star',
+    size: 4,
+    ruleKeys: [
+      'symmetry',
+      { rule: 'cellsAreShape', cells: [1,2,4,7,8,11,13,14], shape: 'triangle',
+        label: 'The eight star-point cells are triangles' },
+      { rule: 'cellsAreShape', cells: [0,3,5,6,9,10,12,15], shape: 'square',
+        label: 'The corner and centre cells are squares' },
+      // HST rotations so each hypotenuse faces the star's centre. Half-turn
+      // symmetry forces the partner cells (8, 11, 13, 14) to the matching
+      // (+2 mod 4) rotations.
+      { rule: 'cellsAreRotation', cells: [1, 7], rot: 0,
+        label: 'NE-side star-point triangles point inward (right-angle at NE)' },
+      { rule: 'cellsAreRotation', cells: [2, 4], rot: 3,
+        label: 'NW-side star-point triangles point inward (right-angle at NW)' },
+      { rule: 'cellsShareFabric',
+        regions: ['1:B','2:B','4:B','7:B','8:B','11:B','13:B','14:B'],
+        label: 'The eight star points share a fabric' },
+      { rule: 'cellsAreHue',
+        regions: ['0:W','3:W','5:W','6:W','9:W','10:W','12:W','15:W'],
+        hue: 'neutral',
+        label: 'The background squares are a neutral fabric' },
+      'triangleHues',
+      { rule: 'colorKitExact', kit: { LINEN: 16, MADDER: 8 },
+        label: 'Use 16 LINEN, 8 MADDER' },
+    ],
+    kit: { triangle: 8, square: 8 },
+    colorKit: { LINEN: 16, MADDER: 8 },
+    solutionBand: BAND_1,
+  },
 ];
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { TEMPLATES };
