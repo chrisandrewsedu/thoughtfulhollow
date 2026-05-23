@@ -433,6 +433,26 @@ function ruleMustBeAdjacent(state, params) {
   return { ok: allShapeDown && filledAll(grid) && violations.size === 0, violations };
 }
 
+// At most params.count distinct fabrics may appear in the solution's colours.
+// Monotonic: once more than params.count fabrics are placed, that is a
+// permanent violation — adding more cells cannot remove the surplus.
+function ruleColourUsesAtMost(state, params) {
+  const { grid, colors } = state;
+  const used = new Set();
+  for (const k in colors) used.add(colors[k]);
+  if (used.size <= params.count) {
+    return { ok: filledAll(grid) && fullyColoured(state), violations: new Set() };
+  }
+  const violations = new Set();
+  for (let i = 0; i < NCELL; i++) {
+    if (!grid[i]) continue;
+    for (const part of partsOf(grid[i].shape)) {
+      if (colors[i + ':' + part]) { violations.add(i); break; }
+    }
+  }
+  return { ok: false, violations };
+}
+
 const PARAM_RULES = {
   cellsAreShape:      { group: 'structure', fn: ruleCellsAreShape },
   noAdjacentShape:    { group: 'structure', fn: ruleNoAdjacentShape },
@@ -443,6 +463,7 @@ const PARAM_RULES = {
   connectedShape:     { group: 'structure', fn: ruleConnectedShape },
   countShapeInRegion: { group: 'structure', fn: ruleCountShapeInRegion },
   mustBeAdjacent:     { group: 'structure', fn: ruleMustBeAdjacent },
+  paletteUsesAtMost:  { group: 'colour',    fn: ruleColourUsesAtMost },
 };
 
 // ── Rule registry ────────────────────────────────────────────────
@@ -494,6 +515,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ruleCellsAreShape, ruleCellsAvoidShape, ruleDistinctRotations,
     mirrorPartner, mirrorRot, ruleSymmetryMirror, ruleNoLargeBlock,
     ruleConnectedShape, ruleCountShapeInRegion, ruleMustBeAdjacent,
+    ruleColourUsesAtMost,
     PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };
