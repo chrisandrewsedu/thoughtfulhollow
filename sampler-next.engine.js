@@ -35,6 +35,31 @@ function portsOf(piece) {
   return CURVE_PORTS[piece.rot].slice();
 }
 
+// Triangle facing-region by rotation. At rot 0 the right-angle sits at the
+// NE corner: region A is the NE half (touches N and E), region B is the SW
+// half (touches S and W). Each 90° CW step rotates direction labels. Convention
+// matches the renderer in sampler-next.html (the rot-0 A polygon is N-NE-SE).
+const TRIANGLE_FACES = {
+  0: { N: 'A', E: 'A', S: 'B', W: 'B' },
+  1: { N: 'B', E: 'A', S: 'A', W: 'B' },
+  2: { N: 'B', E: 'B', S: 'A', W: 'A' },
+  3: { N: 'A', E: 'B', S: 'B', W: 'A' },
+};
+
+// Which region of a piece touches the seam in direction `dir`.
+// Squares: W faces every direction. Triangles: per TRIANGLE_FACES.
+// Curves: disc (A) faces the directions in CURVE_PORTS[rot]; field (B) the
+// other two. Null piece returns null. Used by the adjacency colour rules.
+function regionFacing(piece, dir) {
+  if (!piece) return null;
+  if (piece.shape === 'square') return 'W';
+  if (piece.shape === 'triangle') return TRIANGLE_FACES[piece.rot][dir];
+  if (piece.shape === 'curve') {
+    return CURVE_PORTS[piece.rot].includes(dir) ? 'A' : 'B';
+  }
+  return null;
+}
+
 // ── Fabrics ──────────────────────────────────────────────────────
 const FABRICS = {
   LINEN:    { name: 'Linen',    col: '#ece0c8', hue: 'neutral' },
@@ -652,7 +677,7 @@ function isSolved(state, ruleKeys) {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     GRID, NCELL, DIRS, OPP, neighbor, partnerOf,
-    partsOf, portsOf, CURVE_PORTS, FABRICS, CORNERS, CENTRE,
+    partsOf, portsOf, CURVE_PORTS, TRIANGLE_FACES, regionFacing, FABRICS, CORNERS, CENTRE,
     ruleContinuity, ruleSymmetry, ruleCornersAreTriangles, ruleCentreIsCurves,
     ruleDiscsUnified, ruleTriangleHalvesDifferHue, ruleFieldHue, ruleNoAdjacentSquaresSameFabric, fullyColoured,
     rot90, ruleSymmetry4, ruleNoAdjacentShape,
