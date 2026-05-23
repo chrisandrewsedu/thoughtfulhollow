@@ -1474,7 +1474,12 @@ function startDailyGame(dateStr, opts) {
 }
 
 function openPracticePicker() {
+  // Close any overlay that could be showing (e.g. reveal after finishing a game).
+  // If reveal stays open while practicePicker opens, topOverlay() still returns
+  // 'reveal', sync() early-returns, and practicePicker is left with inert=true.
+  document.getElementById('reveal').classList.remove('show');
   document.getElementById('intro').classList.remove('show');
+  stopRevealCountdown();
   // Disable tier buttons that have no practice content.
   for (const tier of TIERS) {
     const btn = document.querySelector(`#practiceTierButtons .tier-btn[data-tier="${tier}"]`);
