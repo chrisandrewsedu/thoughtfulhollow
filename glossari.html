@@ -2194,7 +2194,7 @@ function buildShareBlockHTML(tierStats, puzzle, puzzleNum, result, playDate, tie
   const SYM = { correct: '❧', partial: '◆', wrong: '·' };
   const guessLog = state.guessLog || [];
   const headerCols = ['Clue', '·1', '·2', '·3'];
-  const colHeader = h => `<div class="share-guess-col" style="font-family:'Lora',serif;font-size:0.42rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);font-style:italic;">${h}</div>`;
+  const colHeader = h => `<div class="share-guess-col" style="font-family:'Lora',serif;font-size:0.42rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);font-style:normal;">${h}</div>`;
   const headerHtml = headerCols.map((h, i) =>
     (i === 1 ? '<div class="share-guess-sep"></div>' : '') + colHeader(h)
   ).join('') + '<div class="share-guess-sep"></div>' + colHeader('');
