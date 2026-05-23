@@ -496,6 +496,22 @@ function ruleCellsAreRotation(state, params) {
   return { ok: allFilled && violations.size === 0, violations };
 }
 
+// Parameterized hue rule. Each named region must hold a fabric whose hue is
+// params.hue ('warm' / 'cool' / 'neutral'). Generalises ruleFieldHue.
+function ruleCellsAreHue(state, params) {
+  const { colors } = state;
+  const violations = new Set();
+  let allFilled = true;
+  for (const regionKey of params.regions) {
+    const fab = colors[regionKey];
+    if (!fab) { allFilled = false; continue; }
+    if (FABRICS[fab].hue !== params.hue) {
+      violations.add(parseInt(regionKey.split(':')[0], 10));
+    }
+  }
+  return { ok: allFilled && violations.size === 0, violations };
+}
+
 const PARAM_RULES = {
   cellsAreShape:      { group: 'structure', fn: ruleCellsAreShape },
   cellsAreRotation:   { group: 'structure', fn: ruleCellsAreRotation },
@@ -509,6 +525,7 @@ const PARAM_RULES = {
   mustBeAdjacent:     { group: 'structure', fn: ruleMustBeAdjacent },
   paletteUsesAtMost:  { group: 'colour',    fn: ruleColourUsesAtMost },
   colorKitExact:      { group: 'colour',    fn: ruleColorKitExact },
+  cellsAreHue:        { group: 'colour',    fn: ruleCellsAreHue },
 };
 
 // ── Rule registry ────────────────────────────────────────────────
@@ -562,6 +579,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ruleConnectedShape, ruleCountShapeInRegion, ruleMustBeAdjacent,
     ruleColourUsesAtMost,
     ruleColorKitExact,
+    ruleCellsAreHue,
     PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };
