@@ -18,9 +18,13 @@ const PALETTE_3 = {
 };
 const BAND = { min: 1, max: 8 };
 
-const CORNERS = [0, 3, 12, 15];
-const CENTRE = [5, 6, 9, 10];
-const EDGES = [1, 2, 4, 7, 8, 11, 13, 14];
+// Cell-set helpers. Use file-local names (T_CORNERS etc.) to avoid colliding
+// with the engine's top-level CORNERS / CENTRE consts — two `const`s with the
+// same name in non-module scripts throw a SyntaxError in the browser and
+// silently kill templates.js. (Node tests use require() so they didn't see it.)
+const T_CORNERS = [0, 3, 12, 15];
+const T_CENTRE = [5, 6, 9, 10];
+const T_EDGES = [1, 2, 4, 7, 8, 11, 13, 14];
 
 const TEMPLATES = [
   {
@@ -28,9 +32,9 @@ const TEMPLATES = [
     size: 4,
     ruleKeys: [
       'symmetry4',
-      { rule: 'cellsAreShape', cells: CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
-      { rule: 'cellsAreShape', cells: CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
-      { rule: 'cellsAreShape', cells: EDGES,   shape: 'square',   label: 'Squares fill the edges' },
+      { rule: 'cellsAreShape', cells: T_CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
+      { rule: 'cellsAreShape', cells: T_CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
+      { rule: 'cellsAreShape', cells: T_EDGES,   shape: 'square',   label: 'Squares fill the edges' },
       'discsUnified', 'triangleHues', 'fieldHue', 'squaresDiffer',
     ],
     kit: { curve: 4, triangle: 4, square: 8 },
@@ -41,9 +45,9 @@ const TEMPLATES = [
     size: 4,
     ruleKeys: [
       'continuity', 'symmetry',
-      { rule: 'cellsAreShape', cells: CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
-      { rule: 'cellsAreShape', cells: CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
-      { rule: 'cellsAreShape', cells: EDGES,   shape: 'square',   label: 'Squares fill the edges' },
+      { rule: 'cellsAreShape', cells: T_CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
+      { rule: 'cellsAreShape', cells: T_CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
+      { rule: 'cellsAreShape', cells: T_EDGES,   shape: 'square',   label: 'Squares fill the edges' },
       'discsUnified', 'triangleHues', 'fieldHue', 'squaresDiffer',
     ],
     kit: { curve: 4, triangle: 4, square: 8 },
@@ -67,9 +71,9 @@ const TEMPLATES = [
     size: 4,
     ruleKeys: [
       { rule: 'symmetryMirror', axis: 'v', label: 'The block is mirror-symmetric across the vertical axis' },
-      { rule: 'cellsAreShape', cells: CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
-      { rule: 'cellsAreShape', cells: CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
-      { rule: 'cellsAreShape', cells: EDGES,   shape: 'square',   label: 'Squares fill the edges' },
+      { rule: 'cellsAreShape', cells: T_CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
+      { rule: 'cellsAreShape', cells: T_CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
+      { rule: 'cellsAreShape', cells: T_EDGES,   shape: 'square',   label: 'Squares fill the edges' },
       { rule: 'paletteUsesAtMost', count: 2, label: 'The block uses at most 2 fabrics' },
       'discsUnified', 'triangleHues', 'fieldHue',
     ],
@@ -85,7 +89,7 @@ const TEMPLATES = [
       { rule: 'countShapeInRegion', cells: [4, 5, 6, 7],     shape: 'curve', count: 1, label: 'Row 2 has one curve' },
       { rule: 'countShapeInRegion', cells: [8, 9, 10, 11],   shape: 'curve', count: 1, label: 'Row 3 has one curve' },
       { rule: 'countShapeInRegion', cells: [12, 13, 14, 15], shape: 'curve', count: 1, label: 'Row 4 has one curve' },
-      { rule: 'cellsAreShape', cells: CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
+      { rule: 'cellsAreShape', cells: T_CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
       'triangleHues', 'squaresDiffer',
     ],
     kit: { curve: 4, triangle: 4, square: 8 },
@@ -96,9 +100,9 @@ const TEMPLATES = [
     size: 4,
     ruleKeys: [
       'symmetry',
-      { rule: 'cellsAreShape',  cells: CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
-      { rule: 'cellsAreShape',  cells: CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
-      { rule: 'cellsAreShape',  cells: EDGES,   shape: 'square',   label: 'Squares fill the edges' },
+      { rule: 'cellsAreShape',  cells: T_CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
+      { rule: 'cellsAreShape',  cells: T_CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
+      { rule: 'cellsAreShape',  cells: T_EDGES,   shape: 'square',   label: 'Squares fill the edges' },
       { rule: 'noLargeBlock',   shape: 'square', label: 'No 2x2 of squares' },
       { rule: 'paletteUsesAtMost', count: 2, label: 'The block uses at most 2 fabrics' },
       'discsUnified', 'triangleHues', 'fieldHue', 'squaresDiffer',
