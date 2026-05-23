@@ -537,7 +537,7 @@ window.addEventListener('resize', applyBoardSize);
 
 // ── state ────────────────────────────────────────────────────────
 const CELL = 82, PAD = 8;
-let grid, colors, shapeKit, selKind = null, sel = null, assist = false;
+let grid, colors, shapeKit, colorKitLeft, selKind = null, sel = null, assist = false;
 
 function ckey(i, part) { return i + ':' + part; }
 
@@ -545,11 +545,21 @@ function reset() {
   grid = new Array(NCELL).fill(null);
   colors = {};
   shapeKit = Object.assign({}, PUZZLE.kit);
+  colorKitLeft = PUZZLE.colorKit ? Object.assign({}, PUZZLE.colorKit) : null;
   for (const i of PUZZLE.givens) {
     const s = PUZZLE.solution[i];
     grid[i] = { shape: s.shape, rot: s.rot };
     shapeKit[s.shape]--;
     for (const part in s.col) colors[ckey(i, part)] = s.col[part];
+  }
+  if (colorKitLeft) {
+    for (const i of PUZZLE.givens) {
+      const s = PUZZLE.solution[i];
+      for (const part in s.col) {
+        const fab = s.col[part];
+        if (colorKitLeft[fab] != null) colorKitLeft[fab]--;
+      }
+    }
   }
   selKind = null; sel = null;
   render();
@@ -660,15 +670,18 @@ function renderPanels(results) {
     tw.querySelector('.tile').addEventListener('click', () => selectKit('shape', s, left));
     ks.appendChild(tw);
   }
-  // fabrics — uniform tile, full-bleed colour swatch + caption
+  // fabrics — uniform tile + count badge (when a colorKit is in play) + caption
   const kf = document.getElementById('kitFabrics'); kf.innerHTML = '';
   for (const f of PUZZLE.fabrics) {
+    const left = colorKitLeft ? (colorKitLeft[f] || 0) : null;
     const tw = document.createElement('div');
     tw.className = 'tw';
-    const cls = 'tile swatch' + (selKind === 'fab' && sel === f ? ' sel' : '');
-    tw.innerHTML = `<div class="${cls}" style="background:${FABRICS[f].col}"></div>`
+    const cls = 'tile swatch' + (selKind === 'fab' && sel === f ? ' sel' : '')
+      + (left != null && left <= 0 ? ' out' : '');
+    const badge = (left != null) ? `<span class="badge">${left}</span>` : '';
+    tw.innerHTML = `<div class="${cls}" style="background:${FABRICS[f].col}">${badge}</div>`
       + `<span class="cap">${FABRICS[f].name}</span>`;
-    tw.querySelector('.tile').addEventListener('click', () => selectKit('fab', f, 1));
+    tw.querySelector('.tile').addEventListener('click', () => selectKit('fab', f, left == null ? 1 : left));
     kf.appendChild(tw);
   }
   // erase tool — static element, just sync its selected state
@@ -712,6 +725,12 @@ function placeShape(i, shape) {
   if (isGivenCell(i)) return;
   if (grid[i]) shapeKit[grid[i].shape]++;
   if ((shapeKit[shape] || 0) <= 0) { if (grid[i]) shapeKit[grid[i].shape]--; return; }
+  if (colorKitLeft) {
+    for (const part of ['A', 'B', 'W']) {
+      const k = ckey(i, part);
+      if (colors[k] != null && colorKitLeft[colors[k]] != null) colorKitLeft[colors[k]]++;
+    }
+  }
   for (const part of ['A', 'B', 'W']) delete colors[ckey(i, part)];
   grid[i] = { shape, rot: 0 };
   shapeKit[shape]--;
@@ -727,12 +746,24 @@ function eraseCell(i) {
   if (isGivenCell(i) || !grid[i]) return;
   shapeKit[grid[i].shape]++;
   grid[i] = null;
+  if (colorKitLeft) {
+    for (const part of ['A', 'B', 'W']) {
+      const k = ckey(i, part);
+      if (colors[k] != null && colorKitLeft[colors[k]] != null) colorKitLeft[colors[k]]++;
+    }
+  }
   for (const part of ['A', 'B', 'W']) delete colors[ckey(i, part)];
 }
 
 function paint(i, part, fab) {
   if (isGivenCell(i) || !grid[i]) return;
-  colors[ckey(i, part)] = fab;
+  const key = ckey(i, part);
+  const prev = colors[key];
+  if (colorKitLeft) {
+    if (prev != null && colorKitLeft[prev] != null) colorKitLeft[prev]++;
+    if (fab != null && colorKitLeft[fab] != null) colorKitLeft[fab]--;
+  }
+  colors[key] = fab;
 }
 
 function onEmptyCell(i) {
