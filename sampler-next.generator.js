@@ -86,7 +86,12 @@ function generate(template, dateStr, opts) {
   opts = opts || {};
   const maxRerolls = opts.maxRerolls || 60;
   const rng = mulberry32(seedFromDate(dateStr + ':' + template.id));
-  const fabrics = resolvePalette(template.paletteFamily, rng);
+  // If a design carries a colorKit, the fabric set is determined exactly by
+  // its keys (no per-day palette resolution). Otherwise fall back to the
+  // round-2/3/4 paletteFamily mechanism.
+  const fabrics = template.colorKit
+    ? Object.keys(template.colorKit)
+    : resolvePalette(template.paletteFamily, rng);
   const N = template.size * template.size;
   const band = template.solutionBand || { min: 2, max: 8 };
 
@@ -97,7 +102,9 @@ function generate(template, dateStr, opts) {
   if (found.length === 0) return null;          // unsatisfiable under this palette
   const refSol = found[0];
 
-  const maxGivens = opts.maxGivens || 5;
+  // Single-solution puzzles use whatever givens the count-targeting needs;
+  // a caller can still cap via opts.maxGivens.
+  const maxGivens = opts.maxGivens || 16;
   for (let attempt = 0; attempt < maxRerolls; attempt++) {
     const order = seededShuffle(range(N), rng);
     const givens = [];
