@@ -496,8 +496,10 @@ function ruleCellsAreRotation(state, params) {
   return { ok: allFilled && violations.size === 0, violations };
 }
 
-// Parameterized hue rule. Each named region must hold a fabric whose hue is
-// params.hue ('warm' / 'cool' / 'neutral'). Generalises ruleFieldHue.
+// Parameterized hue rule. params.regions is a list of colour-slot keys
+// ("cellIdx:part") whose fabric must match params.hue ('warm'/'cool'/'neutral').
+// Generalises ruleFieldHue; monotonic — a wrong-hue colour is a permanent
+// violation.
 function ruleCellsAreHue(state, params) {
   const { colors } = state;
   const violations = new Set();
