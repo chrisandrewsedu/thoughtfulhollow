@@ -35,6 +35,31 @@ function portsOf(piece) {
   return CURVE_PORTS[piece.rot].slice();
 }
 
+// Triangle facing-region by rotation. At rot 0 the right-angle sits at the
+// NE corner: region A is the NE half (touches N and E), region B is the SW
+// half (touches S and W). Each 90° CW step rotates direction labels. Convention
+// matches the renderer in sampler-next.html (the rot-0 A polygon is N-NE-SE).
+const TRIANGLE_FACES = {
+  0: { N: 'A', E: 'A', S: 'B', W: 'B' },
+  1: { N: 'B', E: 'A', S: 'A', W: 'B' },
+  2: { N: 'B', E: 'B', S: 'A', W: 'A' },
+  3: { N: 'A', E: 'B', S: 'B', W: 'A' },
+};
+
+// Which region of a piece touches the seam in direction `dir`.
+// Squares: W faces every direction. Triangles: per TRIANGLE_FACES.
+// Curves: disc (A) faces the directions in CURVE_PORTS[rot]; field (B) the
+// other two. Null piece returns null. Used by the adjacency colour rules.
+function regionFacing(piece, dir) {
+  if (!piece) return null;
+  if (piece.shape === 'square') return 'W';
+  if (piece.shape === 'triangle') return TRIANGLE_FACES[piece.rot][dir];
+  if (piece.shape === 'curve') {
+    return CURVE_PORTS[piece.rot].includes(dir) ? 'A' : 'B';
+  }
+  return null;
+}
+
 // ── Fabrics ──────────────────────────────────────────────────────
 const FABRICS = {
   LINEN:    { name: 'Linen',    col: '#ece0c8', hue: 'neutral' },
@@ -496,6 +521,161 @@ function ruleCellsAreRotation(state, params) {
   return { ok: allFilled && violations.size === 0, violations };
 }
 
+// Parameterized hue rule. params.regions is a list of colour-slot keys
+// ("cellIdx:part") whose fabric must match params.hue ('warm'/'cool'/'neutral').
+// Generalises ruleFieldHue; monotonic — a wrong-hue colour is a permanent
+// violation.
+function ruleCellsAreHue(state, params) {
+  const { colors } = state;
+  const violations = new Set();
+  let allFilled = true;
+  for (const regionKey of params.regions) {
+    const fab = colors[regionKey];
+    if (!fab) { allFilled = false; continue; }
+    if (FABRICS[fab].hue !== params.hue) {
+      violations.add(parseInt(regionKey.split(':')[0], 10));
+    }
+  }
+  return { ok: allFilled && violations.size === 0, violations };
+}
+
+// Parameterized allowlist rule. params.regions is a list of colour-slot keys
+// ("cellIdx:part"); each must hold a fabric in params.fabrics. Weakest pin in
+// the colour vocabulary. Monotonic — a fabric outside the allowlist is a
+// permanent violation.
+function ruleCellsAreFabricFromSet(state, params) {
+  const { colors } = state;
+  const violations = new Set();
+  let allFilled = true;
+  for (const regionKey of params.regions) {
+    const fab = colors[regionKey];
+    if (!fab) { allFilled = false; continue; }
+    if (!params.fabrics.includes(fab)) {
+      violations.add(parseInt(regionKey.split(':')[0], 10));
+    }
+  }
+  return { ok: allFilled && violations.size === 0, violations };
+}
+
+// Parameterized orbit rule. params.regions is a list of colour-slot keys
+// ("cellIdx:part"); every named region must hold the same fabric. The first
+// coloured region establishes the "chosen" fabric; every later region
+// holding a different fabric is flagged. Generalises ruleDiscsUnified.
+// Monotonic — a disagreement is a permanent violation.
+function ruleCellsShareFabric(state, params) {
+  const { colors } = state;
+  const violations = new Set();
+  let chosen = null;
+  let allFilled = true;
+  for (const regionKey of params.regions) {
+    const fab = colors[regionKey];
+    if (!fab) { allFilled = false; continue; }
+    if (chosen === null) chosen = fab;
+  }
+  if (chosen !== null) {
+    for (const regionKey of params.regions) {
+      const fab = colors[regionKey];
+      if (fab && fab !== chosen) {
+        violations.add(parseInt(regionKey.split(':')[0], 10));
+      }
+    }
+  }
+  return { ok: allFilled && violations.size === 0, violations };
+}
+
+// Parameterized count rule. params.regions is a list of colour-slot keys
+// ("cellIdx:part"); exactly params.count of them must hold params.fabric.
+// The Picross-grade hint — aggregate, position-blind. Direct colour twin of
+// ruleCountShapeInRegion. Over-count is a permanent violation (every matching
+// region is flagged). Under-count is only judged once every named region is
+// coloured.
+function ruleFabricCountInRegion(state, params) {
+  const { colors } = state;
+  let count = 0;
+  let regionFilled = true;
+  const matched = [];
+  for (const regionKey of params.regions) {
+    const fab = colors[regionKey];
+    if (!fab) { regionFilled = false; continue; }
+    if (fab === params.fabric) {
+      count++;
+      matched.push(parseInt(regionKey.split(':')[0], 10));
+    }
+  }
+  const violations = new Set();
+  if (count > params.count) {
+    for (const i of matched) violations.add(i);
+    return { ok: false, violations };
+  }
+  if (regionFilled && count !== params.count) {
+    for (const regionKey of params.regions) {
+      violations.add(parseInt(regionKey.split(':')[0], 10));
+    }
+    return { ok: false, violations };
+  }
+  return { ok: regionFilled && count === params.count, violations };
+}
+
+// Parameterized adjacency rule. Board-wide: across every orthogonal seam
+// between two placed cells, the two facing regions must not both hold
+// params.fabric. Uses regionFacing to find each cell's seam-touching region.
+// Generalises ruleNoAdjacentSquaresSameFabric — same idea but for any single
+// fabric and any shape. Monotonic — a same-fabric seam is a permanent
+// violation.
+function ruleNoAdjacentFabric(state, params) {
+  const { grid, colors } = state;
+  const violations = new Set();
+  for (let i = 0; i < NCELL; i++) {
+    if (!grid[i]) continue;
+    for (const d of ['E', 'S']) {       // E and S cover each seam once
+      const j = neighbor(i, d);
+      if (j === -1 || !grid[j]) continue;
+      const myPart = regionFacing(grid[i], d);
+      const theirPart = regionFacing(grid[j], OPP[d]);
+      if (!myPart || !theirPart) continue;
+      const myFab = colors[i + ':' + myPart];
+      const theirFab = colors[j + ':' + theirPart];
+      if (myFab === params.fabric && theirFab === params.fabric) {
+        violations.add(i); violations.add(j);
+      }
+    }
+  }
+  return {
+    ok: filledAll(grid) && fullyColoured(state) && violations.size === 0,
+    violations,
+  };
+}
+
+// Parameterized adjacency rule. Board-wide: across every orthogonal seam
+// between two placed cells, the two facing regions must not hold
+// params.fabrics[0] and params.fabrics[1] (in either order). Same regionFacing
+// + neighbour pattern as ruleNoAdjacentFabric. Monotonic — a forbidden pair
+// across a seam is a permanent violation.
+function ruleFabricsNeverTouch(state, params) {
+  const { grid, colors } = state;
+  const [a, b] = params.fabrics;
+  const violations = new Set();
+  for (let i = 0; i < NCELL; i++) {
+    if (!grid[i]) continue;
+    for (const d of ['E', 'S']) {
+      const j = neighbor(i, d);
+      if (j === -1 || !grid[j]) continue;
+      const myPart = regionFacing(grid[i], d);
+      const theirPart = regionFacing(grid[j], OPP[d]);
+      if (!myPart || !theirPart) continue;
+      const myFab = colors[i + ':' + myPart];
+      const theirFab = colors[j + ':' + theirPart];
+      if ((myFab === a && theirFab === b) || (myFab === b && theirFab === a)) {
+        violations.add(i); violations.add(j);
+      }
+    }
+  }
+  return {
+    ok: filledAll(grid) && fullyColoured(state) && violations.size === 0,
+    violations,
+  };
+}
+
 const PARAM_RULES = {
   cellsAreShape:      { group: 'structure', fn: ruleCellsAreShape },
   cellsAreRotation:   { group: 'structure', fn: ruleCellsAreRotation },
@@ -509,6 +689,12 @@ const PARAM_RULES = {
   mustBeAdjacent:     { group: 'structure', fn: ruleMustBeAdjacent },
   paletteUsesAtMost:  { group: 'colour',    fn: ruleColourUsesAtMost },
   colorKitExact:      { group: 'colour',    fn: ruleColorKitExact },
+  cellsAreHue:        { group: 'colour',    fn: ruleCellsAreHue },
+  cellsAreFabricFromSet: { group: 'colour', fn: ruleCellsAreFabricFromSet },
+  cellsShareFabric:     { group: 'colour', fn: ruleCellsShareFabric },
+  fabricCountInRegion:  { group: 'colour', fn: ruleFabricCountInRegion },
+  noAdjacentFabric:     { group: 'colour', fn: ruleNoAdjacentFabric },
+  fabricsNeverTouch:    { group: 'colour', fn: ruleFabricsNeverTouch },
 };
 
 // ── Rule registry ────────────────────────────────────────────────
@@ -553,7 +739,7 @@ function isSolved(state, ruleKeys) {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     GRID, NCELL, DIRS, OPP, neighbor, partnerOf,
-    partsOf, portsOf, CURVE_PORTS, FABRICS, CORNERS, CENTRE,
+    partsOf, portsOf, CURVE_PORTS, TRIANGLE_FACES, regionFacing, FABRICS, CORNERS, CENTRE,
     ruleContinuity, ruleSymmetry, ruleCornersAreTriangles, ruleCentreIsCurves,
     ruleDiscsUnified, ruleTriangleHalvesDifferHue, ruleFieldHue, ruleNoAdjacentSquaresSameFabric, fullyColoured,
     rot90, ruleSymmetry4, ruleNoAdjacentShape,
@@ -562,6 +748,12 @@ if (typeof module !== 'undefined' && module.exports) {
     ruleConnectedShape, ruleCountShapeInRegion, ruleMustBeAdjacent,
     ruleColourUsesAtMost,
     ruleColorKitExact,
+    ruleCellsAreHue,
+    ruleCellsAreFabricFromSet,
+    ruleCellsShareFabric,
+    ruleFabricCountInRegion,
+    ruleNoAdjacentFabric,
+    ruleFabricsNeverTouch,
     PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };

@@ -200,7 +200,7 @@ html, body {
 }
 .timer {
   display: flex; align-items: center; justify-content: flex-end;
-  font-family: 'Lora', serif; font-style: italic;
+  font-family: 'Lora', serif; font-style: normal;
   font-size: 1rem; color: var(--ink-faint);
   letter-spacing: 0.02em; font-variant-numeric: tabular-nums;
   min-width: 3rem;
@@ -209,7 +209,7 @@ html, body {
 .mistake-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); transition: all 0.3s; }
 .mistake-dot.spent { background: transparent; border: 1px solid var(--line); transform: scale(0.8); }
 .preview-mistakes-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; margin-left: 0.3rem; }
-.mistakes-label { font-family: 'Lora', serif; font-style: italic; font-size: 0.44rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+.mistakes-label { font-family: 'Lora', serif; font-style: normal; font-weight: 600; font-size: 0.44rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
 
 /* ── MAIN ── */
 .main {
@@ -223,7 +223,7 @@ html, body {
   display: flex; align-items: center;
   margin: 0.5rem 0 0.42rem;
   font-family: 'Lora', serif;
-  font-size: 0.5rem; font-style: italic; font-weight: 400;
+  font-size: 0.5rem; font-style: normal; font-weight: 600;
   letter-spacing: 0.28em; text-transform: uppercase;
   color: var(--ink-faint);
   gap: 0.55rem;
@@ -280,7 +280,7 @@ html, body {
 .clue-head { display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.2rem; }
 .clue-symbol { color: var(--accent); font-size: 0.8rem; font-family: 'Lora', serif; }
 .clue-type {
-  font-family: 'Lora', serif; font-style: italic;
+  font-family: 'Lora', serif; font-style: normal; font-weight: 600;
   font-size: 0.5rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
 }
 .clue-card.solved .clue-symbol, .clue-card.solved .clue-type { color: var(--green); }
@@ -295,7 +295,7 @@ html, body {
 .clue-card.revealed .clue-check { opacity: 1; transform: scale(1); color: var(--gold); }
 
 .clue-text {
-  font-family: 'Lora', serif; font-style: italic; font-weight: 400;
+  font-family: 'Lora', serif; font-style: normal; font-weight: 400;
   font-size: 0.8rem; line-height: 1.35; color: var(--ink-soft); flex: 1;
 }
 .clue-text em { color: var(--accent); font-style: italic; }
@@ -320,7 +320,7 @@ html, body {
   gap: 0.42rem; margin-bottom: 0.5rem;
 }
 .tile {
-  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-family: 'DM Serif Display', serif; font-style: normal;
   font-size: 1.1rem; font-weight: 400;
   padding: 0.62rem 0.4rem;
   background: var(--paper-deep);
@@ -350,8 +350,8 @@ html, body {
   margin-top: clamp(0.75rem, 2vw, 1.4rem);
 }
 .btn-ctrl {
-  font-family: 'Lora', serif; font-style: italic;
-  font-size: 0.85rem; font-weight: 400;
+  font-family: 'Lora', serif; font-style: normal;
+  font-size: 0.85rem; font-weight: 500;
   letter-spacing: 0.04em;
   padding: 0.82rem 0.4rem;
   border-radius: 3px; cursor: pointer;
@@ -379,7 +379,7 @@ html, body {
 }
 .badge.show { animation: badgePop 1.6s ease-out; }
 .badge .big { display: block; font-size: 2.4rem; line-height: 1.1; }
-.badge .small { display: block; font-family: 'Lora', serif; font-style: italic; font-size: 0.6rem; letter-spacing: 0.22em; text-transform: uppercase; margin-top: 0.35rem; }
+.badge .small { display: block; font-family: 'Lora', serif; font-style: normal; font-size: 0.6rem; letter-spacing: 0.22em; text-transform: uppercase; margin-top: 0.35rem; }
 .badge.correct .big { color: var(--green-bright); }
 .badge.correct .small { color: var(--green); }
 .badge.partial .big, .badge.away .big { color: var(--gold-bright); }
