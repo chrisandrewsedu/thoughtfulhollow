@@ -616,6 +616,36 @@ function ruleFabricCountInRegion(state, params) {
   return { ok: regionFilled && count === params.count, violations };
 }
 
+// Parameterized adjacency rule. Board-wide: across every orthogonal seam
+// between two placed cells, the two facing regions must not both hold
+// params.fabric. Uses regionFacing to find each cell's seam-touching region.
+// Generalises ruleNoAdjacentSquaresSameFabric — same idea but for any single
+// fabric and any shape. Monotonic — a same-fabric seam is a permanent
+// violation.
+function ruleNoAdjacentFabric(state, params) {
+  const { grid, colors } = state;
+  const violations = new Set();
+  for (let i = 0; i < NCELL; i++) {
+    if (!grid[i]) continue;
+    for (const d of ['E', 'S']) {       // E and S cover each seam once
+      const j = neighbor(i, d);
+      if (j === -1 || !grid[j]) continue;
+      const myPart = regionFacing(grid[i], d);
+      const theirPart = regionFacing(grid[j], OPP[d]);
+      if (!myPart || !theirPart) continue;
+      const myFab = colors[i + ':' + myPart];
+      const theirFab = colors[j + ':' + theirPart];
+      if (myFab === params.fabric && theirFab === params.fabric) {
+        violations.add(i); violations.add(j);
+      }
+    }
+  }
+  return {
+    ok: filledAll(grid) && fullyColoured(state) && violations.size === 0,
+    violations,
+  };
+}
+
 const PARAM_RULES = {
   cellsAreShape:      { group: 'structure', fn: ruleCellsAreShape },
   cellsAreRotation:   { group: 'structure', fn: ruleCellsAreRotation },
@@ -633,6 +663,7 @@ const PARAM_RULES = {
   cellsAreFabricFromSet: { group: 'colour', fn: ruleCellsAreFabricFromSet },
   cellsShareFabric:     { group: 'colour', fn: ruleCellsShareFabric },
   fabricCountInRegion:  { group: 'colour', fn: ruleFabricCountInRegion },
+  noAdjacentFabric:     { group: 'colour', fn: ruleNoAdjacentFabric },
 };
 
 // ── Rule registry ────────────────────────────────────────────────
@@ -690,6 +721,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ruleCellsAreFabricFromSet,
     ruleCellsShareFabric,
     ruleFabricCountInRegion,
+    ruleNoAdjacentFabric,
     PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };
