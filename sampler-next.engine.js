@@ -646,6 +646,36 @@ function ruleNoAdjacentFabric(state, params) {
   };
 }
 
+// Parameterized adjacency rule. Board-wide: across every orthogonal seam
+// between two placed cells, the two facing regions must not hold
+// params.fabrics[0] and params.fabrics[1] (in either order). Same regionFacing
+// + neighbour pattern as ruleNoAdjacentFabric. Monotonic — a forbidden pair
+// across a seam is a permanent violation.
+function ruleFabricsNeverTouch(state, params) {
+  const { grid, colors } = state;
+  const [a, b] = params.fabrics;
+  const violations = new Set();
+  for (let i = 0; i < NCELL; i++) {
+    if (!grid[i]) continue;
+    for (const d of ['E', 'S']) {
+      const j = neighbor(i, d);
+      if (j === -1 || !grid[j]) continue;
+      const myPart = regionFacing(grid[i], d);
+      const theirPart = regionFacing(grid[j], OPP[d]);
+      if (!myPart || !theirPart) continue;
+      const myFab = colors[i + ':' + myPart];
+      const theirFab = colors[j + ':' + theirPart];
+      if ((myFab === a && theirFab === b) || (myFab === b && theirFab === a)) {
+        violations.add(i); violations.add(j);
+      }
+    }
+  }
+  return {
+    ok: filledAll(grid) && fullyColoured(state) && violations.size === 0,
+    violations,
+  };
+}
+
 const PARAM_RULES = {
   cellsAreShape:      { group: 'structure', fn: ruleCellsAreShape },
   cellsAreRotation:   { group: 'structure', fn: ruleCellsAreRotation },
@@ -664,6 +694,7 @@ const PARAM_RULES = {
   cellsShareFabric:     { group: 'colour', fn: ruleCellsShareFabric },
   fabricCountInRegion:  { group: 'colour', fn: ruleFabricCountInRegion },
   noAdjacentFabric:     { group: 'colour', fn: ruleNoAdjacentFabric },
+  fabricsNeverTouch:    { group: 'colour', fn: ruleFabricsNeverTouch },
 };
 
 // ── Rule registry ────────────────────────────────────────────────
@@ -722,6 +753,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ruleCellsShareFabric,
     ruleFabricCountInRegion,
     ruleNoAdjacentFabric,
+    ruleFabricsNeverTouch,
     PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };
