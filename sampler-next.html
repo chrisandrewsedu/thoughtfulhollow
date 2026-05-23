@@ -456,9 +456,20 @@
 </div>
 
 <script src="sampler-next.engine.js"></script>
-<script src="sampler-next.puzzle.js"></script>
+<script src="sampler-next.templates.js"></script>
+<script src="sampler-next.solver.js"></script>
+<script src="sampler-next.generator.js"></script>
 <script>
 'use strict';
+
+// ── Today's puzzle ───────────────────────────────────────────────
+// Phase B retires hand-authoring: the daily puzzle is generated from a
+// constraint-template, seeded by the date. ?date=YYYY-MM-DD force-routes.
+function forcedDate() {
+  const m = /[?&]date=(\d{4}-\d{2}-\d{2})/.exec(location.search);
+  return m ? m[1] : null;
+}
+const PUZZLE = generateDaily(forcedDate() || todayStr());
 
 // ── Board sizing ─────────────────────────────────────────────────
 // Compute the side length (px) for the board SVG element.
@@ -526,7 +537,7 @@ window.addEventListener('resize', applyBoardSize);
 
 // ── state ────────────────────────────────────────────────────────
 const CELL = 82, PAD = 8;
-let grid, colors, shapeKit, selKind = null, sel = null, assist = false;
+let grid, colors, shapeKit, colorKitLeft, selKind = null, sel = null, assist = false;
 
 function ckey(i, part) { return i + ':' + part; }
 
@@ -534,11 +545,21 @@ function reset() {
   grid = new Array(NCELL).fill(null);
   colors = {};
   shapeKit = Object.assign({}, PUZZLE.kit);
+  colorKitLeft = PUZZLE.colorKit ? Object.assign({}, PUZZLE.colorKit) : null;
   for (const i of PUZZLE.givens) {
     const s = PUZZLE.solution[i];
     grid[i] = { shape: s.shape, rot: s.rot };
     shapeKit[s.shape]--;
     for (const part in s.col) colors[ckey(i, part)] = s.col[part];
+  }
+  if (colorKitLeft) {
+    for (const i of PUZZLE.givens) {
+      const s = PUZZLE.solution[i];
+      for (const part in s.col) {
+        const fab = s.col[part];
+        if (colorKitLeft[fab] != null) colorKitLeft[fab]--;
+      }
+    }
   }
   selKind = null; sel = null;
   render();
@@ -561,7 +582,9 @@ function regionShapes(shape) {
 // ── render ───────────────────────────────────────────────────────
 function render() {
   const isGiven = i => PUZZLE.givens.includes(i);
-  const results = assist ? evaluateAll({ grid, colors, kit: PUZZLE.kit }, PUZZLE.ruleKeys) : null;
+  // Evaluate the board exactly once per render; thread the result to the
+  // panels and (via afterMove) the win check.
+  const results = evaluateAll({ grid, colors, kit: PUZZLE.kit }, PUZZLE.ruleKeys);
   const bad = new Set();
   if (results) for (const r of results) for (const v of r.violations) bad.add(v);
 
@@ -615,7 +638,8 @@ function render() {
     el.style.cursor = 'pointer';
     el.addEventListener('click', () => onRegion(+el.dataset.i, el.dataset.part));
   });
-  renderPanels();
+  renderPanels(results);
+  return results;
 }
 
 const SHAPE_ORDER = ['curve', 'triangle', 'square'];
@@ -632,7 +656,7 @@ function miniPiece(shape) {
        + `<path d="M ${S/2},0 A ${S/2},${S/2} 0 0,1 0,${S/2} L 0,0 Z" fill="${dark}" stroke="var(--region-edge)" stroke-width="3"/>`;
 }
 
-function renderPanels() {
+function renderPanels(results) {
   // shapes — uniform tile + count badge + caption
   const ks = document.getElementById('kitShapes'); ks.innerHTML = '';
   for (const s of SHAPE_ORDER) {
@@ -646,57 +670,45 @@ function renderPanels() {
     tw.querySelector('.tile').addEventListener('click', () => selectKit('shape', s, left));
     ks.appendChild(tw);
   }
-  // fabrics — uniform tile, full-bleed colour swatch + caption
+  // fabrics — uniform tile + count badge (when a colorKit is in play) + caption
   const kf = document.getElementById('kitFabrics'); kf.innerHTML = '';
   for (const f of PUZZLE.fabrics) {
+    const left = colorKitLeft ? (colorKitLeft[f] || 0) : null;
+    // hide a fabric tile entirely once its colorKitLeft is 0 — there are no
+    // remaining uses, so it doesn't belong in the kit panel.
+    if (left != null && left <= 0) continue;
     const tw = document.createElement('div');
     tw.className = 'tw';
     const cls = 'tile swatch' + (selKind === 'fab' && sel === f ? ' sel' : '');
-    tw.innerHTML = `<div class="${cls}" style="background:${FABRICS[f].col}"></div>`
+    const badge = (left != null) ? `<span class="badge">${left}</span>` : '';
+    tw.innerHTML = `<div class="${cls}" style="background:${FABRICS[f].col}">${badge}</div>`
       + `<span class="cap">${FABRICS[f].name}</span>`;
-    tw.querySelector('.tile').addEventListener('click', () => selectKit('fab', f, 1));
+    tw.querySelector('.tile').addEventListener('click', () => selectKit('fab', f, left == null ? 1 : left));
     kf.appendChild(tw);
   }
   // erase tool — static element, just sync its selected state
   document.getElementById('eraseBtn').classList.toggle('sel', selKind === 'erase');
   // rules panel
-  renderRules();
+  renderRules(results);
 }
 
-function renderRules() {
+function renderRules(results) {
   const panel = document.getElementById('rulesPanel');
-
-  // Only evaluate when Assist is ON
-  let statusMap = null;
-  if (assist) {
-    const results = evaluateAll({ grid, colors, kit: PUZZLE.kit }, PUZZLE.ruleKeys);
-    statusMap = {};
-    for (const r of results) statusMap[r.key] = r.ok;
-  }
-
-  // Always render the full rule list — these are the puzzle instructions
   const groups = ['structure', 'colour'];
   const groupLabel = { structure: 'Structure', colour: 'Colour' };
-
-  const rows = PUZZLE.ruleKeys.map(key => {
-    const def = RULES[key];
-    let mark = '';
-    let markStyle = '';
-    if (assist && statusMap !== null) {
-      const ok = statusMap[key];
-      mark = ok ? '✓' : '·';
-      markStyle = `color:${ok ? 'var(--green)' : 'var(--ink-soft)'}`;
-    }
-    return { key, group: def.group, label: def.label, mark, markStyle };
-  });
-
   let html = '';
   for (const g of groups) {
-    const groupRows = rows.filter(r => r.group === g);
+    const groupRows = results.filter(r => r.group === g);
     if (groupRows.length === 0) continue;
     html += `<div class="rule-head">${groupLabel[g]}</div>`;
     for (const r of groupRows) {
-      html += `<li><span class="mark" style="${r.markStyle}">${r.mark}</span>${r.label}</li>`;
+      let mark = '';
+      let markStyle = '';
+      if (assist) {
+        mark = r.ok ? '✓' : '·';
+        markStyle = `color:${r.ok ? 'var(--green)' : 'var(--ink-soft)'}`;
+      }
+      html += `<li><span class="mark" style="${markStyle}">${mark}</span>${r.label}</li>`;
     }
   }
   panel.innerHTML = html;
@@ -715,6 +727,12 @@ function placeShape(i, shape) {
   if (isGivenCell(i)) return;
   if (grid[i]) shapeKit[grid[i].shape]++;
   if ((shapeKit[shape] || 0) <= 0) { if (grid[i]) shapeKit[grid[i].shape]--; return; }
+  if (colorKitLeft) {
+    for (const part of ['A', 'B', 'W']) {
+      const k = ckey(i, part);
+      if (colors[k] != null && colorKitLeft[colors[k]] != null) colorKitLeft[colors[k]]++;
+    }
+  }
   for (const part of ['A', 'B', 'W']) delete colors[ckey(i, part)];
   grid[i] = { shape, rot: 0 };
   shapeKit[shape]--;
@@ -730,12 +748,24 @@ function eraseCell(i) {
   if (isGivenCell(i) || !grid[i]) return;
   shapeKit[grid[i].shape]++;
   grid[i] = null;
+  if (colorKitLeft) {
+    for (const part of ['A', 'B', 'W']) {
+      const k = ckey(i, part);
+      if (colors[k] != null && colorKitLeft[colors[k]] != null) colorKitLeft[colors[k]]++;
+    }
+  }
   for (const part of ['A', 'B', 'W']) delete colors[ckey(i, part)];
 }
 
 function paint(i, part, fab) {
   if (isGivenCell(i) || !grid[i]) return;
-  colors[ckey(i, part)] = fab;
+  const key = ckey(i, part);
+  const prev = colors[key];
+  if (colorKitLeft) {
+    if (prev != null && colorKitLeft[prev] != null) colorKitLeft[prev]++;
+    if (fab != null && colorKitLeft[fab] != null) colorKitLeft[fab]--;
+  }
+  colors[key] = fab;
 }
 
 function onEmptyCell(i) {
@@ -758,28 +788,36 @@ function onRegion(i, part) {
 }
 
 function afterMove() {
-  render();
-  if (isSolved({ grid, colors, kit: PUZZLE.kit }, PUZZLE.ruleKeys)) {
+  const results = render();
+  const solved = grid.every(Boolean)
+    && fullyColoured({ grid, colors })
+    && results.every(r => r.ok);
+  if (solved) {
     setTimeout(() => document.getElementById('winOverlay').classList.add('show'), 220);
   }
 }
 
 // Apply board sizing then start the game
-applyBoardSize();
-reset();
-
-document.getElementById('eraseBtn').addEventListener('click', () => selectKit('erase', null, 1));
-document.getElementById('resetBtn').addEventListener('click', () => {
-  document.getElementById('winOverlay').classList.remove('show');
+if (!PUZZLE) {
+  document.querySelector('.stage').innerHTML =
+    '<p style="padding:1.2rem;font-size:0.95rem">No Sampler puzzle is available for this date yet.</p>';
+} else {
+  applyBoardSize();
   reset();
-});
-document.getElementById('assistToggle').addEventListener('change', e => {
-  assist = e.target.checked;
-  render();
-});
-document.getElementById('lookAgainBtn').addEventListener('click', () => {
-  document.getElementById('winOverlay').classList.remove('show');
-});
+
+  document.getElementById('eraseBtn').addEventListener('click', () => selectKit('erase', null, 1));
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    document.getElementById('winOverlay').classList.remove('show');
+    reset();
+  });
+  document.getElementById('assistToggle').addEventListener('change', e => {
+    assist = e.target.checked;
+    render();
+  });
+  document.getElementById('lookAgainBtn').addEventListener('click', () => {
+    document.getElementById('winOverlay').classList.remove('show');
+  });
+}
 </script>
 </body>
 </html>
