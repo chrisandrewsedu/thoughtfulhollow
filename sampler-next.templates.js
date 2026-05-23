@@ -1,125 +1,77 @@
 'use strict';
-// Sampler block designs (spike round 4). A design is authored data: a frame
-// (cellsAreShape instances — may leave cells unpinned), structural and colour
-// rules, kit, palette. Round 4 collapses the colour space with two levers:
-// per-design paletteFamily.size and the paletteUsesAtMost rule.
+// Sampler block designs (spike round 5) — single-solution model.
+// Each design is a named classic quilt pattern with:
+//   • piece kit (exact counts per shape, summing to size*size)
+//   • color kit (exact counts per fabric, summing to total regions)
+//   • structural and colour rules that make the solution unique
+//   • solutionBand { min:1, max:1 } — one specific block to deduce
 
-const PALETTE_5 = {
-  pool: ['LINEN', 'FLAX', 'SAGE', 'MADDER', 'MARIGOLD', 'CLARET',
-         'INDIGO', 'SLATE', 'TEAL'],
-  size: 5,
-  require: { warm: 1, cool: 1, neutral: 1 },
-};
-const PALETTE_3 = {
-  pool: ['LINEN', 'FLAX', 'SAGE', 'MADDER', 'MARIGOLD', 'CLARET',
-         'INDIGO', 'SLATE', 'TEAL'],
-  size: 3,
-  require: { warm: 1, cool: 1, neutral: 1 },
-};
-const BAND = { min: 1, max: 8 };
+const BAND_1 = { min: 1, max: 1 };
 
-// Cell-set helpers. Use file-local names (T_CORNERS etc.) to avoid colliding
-// with the engine's top-level CORNERS / CENTRE consts — two `const`s with the
-// same name in non-module scripts throw a SyntaxError in the browser and
-// silently kill templates.js. (Node tests use require() so they didn't see it.)
 const T_CORNERS = [0, 3, 12, 15];
-const T_CENTRE = [5, 6, 9, 10];
-const T_EDGES = [1, 2, 4, 7, 8, 11, 13, 14];
+const T_CENTRE  = [5, 6, 9, 10];
+const T_EDGES   = [1, 2, 4, 7, 8, 11, 13, 14];
 
 const TEMPLATES = [
   {
-    id: 'rosette',
-    size: 4,
-    ruleKeys: [
-      'symmetry4',
-      { rule: 'cellsAreShape', cells: T_CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
-      { rule: 'cellsAreShape', cells: T_CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
-      { rule: 'cellsAreShape', cells: T_EDGES,   shape: 'square',   label: 'Squares fill the edges' },
-      'discsUnified', 'triangleHues', 'fieldHue', 'squaresDiffer',
-    ],
-    kit: { curve: 4, triangle: 4, square: 8 },
-    paletteFamily: PALETTE_5, solutionBand: BAND,
-  },
-  {
-    id: 'circle',
+    id: 'drunkards-path',
     size: 4,
     ruleKeys: [
       'continuity', 'symmetry',
       { rule: 'cellsAreShape', cells: T_CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
       { rule: 'cellsAreShape', cells: T_CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
       { rule: 'cellsAreShape', cells: T_EDGES,   shape: 'square',   label: 'Squares fill the edges' },
-      'discsUnified', 'triangleHues', 'fieldHue', 'squaresDiffer',
+      { rule: 'colorKitExact', kit: { LINEN: 8, MADDER: 4, INDIGO: 4, MARIGOLD: 4, SLATE: 4 },
+        label: 'Use 8 LINEN, 4 MADDER, 4 INDIGO, 4 MARIGOLD, 4 SLATE' },
+      'discsUnified', 'fieldHue',
     ],
     kit: { curve: 4, triangle: 4, square: 8 },
-    paletteFamily: PALETTE_3, solutionBand: BAND,
+    colorKit: { LINEN: 8, MADDER: 4, INDIGO: 4, MARIGOLD: 4, SLATE: 4 },
+    solutionBand: BAND_1,
   },
   {
-    id: 'drift',
+    id: 'friendship-star',
     size: 4,
     ruleKeys: [
-      'continuity', 'symmetry',
-      { rule: 'cellsAreShape', cells: [0, 1, 2, 3, 12, 13, 14, 15], shape: 'triangle', label: 'Triangles fill the top and bottom rows' },
-      { rule: 'cellsAreShape', cells: [4, 5, 6, 7, 8, 9, 10, 11],   shape: 'square',   label: 'Squares fill the two middle rows' },
-      'triangleHues', 'squaresDiffer',
-      { rule: 'paletteUsesAtMost', count: 2, label: 'The block uses at most 2 fabrics' },
-    ],
-    kit: { triangle: 8, square: 8 },
-    paletteFamily: PALETTE_3, solutionBand: BAND,
-  },
-  {
-    id: 'mirror-fan',
-    size: 4,
-    ruleKeys: [
-      { rule: 'symmetryMirror', axis: 'v', label: 'The block is mirror-symmetric across the vertical axis' },
+      'symmetry',
       { rule: 'cellsAreShape', cells: T_CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
-      { rule: 'cellsAreShape', cells: T_CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
-      { rule: 'cellsAreShape', cells: T_EDGES,   shape: 'square',   label: 'Squares fill the edges' },
-      { rule: 'paletteUsesAtMost', count: 2, label: 'The block uses at most 2 fabrics' },
-      'discsUnified', 'triangleHues', 'fieldHue',
-    ],
-    kit: { curve: 4, triangle: 4, square: 8 },
-    paletteFamily: PALETTE_3, solutionBand: BAND,
-  },
-  {
-    id: 'diagonal',
-    size: 4,
-    ruleKeys: [
-      'symmetry',
-      { rule: 'countShapeInRegion', cells: [0, 1, 2, 3],     shape: 'curve', count: 1, label: 'Row 1 has one curve' },
-      { rule: 'countShapeInRegion', cells: [4, 5, 6, 7],     shape: 'curve', count: 1, label: 'Row 2 has one curve' },
-      { rule: 'countShapeInRegion', cells: [8, 9, 10, 11],   shape: 'curve', count: 1, label: 'Row 3 has one curve' },
-      { rule: 'countShapeInRegion', cells: [12, 13, 14, 15], shape: 'curve', count: 1, label: 'Row 4 has one curve' },
-      { rule: 'cellsAreShape', cells: T_CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
-      'triangleHues', 'squaresDiffer',
-    ],
-    kit: { curve: 4, triangle: 4, square: 8 },
-    paletteFamily: PALETTE_3, solutionBand: BAND,
-  },
-  {
-    id: 'paired',
-    size: 4,
-    ruleKeys: [
-      'symmetry',
-      { rule: 'cellsAreShape',  cells: T_CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
-      { rule: 'cellsAreShape',  cells: T_CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
-      { rule: 'cellsAreShape',  cells: T_EDGES,   shape: 'square',   label: 'Squares fill the edges' },
-      { rule: 'noLargeBlock',   shape: 'square', label: 'No 2x2 of squares' },
-      { rule: 'paletteUsesAtMost', count: 2, label: 'The block uses at most 2 fabrics' },
-      'discsUnified', 'triangleHues', 'fieldHue', 'squaresDiffer',
-    ],
-    kit: { curve: 4, triangle: 4, square: 8 },
-    paletteFamily: PALETTE_3, solutionBand: BAND,
-  },
-  {
-    id: 'scatter',
-    size: 4,
-    ruleKeys: [
-      'symmetry',
-      { rule: 'noAdjacentShape', shape: 'triangle', label: 'No two triangles touch' },
+      { rule: 'cellsAreShape', cells: [...T_CENTRE, ...T_EDGES], shape: 'square', label: 'Squares fill everywhere else' },
+      { rule: 'colorKitExact', kit: { LINEN: 8, MADDER: 8, INDIGO: 4 },
+        label: 'Use 8 LINEN, 8 MADDER, 4 INDIGO' },
       'triangleHues', 'squaresDiffer',
     ],
     kit: { triangle: 4, square: 12 },
-    paletteFamily: PALETTE_3, solutionBand: BAND,
+    colorKit: { LINEN: 8, MADDER: 8, INDIGO: 4 },
+    solutionBand: BAND_1,
+  },
+  {
+    id: 'sawtooth-border',
+    size: 4,
+    ruleKeys: [
+      'symmetry',
+      { rule: 'cellsAreShape', cells: [0, 1, 2, 3, 12, 13, 14, 15], shape: 'triangle', label: 'Triangles fill the top and bottom rows' },
+      { rule: 'cellsAreShape', cells: [4, 5, 6, 7, 8, 9, 10, 11],   shape: 'square',   label: 'Squares fill the middle rows' },
+      { rule: 'colorKitExact', kit: { LINEN: 8, MADDER: 8, INDIGO: 8 },
+        label: 'Use 8 LINEN, 8 MADDER, 8 INDIGO' },
+      'triangleHues', 'squaresDiffer',
+    ],
+    kit: { triangle: 8, square: 8 },
+    colorKit: { LINEN: 8, MADDER: 8, INDIGO: 8 },
+    solutionBand: BAND_1,
+  },
+  {
+    id: 'pinwheel',
+    size: 4,
+    ruleKeys: [
+      'symmetry4',
+      { rule: 'cellsAreShape', cells: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], shape: 'triangle', label: 'Every cell is a triangle' },
+      { rule: 'colorKitExact', kit: { LINEN: 16, MADDER: 16 },
+        label: 'Use 16 LINEN, 16 MADDER' },
+      'triangleHues',
+    ],
+    kit: { triangle: 16 },
+    colorKit: { LINEN: 16, MADDER: 16 },
+    solutionBand: BAND_1,
   },
 ];
 
