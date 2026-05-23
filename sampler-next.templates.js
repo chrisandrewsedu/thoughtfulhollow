@@ -80,6 +80,25 @@ const TEMPLATES = [
     colorKit: { LINEN: 16, MADDER: 16 },
     solutionBand: BAND_1,
   },
+  {
+    id: 'rail-fence',
+    size: 4,
+    ruleKeys: [
+      'symmetry',
+      { rule: 'cellsAreShape', cells: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+        shape: 'square', label: 'Every cell is a square' },
+      { rule: 'cellsShareFabric', regions: ['0:W','1:W','2:W','3:W'],
+        label: 'The top rail is one fabric' },
+      { rule: 'cellsShareFabric', regions: ['4:W','5:W','6:W','7:W'],
+        label: 'The second rail is one fabric' },
+      // Rails 2 and 3 follow from half-turn symmetry of rails 1 and 0.
+      { rule: 'colorKitExact', kit: { LINEN: 8, MADDER: 8 },
+        label: 'Use 8 LINEN, 8 MADDER' },
+    ],
+    kit: { square: 16 },
+    colorKit: { LINEN: 8, MADDER: 8 },
+    solutionBand: BAND_1,
+  },
 ];
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { TEMPLATES };
