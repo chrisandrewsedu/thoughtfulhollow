@@ -19,6 +19,8 @@ const TEMPLATES = [
     ruleKeys: [
       'continuity', 'symmetry',
       { rule: 'cellsAreShape', cells: T_CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
+      { rule: 'cellsAreRotation', cells: [0], rot: 3, label: 'The NW corner triangle points NW' },
+      { rule: 'cellsAreRotation', cells: [3], rot: 0, label: 'The NE corner triangle points NE' },
       { rule: 'cellsAreShape', cells: T_CENTRE,  shape: 'curve',    label: 'The four centre cells are curves' },
       { rule: 'cellsAreShape', cells: T_EDGES,   shape: 'square',   label: 'Squares fill the edges' },
       { rule: 'colorKitExact', kit: { LINEN: 8, MADDER: 4, INDIGO: 4, MARIGOLD: 4, SLATE: 4 },
@@ -35,6 +37,8 @@ const TEMPLATES = [
     ruleKeys: [
       'symmetry',
       { rule: 'cellsAreShape', cells: T_CORNERS, shape: 'triangle', label: 'Triangles fill the corners' },
+      { rule: 'cellsAreRotation', cells: [0], rot: 3, label: 'The NW corner triangle points NW' },
+      { rule: 'cellsAreRotation', cells: [3], rot: 0, label: 'The NE corner triangle points NE' },
       { rule: 'cellsAreShape', cells: [...T_CENTRE, ...T_EDGES], shape: 'square', label: 'Squares fill everywhere else' },
       { rule: 'colorKitExact', kit: { LINEN: 8, MADDER: 8, INDIGO: 4 },
         label: 'Use 8 LINEN, 8 MADDER, 4 INDIGO' },
@@ -50,6 +54,8 @@ const TEMPLATES = [
     ruleKeys: [
       'symmetry',
       { rule: 'cellsAreShape', cells: [0, 1, 2, 3, 12, 13, 14, 15], shape: 'triangle', label: 'Triangles fill the top and bottom rows' },
+      { rule: 'cellsAreRotation', cells: [0, 2], rot: 3, label: 'Top-row triangles at cells 0 and 2 point up-left' },
+      { rule: 'cellsAreRotation', cells: [1, 3], rot: 0, label: 'Top-row triangles at cells 1 and 3 point up-right' },
       { rule: 'cellsAreShape', cells: [4, 5, 6, 7, 8, 9, 10, 11],   shape: 'square',   label: 'Squares fill the middle rows' },
       { rule: 'colorKitExact', kit: { LINEN: 8, MADDER: 8, INDIGO: 8 },
         label: 'Use 8 LINEN, 8 MADDER, 8 INDIGO' },
@@ -65,6 +71,7 @@ const TEMPLATES = [
     ruleKeys: [
       'symmetry4',
       { rule: 'cellsAreShape', cells: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], shape: 'triangle', label: 'Every cell is a triangle' },
+      { rule: 'cellsAreRotation', cells: [0], rot: 0, label: 'The NW-corner triangle points NE' },
       { rule: 'colorKitExact', kit: { LINEN: 16, MADDER: 16 },
         label: 'Use 16 LINEN, 16 MADDER' },
       'triangleHues',
