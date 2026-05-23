@@ -114,6 +114,7 @@ function generate(template, dateStr, opts) {
       const puzzle = {
         size: template.size, templateId: template.id, dateStr,
         ruleKeys: template.ruleKeys, kit: template.kit, fabrics,
+        colorKit: template.colorKit,
         solutionBand: band, solution: refSol,
         givens: givens.slice().sort(function (a, b) { return a - b; }),
       };
