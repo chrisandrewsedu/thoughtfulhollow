@@ -453,6 +453,35 @@ function ruleColourUsesAtMost(state, params) {
   return { ok: false, violations };
 }
 
+// Exact color kit: each fabric must appear params.kit[fabric] times in the
+// solution, no more, no less. Over-count is a permanent violation; a fabric
+// not in the kit is also a permanent violation. Under-count is only judged
+// once the board is full and fully coloured.
+function ruleColorKitExact(state, params) {
+  const { grid, colors } = state;
+  const counts = {};
+  for (const k in colors) counts[colors[k]] = (counts[colors[k]] || 0) + 1;
+  const violations = new Set();
+  let anyOver = false;
+  for (const k in colors) {
+    const fab = colors[k];
+    const max = params.kit[fab] || 0;
+    if (max === 0 || (counts[fab] || 0) > max) {
+      anyOver = true;
+      violations.add(parseInt(k.split(':')[0], 10));
+    }
+  }
+  if (anyOver) return { ok: false, violations };
+  const fullBoard = filledAll(grid) && fullyColoured(state);
+  if (!fullBoard) return { ok: false, violations: new Set() };
+  for (const fab in params.kit) {
+    if ((counts[fab] || 0) !== params.kit[fab]) {
+      return { ok: false, violations: new Set() };
+    }
+  }
+  return { ok: true, violations: new Set() };
+}
+
 const PARAM_RULES = {
   cellsAreShape:      { group: 'structure', fn: ruleCellsAreShape },
   noAdjacentShape:    { group: 'structure', fn: ruleNoAdjacentShape },
@@ -464,6 +493,7 @@ const PARAM_RULES = {
   countShapeInRegion: { group: 'structure', fn: ruleCountShapeInRegion },
   mustBeAdjacent:     { group: 'structure', fn: ruleMustBeAdjacent },
   paletteUsesAtMost:  { group: 'colour',    fn: ruleColourUsesAtMost },
+  colorKitExact:      { group: 'colour',    fn: ruleColorKitExact },
 };
 
 // ── Rule registry ────────────────────────────────────────────────
@@ -516,6 +546,7 @@ if (typeof module !== 'undefined' && module.exports) {
     mirrorPartner, mirrorRot, ruleSymmetryMirror, ruleNoLargeBlock,
     ruleConnectedShape, ruleCountShapeInRegion, ruleMustBeAdjacent,
     ruleColourUsesAtMost,
+    ruleColorKitExact,
     PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };
