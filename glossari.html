@@ -63,6 +63,7 @@ html, body {
   color: var(--ink);
   font-family: 'Lora', Georgia, serif;
   overflow: hidden;
+  overscroll-behavior: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -215,6 +216,7 @@ html, body {
 .main {
   flex: 1; display: flex; flex-direction: column;
   min-height: 0; overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 0.4rem 1rem 0;
 }
 
