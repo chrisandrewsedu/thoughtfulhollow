@@ -532,6 +532,32 @@ function ruleCellsAreFabricFromSet(state, params) {
   return { ok: allFilled && violations.size === 0, violations };
 }
 
+// Parameterized orbit rule. params.regions is a list of colour-slot keys
+// ("cellIdx:part"); every named region must hold the same fabric. The first
+// coloured region establishes the "chosen" fabric; every later region
+// holding a different fabric is flagged. Generalises ruleDiscsUnified.
+// Monotonic — a disagreement is a permanent violation.
+function ruleCellsShareFabric(state, params) {
+  const { colors } = state;
+  const violations = new Set();
+  let chosen = null;
+  let allFilled = true;
+  for (const regionKey of params.regions) {
+    const fab = colors[regionKey];
+    if (!fab) { allFilled = false; continue; }
+    if (chosen === null) chosen = fab;
+  }
+  if (chosen !== null) {
+    for (const regionKey of params.regions) {
+      const fab = colors[regionKey];
+      if (fab && fab !== chosen) {
+        violations.add(parseInt(regionKey.split(':')[0], 10));
+      }
+    }
+  }
+  return { ok: allFilled && violations.size === 0, violations };
+}
+
 const PARAM_RULES = {
   cellsAreShape:      { group: 'structure', fn: ruleCellsAreShape },
   cellsAreRotation:   { group: 'structure', fn: ruleCellsAreRotation },
@@ -547,6 +573,7 @@ const PARAM_RULES = {
   colorKitExact:      { group: 'colour',    fn: ruleColorKitExact },
   cellsAreHue:        { group: 'colour',    fn: ruleCellsAreHue },
   cellsAreFabricFromSet: { group: 'colour', fn: ruleCellsAreFabricFromSet },
+  cellsShareFabric:     { group: 'colour', fn: ruleCellsShareFabric },
 };
 
 // ── Rule registry ────────────────────────────────────────────────
@@ -602,6 +629,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ruleColorKitExact,
     ruleCellsAreHue,
     ruleCellsAreFabricFromSet,
+    ruleCellsShareFabric,
     PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };
