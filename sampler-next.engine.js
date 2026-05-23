@@ -482,8 +482,23 @@ function ruleColorKitExact(state, params) {
   return { ok: true, violations: new Set() };
 }
 
+// Parameterized rotation rule, exactly parallel to cellsAreShape. The named
+// cells must each hold a piece rotated to params.rot. Monotonic: a placed
+// cell with the wrong rotation is a permanent violation.
+function ruleCellsAreRotation(state, params) {
+  const { grid } = state;
+  const violations = new Set();
+  let allFilled = true;
+  for (const i of params.cells) {
+    if (!grid[i]) { allFilled = false; continue; }
+    if (grid[i].rot !== params.rot) violations.add(i);
+  }
+  return { ok: allFilled && violations.size === 0, violations };
+}
+
 const PARAM_RULES = {
   cellsAreShape:      { group: 'structure', fn: ruleCellsAreShape },
+  cellsAreRotation:   { group: 'structure', fn: ruleCellsAreRotation },
   noAdjacentShape:    { group: 'structure', fn: ruleNoAdjacentShape },
   cellsAvoidShape:    { group: 'structure', fn: ruleCellsAvoidShape },
   distinctRotations:  { group: 'structure', fn: ruleDistinctRotations },
@@ -542,7 +557,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ruleContinuity, ruleSymmetry, ruleCornersAreTriangles, ruleCentreIsCurves,
     ruleDiscsUnified, ruleTriangleHalvesDifferHue, ruleFieldHue, ruleNoAdjacentSquaresSameFabric, fullyColoured,
     rot90, ruleSymmetry4, ruleNoAdjacentShape,
-    ruleCellsAreShape, ruleCellsAvoidShape, ruleDistinctRotations,
+    ruleCellsAreShape, ruleCellsAreRotation, ruleCellsAvoidShape, ruleDistinctRotations,
     mirrorPartner, mirrorRot, ruleSymmetryMirror, ruleNoLargeBlock,
     ruleConnectedShape, ruleCountShapeInRegion, ruleMustBeAdjacent,
     ruleColourUsesAtMost,
