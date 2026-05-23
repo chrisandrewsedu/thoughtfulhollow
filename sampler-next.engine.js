@@ -514,6 +514,24 @@ function ruleCellsAreHue(state, params) {
   return { ok: allFilled && violations.size === 0, violations };
 }
 
+// Parameterized allowlist rule. params.regions is a list of colour-slot keys
+// ("cellIdx:part"); each must hold a fabric in params.fabrics. Weakest pin in
+// the colour vocabulary. Monotonic — a fabric outside the allowlist is a
+// permanent violation.
+function ruleCellsAreFabricFromSet(state, params) {
+  const { colors } = state;
+  const violations = new Set();
+  let allFilled = true;
+  for (const regionKey of params.regions) {
+    const fab = colors[regionKey];
+    if (!fab) { allFilled = false; continue; }
+    if (!params.fabrics.includes(fab)) {
+      violations.add(parseInt(regionKey.split(':')[0], 10));
+    }
+  }
+  return { ok: allFilled && violations.size === 0, violations };
+}
+
 const PARAM_RULES = {
   cellsAreShape:      { group: 'structure', fn: ruleCellsAreShape },
   cellsAreRotation:   { group: 'structure', fn: ruleCellsAreRotation },
@@ -528,6 +546,7 @@ const PARAM_RULES = {
   paletteUsesAtMost:  { group: 'colour',    fn: ruleColourUsesAtMost },
   colorKitExact:      { group: 'colour',    fn: ruleColorKitExact },
   cellsAreHue:        { group: 'colour',    fn: ruleCellsAreHue },
+  cellsAreFabricFromSet: { group: 'colour', fn: ruleCellsAreFabricFromSet },
 };
 
 // ── Rule registry ────────────────────────────────────────────────
@@ -582,6 +601,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ruleColourUsesAtMost,
     ruleColorKitExact,
     ruleCellsAreHue,
+    ruleCellsAreFabricFromSet,
     PARAM_RULES,
     RULES, evaluateAll, isSolved,
   };
