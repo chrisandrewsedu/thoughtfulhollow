@@ -674,10 +674,12 @@ function renderPanels(results) {
   const kf = document.getElementById('kitFabrics'); kf.innerHTML = '';
   for (const f of PUZZLE.fabrics) {
     const left = colorKitLeft ? (colorKitLeft[f] || 0) : null;
+    // hide a fabric tile entirely once its colorKitLeft is 0 — there are no
+    // remaining uses, so it doesn't belong in the kit panel.
+    if (left != null && left <= 0) continue;
     const tw = document.createElement('div');
     tw.className = 'tw';
-    const cls = 'tile swatch' + (selKind === 'fab' && sel === f ? ' sel' : '')
-      + (left != null && left <= 0 ? ' out' : '');
+    const cls = 'tile swatch' + (selKind === 'fab' && sel === f ? ' sel' : '');
     const badge = (left != null) ? `<span class="badge">${left}</span>` : '';
     tw.innerHTML = `<div class="${cls}" style="background:${FABRICS[f].col}">${badge}</div>`
       + `<span class="cap">${FABRICS[f].name}</span>`;
