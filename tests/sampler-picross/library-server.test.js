@@ -16,3 +16,40 @@ test('requiring the module does not start the HTTP listener', () => {
   // The real check is that `npm test` does not hang.
   assert.ok(true);
 });
+
+function validBaseDesign(over = {}) {
+  return {
+    name: 'Test Design',
+    author: 'tester',
+    date: '2026-06-01',
+    difficulty: 'mon-tue',
+    target: Array.from({ length: 9 }, () => ({
+      shape: 'square', rot: 0, regions: { W: 'LINEN' },
+    })),
+    ...over,
+  };
+}
+
+test('validateDesign accepts empty-string date (backlog)', () => {
+  const err = srv.validateDesign(validBaseDesign({ date: '' }));
+  assert.strictEqual(err, null);
+});
+
+test('validateDesign accepts valid YYYY-MM-DD date', () => {
+  const err = srv.validateDesign(validBaseDesign({ date: '2026-07-04' }));
+  assert.strictEqual(err, null);
+});
+
+test('validateDesign rejects malformed date strings', () => {
+  for (const bad of ['2026/06/01', '06-01-2026', 'tomorrow']) {
+    const err = srv.validateDesign(validBaseDesign({ date: bad }));
+    assert.match(err || '', /date/i, `expected error for ${bad}`);
+  }
+});
+
+test('validateDesign rejects missing date field', () => {
+  const d = validBaseDesign();
+  delete d.date;
+  const err = srv.validateDesign(d);
+  assert.match(err || '', /date/i);
+});

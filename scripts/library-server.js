@@ -44,7 +44,10 @@ function validateDesign(d) {
   if (!d || typeof d !== 'object') return 'design must be an object';
   if (!d.name || typeof d.name !== 'string') return 'name is required';
   if (!d.author || typeof d.author !== 'string') return 'author is required';
-  if (!d.date || !ISO_DATE.test(d.date)) return 'date must be YYYY-MM-DD';
+  if (typeof d.date !== 'string') return 'date must be a string';
+  if (d.date !== '' && !ISO_DATE.test(d.date)) {
+    return 'date must be YYYY-MM-DD or empty string for backlog';
+  }
   if (!SUPPORTED_DIFFICULTIES.includes(d.difficulty)) {
     return `difficulty must be one of ${SUPPORTED_DIFFICULTIES.join(', ')}`;
   }
