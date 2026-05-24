@@ -1923,8 +1923,15 @@ bootAuthor();
   }
 
   // Persist on any meta input change. saveDraft after the page's own listener
-  // has run.
-  [nameInp, authorInp, dateInp, diffPick].forEach(el => {
+  // has run. For nameInp: if the name changes after a save in a non-edit
+  // session, treat this as a new design by clearing the stale id — otherwise
+  // the next save would silently overwrite the previously-saved design.
+  nameInp?.addEventListener('input', () => {
+    if (!params.get('edit') && SA.state.meta.id) SA.state.meta.id = null;
+    setTimeout(saveDraft, 0);
+  });
+  nameInp?.addEventListener('change', () => setTimeout(saveDraft, 0));
+  [authorInp, dateInp, diffPick].forEach(el => {
     el?.addEventListener('input', () => setTimeout(saveDraft, 0));
     el?.addEventListener('change', () => setTimeout(saveDraft, 0));
   });
