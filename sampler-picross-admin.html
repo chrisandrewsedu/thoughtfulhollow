@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sampler picross — admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fascinate&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:#faf6ec; --paper-deep:#f0e9d6; --ink:#2a2520; --ink-soft:#6a6258;
+    --accent:#c01818; --green:#3a5a3a; --gold:#8a6c18; --line:#c9bd9c;
+    --cell-empty:#f3ecd8; --cell-empty-edge:#cdc1a0;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Spectral', Georgia, serif;
+    min-height: 100vh;
+  }
+  body { padding: 1.2rem 1rem 2rem; }
+  .app { max-width: 1100px; margin: 0 auto; }
+
+  .header { display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
+  h1 { font-family: 'Fascinate', serif; font-size: 1.6rem; font-weight: 400; line-height: 1; }
+  .header .sub { color: var(--ink-soft); font-size: 0.88rem; }
+  .nav-link {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border: 1px solid var(--line);
+    padding: 0.3rem 0.7rem;
+    border-radius: 4px;
+  }
+  .nav-link:hover { background: var(--paper-deep); }
+  .header .right { margin-left: auto; display: flex; gap: 0.5rem; }
+
+  .status-bar {
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.92rem;
+    color: var(--ink);
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .status-bar .stat { display: flex; align-items: baseline; gap: 0.4rem; }
+  .status-bar .stat .num { font-weight: 600; font-size: 1.05rem; }
+  .status-bar .warn { color: var(--accent); }
+
+  .views {
+    display: flex;
+    border-bottom: 1.5px solid var(--line);
+    margin-bottom: 1rem;
+  }
+  .view-tab {
+    background: transparent;
+    border: 0;
+    padding: 0.6rem 1.2rem;
+    font-family: 'Spectral', serif;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-bottom: 2.5px solid transparent;
+    margin-bottom: -1.5px;
+  }
+  .view-tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Schedule strip */
+  .schedule {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 1rem;
+  }
+  .day {
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0.6rem 0.7rem;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    position: relative;
+  }
+  .day.today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .day.empty {
+    background-image: repeating-linear-gradient(45deg, transparent 0 6px, rgba(0,0,0,0.04) 6px 8px);
+  }
+  .day.past { opacity: 0.6; }
+  .day-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+  }
+  .day-date { font-size: 0.95rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .day-name { font-size: 0.86rem; color: var(--ink); font-weight: 500; }
+  .day-author { font-size: 0.74rem; color: var(--ink-soft); font-style: italic; }
+  .day-diff {
+    font-size: 0.66rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .day-thumb {
+    width: 100%; aspect-ratio: 1;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    display: grid;
+    margin: 0.2rem 0;
+  }
+  .day-thumb .ttc { width: 100%; height: 100%; }
+  .day-actions { display: flex; gap: 0.3rem; margin-top: auto; }
+  .day-actions a {
+    font-size: 0.74rem;
+    color: var(--ink);
+    text-decoration: none;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.16rem 0.4rem;
+    background: var(--paper);
+  }
+  .day-actions a:hover { background: var(--paper-deep); }
+  .day-actions a.add {
+    color: var(--paper);
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .day-actions input.set-date {
+    font-size: 0.74rem;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.16rem 0.3rem;
+    background: var(--paper);
+    font-family: inherit;
+  }
+  .day-err {
+    margin-top: 0.3rem;
+    color: var(--accent);
+    font-size: 0.72rem;
+  }
+  .day.backlog .day-label { color: var(--gold); }
+
+  /* Library list */
+  .library {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.7rem;
+  }
+  .library .day { min-height: 0; }
+  .lib-filter {
+    margin-bottom: 0.8rem;
+    display: flex; gap: 0.4rem; align-items: center;
+  }
+  .lib-filter select {
+    font-family: 'Spectral', serif; font-size: 0.9rem;
+    color: var(--ink); background: var(--paper-deep);
+    border: 1px solid var(--line); border-radius: 5px;
+    padding: 0.3rem 0.55rem;
+  }
+
+  .empty-msg {
+    color: var(--ink-soft);
+    font-style: italic;
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="g-square" viewBox="0 0 20 20">
+      <rect x="2" y="2" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="g-triangle" viewBox="0 0 20 20">
+      <rect x="2" y="2" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <line x1="2" y1="2" x2="18" y2="18" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="g-curve" viewBox="0 0 20 20">
+      <rect x="2" y="2" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M 2 18 A 16 16 0 0 1 18 2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <div class="header">
+    <h1>Sampler picross — admin</h1>
+    <span class="sub">Schedule, browse, edit.</span>
+    <div class="right">
+      <a class="nav-link" href="./sampler-picross-author.html">✎ new design</a>
+      <a class="nav-link" href="./sampler-picross.html">→ play today</a>
+    </div>
+  </div>
+
+  <div id="statusBar" class="status-bar"></div>
+
+  <div class="views">
+    <button class="view-tab active" data-view="schedule">Schedule</button>
+    <button class="view-tab" data-view="library">Library</button>
+  </div>
+
+  <div id="viewBody"></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+// Sampler picross engine — geometry, fabrics, target validation, clue derivation.
+// Pure logic, no DOM. Loadable in browser (via script tag) and Node.
+//
+// Grid size is per-target: a target is an array of N*N cells where N ∈ {3,4,5,6,8}.
+// Helpers take `size` (the side length) where needed, OR derive it from
+// `target.length`. There is no global GRID constant any more.
+
+const DIRS = ['N', 'E', 'S', 'W'];
+const SUPPORTED_SIZES = [3, 4, 5, 6, 8];
+
+function gridSizeOf(target) {
+  const n = Math.round(Math.sqrt(target.length));
+  if (n * n !== target.length) throw new Error('target length must be a perfect square');
+  return n;
+}
+
+function rowOf(i, size) { return Math.floor(i / size); }
+function colOf(i, size) { return i % size; }
+function rowCells(r, size) {
+  const out = [];
+  for (let c = 0; c < size; c++) out.push(r * size + c);
+  return out;
+}
+function colCells(c, size) {
+  const out = [];
+  for (let r = 0; r < size; r++) out.push(r * size + c);
+  return out;
+}
+function partnerOf(i, size) { return size * size - 1 - i; }
+
+// ── Pieces ───────────────────────────────────────────────────────
+// shapes: 'square' | 'triangle' | 'curve'. A curve is a Drunkard's-Path
+// quarter-circle: part A = the disc, part B = the field. A triangle is a
+// half-square triangle: parts A and B are its two halves.
+const SHAPES = ['square', 'triangle', 'curve'];
+
+function partsOf(shape) {
+  return shape === 'square' ? ['W'] : ['A', 'B'];
+}
+
+// Default rotation per shape — a piece in this rotation does not count toward
+// the ⟲ rotation total.
+const DEFAULT_ROT = { square: 0, triangle: 0, curve: 0 };
+const ROT_COUNT   = { square: 1, triangle: 4, curve: 4 };
+
+// curve continuity ports by rotation (rot 0 = disc in the NW corner)
+const CURVE_PORTS = { 0: ['N', 'W'], 1: ['N', 'E'], 2: ['S', 'E'], 3: ['S', 'W'] };
+
+// Triangle region by rotation. At rot 0 the right-angle sits at the NE corner:
+// region A is the NE half, region B is the SW half.
+const TRIANGLE_FACES = {
+  0: { N: 'A', E: 'A', S: 'B', W: 'B' },
+  1: { N: 'B', E: 'A', S: 'A', W: 'B' },
+  2: { N: 'B', E: 'B', S: 'A', W: 'A' },
+  3: { N: 'A', E: 'B', S: 'B', W: 'A' },
+};
+
+// ── Fabrics ──────────────────────────────────────────────────────
+const FABRICS = {
+  LINEN:    { name: 'Linen',    col: '#ece0c8', hue: 'neutral' },
+  FLAX:     { name: 'Flax',     col: '#d6c79b', hue: 'neutral' },
+  SAGE:     { name: 'Sage',     col: '#b3b89a', hue: 'neutral' },
+  MADDER:   { name: 'Madder',   col: '#a8392f', hue: 'warm' },
+  MARIGOLD: { name: 'Marigold', col: '#d99838', hue: 'warm' },
+  CLARET:   { name: 'Claret',   col: '#7d2933', hue: 'warm' },
+  INDIGO:   { name: 'Indigo',   col: '#2b3a5e', hue: 'cool' },
+  SLATE:    { name: 'Slate',    col: '#5f7b87', hue: 'cool' },
+  TEAL:     { name: 'Teal',     col: '#2f6d6a', hue: 'cool' },
+};
+
+// ── Target validation ────────────────────────────────────────────
+function validateTarget(target) {
+  const errors = [];
+  if (!Array.isArray(target)) { errors.push('target must be an array'); return errors; }
+  let size;
+  try { size = gridSizeOf(target); }
+  catch (e) { errors.push(e.message); return errors; }
+  if (!SUPPORTED_SIZES.includes(size)) {
+    errors.push(`unsupported grid size ${size}; supported sizes are ${SUPPORTED_SIZES.join(', ')}`);
+  }
+  for (let i = 0; i < target.length; i++) {
+    const cell = target[i];
+    if (!cell) { errors.push(`cell ${i}: missing`); continue; }
+    if (!SHAPES.includes(cell.shape)) errors.push(`cell ${i}: bad shape '${cell.shape}'`);
+    if (typeof cell.rot !== 'number' || cell.rot < 0 || cell.rot >= ROT_COUNT[cell.shape]) {
+      errors.push(`cell ${i}: bad rot ${cell.rot} for shape ${cell.shape}`);
+    }
+    for (const part of partsOf(cell.shape)) {
+      const fab = cell.regions?.[part];
+      if (!FABRICS[fab]) errors.push(`cell ${i}: region '${part}' has bad fabric '${fab}'`);
+    }
+  }
+  return errors;
+}
+
+// ── Clue derivation ──────────────────────────────────────────────
+function clueForCells(target, cellIndices) {
+  const shape = Object.create(null);
+  const rotation = Object.create(null);
+  const fabric = Object.create(null);
+  for (const i of cellIndices) {
+    const cell = target[i];
+    if (!cell) continue;
+    shape[cell.shape] = (shape[cell.shape] || 0) + 1;
+    if (cell.rot !== DEFAULT_ROT[cell.shape]) {
+      rotation[cell.shape] = (rotation[cell.shape] || 0) + 1;
+    }
+    for (const part of partsOf(cell.shape)) {
+      const fab = cell.regions[part];
+      fabric[fab] = (fabric[fab] || 0) + 1;
+    }
+  }
+  return { shape, rotation, fabric };
+}
+
+function deriveClues(target) {
+  const size = gridSizeOf(target);
+  const rows = [];
+  const cols = [];
+  for (let r = 0; r < size; r++) rows.push(clueForCells(target, rowCells(r, size)));
+  for (let c = 0; c < size; c++) cols.push(clueForCells(target, colCells(c, size)));
+  return { rows, cols, size };
+}
+
+// ── Symmetry detection ───────────────────────────────────────────
+function isHalfTurnSymmetric(target) {
+  const size = gridSizeOf(target);
+  const N = size * size;
+  for (let i = 0; i < N; i++) {
+    const a = target[i];
+    const b = target[N - 1 - i];
+    if (!a || !b) return false;
+    if (a.shape !== b.shape) return false;
+    const expectedRot = a.shape === 'square'
+      ? 0
+      : (a.rot + 2) % ROT_COUNT[a.shape];
+    if (b.rot !== expectedRot) return false;
+    for (const part of partsOf(a.shape)) {
+      if (a.regions[part] !== b.regions[part]) return false;
+    }
+  }
+  return true;
+}
+
+// ── Density check ────────────────────────────────────────────────
+function maxBandChips(clues) {
+  let worst = 0;
+  const bands = [...clues.rows, ...clues.cols];
+  for (const b of bands) {
+    const shapeChips = Object.keys(b.shape).length;
+    const fabricChips = Object.keys(b.fabric).length;
+    worst = Math.max(worst, shapeChips, fabricChips);
+  }
+  return worst;
+}
+
+// ── Difficulty suggestion ───────────────────────────────────────
+// Heuristic: bigger grid, more shapes, more fabrics, more rotations push
+// difficulty up; more givens (from the generator) pull it back down. Returns
+// one of 'mon-tue' | 'wed-th' | 'fri-sat' | 'sun'. Author can override.
+const DIFFICULTIES = ['mon-tue', 'wed-th', 'fri-sat', 'sun'];
+
+function suggestedDifficulty(target, generated) {
+  const size = gridSizeOf(target);
+  const shapes = new Set();
+  const fabrics = new Set();
+  let rotated = 0;
+  for (const c of target) {
+    if (!c) continue;
+    shapes.add(c.shape);
+    for (const f of Object.values(c.regions || {})) if (f) fabrics.add(f);
+    if (c.rot !== 0) rotated++;
+  }
+  const givens = generated?.givenCount ?? 0;
+  let score = 0;
+  score += (size - 3) * 8;
+  score += (shapes.size - 1) * 20;
+  score += Math.max(0, fabrics.size - 2) * 8;
+  score += Math.min(rotated, 12) * 4;
+  score -= givens * 1;
+  if (score < 14) return 'mon-tue';
+  if (score < 30) return 'wed-th';
+  if (score < 50) return 'fri-sat';
+  return 'sun';
+}
+
+// ── Exports ──────────────────────────────────────────────────────
+const PicrossEngine = {
+  DIRS, SUPPORTED_SIZES,
+  SHAPES, DEFAULT_ROT, ROT_COUNT,
+  CURVE_PORTS, TRIANGLE_FACES,
+  FABRICS,
+  gridSizeOf,
+  rowOf, colOf, rowCells, colCells, partnerOf,
+  partsOf,
+  validateTarget,
+  clueForCells, deriveClues,
+  isHalfTurnSymmetric,
+  maxBandChips,
+  suggestedDifficulty, DIFFICULTIES,
+};
+
+if (typeof module !== 'undefined' && module.exports) module.exports = PicrossEngine;
+if (typeof window !== 'undefined') window.PicrossEngine = PicrossEngine;
+
+})();
+</script>
+<script>
+function bootAdmin() {
+  'use strict';
+  const E = window.PicrossEngine;
+  if (!E) return setTimeout(bootAdmin, 30);
+
+  const LIBRARY_URL = 'http://127.0.0.1:4320/library';
+  const FABRICS = E.FABRICS;
+  const state = {
+    view: 'schedule',
+    library: null,
+    filter: 'all',
+    today: todayET(),
+  };
+
+  function todayET() {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/New_York',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+    }).format(new Date());
+  }
+
+  function addDays(iso, n) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() + n);
+    return dt.toISOString().slice(0, 10);
+  }
+
+  function dayOfWeek(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0=Sun..6=Sat
+  }
+
+  function shortDate(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  }
+  function dowLabel(iso) {
+    return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dayOfWeek(iso)];
+  }
+
+  // Thumbnail SVG for a target (mini-board, no clues).
+  function thumbSvg(target) {
+    const size = Math.round(Math.sqrt(target.length));
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${size * 20} ${size * 20}`);
+    svg.setAttribute('class', 'ttc');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    const fab = key => key ? FABRICS[key].col : 'var(--cell-empty)';
+    for (let i = 0; i < target.length; i++) {
+      const r = Math.floor(i / size), c = i % size;
+      const x = c * 20, y = r * 20;
+      const p = target[i];
+      const g = document.createElementNS(ns, 'g');
+      g.setAttribute('transform', `translate(${x} ${y}) rotate(${(p.rot || 0) * 90} 10 10)`);
+      if (p.shape === 'square') {
+        const rect = document.createElementNS(ns, 'rect');
+        rect.setAttribute('width', '20'); rect.setAttribute('height', '20');
+        rect.setAttribute('fill', fab(p.regions.W));
+        g.appendChild(rect);
+      } else if (p.shape === 'triangle') {
+        const a = document.createElementNS(ns, 'polygon');
+        a.setAttribute('points', '0,0 20,0 20,20');
+        a.setAttribute('fill', fab(p.regions.A));
+        const b = document.createElementNS(ns, 'polygon');
+        b.setAttribute('points', '0,0 20,20 0,20');
+        b.setAttribute('fill', fab(p.regions.B));
+        g.appendChild(a); g.appendChild(b);
+      } else {
+        const field = document.createElementNS(ns, 'rect');
+        field.setAttribute('width', '20'); field.setAttribute('height', '20');
+        field.setAttribute('fill', fab(p.regions.B));
+        const disc = document.createElementNS(ns, 'path');
+        disc.setAttribute('d', 'M 0 0 L 20 0 A 20 20 0 0 0 0 20 Z');
+        disc.setAttribute('fill', fab(p.regions.A));
+        g.appendChild(field); g.appendChild(disc);
+      }
+      svg.appendChild(g);
+    }
+    return svg;
+  }
+
+  // ── Data fetch ──────────────────────────────────────────────
+  async function loadLibrary() {
+    try {
+      const res = await fetch(LIBRARY_URL);
+      state.library = await res.json();
+    } catch (e) {
+      state.library = { error: 'Library server unreachable — run `npm run picross-library`.' };
+    }
+    render();
+  }
+
+  async function deleteDesign(id) {
+    if (!confirm(`Delete "${id}"?`)) return;
+    try {
+      await fetch(`${LIBRARY_URL}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+      loadLibrary();
+    } catch (e) { alert('Delete failed: ' + e.message); }
+  }
+
+  // ── Render ──────────────────────────────────────────────────
+  function render() {
+    renderStatus();
+    if (state.view === 'schedule') renderSchedule();
+    else                            renderLibrary();
+  }
+
+  function renderStatus() {
+    const bar = document.getElementById('statusBar');
+    bar.innerHTML = '';
+    if (!state.library) { bar.textContent = 'Loading…'; return; }
+    if (state.library.error) {
+      bar.innerHTML = `<span class="warn">${state.library.error}</span>`;
+      return;
+    }
+    const designs = state.library.designs;
+    const futureDates = designs.map(d => d.date).filter(dt => dt >= state.today).sort();
+    const latest = futureDates[futureDates.length - 1];
+    const upcoming14 = [];
+    for (let i = 0; i < 14; i++) upcoming14.push(addDays(state.today, i));
+    const missing = upcoming14.filter(dt => !designs.find(d => d.date === dt));
+    bar.innerHTML = `
+      <div class="stat"><span class="num">${designs.length}</span> design${designs.length !== 1 ? 's' : ''} total</div>
+      <div class="stat"><span class="num">${futureDates.length}</span> scheduled from today onward</div>
+      <div class="stat">${latest ? 'Latest: <span class="num">' + latest + '</span>' : '<span class="warn">No upcoming puzzles scheduled.</span>'}</div>
+      ${missing.length ? '<div class="stat warn">' + missing.length + ' gap' + (missing.length > 1 ? 's' : '') + ' in next 14 days</div>' : ''}
+    `;
+  }
+
+  // Move a design's date (assign, change, or clear). Empty string sends to backlog.
+  async function moveDesign(design, newDate, errEl) {
+    const payload = {
+      id: design.id,
+      name: design.name,
+      author: design.author,
+      difficulty: design.difficulty,
+      notes: design.notes || '',
+      date: newDate,
+      target: design.target,
+    };
+    try {
+      const res = await fetch(LIBRARY_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        if (errEl) { errEl.textContent = body.error || `Save failed (${res.status})`; errEl.style.display = ''; }
+        return false;
+      }
+      loadLibrary();
+      return true;
+    } catch (e) {
+      if (errEl) { errEl.textContent = 'Server unreachable.'; errEl.style.display = ''; }
+      return false;
+    }
+  }
+
+  // mode: 'schedule' | 'library' | 'backlog'.
+  // For 'schedule', iso is the day of the strip; design may be null (empty day).
+  // For 'library', iso === design.date (or '' for backlog entries surfaced here, which we don't do today).
+  // For 'backlog', iso is '' and design is the backlog design.
+  function dayCard(iso, design, mode = 'schedule') {
+    const card = document.createElement('div');
+    card.className = 'day';
+    if (mode === 'schedule') {
+      if (iso === state.today) card.classList.add('today');
+      if (iso < state.today)   card.classList.add('past');
+      if (!design)             card.classList.add('empty');
+    }
+    if (mode === 'backlog') card.classList.add('backlog');
+
+    if (mode !== 'backlog') {
+      const dowEl = document.createElement('div');
+      dowEl.className = 'day-label'; dowEl.textContent = dowLabel(iso);
+      const dateEl = document.createElement('div');
+      dateEl.className = 'day-date'; dateEl.textContent = shortDate(iso);
+      card.appendChild(dowEl); card.appendChild(dateEl);
+    } else {
+      const lbl = document.createElement('div');
+      lbl.className = 'day-label'; lbl.textContent = 'Backlog';
+      card.appendChild(lbl);
+    }
+
+    if (design) {
+      const thumb = document.createElement('div'); thumb.className = 'day-thumb';
+      thumb.appendChild(thumbSvg(design.target));
+      card.appendChild(thumb);
+      const name = document.createElement('div');
+      name.className = 'day-name'; name.textContent = design.name;
+      card.appendChild(name);
+      const author = document.createElement('div');
+      author.className = 'day-author'; author.textContent = design.author || 'unknown';
+      card.appendChild(author);
+      const diff = document.createElement('div');
+      diff.className = 'day-diff'; diff.textContent = design.difficulty;
+      card.appendChild(diff);
+
+      const actions = document.createElement('div');
+      actions.className = 'day-actions';
+      if (design.date) {
+        actions.innerHTML = `
+          <a href="./sampler-picross.html#${design.date}" target="_blank">play</a>
+          <a href="./sampler-picross-author.html?edit=${design.id}">edit</a>
+          <a href="#" data-action="unschedule">→ backlog</a>
+          <a href="#" data-action="delete">delete</a>
+        `;
+      } else {
+        // Backlog card.
+        actions.innerHTML = `
+          <input type="date" data-action="set-date" class="set-date" />
+          <a href="./sampler-picross-author.html?edit=${design.id}">edit</a>
+          <a href="#" data-action="delete">delete</a>
+        `;
+      }
+      card.appendChild(actions);
+      const errEl = document.createElement('div');
+      errEl.className = 'day-err'; errEl.style.display = 'none';
+      card.appendChild(errEl);
+
+      actions.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+        e.preventDefault(); deleteDesign(design.id);
+      });
+      const unsched = actions.querySelector('[data-action="unschedule"]');
+      if (unsched) unsched.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await moveDesign(design, '', errEl);
+      });
+      const setDate = actions.querySelector('[data-action="set-date"]');
+      if (setDate) setDate.addEventListener('change', async (e) => {
+        await moveDesign(design, e.target.value, errEl);
+      });
+    } else {
+      // Empty schedule day.
+      const filler = document.createElement('div');
+      filler.style.flex = '1';
+      card.appendChild(filler);
+      const actions = document.createElement('div');
+      actions.className = 'day-actions';
+      const add = document.createElement('a');
+      add.href = `./sampler-picross-author.html?date=${iso}`;
+      add.className = 'add';
+      add.textContent = '+ add';
+      actions.appendChild(add);
+      card.appendChild(actions);
+    }
+    return card;
+  }
+
+  function renderSchedule() {
+    const body = document.getElementById('viewBody');
+    body.innerHTML = '';
+    if (state.library?.error) { body.innerHTML = '<div class="empty-msg">' + state.library.error + '</div>'; return; }
+    if (!state.library) return;
+    const designs = state.library.designs;
+    const grid = document.createElement('div'); grid.className = 'schedule';
+    // 28-day strip starting today.
+    for (let i = 0; i < 28; i++) {
+      const iso = addDays(state.today, i);
+      const design = designs.find(d => d.date === iso) || null;
+      grid.appendChild(dayCard(iso, design));
+    }
+    body.appendChild(grid);
+  }
+
+  function renderLibrary() {
+    const body = document.getElementById('viewBody');
+    body.innerHTML = '';
+    if (state.library?.error) { body.innerHTML = '<div class="empty-msg">' + state.library.error + '</div>'; return; }
+    if (!state.library) return;
+    const designs = state.library.designs;
+    const filterRow = document.createElement('div'); filterRow.className = 'lib-filter';
+    filterRow.innerHTML = `
+      <span class="day-label">Filter:</span>
+      <select id="filterSel">
+        <option value="all">All</option>
+        <option value="mon-tue">Mon-Tue</option>
+        <option value="wed-th">Wed-Th</option>
+        <option value="fri-sat">Fri-Sat</option>
+        <option value="sun">Sun</option>
+      </select>
+    `;
+    body.appendChild(filterRow);
+    filterRow.querySelector('#filterSel').value = state.filter;
+    filterRow.querySelector('#filterSel').addEventListener('change', (e) => {
+      state.filter = e.target.value; renderLibrary();
+    });
+    const grid = document.createElement('div'); grid.className = 'library';
+    const filtered = designs
+      .filter(d => state.filter === 'all' || d.difficulty === state.filter)
+      .slice()
+      .sort((a, b) => a.date.localeCompare(b.date));
+    if (filtered.length === 0) {
+      body.appendChild(Object.assign(document.createElement('div'), {
+        className: 'empty-msg',
+        textContent: 'No designs yet. Use ✎ new design to create one.',
+      }));
+      return;
+    }
+    for (const d of filtered) grid.appendChild(dayCard(d.date, d));
+    body.appendChild(grid);
+  }
+
+  // ── Tabs ────────────────────────────────────────────────────
+  for (const tab of document.querySelectorAll('.view-tab')) {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t === tab));
+      state.view = tab.dataset.view;
+      render();
+    });
+  }
+
+  loadLibrary();
+}
+bootAdmin();
+</script>
+
+</body>
+</html>
