@@ -154,6 +154,37 @@
     font-size: 0.72rem;
   }
   .day.backlog .day-label { color: var(--gold); }
+  .day-actions a.from-backlog {
+    color: var(--ink);
+    background: var(--paper);
+    border-color: var(--line);
+  }
+  .backlog-pop {
+    position: absolute;
+    top: 100%; left: 0;
+    z-index: 10;
+    background: var(--paper);
+    border: 1.5px solid var(--ink-soft);
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    padding: 0.35rem;
+    min-width: 200px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .backlog-pop .pop-row {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.25rem 0.4rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+  .backlog-pop .pop-row:hover { background: var(--paper-deep); }
+  .backlog-pop .pop-thumb { width: 28px; height: 28px; flex: 0 0 28px; }
+  .backlog-pop .pop-thumb svg { width: 100%; height: 100%; }
+  .backlog-pop .pop-name { font-weight: 500; }
+  .backlog-pop .pop-meta { color: var(--ink-soft); font-size: 0.7rem; }
+  .backlog-pop .pop-empty { padding: 0.4rem; font-style: italic; color: var(--ink-soft); }
 
   /* Library list */
   .library {
@@ -602,6 +633,56 @@ function bootAdmin() {
     }
   }
 
+  // At most one popover open at a time.
+  let openPopover = null;
+  function closeBacklogPopover() {
+    if (openPopover) {
+      openPopover.remove();
+      openPopover = null;
+      document.removeEventListener('click', popoverOutsideClick, true);
+      document.removeEventListener('keydown', popoverEscape, true);
+    }
+  }
+  function popoverOutsideClick(e) {
+    if (openPopover && !openPopover.contains(e.target) && !e.target.closest('[data-action="from-backlog"]')) {
+      closeBacklogPopover();
+    }
+  }
+  function popoverEscape(e) { if (e.key === 'Escape') closeBacklogPopover(); }
+
+  function openBacklogPopover(anchor, iso) {
+    closeBacklogPopover();
+    const backlog = (state.library?.designs || []).filter(d => !d.date);
+    const pop = document.createElement('div');
+    pop.className = 'backlog-pop';
+    if (backlog.length === 0) {
+      pop.innerHTML = '<div class="pop-empty">Backlog is empty.</div>';
+    } else {
+      for (const d of backlog) {
+        const row = document.createElement('div'); row.className = 'pop-row';
+        const thumb = document.createElement('div'); thumb.className = 'pop-thumb';
+        thumb.appendChild(thumbSvg(d.target));
+        const txt = document.createElement('div');
+        txt.innerHTML = `<div class="pop-name"></div><div class="pop-meta"></div>`;
+        txt.querySelector('.pop-name').textContent = d.name;
+        txt.querySelector('.pop-meta').textContent = `${d.author || 'unknown'} · ${d.difficulty}`;
+        row.appendChild(thumb); row.appendChild(txt);
+        row.addEventListener('click', async () => {
+          await moveDesign(d, iso, null);
+          closeBacklogPopover();
+        });
+        pop.appendChild(row);
+      }
+    }
+    anchor.appendChild(pop);
+    openPopover = pop;
+    // Defer listener install so the click that opened us doesn't immediately close us.
+    setTimeout(() => {
+      document.addEventListener('click', popoverOutsideClick, true);
+      document.addEventListener('keydown', popoverEscape, true);
+    }, 0);
+  }
+
   // mode: 'schedule' | 'library' | 'backlog'.
   // For 'schedule', iso is the day of the strip; design may be null (empty day).
   // For 'library', iso === design.date (or '' for backlog entries surfaced here, which we don't do today).
@@ -683,6 +764,19 @@ function bootAdmin() {
       card.appendChild(filler);
       const actions = document.createElement('div');
       actions.className = 'day-actions';
+      const backlogCount = (state.library?.designs || []).filter(d => !d.date).length;
+      if (backlogCount > 0) {
+        const from = document.createElement('a');
+        from.href = '#';
+        from.className = 'from-backlog';
+        from.dataset.action = 'from-backlog';
+        from.textContent = `↓ from backlog (${backlogCount})`;
+        from.addEventListener('click', (e) => {
+          e.preventDefault(); e.stopPropagation();
+          openBacklogPopover(card, iso);
+        });
+        actions.appendChild(from);
+      }
       const add = document.createElement('a');
       add.href = `./sampler-picross-author.html?date=${iso}`;
       add.className = 'add';
