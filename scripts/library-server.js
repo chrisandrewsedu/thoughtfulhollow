@@ -19,7 +19,8 @@ const path = require('path');
 const HOST = '127.0.0.1';
 const PORT = parseInt(process.env.PORT || '4320', 10);
 const ROOT = path.resolve(__dirname, '..');
-const FILE = path.join(ROOT, 'sampler-picross.templates.json');
+const DEFAULT_FILE = path.join(ROOT, 'sampler-picross.templates.json');
+let FILE = process.env.LIBRARY_FILE || DEFAULT_FILE;
 
 const SUPPORTED_DIFFICULTIES = ['mon-tue', 'wed-th', 'fri-sat', 'sun'];
 const SUPPORTED_SIZES = [3, 4, 5, 6, 8];
@@ -120,12 +121,14 @@ const server = http.createServer(async (req, res) => {
       const designId = design.id || slugify(design.name);
       const existingIdx = lib.designs.findIndex(x => x.id === designId);
       // Refuse if a *different* design already claims the same date.
-      const dateConflictIdx = lib.designs.findIndex(x => x.date === design.date && x.id !== designId);
-      if (dateConflictIdx >= 0) {
-        return json(res, 409, {
-          error: `date ${design.date} already used by '${lib.designs[dateConflictIdx].id}'`,
-          conflict: lib.designs[dateConflictIdx],
-        });
+      if (design.date !== '') {
+        const dateConflictIdx = lib.designs.findIndex(x => x.date === design.date && x.id !== designId);
+        if (dateConflictIdx >= 0) {
+          return json(res, 409, {
+            error: `date ${design.date} already used by '${lib.designs[dateConflictIdx].id}'`,
+            conflict: lib.designs[dateConflictIdx],
+          });
+        }
       }
       const stored = {
         id: designId,
@@ -159,8 +162,15 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+function start({ port = PORT, host = HOST, file } = {}) {
+  if (file) FILE = file;
+  return new Promise((resolve) => {
+    server.listen(port, host, () => resolve(server));
+  });
+}
+
 if (require.main === module) {
-  server.listen(PORT, HOST, () => {
+  start().then(() => {
     console.log(`picross library server listening on http://${HOST}:${PORT}`);
     console.log(`  GET    /library           → ${FILE}`);
     console.log(`  GET    /library/:id`);
@@ -172,6 +182,8 @@ if (require.main === module) {
 module.exports = {
   validateDesign,
   slugify,
+  start,
+  server,
   ISO_DATE,
   SUPPORTED_DIFFICULTIES,
   SUPPORTED_SIZES,
