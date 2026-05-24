@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "check-sizes": "node scripts/check-sizes.js"
+    "check-sizes": "node scripts/check-sizes.js",
+    "check-sizes-sampler": "node scripts/check-sizes-sampler.js",
+    "sampler-report": "node scripts/sampler-template-report.js",
+    "picross-library": "node scripts/library-server.js",
+    "picross-inline": "node scripts/inline-picross.js",
+    "test": "node --test tests/sampler-picross/*.test.js"
   },
   "devDependencies": {
     "playwright": "^1.60.0"
