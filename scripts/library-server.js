@@ -1,22 +1,26 @@
 #!/usr/bin/env node
 'use strict';
-// Local-only library server for sampler-picross authoring.
+// Library + static-asset server for sampler-picross authoring.
 //
 //   GET    /library           → full JSON
 //   GET    /library/:id       → one design
 //   POST   /library           → upsert a design (body = JSON design or {design})
 //   DELETE /library/:id       → remove a design
+//   GET    /<anything-else>   → static file from the repo root
 //
-// Binds to 127.0.0.1 only — this is a dev tool, never deployed.
+// Binds to 0.0.0.0 by default so any machine on the LAN can author. There
+// is no auth — trust the network. Override with HOST=127.0.0.1 to restrict
+// to loopback.
 //
-// Usage:  npm run library-server
-//         (defaults to port 4320; pass PORT=… to override)
+// Usage:  npm run picross-library
+//         (defaults to port 4320 / host 0.0.0.0; override via PORT / HOST env)
 
 const http = require('http');
 const fs   = require('fs');
+const os   = require('os');
 const path = require('path');
 
-const HOST = '127.0.0.1';
+const HOST = process.env.HOST || '0.0.0.0';
 const PORT = parseInt(process.env.PORT || '4320', 10);
 const ROOT = path.resolve(__dirname, '..');
 const DEFAULT_FILE = path.join(ROOT, 'sampler-picross.templates.json');
@@ -254,13 +258,28 @@ function start({ port = PORT, host = HOST, file } = {}) {
   });
 }
 
+function lanAddresses(port) {
+  const out = [];
+  const ifaces = os.networkInterfaces();
+  for (const name of Object.keys(ifaces)) {
+    for (const i of ifaces[name] || []) {
+      if (i.family === 'IPv4' && !i.internal) out.push(`http://${i.address}:${port}`);
+    }
+  }
+  return out;
+}
+
 if (require.main === module) {
   start().then(() => {
     console.log(`picross library server listening on http://${HOST}:${PORT}`);
-    console.log(`  GET    /library           → ${FILE}`);
-    console.log(`  GET    /library/:id`);
-    console.log(`  POST   /library           (body: design or { design })`);
-    console.log(`  DELETE /library/:id`);
+    if (HOST === '0.0.0.0') {
+      const lan = lanAddresses(PORT);
+      if (lan.length) {
+        console.log('  LAN access:');
+        for (const addr of lan) console.log(`    ${addr}/sampler-picross-author.html`);
+      }
+    }
+    console.log(`  Library file: ${FILE}`);
   });
 }
 

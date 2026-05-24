@@ -982,7 +982,10 @@ function bootAuthor() {
   const fabricKeys = Object.keys(FABRICS);
   const ROT_COUNT = E.ROT_COUNT;
   const partsOf = E.partsOf;
-  const LIBRARY_URL = 'http://127.0.0.1:4320/library';
+  // Relative URL — relies on this page being served by the library server
+  // (npm run picross-library), which serves the API at /library and static
+  // files for everything else. Loading this page via file:// will not work.
+  const LIBRARY_URL = '/library';
 
   // ── State ───────────────────────────────────────────────────
   const state = {
