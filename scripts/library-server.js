@@ -193,7 +193,20 @@ const server = http.createServer(async (req, res) => {
 
       // Generate / preserve id from the name.
       const lib = readLibrary();
-      const designId = design.id || slugify(design.name);
+      let designId;
+      if (design.id) {
+        // Update path: caller knows the ID, find and replace.
+        designId = design.id;
+      } else {
+        // New design: mint a unique slug so we never silently overwrite an
+        // existing design that happens to share the same slugified name.
+        const base = slugify(design.name);
+        designId = base;
+        let suffix = 2;
+        while (lib.designs.some(x => x.id === designId)) {
+          designId = `${base}-${suffix++}`;
+        }
+      }
       const existingIdx = lib.designs.findIndex(x => x.id === designId);
       // Refuse if a *different* design already claims the same date.
       if (design.date !== '') {
