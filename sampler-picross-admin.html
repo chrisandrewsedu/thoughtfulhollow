@@ -755,7 +755,8 @@ function bootAdmin() {
       });
       const setDate = actions.querySelector('[data-action="set-date"]');
       if (setDate) setDate.addEventListener('change', async (e) => {
-        await moveDesign(design, e.target.value, errEl);
+        const ok = await moveDesign(design, e.target.value, errEl);
+        if (!ok) e.target.value = '';
       });
     } else {
       // Empty schedule day.
