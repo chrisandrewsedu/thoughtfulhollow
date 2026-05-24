@@ -54,20 +54,55 @@
     transition: background var(--dur-fast) var(--ease-quilt), border-color var(--dur-fast) var(--ease-quilt);
   }
   .design-pick:hover { background: var(--paper); border-color: var(--ink-soft); }
-  .sym-badge {
-    display: inline-flex;
+  /* ── LANDING OVERLAY ── */
+  .landing-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--paper);
+    display: flex;
     align-items: center;
-    gap: 0.3rem;
-    font-size: var(--fs-xs);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--gold);
-    background: #fff4d6;
-    border: 1px solid var(--gold);
-    border-radius: var(--r-pill);
-    padding: 0.16rem 0.6rem;
+    justify-content: center;
+    z-index: 200;
+    padding: 1.5rem;
   }
-  .sym-badge.hidden { display: none; }
+  .landing-overlay.gone { display: none; }
+  .landing-card {
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+  }
+  .landing-logo {
+    font-family: 'Fascinate', serif;
+    font-weight: 400;
+    font-size: var(--fs-display);
+    line-height: 1;
+    margin-bottom: var(--sp-5);
+  }
+  .landing-date {
+    font-size: var(--fs-md);
+    color: var(--ink-soft);
+    margin-bottom: var(--sp-2);
+  }
+  .landing-streak {
+    font-size: var(--fs-sm);
+    color: var(--ink-soft);
+    margin-bottom: var(--sp-5);
+    min-height: 1.2em;
+  }
+  .landing-play {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    font-size: var(--fs-md);
+    margin-bottom: var(--sp-4);
+  }
+  .landing-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-3);
+  }
+  .landing-practice { cursor: not-allowed; }
+  .coming-soon-label { color: var(--ink-soft); }
   .puzzle-date {
     font-size: var(--fs-sm);
     color: var(--ink-soft);
@@ -499,20 +534,27 @@
   <defs></defs>
 </svg>
 
+<div id="landingOverlay" class="landing-overlay">
+  <div class="landing-card">
+    <h1 class="landing-logo">Sampler</h1>
+    <p class="landing-date" id="landingDate"></p>
+    <p class="landing-streak" id="landingStreak"></p>
+    <button id="btnLandingPlay" class="btn primary landing-play">Play</button>
+    <div class="landing-nav">
+      <a href="./sampler-picross-archive.html" class="design-pick landing-archive">Archive</a>
+      <button class="btn sm landing-practice" disabled>Practice <span class="coming-soon-label">· coming soon</span></button>
+    </div>
+  </div>
+</div>
+
 <div class="app">
   <div class="header">
     <div class="header-title">
       <h1>Sampler picross</h1>
-      <span id="symBadge" class="sym-badge hidden" title="This block has half-turn (180°) symmetry — partner cells mirror each other.">⤾ symmetric</span>
       <span id="dateLabel" class="puzzle-date"></span>
     </div>
     <div class="header-controls">
-      <select id="cluePick" class="design-pick" title="Clue layout" aria-label="Clue layout">
-        <option value="combined">Combined chips</option>
-        <option value="separate">Shape + colour bands</option>
-      </select>
       <a href="./sampler-picross-archive.html" class="design-pick">archive</a>
-      <a href="./sampler-picross-author.html" class="design-pick author-link">✎ author</a>
       <button id="btnKbdHelp" class="design-pick" type="button" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)">?</button>
     </div>
   </div>
@@ -2639,10 +2681,9 @@ function bootSamplerPicross() {
     designId: null,
     puzzle: null,
     board: [],
-    selectedShape: null,    // separate-mode: shape picker
-    selectedFabric: null,   // separate-mode: fabric picker
-    selectedPiece: null,    // combined-mode: { sig, shape, regions }
-    clueMode: localStorage.getItem('picross-clue-mode') || 'combined',
+    selectedShape: null,
+    selectedFabric: null,
+    selectedPiece: null,
   };
 
   // ── Rendering helpers ────────────────────────────────────────
@@ -2931,104 +2972,6 @@ function bootSamplerPicross() {
     const size = state.puzzle.size;
     return kind === 'row' ? E.rowCells(idx, size) : E.colCells(idx, size);
   }
-  // Count what's currently in the band, split between givens (pre-placed by
-  // the generator) and player placements. Givens don't decrement the chip
-  // count — they only adjust the band's nominal total. See clueBand.
-  function placedShapeInBand(kind, idx, shape) {
-    let given = 0, player = 0;
-    for (const i of bandCells(kind, idx)) {
-      const p = state.board[i];
-      if (!p || p.shape !== shape) continue;
-      if (p._given) given++; else player++;
-    }
-    return { given, player };
-  }
-  function placedRotationInBand(kind, idx, shape) {
-    let given = 0, player = 0;
-    for (const i of bandCells(kind, idx)) {
-      const p = state.board[i];
-      if (!p || p.shape !== shape || p.rot === 0) continue;
-      if (p._given) given++; else player++;
-    }
-    return { given, player };
-  }
-  function placedFabricInBand(kind, idx, fab) {
-    let given = 0, player = 0;
-    for (const i of bandCells(kind, idx)) {
-      const p = state.board[i];
-      if (!p) continue;
-      for (const part of partsOf(p.shape)) {
-        if (p.regions?.[part] !== fab) continue;
-        if (p._given) given++; else player++;
-      }
-    }
-    return { given, player };
-  }
-
-  // Build a clue band. `bandKind`='row'|'col', `bandIdx`=0..3.
-  function clueBand(clue, contentKind /* 'shape' | 'fabric' */, bandKind, bandIdx) {
-    const frag = document.createDocumentFragment();
-    if (contentKind === 'shape') {
-      for (const shape of E.SHAPES) {
-        const total = clue.shape?.[shape];
-        if (!total) continue;
-        const placed = placedShapeInBand(bandKind, bandIdx, shape);
-        // Chip displays only the count the PLAYER still has to place. Givens
-        // reduce the band's nominal total but are not "spent by the player".
-        const needed = total - placed.given;
-        const remaining = needed - placed.player;
-        const totalRot = clue.rotation?.[shape] || 0;
-        const placedRot = placedRotationInBand(bandKind, bandIdx, shape);
-        const neededRot = totalRot - placedRot.given;
-        const remainingRot = neededRot - placedRot.player;
-        const isSpent = remaining <= 0;
-        const isSel = state.selectedShape === shape;
-        const t = document.createElement('div');
-        t.className = 'tile clue' + (isSpent ? ' spent' : '') + (isSel ? ' sel' : '');
-        t.innerHTML = `<svg><use href="#g-${shape}"/></svg><span class="badge">${Math.max(remaining, 0)}</span>`;
-        if (totalRot > 0) {
-          const pill = document.createElement('span');
-          pill.className = 'rot-pill';
-          pill.innerHTML = `<span>⟲</span>${Math.max(remainingRot, 0)}`;
-          t.appendChild(pill);
-        }
-        if (!isSpent) {
-          t.addEventListener('click', () => {
-            state.selectedShape = state.selectedShape === shape ? null : shape;
-            state.selectedFabric = null;
-            render();
-          });
-        }
-        frag.appendChild(t);
-      }
-    } else if (contentKind === 'fabric') {
-      for (const [fab, total] of Object.entries(clue.fabric || {})) {
-        if (!total) continue;
-        const placed = placedFabricInBand(bandKind, bandIdx, fab);
-        const needed = total - placed.given;
-        const remaining = needed - placed.player;
-        // Hide chips fully satisfied by givens — the player can't (and
-        // needn't) place anything for them.
-        if (needed <= 0) continue;
-        const isSpent = remaining <= 0;
-        const isSel = state.selectedFabric === fab;
-        const t = document.createElement('div');
-        t.className = 'tile swatch clue' + (isSpent ? ' spent' : '') + (isSel ? ' sel' : '');
-        t.style.background = E.FABRICS[fab].col;
-        t.innerHTML = `<span class="badge">${Math.max(remaining, 0)}</span>`;
-        if (!isSpent) {
-          t.addEventListener('click', () => {
-            state.selectedFabric = state.selectedFabric === fab ? null : fab;
-            state.selectedShape = null;
-            render();
-          });
-        }
-        frag.appendChild(t);
-      }
-    }
-    return frag;
-  }
-
   // Rebuild the player board from state.puzzle.givens — keeps the puzzle
   // (target, clues, givens) intact and clears all player placements.
   function resetBoardToPuzzle() {
@@ -3229,7 +3172,6 @@ function bootSamplerPicross() {
       }) : '';
       wrap.innerHTML = `<strong>No puzzle for ${dt}.</strong><br>Check back tomorrow, or visit the <a href="./sampler-picross-archive.html">archive</a> for past puzzles.`;
       puzzle.appendChild(wrap);
-      document.getElementById('symBadge').classList.add('hidden');
       document.querySelector('.actions').style.display = 'none';
       return;
     }
@@ -3245,10 +3187,6 @@ function bootSamplerPicross() {
     // Push computed cell size into a CSS var so .cell { width/height: var(--cell) }
     // picks it up without per-element inline styles.
     document.documentElement.style.setProperty('--cell', cellPx + 'px');
-    // Hide the shape band entirely if the whole target uses just one shape —
-    // there's nothing for the player to decide shape-wise.
-    const shapeSet = new Set(state.puzzle.target.map(c => c.shape));
-    const showShapeBand = shapeSet.size > 1;
     // Dynamically size the puzzle grid for the current target size.
     puzzle.style.gridTemplateColumns = `auto repeat(${size}, var(--cell))`;
     puzzle.style.gridTemplateRows    = `auto repeat(${size}, var(--cell))`;
@@ -3260,20 +3198,9 @@ function bootSamplerPicross() {
     for (let c = 0; c < size; c++) {
       const wrap = document.createElement('div');
       wrap.className = 'col-clue';
-      if (state.clueMode === 'combined') {
-        const b = document.createElement('div'); b.className = 'band';
-        b.appendChild(combinedBand('col', c));
-        wrap.appendChild(b);
-      } else {
-        if (showShapeBand) {
-          const b1 = document.createElement('div'); b1.className = 'band';
-          b1.appendChild(clueBand(clues.cols[c], 'shape', 'col', c));
-          wrap.appendChild(b1);
-        }
-        const b2 = document.createElement('div'); b2.className = 'band';
-        b2.appendChild(clueBand(clues.cols[c], 'fabric', 'col', c));
-        wrap.appendChild(b2);
-      }
+      const b = document.createElement('div'); b.className = 'band';
+      b.appendChild(combinedBand('col', c));
+      wrap.appendChild(b);
       puzzle.appendChild(wrap);
     }
 
@@ -3281,20 +3208,9 @@ function bootSamplerPicross() {
     for (let r = 0; r < size; r++) {
       const wrap = document.createElement('div');
       wrap.className = 'row-clue';
-      if (state.clueMode === 'combined') {
-        const b = document.createElement('div'); b.className = 'band';
-        b.appendChild(combinedBand('row', r));
-        wrap.appendChild(b);
-      } else {
-        if (showShapeBand) {
-          const b1 = document.createElement('div'); b1.className = 'band';
-          b1.appendChild(clueBand(clues.rows[r], 'shape', 'row', r));
-          wrap.appendChild(b1);
-        }
-        const b2 = document.createElement('div'); b2.className = 'band';
-        b2.appendChild(clueBand(clues.rows[r], 'fabric', 'row', r));
-        wrap.appendChild(b2);
-      }
+      const b = document.createElement('div'); b.className = 'band';
+      b.appendChild(combinedBand('row', r));
+      wrap.appendChild(b);
       puzzle.appendChild(wrap);
       for (let c = 0; c < size; c++) {
         const i = r * size + c;
@@ -3315,10 +3231,6 @@ function bootSamplerPicross() {
         puzzle.appendChild(cell);
       }
     }
-
-    // Symmetry badge
-    const symBadge = document.getElementById('symBadge');
-    symBadge.classList.toggle('hidden', !state.puzzle.halfTurnSymmetric);
 
     setStatus('');
     saveState();
@@ -3499,18 +3411,6 @@ function bootSamplerPicross() {
     }
   });
 
-  // Clue-mode toggle
-  const cluePick = document.getElementById('cluePick');
-  cluePick.value = state.clueMode;
-  cluePick.addEventListener('change', (e) => {
-    state.clueMode = e.target.value;
-    state.selectedShape = null;
-    state.selectedFabric = null;
-    state.selectedPiece = null;
-    try { localStorage.setItem('picross-clue-mode', state.clueMode); } catch {}
-    render();
-  });
-
   document.getElementById('btnPlayAgain').addEventListener('click', (e) => {
     e.preventDefault();
     state.solvedRevealed = false;
@@ -3520,49 +3420,6 @@ function bootSamplerPicross() {
     resetBoardToPuzzle();
     render();
   });
-
-  // ── Mobile overflow menu ─────────────────────────────────────
-  (function() {
-    const btn   = document.getElementById('mobileMenuBtn');
-    const panel = document.getElementById('mobileMenuPanel');
-    const clueToggle = document.getElementById('mobClueToggle');
-    if (!btn || !panel) return;
-
-    function updateClueLabel() {
-      if (!clueToggle) return;
-      clueToggle.textContent = state.clueMode === 'combined'
-        ? 'Switch to shape+colour bands'
-        : 'Switch to combined chips';
-    }
-    updateClueLabel();
-
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const open = panel.style.display === 'flex';
-      panel.style.display = open ? 'none' : 'flex';
-    });
-
-    // Close when clicking outside
-    document.addEventListener('click', () => { panel.style.display = 'none'; });
-    panel.addEventListener('click', (e) => e.stopPropagation());
-
-    if (clueToggle) {
-      clueToggle.addEventListener('click', () => {
-        state.clueMode = state.clueMode === 'combined' ? 'separate' : 'combined';
-        state.selectedShape = state.selectedFabric = state.selectedPiece = null;
-        try { localStorage.setItem('picross-clue-mode', state.clueMode); } catch {}
-        panel.style.display = 'none';
-        updateClueLabel();
-        // Sync the desktop select too
-        const pick = document.getElementById('cluePick');
-        if (pick) pick.value = state.clueMode;
-        render();
-      });
-    }
-
-    // Keep label in sync when desktop select changes
-    document.getElementById('cluePick')?.addEventListener('change', updateClueLabel);
-  })();
 
   // Recompute cell sizes on resize (handles orientation changes, browser zoom).
   let _resizeTimer;
@@ -3954,6 +3811,48 @@ bootSamplerPicross();
   new MutationObserver(() => {
     if (solvedFor) appendStreakChip();
   }).observe(metaEl, { childList: true });
+})();
+</script>
+
+<script>
+(function initLanding() {
+  'use strict';
+  const overlay  = document.getElementById('landingOverlay');
+  const dateEl   = document.getElementById('landingDate');
+  const streakEl = document.getElementById('landingStreak');
+  const playBtn  = document.getElementById('btnLandingPlay');
+  if (!overlay) return;
+
+  // Today in ET, matching puzzle date logic
+  const todayET = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+
+  dateEl.textContent = new Date(todayET + 'T12:00:00').toLocaleDateString(undefined, {
+    weekday: 'long', month: 'long', day: 'numeric',
+  });
+
+  if (window.PicrossStats) {
+    const stats = window.PicrossStats.getStats();
+    if (stats.streak > 0) {
+      streakEl.textContent = stats.streak === 1 ? '1-day streak' : `${stats.streak}-day streak`;
+    }
+    const solvedDates = window.PicrossStats.getSolvedDates();
+    if (solvedDates.has(todayET)) {
+      playBtn.textContent = 'Review ✓';
+    }
+  }
+
+  // Skip the overlay when play-testing an authored draft.
+  if (new URLSearchParams(window.location.search).get('authored') === '1') {
+    overlay.classList.add('gone');
+    return;
+  }
+
+  playBtn.addEventListener('click', () => {
+    overlay.classList.add('gone');
+  });
 })();
 </script>
 
