@@ -27,7 +27,7 @@ const DEFAULT_FILE = path.join(ROOT, 'sampler-picross.templates.json');
 let FILE = process.env.LIBRARY_FILE || DEFAULT_FILE;
 
 const SUPPORTED_DIFFICULTIES = ['mon-tue', 'wed-th', 'fri-sat', 'sun'];
-const SUPPORTED_SIZES = [3, 4, 5, 6, 8];
+const SUPPORTED_SIZES = [3, 4, 5, 6, 7, 8, 9];
 
 function backfillCreatedAt(design) {
   if (design.createdAt) return design;
@@ -83,7 +83,7 @@ function validateDesign(d) {
   for (let i = 0; i < d.target.length; i++) {
     const cell = d.target[i];
     if (!cell || typeof cell !== 'object') return `cell ${i}: missing`;
-    if (!['square', 'triangle', 'curve'].includes(cell.shape)) {
+    if (!['square', 'triangle', 'curve', 'bar', 'qst'].includes(cell.shape)) {
       return `cell ${i}: bad shape '${cell.shape}'`;
     }
     if (typeof cell.rot !== 'number') return `cell ${i}: rot must be number`;
