@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sampler picross</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fascinate&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:#faf6ec; --paper-deep:#f0e9d6; --ink:#2a2520; --ink-soft:#6a6258;
+    --accent:#c01818; --green:#3a5a3a; --gold:#8a6c18; --line:#c9bd9c;
+    --cell-empty:#f3ecd8; --cell-empty-edge:#cdc1a0;
+    --region-blank:#e8e3d5; --region-edge:#b3a585;
+    --cell: 72px;
+    --tile-sm: 40px;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Spectral', Georgia, serif;
+    min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body { padding: 1.2rem 1rem 2rem; }
+
+  .app { max-width: 880px; margin: 0 auto; }
+
+  .header { margin-bottom: 0.8rem; display: flex; align-items: baseline; gap: 0.8rem; flex-wrap: wrap; }
+  h1 { font-family: 'Fascinate', serif; font-weight: 400; font-size: 1.7rem; line-height: 1; }
+  .design-pick {
+    margin-left: auto;
+    font-family: 'Spectral', serif;
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--paper-deep);
+  }
+  .sym-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: #fff4d6;
+    border: 1px solid var(--gold);
+    border-radius: 999px;
+    padding: 0.16rem 0.6rem;
+  }
+  .sym-badge.hidden { display: none; }
+  .puzzle-date {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .puzzle-meta {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.7rem;
+    min-height: 1.2em;
+  }
+  .puzzle-meta .reveal { color: var(--green); font-weight: 500; }
+  .puzzle-meta .name { color: var(--ink); font-weight: 600; font-style: italic; }
+  .no-puzzle {
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 2rem 1.4rem;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-width: 480px;
+  }
+  .no-puzzle strong { color: var(--ink); }
+
+  /* ── TILE (shared with mockup) ── */
+  .tile {
+    width: var(--tile-sm);
+    height: var(--tile-sm);
+    border: 1.5px solid var(--ink-soft);
+    border-radius: 6px;
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .tile svg { width: 78%; height: 78%; display: block; }
+  .tile.swatch { border-color: var(--line); }
+  .tile .badge {
+    position: absolute;
+    right: 1px;
+    bottom: 0;
+    font-size: 0.58rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--paper);
+    border-radius: 3px;
+    padding: 0 0.16rem;
+    line-height: 1.3;
+  }
+  .tile .rot-pill {
+    position: absolute;
+    right: -1px;
+    top: -1px;
+    font-size: 0.52rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--ink-soft);
+    border-radius: 3px;
+    padding: 0 0.14rem;
+    line-height: 1.25;
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+  }
+  .tile.clue { cursor: pointer; }
+  .tile.clue:hover { background: var(--paper-deep); }
+  .tile.clue.sel { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); }
+  /* Combined chip = the chip IS the piece. SVG fills the tile, no inner outline. */
+  .tile.clue.combined { padding: 0; }
+  .tile.clue.combined svg { width: 100%; height: 100%; }
+  .tile.spent { cursor: default; opacity: 0.42; }
+  .tile.spent::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to top right, transparent 47%, var(--ink-soft) 47%, var(--ink-soft) 53%, transparent 53%);
+    pointer-events: none;
+  }
+  .tile.clue.sel:hover { background: var(--paper); }
+
+  /* ── PUZZLE GRID ── */
+  .frame {
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1rem 1.2rem 1.4rem;
+    display: inline-block;
+  }
+  .puzzle {
+    display: grid;
+    grid-template-columns: auto repeat(4, var(--cell));
+    grid-template-rows:    auto repeat(4, var(--cell));
+    gap: 4px;
+  }
+  .col-clue {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    padding: 0 0 4px;
+  }
+  .col-clue .band {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .row-clue {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 6px 0 0;
+  }
+  .row-clue .band { display: flex; flex-direction: row; align-items: center; gap: 4px; }
+
+  /* ── BOARD CELL ── */
+  .cell {
+    width: var(--cell);
+    height: var(--cell);
+    background: var(--paper-deep);
+    background-image:
+      repeating-linear-gradient(45deg, transparent 0 6px, rgba(0,0,0,0.04) 6px 8px);
+    box-shadow: inset 0 0 0 1.5px var(--cell-empty-edge);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .cell.filled {
+    background: var(--cell-empty);
+    background-image: none;
+    box-shadow: inset 0 0 0 1px var(--cell-empty-edge);
+  }
+  .cell.given {
+    background: var(--paper);
+    background-image: none;
+    box-shadow: inset 0 0 0 1.5px var(--ink-soft);
+    cursor: default;
+  }
+  .cell.error { box-shadow: inset 0 0 0 2px var(--accent); }
+  .cell svg { display: block; width: 100%; height: 100%; }
+  .region {
+    cursor: pointer;
+  }
+  .region:hover { opacity: 0.85; }
+
+  .rot-badge {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    background: var(--paper);
+    border: 1.2px solid var(--ink-soft);
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--ink);
+    font-weight: 500;
+    pointer-events: none;
+  }
+  .given-tag {
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: var(--paper);
+    padding: 0 3px;
+    border-radius: 2px;
+    pointer-events: none;
+  }
+
+  /* ── TRAY ── */
+  .tray {
+    margin-top: 14px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .tray-label {
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .tray-group { display: flex; gap: 8px; align-items: center; }
+
+  /* ── CONTROLS ── */
+  .actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .btn {
+    font-family: 'Spectral', serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1.5px solid var(--ink-soft);
+    border-radius: 6px;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+  }
+  .btn:hover { background: var(--paper-deep); }
+  .btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn.primary:hover { background: #1a1612; }
+  .status {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+  .status.solved { color: var(--green); font-weight: 500; }
+  .status.error  { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- Reusable outline glyphs -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="g-square" viewBox="0 0 20 20">
+      <rect x="2" y="2" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="g-triangle" viewBox="0 0 20 20">
+      <rect x="2" y="2" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <line x1="2" y1="2" x2="18" y2="18" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="g-curve" viewBox="0 0 20 20">
+      <rect x="2" y="2" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M 2 18 A 16 16 0 0 1 18 2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <div class="header">
+    <h1>Sampler picross</h1>
+    <span id="symBadge" class="sym-badge hidden" title="This block has half-turn (180°) symmetry — partner cells mirror each other.">⤾ symmetric</span>
+    <span id="dateLabel" class="puzzle-date"></span>
+    <select id="cluePick" class="design-pick" title="Clue layout" style="margin-left:auto">
+      <option value="combined">Combined chips</option>
+      <option value="separate">Shape + colour bands</option>
+    </select>
+    <a href="./sampler-picross-archive.html" class="design-pick" style="text-decoration:none;color:inherit">archive</a>
+    <a href="./sampler-picross-author.html" class="design-pick author-link" style="text-decoration:none;color:inherit">✎ author</a>
+  </div>
+  <div id="puzzleMeta" class="puzzle-meta"></div>
+
+  <div class="frame">
+    <div id="puzzle" class="puzzle"></div>
+    <div class="actions">
+      <button class="btn" id="btnReset">Reset</button>
+      <button class="btn" id="btnHint">Hint</button>
+      <button class="btn primary" id="btnCheck">Check</button>
+      <a id="btnPlayAgain" href="#" class="btn" style="display:none;text-decoration:none">Play again</a>
+      <span id="status" class="status"></span>
+    </div>
+  </div>
+</div>
+
+<script>window.__PICROSS_LIBRARY__ = {
+  "version": 2,
+  "designs": [
+    {
+      "id": "quarter-sky",
+      "name": "Quarter Sky",
+      "author": "Chris",
+      "difficulty": "mon-tue",
+      "date": "2026-05-23",
+      "notes": "",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        }
+      ]
+    }
+  ]
+}
+;</script>
+<script>
+(function(){
+'use strict';
+// Sampler picross engine — geometry, fabrics, target validation, clue derivation.
+// Pure logic, no DOM. Loadable in browser (via script tag) and Node.
+//
+// Grid size is per-target: a target is an array of N*N cells where N ∈ {3,4,5,6,8}.
+// Helpers take `size` (the side length) where needed, OR derive it from
+// `target.length`. There is no global GRID constant any more.
+
+const DIRS = ['N', 'E', 'S', 'W'];
+const SUPPORTED_SIZES = [3, 4, 5, 6, 8];
+
+function gridSizeOf(target) {
+  const n = Math.round(Math.sqrt(target.length));
+  if (n * n !== target.length) throw new Error('target length must be a perfect square');
+  return n;
+}
+
+function rowOf(i, size) { return Math.floor(i / size); }
+function colOf(i, size) { return i % size; }
+function rowCells(r, size) {
+  const out = [];
+  for (let c = 0; c < size; c++) out.push(r * size + c);
+  return out;
+}
+function colCells(c, size) {
+  const out = [];
+  for (let r = 0; r < size; r++) out.push(r * size + c);
+  return out;
+}
+function partnerOf(i, size) { return size * size - 1 - i; }
+
+// ── Pieces ───────────────────────────────────────────────────────
+// shapes: 'square' | 'triangle' | 'curve'. A curve is a Drunkard's-Path
+// quarter-circle: part A = the disc, part B = the field. A triangle is a
+// half-square triangle: parts A and B are its two halves.
+const SHAPES = ['square', 'triangle', 'curve'];
+
+function partsOf(shape) {
+  return shape === 'square' ? ['W'] : ['A', 'B'];
+}
+
+// Default rotation per shape — a piece in this rotation does not count toward
+// the ⟲ rotation total.
+const DEFAULT_ROT = { square: 0, triangle: 0, curve: 0 };
+const ROT_COUNT   = { square: 1, triangle: 4, curve: 4 };
+
+// curve continuity ports by rotation (rot 0 = disc in the NW corner)
+const CURVE_PORTS = { 0: ['N', 'W'], 1: ['N', 'E'], 2: ['S', 'E'], 3: ['S', 'W'] };
+
+// Triangle region by rotation. At rot 0 the right-angle sits at the NE corner:
+// region A is the NE half, region B is the SW half.
+const TRIANGLE_FACES = {
+  0: { N: 'A', E: 'A', S: 'B', W: 'B' },
+  1: { N: 'B', E: 'A', S: 'A', W: 'B' },
+  2: { N: 'B', E: 'B', S: 'A', W: 'A' },
+  3: { N: 'A', E: 'B', S: 'B', W: 'A' },
+};
+
+// ── Fabrics ──────────────────────────────────────────────────────
+const FABRICS = {
+  LINEN:    { name: 'Linen',    col: '#ece0c8', hue: 'neutral' },
+  FLAX:     { name: 'Flax',     col: '#d6c79b', hue: 'neutral' },
+  SAGE:     { name: 'Sage',     col: '#b3b89a', hue: 'neutral' },
+  MADDER:   { name: 'Madder',   col: '#a8392f', hue: 'warm' },
+  MARIGOLD: { name: 'Marigold', col: '#d99838', hue: 'warm' },
+  CLARET:   { name: 'Claret',   col: '#7d2933', hue: 'warm' },
+  INDIGO:   { name: 'Indigo',   col: '#2b3a5e', hue: 'cool' },
+  SLATE:    { name: 'Slate',    col: '#5f7b87', hue: 'cool' },
+  TEAL:     { name: 'Teal',     col: '#2f6d6a', hue: 'cool' },
+};
+
+// ── Target validation ────────────────────────────────────────────
+function validateTarget(target) {
+  const errors = [];
+  if (!Array.isArray(target)) { errors.push('target must be an array'); return errors; }
+  let size;
+  try { size = gridSizeOf(target); }
+  catch (e) { errors.push(e.message); return errors; }
+  if (!SUPPORTED_SIZES.includes(size)) {
+    errors.push(`unsupported grid size ${size}; supported sizes are ${SUPPORTED_SIZES.join(', ')}`);
+  }
+  for (let i = 0; i < target.length; i++) {
+    const cell = target[i];
+    if (!cell) { errors.push(`cell ${i}: missing`); continue; }
+    if (!SHAPES.includes(cell.shape)) errors.push(`cell ${i}: bad shape '${cell.shape}'`);
+    if (typeof cell.rot !== 'number' || cell.rot < 0 || cell.rot >= ROT_COUNT[cell.shape]) {
+      errors.push(`cell ${i}: bad rot ${cell.rot} for shape ${cell.shape}`);
+    }
+    for (const part of partsOf(cell.shape)) {
+      const fab = cell.regions?.[part];
+      if (!FABRICS[fab]) errors.push(`cell ${i}: region '${part}' has bad fabric '${fab}'`);
+    }
+  }
+  return errors;
+}
+
+// ── Clue derivation ──────────────────────────────────────────────
+function clueForCells(target, cellIndices) {
+  const shape = Object.create(null);
+  const rotation = Object.create(null);
+  const fabric = Object.create(null);
+  for (const i of cellIndices) {
+    const cell = target[i];
+    if (!cell) continue;
+    shape[cell.shape] = (shape[cell.shape] || 0) + 1;
+    if (cell.rot !== DEFAULT_ROT[cell.shape]) {
+      rotation[cell.shape] = (rotation[cell.shape] || 0) + 1;
+    }
+    for (const part of partsOf(cell.shape)) {
+      const fab = cell.regions[part];
+      fabric[fab] = (fabric[fab] || 0) + 1;
+    }
+  }
+  return { shape, rotation, fabric };
+}
+
+function deriveClues(target) {
+  const size = gridSizeOf(target);
+  const rows = [];
+  const cols = [];
+  for (let r = 0; r < size; r++) rows.push(clueForCells(target, rowCells(r, size)));
+  for (let c = 0; c < size; c++) cols.push(clueForCells(target, colCells(c, size)));
+  return { rows, cols, size };
+}
+
+// ── Symmetry detection ───────────────────────────────────────────
+function isHalfTurnSymmetric(target) {
+  const size = gridSizeOf(target);
+  const N = size * size;
+  for (let i = 0; i < N; i++) {
+    const a = target[i];
+    const b = target[N - 1 - i];
+    if (!a || !b) return false;
+    if (a.shape !== b.shape) return false;
+    const expectedRot = a.shape === 'square'
+      ? 0
+      : (a.rot + 2) % ROT_COUNT[a.shape];
+    if (b.rot !== expectedRot) return false;
+    for (const part of partsOf(a.shape)) {
+      if (a.regions[part] !== b.regions[part]) return false;
+    }
+  }
+  return true;
+}
+
+// ── Density check ────────────────────────────────────────────────
+function maxBandChips(clues) {
+  let worst = 0;
+  const bands = [...clues.rows, ...clues.cols];
+  for (const b of bands) {
+    const shapeChips = Object.keys(b.shape).length;
+    const fabricChips = Object.keys(b.fabric).length;
+    worst = Math.max(worst, shapeChips, fabricChips);
+  }
+  return worst;
+}
+
+// ── Difficulty suggestion ───────────────────────────────────────
+// Heuristic: bigger grid, more shapes, more fabrics, more rotations push
+// difficulty up; more givens (from the generator) pull it back down. Returns
+// one of 'mon-tue' | 'wed-th' | 'fri-sat' | 'sun'. Author can override.
+const DIFFICULTIES = ['mon-tue', 'wed-th', 'fri-sat', 'sun'];
+
+function suggestedDifficulty(target, generated) {
+  const size = gridSizeOf(target);
+  const shapes = new Set();
+  const fabrics = new Set();
+  let rotated = 0;
+  for (const c of target) {
+    if (!c) continue;
+    shapes.add(c.shape);
+    for (const f of Object.values(c.regions || {})) if (f) fabrics.add(f);
+    if (c.rot !== 0) rotated++;
+  }
+  const givens = generated?.givenCount ?? 0;
+  let score = 0;
+  score += (size - 3) * 8;
+  score += (shapes.size - 1) * 20;
+  score += Math.max(0, fabrics.size - 2) * 8;
+  score += Math.min(rotated, 12) * 4;
+  score -= givens * 1;
+  if (score < 14) return 'mon-tue';
+  if (score < 30) return 'wed-th';
+  if (score < 50) return 'fri-sat';
+  return 'sun';
+}
+
+// ── Exports ──────────────────────────────────────────────────────
+const PicrossEngine = {
+  DIRS, SUPPORTED_SIZES,
+  SHAPES, DEFAULT_ROT, ROT_COUNT,
+  CURVE_PORTS, TRIANGLE_FACES,
+  FABRICS,
+  gridSizeOf,
+  rowOf, colOf, rowCells, colCells, partnerOf,
+  partsOf,
+  validateTarget,
+  clueForCells, deriveClues,
+  isHalfTurnSymmetric,
+  maxBandChips,
+  suggestedDifficulty, DIFFICULTIES,
+};
+
+if (typeof module !== 'undefined' && module.exports) module.exports = PicrossEngine;
+if (typeof window !== 'undefined') window.PicrossEngine = PicrossEngine;
+
+})();
+</script>
+<script>
+(function(){
+'use strict';
+// Sampler picross solver — constraint propagation over multiset clues.
+// Works on any supported grid size (3,4,5,6,8); size is taken from clues.size.
+
+const E =
+  typeof require !== 'undefined'
+    ? require('./sampler-picross.engine.js')
+    : (typeof window !== 'undefined' ? window.PicrossEngine : null);
+
+const { SHAPES, DEFAULT_ROT, ROT_COUNT, FABRICS,
+        rowOf, colOf, rowCells, colCells, partnerOf, partsOf } = E;
+
+// Generate every piece option a cell could hold: all (shape, rot) combinations.
+function allPieceOptions() {
+  const out = [];
+  for (const shape of SHAPES) {
+    for (let rot = 0; rot < ROT_COUNT[shape]; rot++) {
+      out.push({ shape, rot });
+    }
+  }
+  return out;
+}
+const PIECE_OPTIONS = allPieceOptions();
+
+function countShapeInCells(grid, cellIndices, shape) {
+  let n = 0;
+  for (const i of cellIndices) if (grid[i] && grid[i].shape === shape) n++;
+  return n;
+}
+function countNonDefaultRotInCells(grid, cellIndices, shape) {
+  let n = 0;
+  for (const i of cellIndices) {
+    const p = grid[i];
+    if (p && p.shape === shape && p.rot !== DEFAULT_ROT[shape]) n++;
+  }
+  return n;
+}
+
+function bandShapeFeasible(grid, cellIndices, bandClue) {
+  const requiredShapes = bandClue.shape || {};
+  for (const s of SHAPES) {
+    const have = countShapeInCells(grid, cellIndices, s);
+    const want = requiredShapes[s] || 0;
+    if (have > want) return false;
+  }
+  const empties = cellIndices.filter(i => !grid[i]).length;
+  let totalNeeded = 0;
+  for (const s of SHAPES) {
+    const have = countShapeInCells(grid, cellIndices, s);
+    const want = requiredShapes[s] || 0;
+    if (want < have) return false;
+    totalNeeded += (want - have);
+  }
+  if (totalNeeded > empties) return false;
+  return true;
+}
+
+function bandRotationFeasible(grid, cellIndices, bandClue) {
+  const reqRot = bandClue.rotation || {};
+  const reqShapes = bandClue.shape || {};
+  for (const s of SHAPES) {
+    if (!reqShapes[s]) continue;
+    const want = reqRot[s] || 0;
+    const haveRotated = countNonDefaultRotInCells(grid, cellIndices, s);
+    const haveShape   = countShapeInCells(grid, cellIndices, s);
+    const remainingShapeNeeded = reqShapes[s] - haveShape;
+    if (haveRotated > want) return false;
+    if (haveRotated + remainingShapeNeeded < want) return false;
+  }
+  return true;
+}
+
+function localCheck(grid, clues, i, size) {
+  const r = rowOf(i, size), c = colOf(i, size);
+  const rowI = rowCells(r, size), colI = colCells(c, size);
+  if (!bandShapeFeasible(grid, rowI, clues.rows[r])) return false;
+  if (!bandShapeFeasible(grid, colI, clues.cols[c])) return false;
+  if (!bandRotationFeasible(grid, rowI, clues.rows[r])) return false;
+  if (!bandRotationFeasible(grid, colI, clues.cols[c])) return false;
+  return true;
+}
+
+function finalCheck(grid, clues, size) {
+  for (let r = 0; r < size; r++) {
+    const cells = rowCells(r, size);
+    const want = clues.rows[r];
+    for (const s of SHAPES) {
+      const have = countShapeInCells(grid, cells, s);
+      const w = want.shape?.[s] || 0;
+      if (have !== w) return false;
+    }
+    for (const s of SHAPES) {
+      if (!(want.shape?.[s])) continue;
+      const haveRot = countNonDefaultRotInCells(grid, cells, s);
+      const wRot = want.rotation?.[s] || 0;
+      if (haveRot !== wRot) return false;
+    }
+  }
+  for (let c = 0; c < size; c++) {
+    const cells = colCells(c, size);
+    const want = clues.cols[c];
+    for (const s of SHAPES) {
+      const have = countShapeInCells(grid, cells, s);
+      const w = want.shape?.[s] || 0;
+      if (have !== w) return false;
+    }
+    for (const s of SHAPES) {
+      if (!(want.shape?.[s])) continue;
+      const haveRot = countNonDefaultRotInCells(grid, cells, s);
+      const wRot = want.rotation?.[s] || 0;
+      if (haveRot !== wRot) return false;
+    }
+  }
+  return true;
+}
+
+function partnerRot(piece) {
+  if (piece.shape === 'square') return 0;
+  return (piece.rot + 2) % 4;
+}
+
+function enumeratePieces(clues, givens, maxSolutions, opts) {
+  const size = clues.size;
+  const N = size * size;
+  const halfTurnSym = !!(opts && opts.halfTurnSymmetric);
+  const grid = new Array(N).fill(null);
+  if (givens) {
+    for (const [k, p] of Object.entries(givens)) {
+      grid[+k] = { shape: p.shape, rot: p.rot };
+    }
+  }
+  for (let r = 0; r < size; r++) {
+    if (!bandShapeFeasible(grid, rowCells(r, size), clues.rows[r])) return [];
+    if (!bandRotationFeasible(grid, rowCells(r, size), clues.rows[r])) return [];
+  }
+  for (let c = 0; c < size; c++) {
+    if (!bandShapeFeasible(grid, colCells(c, size), clues.cols[c])) return [];
+    if (!bandRotationFeasible(grid, colCells(c, size), clues.cols[c])) return [];
+  }
+
+  const results = [];
+  function recurse(idx) {
+    if (results.length >= maxSolutions) return;
+    while (idx < N && grid[idx]) idx++;
+    if (idx === N) {
+      if (finalCheck(grid, clues, size)) results.push(grid.slice());
+      return;
+    }
+    for (const opt of PIECE_OPTIONS) {
+      grid[idx] = opt;
+      const j = halfTurnSym ? partnerOf(idx, size) : -1;
+      let mirrored = false;
+      if (halfTurnSym && j !== idx) {
+        if (grid[j] && (grid[j].shape !== opt.shape || grid[j].rot !== partnerRot(opt))) {
+          grid[idx] = null;
+          continue;
+        }
+        if (!grid[j]) {
+          grid[j] = { shape: opt.shape, rot: partnerRot(opt) };
+          mirrored = true;
+        }
+      }
+      if (localCheck(grid, clues, idx, size) && (j === -1 || localCheck(grid, clues, j, size))) {
+        recurse(idx + 1);
+      }
+      if (mirrored) grid[j] = null;
+      if (results.length >= maxSolutions) { grid[idx] = null; return; }
+      grid[idx] = null;
+    }
+  }
+  recurse(0);
+  return results;
+}
+
+function enumerateFabrics(pieceGrid, clues, givenFabrics, maxSolutions, opts) {
+  const size = clues.size;
+  const N = size * size;
+  const halfTurnSym = !!(opts && opts.halfTurnSymmetric);
+  const regions = [];
+  for (let i = 0; i < N; i++) {
+    const p = pieceGrid[i];
+    for (const part of partsOf(p.shape)) {
+      regions.push({ key: `${i}:${part}`, cell: i, part, row: rowOf(i, size), col: colOf(i, size) });
+    }
+  }
+  const allFabrics = new Set();
+  for (const band of [...clues.rows, ...clues.cols]) {
+    for (const f of Object.keys(band.fabric || {})) allFabrics.add(f);
+  }
+  const fabricList = [...allFabrics];
+  if (fabricList.length === 0) return [{}];
+
+  const assign = Object.create(null);
+  if (givenFabrics) Object.assign(assign, givenFabrics);
+
+  const partnerForKey = Object.create(null);
+  if (halfTurnSym) {
+    for (const reg of regions) {
+      partnerForKey[reg.key] = `${partnerOf(reg.cell, size)}:${reg.part}`;
+    }
+  }
+
+  function countFabricInRow(r, f) {
+    let n = 0;
+    for (const reg of regions) if (reg.row === r && assign[reg.key] === f) n++;
+    return n;
+  }
+  function countFabricInCol(c, f) {
+    let n = 0;
+    for (const reg of regions) if (reg.col === c && assign[reg.key] === f) n++;
+    return n;
+  }
+  function feasibleAfter(reg, f) {
+    const want = clues.rows[reg.row].fabric || {};
+    if (countFabricInRow(reg.row, f) > (want[f] || 0)) return false;
+    const wantC = clues.cols[reg.col].fabric || {};
+    if (countFabricInCol(reg.col, f) > (wantC[f] || 0)) return false;
+    return true;
+  }
+  function finalFabricCheck() {
+    for (let r = 0; r < size; r++) {
+      const want = clues.rows[r].fabric || {};
+      for (const f of fabricList) {
+        if (countFabricInRow(r, f) !== (want[f] || 0)) return false;
+      }
+    }
+    for (let c = 0; c < size; c++) {
+      const want = clues.cols[c].fabric || {};
+      for (const f of fabricList) {
+        if (countFabricInCol(c, f) !== (want[f] || 0)) return false;
+      }
+    }
+    return true;
+  }
+
+  const out = [];
+  function recurse(idx) {
+    if (out.length >= maxSolutions) return;
+    while (idx < regions.length && assign[regions[idx].key] != null) idx++;
+    if (idx === regions.length) {
+      if (finalFabricCheck()) out.push({ ...assign });
+      return;
+    }
+    const reg = regions[idx];
+    for (const f of fabricList) {
+      assign[reg.key] = f;
+      let mirroredKey = null;
+      if (halfTurnSym) {
+        const pk = partnerForKey[reg.key];
+        if (pk && pk !== reg.key) {
+          if (assign[pk] != null && assign[pk] !== f) {
+            delete assign[reg.key];
+            continue;
+          }
+          if (assign[pk] == null) {
+            assign[pk] = f;
+            mirroredKey = pk;
+          }
+        }
+      }
+      if (feasibleAfter(reg, f)) recurse(idx + 1);
+      if (mirroredKey) delete assign[mirroredKey];
+      delete assign[reg.key];
+      if (out.length >= maxSolutions) return;
+    }
+  }
+  recurse(0);
+  return out;
+}
+
+function solve(clues, givens, opts) {
+  const size = clues.size;
+  const N = size * size;
+  const pieceGivens = {};
+  const fabricGivens = {};
+  if (givens) {
+    for (const [k, v] of Object.entries(givens)) {
+      if (v.shape != null && v.rot != null) pieceGivens[k] = { shape: v.shape, rot: v.rot };
+      if (v.regions) {
+        for (const [part, f] of Object.entries(v.regions)) {
+          fabricGivens[`${k}:${part}`] = f;
+        }
+      }
+    }
+  }
+  const pieceSolutions = enumeratePieces(clues, pieceGivens, 4, opts);
+  const targets = [];
+  for (const pg of pieceSolutions) {
+    const fabricAssignments = enumerateFabrics(pg, clues, fabricGivens, 2, opts);
+    for (const fa of fabricAssignments) {
+      const target = pg.map((p, i) => {
+        const regions = {};
+        for (const part of partsOf(p.shape)) regions[part] = fa[`${i}:${part}`];
+        return { shape: p.shape, rot: p.rot, regions };
+      });
+      targets.push(target);
+      if (targets.length >= 2) break;
+    }
+    if (targets.length >= 2) break;
+  }
+  return { unique: targets.length === 1, solutions: targets };
+}
+
+function nextHint(clues, partial) {
+  const size = clues.size;
+  const N = size * size;
+  const pieceGivens = {};
+  const fabricGivens = {};
+  for (let i = 0; i < N; i++) {
+    const p = partial?.[i];
+    if (!p) continue;
+    if (p.shape != null && p.rot != null) pieceGivens[i] = { shape: p.shape, rot: p.rot };
+    if (p.regions) {
+      for (const [part, f] of Object.entries(p.regions)) {
+        if (f != null) fabricGivens[`${i}:${part}`] = f;
+      }
+    }
+  }
+  const { solutions } = solve(clues, {
+    ...Object.fromEntries(Object.entries(pieceGivens).map(([k, v]) => [k, {
+      ...v,
+      regions: Object.fromEntries(
+        Object.entries(fabricGivens)
+          .filter(([rk]) => rk.startsWith(k + ':'))
+          .map(([rk, f]) => [rk.split(':')[1], f])
+      ),
+    }])),
+  });
+  if (solutions.length === 0) return null;
+  for (let i = 0; i < N; i++) {
+    const sol0 = solutions[0][i];
+    const knownPiece = pieceGivens[i] != null;
+    if (!knownPiece) {
+      const allSame = solutions.every(s => s[i].shape === sol0.shape && s[i].rot === sol0.rot);
+      if (allSame) return { cell: i, piece: { shape: sol0.shape, rot: sol0.rot } };
+    }
+    for (const part of partsOf(sol0.shape)) {
+      const k = `${i}:${part}`;
+      if (fabricGivens[k]) continue;
+      const f0 = sol0.regions[part];
+      const allSame = solutions.every(s => {
+        if (!s[i] || s[i].shape !== sol0.shape) return false;
+        return s[i].regions?.[part] === f0;
+      });
+      if (allSame) return { cell: i, regionPart: part, fabric: f0 };
+    }
+  }
+  return null;
+}
+
+const PicrossSolver = { enumeratePieces, enumerateFabrics, solve, nextHint };
+if (typeof module !== 'undefined' && module.exports) module.exports = PicrossSolver;
+if (typeof window !== 'undefined') window.PicrossSolver = PicrossSolver;
+
+})();
+</script>
+<script>
+(function(){
+'use strict';
+// Sampler picross generator — turns a target block into a playable puzzle.
+// Works on any supported grid size.
+
+const E =
+  typeof require !== 'undefined'
+    ? require('./sampler-picross.engine.js')
+    : (typeof window !== 'undefined' ? window.PicrossEngine : null);
+const S =
+  typeof require !== 'undefined'
+    ? require('./sampler-picross.solver.js')
+    : (typeof window !== 'undefined' ? window.PicrossSolver : null);
+
+const { partsOf, deriveClues, validateTarget, maxBandChips, isHalfTurnSymmetric, gridSizeOf } = E;
+
+function scoreCandidate(clues, givens, cell, target, opts) {
+  const trial = { ...givens, [cell]: target[cell] };
+  const r = S.solve(clues, trial, opts);
+  if (r.unique) return 0;
+  return r.solutions.length;
+}
+
+// Among cells tied for the best score, prefer the one farthest (Chebyshev
+// distance) from existing givens, with a random shuffle as the last tiebreak.
+// This produces a visually spread-out given layout instead of clumping every
+// given in the top-left corner of the board.
+function pickNextGiven(clues, givens, target, opts) {
+  const size = clues.size;
+  const N = size * size;
+  const givenIdx = Object.keys(givens).map(Number);
+  let bestScore = Infinity;
+  const tied = [];
+  for (let i = 0; i < N; i++) {
+    if (givens[i] != null) continue;
+    const score = scoreCandidate(clues, givens, i, target, opts);
+    if (score < bestScore) {
+      bestScore = score;
+      tied.length = 0;
+      tied.push(i);
+    } else if (score === bestScore) {
+      tied.push(i);
+    }
+  }
+  if (tied.length === 0) return { cell: null, score: Infinity };
+  if (tied.length === 1) return { cell: tied[0], score: bestScore };
+  function distToGivens(i) {
+    if (givenIdx.length === 0) return 0;
+    const r = Math.floor(i / size), c = i % size;
+    let min = Infinity;
+    for (const g of givenIdx) {
+      const d = Math.max(Math.abs(r - Math.floor(g / size)), Math.abs(c - (g % size)));
+      if (d < min) min = d;
+    }
+    return min;
+  }
+  tied.sort((a, b) => {
+    const dd = distToGivens(b) - distToGivens(a);
+    if (dd !== 0) return dd;
+    return Math.random() - 0.5;
+  });
+  return { cell: tied[0], score: bestScore };
+}
+
+function generate(target, opts) {
+  const options = Object.assign({ maxGivens: undefined, halfTurnSymmetric: undefined }, opts || {});
+  const errs = validateTarget(target);
+  if (errs.length) throw new Error('invalid target: ' + errs.join('; '));
+  const size = gridSizeOf(target);
+  const clues = deriveClues(target);
+  // Default maxGivens scales with grid size so generation has headroom on
+  // larger boards.
+  const maxGivens = options.maxGivens != null ? options.maxGivens : Math.max(8, size * 2);
+  const sym = options.halfTurnSymmetric != null
+    ? !!options.halfTurnSymmetric
+    : isHalfTurnSymmetric(target);
+  const solveOpts = { halfTurnSymmetric: sym };
+
+  const bandStats = {
+    maxChips: maxBandChips(clues),
+    perBand: {
+      rows: clues.rows.map(b => ({ shape: Object.keys(b.shape).length, fabric: Object.keys(b.fabric).length })),
+      cols: clues.cols.map(b => ({ shape: Object.keys(b.shape).length, fabric: Object.keys(b.fabric).length })),
+    },
+  };
+
+  const givens = {};
+  let result = S.solve(clues, givens, solveOpts);
+  while (!result.unique && Object.keys(givens).length < maxGivens) {
+    const { cell } = pickNextGiven(clues, givens, target, solveOpts);
+    if (cell == null) break;
+    givens[cell] = target[cell];
+    result = S.solve(clues, givens, solveOpts);
+  }
+
+  return {
+    target, clues, givens,
+    size,
+    unique: result.unique,
+    givenCount: Object.keys(givens).length,
+    bandStats,
+    halfTurnSymmetric: sym,
+  };
+}
+
+const PicrossGenerator = { generate, pickNextGiven };
+if (typeof module !== 'undefined' && module.exports) module.exports = PicrossGenerator;
+if (typeof window !== 'undefined') window.PicrossGenerator = PicrossGenerator;
+
+})();
+</script>
+<script>
+(function(){
+'use strict';
+// Sampler picross templates — thin wrapper around the JSON library.
+//
+// The single source of truth is sampler-picross.templates.json. Authoring
+// happens through the local library server, which mutates that file; the
+// inliner script embeds the JSON into the HTML for production builds.
+//
+// In Node we read the JSON from disk. In the browser the inliner replaces
+// this whole block with a literal `__LIBRARY__` constant assigned from the
+// embedded JSON. See scripts/inline-picross.js.
+
+let LIBRARY;
+if (typeof require !== 'undefined') {
+  LIBRARY = require('./sampler-picross.templates.json');
+} else if (typeof window !== 'undefined' && window.__PICROSS_LIBRARY__) {
+  LIBRARY = window.__PICROSS_LIBRARY__;
+} else {
+  LIBRARY = { version: 1, designs: [] };
+}
+
+const TARGETS = LIBRARY.designs.map(d => ({
+  id: d.id,
+  name: d.name,
+  difficulty: d.difficulty,
+  notes: d.notes,
+  target: d.target,
+}));
+
+const PicrossTargets = { TARGETS, LIBRARY };
+
+if (typeof module !== 'undefined' && module.exports) module.exports = PicrossTargets;
+if (typeof window !== 'undefined') window.PicrossTargets = PicrossTargets;
+
+})();
+</script>
+<script>
+function bootSamplerPicross() {
+  'use strict';
+
+  const E = window.PicrossEngine;
+  const S = window.PicrossSolver;
+  const G = window.PicrossGenerator;
+  const T = window.PicrossTargets;
+  if (!E || !S || !G || !T) {
+    // One of the dependency scripts hasn't finished loading yet — try again.
+    return setTimeout(bootSamplerPicross, 30);
+  }
+
+  const partsOf = E.partsOf;
+  // Pixel-size each cell. Smaller grids get bigger cells.
+  const cellPxFor = size => size <= 4 ? 72 : size === 5 ? 64 : size === 6 ? 56 : 44;
+
+  // ── App state ────────────────────────────────────────────────
+  const state = {
+    designId: null,
+    puzzle: null,
+    board: [],
+    selectedShape: null,    // separate-mode: shape picker
+    selectedFabric: null,   // separate-mode: fabric picker
+    selectedPiece: null,    // combined-mode: { sig, shape, regions }
+    clueMode: localStorage.getItem('picross-clue-mode') || 'combined',
+  };
+
+  // ── Rendering helpers ────────────────────────────────────────
+  // Build the SVG content for a piece in a cell, given (shape, rot, regions).
+  // We draw two region polygons (A/B) for triangles/curves, or a single fill
+  // for squares. Region elements expose data attributes for click handling.
+  function pieceSvg(piece, cellIdx) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 64 64');
+    if (!piece) return svg;
+    const rot = piece.rot || 0;
+    const shape = piece.shape;
+    const fab = part => piece.regions?.[part];
+    const fabricCol = key => key ? E.FABRICS[key].col : 'var(--region-blank)';
+    const mkPoly = (pts, part) => {
+      const p = document.createElementNS(ns, 'polygon');
+      p.setAttribute('points', pts);
+      p.setAttribute('fill', fabricCol(fab(part)));
+      p.setAttribute('class', 'region');
+      p.setAttribute('data-cell', cellIdx);
+      p.setAttribute('data-part', part);
+      return p;
+    };
+    if (shape === 'square') {
+      const r = document.createElementNS(ns, 'rect');
+      r.setAttribute('width', '64');
+      r.setAttribute('height', '64');
+      r.setAttribute('fill', fabricCol(fab('W')));
+      r.setAttribute('class', 'region');
+      r.setAttribute('data-cell', cellIdx);
+      r.setAttribute('data-part', 'W');
+      svg.appendChild(r);
+    } else if (shape === 'triangle') {
+      // rot 0: A=NE (TL-TR-BR), B=SW (TL-BR-BL)
+      // we rotate by drawing rot=0 then applying SVG rotate(rot*90)
+      const g = document.createElementNS(ns, 'g');
+      g.setAttribute('transform', `rotate(${rot * 90} 32 32)`);
+      g.appendChild(mkPoly('0,0 64,0 64,64', 'A'));
+      g.appendChild(mkPoly('0,0 64,64 0,64', 'B'));
+      // Seam outline so the piece reads as a triangle even before fabric.
+      const seam = document.createElementNS(ns, 'line');
+      seam.setAttribute('x1', '0'); seam.setAttribute('y1', '0');
+      seam.setAttribute('x2', '64'); seam.setAttribute('y2', '64');
+      seam.setAttribute('stroke', 'var(--ink-soft)');
+      seam.setAttribute('stroke-width', '1.6');
+      seam.setAttribute('stroke-opacity', '0.55');
+      seam.setAttribute('pointer-events', 'none');
+      g.appendChild(seam);
+      svg.appendChild(g);
+    } else if (shape === 'curve') {
+      // rot 0: A = disc in NW quarter; B = field (rest of cell)
+      const g = document.createElementNS(ns, 'g');
+      g.setAttribute('transform', `rotate(${rot * 90} 32 32)`);
+      const field = document.createElementNS(ns, 'rect');
+      field.setAttribute('width', '64'); field.setAttribute('height', '64');
+      field.setAttribute('fill', fabricCol(fab('B')));
+      field.setAttribute('class', 'region');
+      field.setAttribute('data-cell', cellIdx);
+      field.setAttribute('data-part', 'B');
+      g.appendChild(field);
+      const disc = document.createElementNS(ns, 'path');
+      disc.setAttribute('d', 'M 0 0 H 64 A 64 64 0 0 1 0 64 Z'); // disc in NW: arc from NE-corner to SW-corner via interior
+      disc.setAttribute('d', 'M 0 0 L 64 0 A 64 64 0 0 0 0 64 Z');
+      disc.setAttribute('fill', fabricCol(fab('A')));
+      disc.setAttribute('class', 'region');
+      disc.setAttribute('data-cell', cellIdx);
+      disc.setAttribute('data-part', 'A');
+      g.appendChild(disc);
+      // Quarter-arc seam outline so the curve reads even before fabric.
+      const seam = document.createElementNS(ns, 'path');
+      seam.setAttribute('d', 'M 64 0 A 64 64 0 0 0 0 64');
+      seam.setAttribute('fill', 'none');
+      seam.setAttribute('stroke', 'var(--ink-soft)');
+      seam.setAttribute('stroke-width', '1.6');
+      seam.setAttribute('stroke-opacity', '0.55');
+      seam.setAttribute('pointer-events', 'none');
+      g.appendChild(seam);
+      svg.appendChild(g);
+    }
+    return svg;
+  }
+
+  // ── Combined-chip helpers ────────────────────────────────────
+  // Each piece is identified by (shape, sorted region fabrics). Rotation is
+  // tracked separately, surfaced via the ⟲ pill on the chip.
+  function pieceSig(cell) {
+    if (!cell) return null;
+    const regs = Object.entries(cell.regions || {})
+      .filter(([_, f]) => f != null)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([p, f]) => p + '=' + f)
+      .join(',');
+    return cell.shape + '|' + regs;
+  }
+
+  // Group target cells of a band by piece signature.
+  function piecesInBand(kind, idx) {
+    const map = new Map();
+    for (const i of bandCells(kind, idx)) {
+      const cell = state.puzzle.target[i];
+      if (!cell) continue;
+      const sig = pieceSig(cell);
+      if (!map.has(sig)) {
+        map.set(sig, { sig, shape: cell.shape, regions: { ...cell.regions }, count: 0, rotated: 0 });
+      }
+      const entry = map.get(sig);
+      entry.count++;
+      if (cell.rot !== 0) entry.rotated++;
+    }
+    return map;
+  }
+
+  // Player-board counts for one signature in a band.
+  function placedPieceInBand(kind, idx, sig) {
+    let given = 0, player = 0, rotGiven = 0, rotPlayer = 0;
+    for (const i of bandCells(kind, idx)) {
+      const c = state.board[i];
+      if (!c) continue;
+      if (pieceSig(c) !== sig) continue;
+      if (c._given) given++; else player++;
+      if (c.rot !== 0) {
+        if (c._given) rotGiven++; else rotPlayer++;
+      }
+    }
+    return { given, player, rotGiven, rotPlayer };
+  }
+
+  // Combined-chip piece SVG. The chip's own border is the outline — we draw
+  // the fabric fills edge-to-edge inside it and add just the seam line for
+  // triangles/curves so the shape reads.
+  function pieceMiniSvg(shape, regions) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 20 20');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    const fab = key => key ? E.FABRICS[key].col : 'var(--cell-empty)';
+    if (shape === 'square') {
+      const r = document.createElementNS(ns, 'rect');
+      r.setAttribute('width', '20'); r.setAttribute('height', '20');
+      r.setAttribute('fill', fab(regions.W));
+      svg.appendChild(r);
+    } else if (shape === 'triangle') {
+      const a = document.createElementNS(ns, 'polygon');
+      a.setAttribute('points', '0,0 20,0 20,20');
+      a.setAttribute('fill', fab(regions.A));
+      const b = document.createElementNS(ns, 'polygon');
+      b.setAttribute('points', '0,0 20,20 0,20');
+      b.setAttribute('fill', fab(regions.B));
+      const seam = document.createElementNS(ns, 'line');
+      seam.setAttribute('x1', '0'); seam.setAttribute('y1', '0');
+      seam.setAttribute('x2', '20'); seam.setAttribute('y2', '20');
+      seam.setAttribute('stroke', 'var(--ink)');
+      seam.setAttribute('stroke-width', '1');
+      svg.appendChild(a); svg.appendChild(b); svg.appendChild(seam);
+    } else {
+      const field = document.createElementNS(ns, 'rect');
+      field.setAttribute('width', '20'); field.setAttribute('height', '20');
+      field.setAttribute('fill', fab(regions.B));
+      const disc = document.createElementNS(ns, 'path');
+      disc.setAttribute('d', 'M 0 0 L 20 0 A 20 20 0 0 0 0 20 Z');
+      disc.setAttribute('fill', fab(regions.A));
+      const seam = document.createElementNS(ns, 'path');
+      seam.setAttribute('d', 'M 20 0 A 20 20 0 0 0 0 20');
+      seam.setAttribute('fill', 'none');
+      seam.setAttribute('stroke', 'var(--ink)');
+      seam.setAttribute('stroke-width', '1');
+      svg.appendChild(field); svg.appendChild(disc); svg.appendChild(seam);
+    }
+    return svg;
+  }
+
+  // Build a combined-chip band for the given row/col.
+  function combinedBand(bandKind, bandIdx) {
+    const frag = document.createDocumentFragment();
+    const pieces = piecesInBand(bandKind, bandIdx);
+    for (const info of pieces.values()) {
+      const placed = placedPieceInBand(bandKind, bandIdx, info.sig);
+      const needed = info.count - placed.given;
+      if (needed <= 0) continue; // entirely given-satisfied
+      const remaining = needed - placed.player;
+      const isSpent = remaining <= 0;
+      const isSel = state.selectedPiece?.sig === info.sig;
+      const t = document.createElement('div');
+      t.className = 'tile clue combined' + (isSpent ? ' spent' : '') + (isSel ? ' sel' : '');
+      t.appendChild(pieceMiniSvg(info.shape, info.regions));
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.textContent = String(Math.max(remaining, 0));
+      t.appendChild(badge);
+      if (info.rotated > 0 && info.shape !== 'square') {
+        const neededRot = info.rotated - placed.rotGiven;
+        const remRot = neededRot - placed.rotPlayer;
+        const pill = document.createElement('span');
+        pill.className = 'rot-pill';
+        pill.innerHTML = `<span>⟲</span>${Math.max(remRot, 0)}`;
+        t.appendChild(pill);
+      }
+      if (!isSpent) {
+        t.addEventListener('click', () => {
+          state.selectedPiece = isSel ? null
+            : { sig: info.sig, shape: info.shape, regions: { ...info.regions } };
+          state.selectedShape = null;
+          state.selectedFabric = null;
+          render();
+        });
+      }
+      frag.appendChild(t);
+    }
+    return frag;
+  }
+
+  // Build a clue band: array of tile elements based on a clue object.
+  // Cell indices belonging to band (kind='row'|'col', idx=0..3).
+  function bandCells(kind, idx) {
+    const size = state.puzzle.size;
+    return kind === 'row' ? E.rowCells(idx, size) : E.colCells(idx, size);
+  }
+  // Count what's currently in the band, split between givens (pre-placed by
+  // the generator) and player placements. Givens don't decrement the chip
+  // count — they only adjust the band's nominal total. See clueBand.
+  function placedShapeInBand(kind, idx, shape) {
+    let given = 0, player = 0;
+    for (const i of bandCells(kind, idx)) {
+      const p = state.board[i];
+      if (!p || p.shape !== shape) continue;
+      if (p._given) given++; else player++;
+    }
+    return { given, player };
+  }
+  function placedRotationInBand(kind, idx, shape) {
+    let given = 0, player = 0;
+    for (const i of bandCells(kind, idx)) {
+      const p = state.board[i];
+      if (!p || p.shape !== shape || p.rot === 0) continue;
+      if (p._given) given++; else player++;
+    }
+    return { given, player };
+  }
+  function placedFabricInBand(kind, idx, fab) {
+    let given = 0, player = 0;
+    for (const i of bandCells(kind, idx)) {
+      const p = state.board[i];
+      if (!p) continue;
+      for (const part of partsOf(p.shape)) {
+        if (p.regions?.[part] !== fab) continue;
+        if (p._given) given++; else player++;
+      }
+    }
+    return { given, player };
+  }
+
+  // Build a clue band. `bandKind`='row'|'col', `bandIdx`=0..3.
+  function clueBand(clue, contentKind /* 'shape' | 'fabric' */, bandKind, bandIdx) {
+    const frag = document.createDocumentFragment();
+    if (contentKind === 'shape') {
+      for (const shape of ['square', 'triangle', 'curve']) {
+        const total = clue.shape?.[shape];
+        if (!total) continue;
+        const placed = placedShapeInBand(bandKind, bandIdx, shape);
+        // Chip displays only the count the PLAYER still has to place. Givens
+        // reduce the band's nominal total but are not "spent by the player".
+        const needed = total - placed.given;
+        const remaining = needed - placed.player;
+        const totalRot = clue.rotation?.[shape] || 0;
+        const placedRot = placedRotationInBand(bandKind, bandIdx, shape);
+        const neededRot = totalRot - placedRot.given;
+        const remainingRot = neededRot - placedRot.player;
+        const isSpent = remaining <= 0;
+        const isSel = state.selectedShape === shape;
+        const t = document.createElement('div');
+        t.className = 'tile clue' + (isSpent ? ' spent' : '') + (isSel ? ' sel' : '');
+        const useSym = shape === 'square' ? 'g-square'
+                     : shape === 'triangle' ? 'g-triangle' : 'g-curve';
+        t.innerHTML = `<svg><use href="#${useSym}"/></svg><span class="badge">${Math.max(remaining, 0)}</span>`;
+        if (totalRot > 0) {
+          const pill = document.createElement('span');
+          pill.className = 'rot-pill';
+          pill.innerHTML = `<span>⟲</span>${Math.max(remainingRot, 0)}`;
+          t.appendChild(pill);
+        }
+        if (!isSpent) {
+          t.addEventListener('click', () => {
+            state.selectedShape = state.selectedShape === shape ? null : shape;
+            state.selectedFabric = null;
+            render();
+          });
+        }
+        frag.appendChild(t);
+      }
+    } else if (contentKind === 'fabric') {
+      for (const [fab, total] of Object.entries(clue.fabric || {})) {
+        if (!total) continue;
+        const placed = placedFabricInBand(bandKind, bandIdx, fab);
+        const needed = total - placed.given;
+        const remaining = needed - placed.player;
+        // Hide chips fully satisfied by givens — the player can't (and
+        // needn't) place anything for them.
+        if (needed <= 0) continue;
+        const isSpent = remaining <= 0;
+        const isSel = state.selectedFabric === fab;
+        const t = document.createElement('div');
+        t.className = 'tile swatch clue' + (isSpent ? ' spent' : '') + (isSel ? ' sel' : '');
+        t.style.background = E.FABRICS[fab].col;
+        t.innerHTML = `<span class="badge">${Math.max(remaining, 0)}</span>`;
+        if (!isSpent) {
+          t.addEventListener('click', () => {
+            state.selectedFabric = state.selectedFabric === fab ? null : fab;
+            state.selectedShape = null;
+            render();
+          });
+        }
+        frag.appendChild(t);
+      }
+    }
+    return frag;
+  }
+
+  // Rebuild the player board from state.puzzle.givens — keeps the puzzle
+  // (target, clues, givens) intact and clears all player placements.
+  function resetBoardToPuzzle() {
+    const N = state.puzzle.size * state.puzzle.size;
+    state.board = new Array(N).fill(null);
+    for (const [k, v] of Object.entries(state.puzzle.givens)) {
+      state.board[+k] = JSON.parse(JSON.stringify(v));
+      state.board[+k]._given = true;
+    }
+    // Single-shape auto-fill: every non-given cell gets the shape pre-placed
+    // so the player can paint fabric immediately.
+    const shapeSet = new Set(state.puzzle.target.map(c => c.shape));
+    if (shapeSet.size === 1) {
+      const only = [...shapeSet][0];
+      for (let i = 0; i < N; i++) {
+        if (state.board[i]) continue;
+        const regions = {};
+        for (const part of partsOf(only)) regions[part] = null;
+        state.board[i] = { shape: only, rot: 0, regions };
+      }
+    }
+  }
+
+  // Force a brand-new generation (different givens) — wired to a future
+  // "new puzzle" button if desired. Reset alone reuses the current puzzle.
+  function regenerate() {
+    const target = state.puzzle?.target;
+    if (!target) return;
+    state.puzzle = G.generate(target);
+    state.puzzle._designId = state.designId;
+    resetBoardToPuzzle();
+    render();
+  }
+
+  // ── Persistence ──────────────────────────────────────────────
+  function storageKey() {
+    const id = state.currentDesign?.id;
+    if (!id || id === '__authored__') return null;
+    return 'picross-state-' + id;
+  }
+
+  function loadState() {
+    const key = storageKey();
+    if (!key) return null;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch { return null; }
+  }
+
+  function saveState() {
+    const key = storageKey();
+    if (!key) return;
+    const playerBoard = state.board.map(c =>
+      c && !c._given ? { shape: c.shape, rot: c.rot, regions: { ...c.regions } } : null
+    );
+    try {
+      localStorage.setItem(key, JSON.stringify({
+        board: playerBoard,
+        solved: state.solvedRevealed || !!state.solvedHistory,
+        solvedAt: state.solvedAt || null,
+        selectedPiece: state.selectedPiece || null,
+        selectedShape: state.selectedShape || null,
+        selectedFabric: state.selectedFabric || null,
+      }));
+    } catch {}
+  }
+
+  // ── Build a fresh puzzle for the current design ──────────────
+  // Today's date in America/New_York as YYYY-MM-DD. Used for picking the
+  // scheduled puzzle. Computing client-side via Intl avoids any server clock.
+  function todayET() {
+    const fmt = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/New_York',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+    });
+    return fmt.format(new Date()); // en-CA returns YYYY-MM-DD
+  }
+
+  // Resolve which design to load for the current page visit. URL `?date=`
+  // overrides; otherwise we use today's ET date; ephemeral `?authored=1`
+  // loads from localStorage for play-testing.
+  function resolveDesign() {
+    const params = new URLSearchParams(window.location.search);
+    // Static servers (npx serve) often strip query strings during clean-URL
+    // redirects, so we also honour a fresh authored-stamp from the author
+    // page as evidence that this tab was opened via Play test.
+    const stamp = +(localStorage.getItem('picross-authored-stamp') || 0);
+    const fresh = stamp && (Date.now() - stamp < 60_000);
+    if (params.get('authored') === '1' || fresh) {
+      try {
+        const target = JSON.parse(localStorage.getItem('picross-authored-target'));
+        if (target) {
+          // Consume the stamp so a later visit/refresh doesn't keep showing
+          // the stale draft after the play-test moment.
+          localStorage.removeItem('picross-authored-stamp');
+          return {
+            id: '__authored__',
+            date: todayET(),
+            name: localStorage.getItem('picross-authored-name') || '(draft)',
+            author: localStorage.getItem('picross-authored-author') || '',
+            target,
+            isDraft: true,
+          };
+        }
+      } catch {}
+    }
+    const targetDate = params.get('date') || todayET();
+    const designs = (window.__PICROSS_LIBRARY__?.designs) || [];
+    const match = designs.find(d => d.date === targetDate);
+    return match
+      ? { ...match }
+      : { id: null, date: targetDate, target: null };
+  }
+
+  function loadDesign() {
+    const design = resolveDesign();
+    state.currentDesign = design;
+    state.solvedRevealed = false;
+    state.solvedAt = null;
+    state.solvedHistory = false;
+    if (!design.target) {
+      state.puzzle = null;
+      state.board = [];
+      render();
+      return;
+    }
+    if (!state.puzzle || state.puzzle._designId !== design.id) {
+      state.puzzle = G.generate(design.target);
+      state.puzzle._designId = design.id;
+    }
+    resetBoardToPuzzle();
+    const saved = loadState();
+    if (saved) {
+      if (saved.solved) {
+        state.solvedRevealed = true;
+        state.solvedHistory = true;
+        state.solvedAt = saved.solvedAt || null;
+        const target = design.target;
+        for (let i = 0; i < state.board.length; i++) {
+          if (!state.board[i]?._given) {
+            state.board[i] = { shape: target[i].shape, rot: target[i].rot, regions: { ...target[i].regions } };
+          }
+        }
+      } else if (Array.isArray(saved.board) && saved.board.length === state.board.length) {
+        for (let i = 0; i < saved.board.length; i++) {
+          if (saved.board[i] && !state.board[i]?._given) {
+            state.board[i] = saved.board[i];
+          }
+        }
+        if (saved.selectedPiece) state.selectedPiece = saved.selectedPiece;
+        if (saved.selectedShape) state.selectedShape = saved.selectedShape;
+        if (saved.selectedFabric) state.selectedFabric = saved.selectedFabric;
+      }
+    }
+    render();
+  }
+
+  // Render the date strip + author byline / name reveal.
+  function renderHeader() {
+    const dateEl = document.getElementById('dateLabel');
+    const metaEl = document.getElementById('puzzleMeta');
+    const d = state.currentDesign;
+    if (d?.date) {
+      const dt = new Date(d.date + 'T12:00:00');
+      dateEl.textContent = dt.toLocaleDateString(undefined, {
+        weekday: 'long', month: 'long', day: 'numeric',
+      });
+    } else dateEl.textContent = '';
+    if (!d || !d.target) {
+      metaEl.textContent = '';
+    } else if (state.solvedRevealed && d.name) {
+      metaEl.innerHTML = `<span class="reveal">Solved!</span> Today's quilt block was <span class="name">${d.name}</span>${d.author ? ', designed by ' + d.author : ''}.`;
+    } else {
+      metaEl.textContent = d.author ? `Today's quilt block was designed by ${d.author}.` : '';
+    }
+  }
+
+  // Render everything from state.
+  function render() {
+    renderHeader();
+    const puzzle = document.getElementById('puzzle');
+    puzzle.innerHTML = '';
+    if (!state.puzzle) {
+      // No puzzle scheduled for the resolved date.
+      const wrap = document.createElement('div');
+      wrap.className = 'no-puzzle';
+      const d = state.currentDesign;
+      const dt = d?.date ? new Date(d.date + 'T12:00:00').toLocaleDateString(undefined, {
+        weekday: 'long', month: 'long', day: 'numeric',
+      }) : '';
+      wrap.innerHTML = `<strong>No puzzle for ${dt}.</strong><br>Check back tomorrow, or visit the <a href="./sampler-picross-archive.html">archive</a> for past puzzles.`;
+      puzzle.appendChild(wrap);
+      document.getElementById('symBadge').classList.add('hidden');
+      document.querySelector('.actions').style.display = 'none';
+      return;
+    }
+    document.querySelector('.actions').style.display = '';
+    const solved = state.solvedRevealed;
+    document.getElementById('btnReset').style.display    = solved ? 'none' : '';
+    document.getElementById('btnHint').style.display     = solved ? 'none' : '';
+    document.getElementById('btnCheck').style.display    = solved ? 'none' : '';
+    document.getElementById('btnPlayAgain').style.display = solved ? '' : 'none';
+    const clues = state.puzzle.clues;
+    const size = state.puzzle.size;
+    const cellPx = cellPxFor(size);
+    // Hide the shape band entirely if the whole target uses just one shape —
+    // there's nothing for the player to decide shape-wise.
+    const shapeSet = new Set(state.puzzle.target.map(c => c.shape));
+    const showShapeBand = shapeSet.size > 1;
+    // Dynamically size the puzzle grid for the current target size.
+    puzzle.style.gridTemplateColumns = `auto repeat(${size}, ${cellPx}px)`;
+    puzzle.style.gridTemplateRows    = `auto repeat(${size}, ${cellPx}px)`;
+
+    // top-left corner
+    puzzle.appendChild(document.createElement('div'));
+
+    // Column headers
+    for (let c = 0; c < size; c++) {
+      const wrap = document.createElement('div');
+      wrap.className = 'col-clue';
+      if (state.clueMode === 'combined') {
+        const b = document.createElement('div'); b.className = 'band';
+        b.appendChild(combinedBand('col', c));
+        wrap.appendChild(b);
+      } else {
+        if (showShapeBand) {
+          const b1 = document.createElement('div'); b1.className = 'band';
+          b1.appendChild(clueBand(clues.cols[c], 'shape', 'col', c));
+          wrap.appendChild(b1);
+        }
+        const b2 = document.createElement('div'); b2.className = 'band';
+        b2.appendChild(clueBand(clues.cols[c], 'fabric', 'col', c));
+        wrap.appendChild(b2);
+      }
+      puzzle.appendChild(wrap);
+    }
+
+    // Rows
+    for (let r = 0; r < size; r++) {
+      const wrap = document.createElement('div');
+      wrap.className = 'row-clue';
+      if (state.clueMode === 'combined') {
+        const b = document.createElement('div'); b.className = 'band';
+        b.appendChild(combinedBand('row', r));
+        wrap.appendChild(b);
+      } else {
+        if (showShapeBand) {
+          const b1 = document.createElement('div'); b1.className = 'band';
+          b1.appendChild(clueBand(clues.rows[r], 'shape', 'row', r));
+          wrap.appendChild(b1);
+        }
+        const b2 = document.createElement('div'); b2.className = 'band';
+        b2.appendChild(clueBand(clues.rows[r], 'fabric', 'row', r));
+        wrap.appendChild(b2);
+      }
+      puzzle.appendChild(wrap);
+      for (let c = 0; c < size; c++) {
+        const i = r * size + c;
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.cell = i;
+        cell.style.width  = cellPx + 'px';
+        cell.style.height = cellPx + 'px';
+        const piece = state.board[i];
+        if (piece) {
+          cell.classList.add('filled');
+          if (piece._given) cell.classList.add('given');
+          cell.appendChild(pieceSvg(piece, i));
+          if (piece.shape !== 'square' && piece.rot !== 0) {
+            const b = document.createElement('span');
+            b.className = 'rot-badge'; b.textContent = '⟲';
+            cell.appendChild(b);
+          }
+        }
+        puzzle.appendChild(cell);
+      }
+    }
+
+    // Symmetry badge
+    const symBadge = document.getElementById('symBadge');
+    symBadge.classList.toggle('hidden', !state.puzzle.halfTurnSymmetric);
+
+    setStatus('');
+    saveState();
+  }
+
+  // ── Interaction ──────────────────────────────────────────────
+  document.getElementById('puzzle').addEventListener('click', (e) => {
+    if (state.solvedRevealed) return;
+    // Combined-mode piece placement.
+    //   • Empty cell or different piece → stamp the selected piece at rot 0.
+    //   • Same piece already in cell → cycle its rotation.
+    if (state.selectedPiece) {
+      const cellEl = e.target.closest('.cell');
+      if (!cellEl) return;
+      const i = +cellEl.dataset.cell;
+      if (state.board[i]?._given) return;
+      const { shape, regions } = state.selectedPiece;
+      const existing = state.board[i];
+      const sameShape = existing && existing.shape === shape;
+      const sameFabrics = sameShape && partsOf(shape).every(p => existing.regions?.[p] === regions[p]);
+      if (sameShape && sameFabrics) {
+        if (shape !== 'square') {
+          existing.rot = (existing.rot + 1) % E.ROT_COUNT[shape];
+          render();
+        }
+        return;
+      }
+      state.board[i] = { shape, rot: 0, regions: { ...regions } };
+      render();
+      return;
+    }
+    const regionEl = e.target.closest('.region');
+    if (regionEl) {
+      const i = +regionEl.dataset.cell;
+      const part = regionEl.dataset.part;
+      if (state.board[i]?._given) return;
+      // If a fabric is selected, assign it to this region.
+      if (state.selectedFabric && state.board[i]) {
+        state.board[i].regions[part] = state.selectedFabric;
+        render();
+        return;
+      }
+    }
+    const cellEl = e.target.closest('.cell');
+    if (!cellEl) return;
+    const i = +cellEl.dataset.cell;
+    if (state.board[i]?._given) return;
+    // Empty cell: place selected shape with default rotation; no fabrics yet.
+    if (!state.board[i]) {
+      if (state.selectedShape) {
+        const regions = {};
+        for (const part of partsOf(state.selectedShape)) regions[part] = null;
+        state.board[i] = { shape: state.selectedShape, rot: 0, regions };
+        render();
+      }
+      return;
+    }
+    // Cell already has a shape and a fabric is selected — paint all regions
+    // of this cell. (Squares have one region; the catch-all keeps the click
+    // useful even when the user clicked outside a specific region SVG node.)
+    if (state.selectedFabric) {
+      for (const part of partsOf(state.board[i].shape)) {
+        state.board[i].regions[part] = state.selectedFabric;
+      }
+      render();
+      return;
+    }
+    // Cell already has a shape — cycle rotation (for non-squares) on click.
+    const p = state.board[i];
+    if (p.shape !== 'square') {
+      p.rot = (p.rot + 1) % 4;
+      render();
+    } else {
+      // Square click without selection: erase
+      if (!state.selectedShape && !state.selectedFabric) {
+        state.board[i] = null;
+        render();
+      }
+    }
+  });
+
+  // Right-click to erase a non-given cell
+  document.getElementById('puzzle').addEventListener('contextmenu', (e) => {
+    if (state.solvedRevealed) return;
+    const cellEl = e.target.closest('.cell');
+    if (!cellEl) return;
+    e.preventDefault();
+    const i = +cellEl.dataset.cell;
+    if (state.board[i]?._given) return;
+    state.board[i] = null;
+    render();
+  });
+
+  // ── Controls ─────────────────────────────────────────────────
+  function setStatus(text, cls) {
+    const el = document.getElementById('status');
+    el.textContent = text;
+    el.className = 'status' + (cls ? ' ' + cls : '');
+  }
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    // Reset clears player placements but reuses the same puzzle (same givens).
+    state.selectedShape = null;
+    state.selectedFabric = null;
+    state.selectedPiece = null;
+    resetBoardToPuzzle();
+    render();
+  });
+  document.getElementById('btnHint').addEventListener('click', () => {
+    const partial = state.board.map(c => c ? {
+      shape: c.shape, rot: c.rot,
+      regions: { ...c.regions }
+    } : null);
+    const hint = S.nextHint(state.puzzle.clues, partial);
+    if (!hint) { setStatus('No forced next step found.', 'error'); return; }
+    const i = hint.cell;
+    if (hint.piece) {
+      const regions = {};
+      for (const part of partsOf(hint.piece.shape)) regions[part] = null;
+      // Don't overwrite givens.
+      if (state.board[i]?._given) { setStatus('Hint suggested a given cell already filled.', 'error'); return; }
+      state.board[i] = { shape: hint.piece.shape, rot: hint.piece.rot, regions };
+      setStatus(`Hint placed at cell ${i}: ${hint.piece.shape}.`);
+    } else if (hint.fabric) {
+      if (!state.board[i]) { setStatus(`Hint wants cell ${i} (no shape yet).`, 'error'); return; }
+      state.board[i].regions[hint.regionPart] = hint.fabric;
+      setStatus(`Hint coloured cell ${i} region ${hint.regionPart}.`);
+    }
+    render();
+  });
+  document.getElementById('btnCheck').addEventListener('click', () => {
+    // Full check: compare to the canonical solution.
+    const target = state.puzzle.target;
+    let allMatch = true, complete = true;
+    const errors = new Set();
+    for (let i = 0; i < target.length; i++) {
+      const a = target[i], b = state.board[i];
+      if (!b) { complete = false; continue; }
+      if (a.shape !== b.shape || a.rot !== b.rot) { allMatch = false; errors.add(i); continue; }
+      for (const part of partsOf(a.shape)) {
+        if (a.regions[part] !== b.regions[part]) { allMatch = false; errors.add(i); break; }
+      }
+    }
+    // Highlight errors
+    document.querySelectorAll('.cell').forEach(el => {
+      el.classList.toggle('error', errors.has(+el.dataset.cell));
+    });
+    if (!complete) setStatus('Keep going — not every cell is filled yet.');
+    else if (!allMatch) setStatus('Some cells don\'t match — see highlights.', 'error');
+    else {
+      state.solvedAt = state.solvedAt || new Date().toISOString();
+      state.solvedRevealed = true;
+      setStatus('Solved! ✓', 'solved');
+      renderHeader();
+      saveState();
+    }
+  });
+
+  // Clue-mode toggle
+  const cluePick = document.getElementById('cluePick');
+  cluePick.value = state.clueMode;
+  cluePick.addEventListener('change', (e) => {
+    state.clueMode = e.target.value;
+    state.selectedShape = null;
+    state.selectedFabric = null;
+    state.selectedPiece = null;
+    try { localStorage.setItem('picross-clue-mode', state.clueMode); } catch {}
+    render();
+  });
+
+  document.getElementById('btnPlayAgain').addEventListener('click', (e) => {
+    e.preventDefault();
+    state.solvedRevealed = false;
+    state.selectedShape = null;
+    state.selectedFabric = null;
+    state.selectedPiece = null;
+    resetBoardToPuzzle();
+    render();
+  });
+
+  // Re-resolve today's puzzle if the user crosses midnight ET in an open tab,
+  // or returns to the tab after midnight.
+  let lastDateSeen = todayET();
+  function checkDateRollover() {
+    const now = todayET();
+    if (now !== lastDateSeen) {
+      lastDateSeen = now;
+      state.puzzle = null; // force re-generate for new design
+      loadDesign();
+    }
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) checkDateRollover();
+  });
+  window.addEventListener('focus', checkDateRollover);
+
+  loadDesign();
+}
+bootSamplerPicross();
+</script>
+
+</body>
+</html>
