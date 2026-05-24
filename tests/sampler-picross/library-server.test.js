@@ -198,3 +198,59 @@ test('concurrent POSTs racing for the same date: exactly one wins', async () => 
     assert.strictEqual(readDisk().designs.length, 1);
   });
 });
+
+test('static: serves HTML from the repo root', async () => {
+  await withServer({ version: 2, designs: [] }, async ({ base }) => {
+    const root = base.replace(/\/library$/, '');
+    const res = await fetch(`${root}/sampler-picross-author.html`);
+    assert.strictEqual(res.status, 200);
+    assert.match(res.headers.get('content-type') || '', /text\/html/);
+    const body = await res.text();
+    assert.match(body, /<title>/i);
+  });
+});
+
+test('static: serves JS with javascript MIME', async () => {
+  await withServer({ version: 2, designs: [] }, async ({ base }) => {
+    const root = base.replace(/\/library$/, '');
+    const res = await fetch(`${root}/scripts/library-server.js`);
+    assert.strictEqual(res.status, 200);
+    assert.match(res.headers.get('content-type') || '', /javascript/);
+  });
+});
+
+test('static: unknown path returns 404', async () => {
+  await withServer({ version: 2, designs: [] }, async ({ base }) => {
+    const root = base.replace(/\/library$/, '');
+    const res = await fetch(`${root}/does-not-exist.html`);
+    assert.strictEqual(res.status, 404);
+  });
+});
+
+test('static: path traversal via encoded ../ is blocked', async () => {
+  await withServer({ version: 2, designs: [] }, async ({ base }) => {
+    const root = base.replace(/\/library$/, '');
+    // Use raw http to send a URL fetch would normalize away.
+    const http = require('node:http');
+    const url = new URL(root);
+    await new Promise((resolve) => {
+      const req = http.request({
+        host: url.hostname, port: url.port, method: 'GET',
+        path: '/%2e%2e/%2e%2e/etc/passwd',
+      }, (res) => {
+        assert.strictEqual(res.statusCode, 404);
+        res.resume();
+        res.on('end', resolve);
+      });
+      req.end();
+    });
+  });
+});
+
+test('static: /library still routes to the API, not static', async () => {
+  await withServer({ version: 2, designs: [] }, async ({ base }) => {
+    const res = await fetch(base);
+    assert.strictEqual(res.status, 200);
+    assert.match(res.headers.get('content-type') || '', /json/);
+  });
+});

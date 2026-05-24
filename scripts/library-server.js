@@ -119,13 +119,54 @@ function json(res, status, body) {
   res.end(JSON.stringify(body));
 }
 
+// Static file serving from the repo root for any path that isn't /library*.
+// Lets the author/admin pages and their assets be loaded from the same
+// origin as the API, so a relative LIBRARY_URL of '/library' works from
+// any machine on the LAN.
+const MIME = {
+  '.html': 'text/html; charset=utf-8',
+  '.js':   'application/javascript; charset=utf-8',
+  '.css':  'text/css; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg':  'image/svg+xml',
+  '.png':  'image/png',
+  '.jpg':  'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.ico':  'image/x-icon',
+  '.txt':  'text/plain; charset=utf-8',
+};
+
+function serveStatic(req, res, pathname) {
+  const rel = pathname === '/' ? '/index.html' : pathname;
+  const fsPath = path.normalize(path.join(ROOT, rel));
+  // Guard: resolved path must stay under ROOT.
+  if (fsPath !== ROOT && !fsPath.startsWith(ROOT + path.sep)) {
+    return json(res, 404, { error: 'not found' });
+  }
+  fs.stat(fsPath, (err, stat) => {
+    if (err || !stat.isFile()) return json(res, 404, { error: 'not found' });
+    const ext = path.extname(fsPath).toLowerCase();
+    const type = MIME[ext] || 'application/octet-stream';
+    res.writeHead(200, {
+      'content-type': type,
+      'cache-control': 'no-store',
+      'access-control-allow-origin': '*',
+    });
+    fs.createReadStream(fsPath).pipe(res);
+  });
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     if (req.method === 'OPTIONS') return json(res, 204, {});
 
     const url = new URL(req.url, `http://${HOST}:${PORT}`);
     const m = url.pathname.match(/^\/library(?:\/([^/]+))?$/);
-    if (!m) return json(res, 404, { error: 'not found' });
+    if (!m) {
+      // Anything outside /library* falls through to the static file handler.
+      if (req.method === 'GET') return serveStatic(req, res, url.pathname);
+      return json(res, 404, { error: 'not found' });
+    }
     const id = m[1] ? decodeURIComponent(m[1]) : null;
 
     if (req.method === 'GET') {
