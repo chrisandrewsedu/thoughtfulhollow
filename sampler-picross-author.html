@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sampler picross — author</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fascinate&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:#faf6ec; --paper-deep:#f0e9d6; --ink:#2a2520; --ink-soft:#6a6258;
+    --accent:#c01818; --green:#3a5a3a; --gold:#8a6c18; --line:#c9bd9c;
+    --cell-empty:#f3ecd8; --cell-empty-edge:#cdc1a0;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Spectral', Georgia, serif;
+    min-height: 100vh;
+  }
+  body { padding: 1.2rem 1rem 2rem; }
+  .app { max-width: 900px; margin: 0 auto; }
+
+  .header { display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
+  h1 { font-family: 'Fascinate', serif; font-size: 1.6rem; font-weight: 400; line-height: 1; }
+  .header .sub { color: var(--ink-soft); font-size: 0.9rem; }
+  .nav-link {
+    margin-left: auto;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border: 1px solid var(--line);
+    padding: 0.3rem 0.7rem;
+    border-radius: 4px;
+  }
+  .nav-link:hover { background: var(--paper-deep); }
+
+  .frame {
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1rem 1.2rem 1.4rem;
+    display: inline-block;
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .toolbar-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+  }
+  select, .btn {
+    font-family: 'Spectral', serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1.5px solid var(--ink-soft);
+    border-radius: 6px;
+    padding: 0.34rem 0.7rem;
+    cursor: pointer;
+  }
+  .btn:hover { background: var(--paper-deep); }
+  .btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn.primary:hover { background: #1a1612; }
+
+  .palette {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+  }
+  .pal-group { display: flex; align-items: center; gap: 0.5rem; }
+  .pal-label {
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .tile {
+    width: 48px;
+    height: 48px;
+    border: 1.5px solid var(--ink-soft);
+    border-radius: 7px;
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+  }
+  .tile svg { width: 78%; height: 78%; display: block; }
+  .tile.swatch { border-color: var(--line); }
+  .tile.sel { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); }
+  .tile.tool { width: 38px; height: 38px; font-size: 0.78rem; font-weight: 500; }
+  .tile.tool[data-tool="erase"] { color: var(--ink-soft); }
+  .tile.tool[data-tool="rotate"] svg { width: 60%; height: 60%; }
+
+  .board {
+    display: grid;
+    gap: 3px;
+    margin-bottom: 1rem;
+  }
+  .cell {
+    background: var(--paper-deep);
+    /* Dashed border for empty cells so they read as "untouched" — clearly
+       different from a filled-LINEN cell. Once a piece is placed the cell
+       gets the .filled class which switches to a solid border. */
+    box-shadow: inset 0 0 0 1.5px var(--cell-empty-edge);
+    background-image:
+      repeating-linear-gradient(45deg, transparent 0 6px, rgba(0,0,0,0.04) 6px 8px);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .cell.filled {
+    background: var(--cell-empty);
+    background-image: none;
+    box-shadow: inset 0 0 0 1px var(--cell-empty-edge);
+  }
+  .cell svg { display: block; width: 100%; height: 100%; }
+  .region { cursor: pointer; }
+  .region:hover { opacity: 0.85; }
+  .rot-badge {
+    position: absolute;
+    top: 3px; left: 3px;
+    background: var(--paper);
+    border: 1.2px solid var(--ink-soft);
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    font-size: 10px;
+    color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+
+  .help {
+    color: var(--ink-soft);
+    font-size: 0.83rem;
+    margin-top: 0.6rem;
+    line-height: 1.45;
+    max-width: 640px;
+  }
+  .help code {
+    background: var(--paper-deep);
+    padding: 0 4px;
+    border-radius: 3px;
+    color: var(--ink);
+  }
+
+  /* Metadata form */
+  .meta {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.6rem 1rem;
+  }
+  .meta-row { display: flex; align-items: center; gap: 0.5rem; }
+  .meta-label {
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    min-width: 64px;
+  }
+  .meta-input {
+    flex: 1;
+    font-family: 'Spectral', serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 0.32rem 0.55rem;
+  }
+  .meta-input:focus { outline: 1.5px solid var(--accent); outline-offset: 1px; }
+  .hint {
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  .status.ok { color: var(--green); font-weight: 500; }
+  .status.err { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- Outline glyphs reused from the puzzle page -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="g-square" viewBox="0 0 20 20">
+      <rect x="2" y="2" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="g-triangle" viewBox="0 0 20 20">
+      <rect x="2" y="2" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <line x1="2" y1="2" x2="18" y2="18" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="g-curve" viewBox="0 0 20 20">
+      <rect x="2" y="2" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M 2 18 A 16 16 0 0 1 18 2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="g-rotate" viewBox="0 0 20 20">
+      <path d="M 4 10 A 6 6 0 1 1 10 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <polyline points="10,12 10,16 6,16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <div class="header">
+    <h1>Sampler picross — author</h1>
+    <span class="sub">Paint a target block, then generate the puzzle.</span>
+    <a class="nav-link" href="./sampler-picross.html">→ puzzle</a>
+  </div>
+
+  <div class="frame">
+
+    <div class="meta">
+      <div class="meta-row">
+        <label class="meta-label" for="nameInput">Name</label>
+        <input id="nameInput" class="meta-input" type="text" placeholder="e.g. Ohio Star">
+      </div>
+      <div class="meta-row">
+        <label class="meta-label" for="authorInput">Author</label>
+        <input id="authorInput" class="meta-input" type="text" placeholder="your name">
+      </div>
+      <div class="meta-row">
+        <label class="meta-label" for="dateInput">Date</label>
+        <input id="dateInput" class="meta-input" type="date">
+        <span class="hint">(leave blank to save to backlog)</span>
+      </div>
+      <div class="meta-row">
+        <label class="meta-label" for="diffPick">Difficulty</label>
+        <select id="diffPick" class="meta-input">
+          <option value="mon-tue">Mon-Tue (easiest)</option>
+          <option value="wed-th">Wed-Th</option>
+          <option value="fri-sat">Fri-Sat</option>
+          <option value="sun">Sun (hardest)</option>
+        </select>
+        <span id="diffSuggest" class="hint"></span>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <label class="toolbar-label" for="sizePick">Grid</label>
+      <select id="sizePick">
+        <option value="3">3 × 3</option>
+        <option value="4" selected>4 × 4</option>
+        <option value="5">5 × 5</option>
+        <option value="6">6 × 6</option>
+        <option value="8">8 × 8</option>
+      </select>
+      <button class="btn" id="btnClear">Clear</button>
+      <button class="btn" id="btnPlayTest">Play test ↗</button>
+      <button class="btn primary" id="btnSave">Save to library</button>
+      <span id="status" class="toolbar-label" style="margin-left:auto"></span>
+    </div>
+
+    <div class="palette">
+      <span class="pal-label">Shape</span>
+      <div class="pal-group" id="shapePalette"></div>
+      <span class="pal-label" style="margin-left:0.6rem">Rotate</span>
+      <div class="pal-group" id="toolPalette"></div>
+      <span class="pal-label" style="margin-left:0.6rem">Fabric</span>
+      <div class="pal-group" id="fabricPalette"></div>
+    </div>
+
+    <div id="board" class="board"></div>
+
+    <div class="help">
+      <strong>How to paint:</strong> select a <em>shape</em>, then click or drag across cells to place them. Select a <em>fabric</em> and click a region to colour it (drag to fill many cells). The rotate tool cycles a placed piece (triangle/curve) when clicked. The eraser clears a cell. Squares always start at rot 0.
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+// Sampler picross engine — geometry, fabrics, target validation, clue derivation.
+// Pure logic, no DOM. Loadable in browser (via script tag) and Node.
+//
+// Grid size is per-target: a target is an array of N*N cells where N ∈ {3,4,5,6,8}.
+// Helpers take `size` (the side length) where needed, OR derive it from
+// `target.length`. There is no global GRID constant any more.
+
+const DIRS = ['N', 'E', 'S', 'W'];
+const SUPPORTED_SIZES = [3, 4, 5, 6, 8];
+
+function gridSizeOf(target) {
+  const n = Math.round(Math.sqrt(target.length));
+  if (n * n !== target.length) throw new Error('target length must be a perfect square');
+  return n;
+}
+
+function rowOf(i, size) { return Math.floor(i / size); }
+function colOf(i, size) { return i % size; }
+function rowCells(r, size) {
+  const out = [];
+  for (let c = 0; c < size; c++) out.push(r * size + c);
+  return out;
+}
+function colCells(c, size) {
+  const out = [];
+  for (let r = 0; r < size; r++) out.push(r * size + c);
+  return out;
+}
+function partnerOf(i, size) { return size * size - 1 - i; }
+
+// ── Pieces ───────────────────────────────────────────────────────
+// shapes: 'square' | 'triangle' | 'curve'. A curve is a Drunkard's-Path
+// quarter-circle: part A = the disc, part B = the field. A triangle is a
+// half-square triangle: parts A and B are its two halves.
+const SHAPES = ['square', 'triangle', 'curve'];
+
+function partsOf(shape) {
+  return shape === 'square' ? ['W'] : ['A', 'B'];
+}
+
+// Default rotation per shape — a piece in this rotation does not count toward
+// the ⟲ rotation total.
+const DEFAULT_ROT = { square: 0, triangle: 0, curve: 0 };
+const ROT_COUNT   = { square: 1, triangle: 4, curve: 4 };
+
+// curve continuity ports by rotation (rot 0 = disc in the NW corner)
+const CURVE_PORTS = { 0: ['N', 'W'], 1: ['N', 'E'], 2: ['S', 'E'], 3: ['S', 'W'] };
+
+// Triangle region by rotation. At rot 0 the right-angle sits at the NE corner:
+// region A is the NE half, region B is the SW half.
+const TRIANGLE_FACES = {
+  0: { N: 'A', E: 'A', S: 'B', W: 'B' },
+  1: { N: 'B', E: 'A', S: 'A', W: 'B' },
+  2: { N: 'B', E: 'B', S: 'A', W: 'A' },
+  3: { N: 'A', E: 'B', S: 'B', W: 'A' },
+};
+
+// ── Fabrics ──────────────────────────────────────────────────────
+const FABRICS = {
+  LINEN:    { name: 'Linen',    col: '#ece0c8', hue: 'neutral' },
+  FLAX:     { name: 'Flax',     col: '#d6c79b', hue: 'neutral' },
+  SAGE:     { name: 'Sage',     col: '#b3b89a', hue: 'neutral' },
+  MADDER:   { name: 'Madder',   col: '#a8392f', hue: 'warm' },
+  MARIGOLD: { name: 'Marigold', col: '#d99838', hue: 'warm' },
+  CLARET:   { name: 'Claret',   col: '#7d2933', hue: 'warm' },
+  INDIGO:   { name: 'Indigo',   col: '#2b3a5e', hue: 'cool' },
+  SLATE:    { name: 'Slate',    col: '#5f7b87', hue: 'cool' },
+  TEAL:     { name: 'Teal',     col: '#2f6d6a', hue: 'cool' },
+};
+
+// ── Target validation ────────────────────────────────────────────
+function validateTarget(target) {
+  const errors = [];
+  if (!Array.isArray(target)) { errors.push('target must be an array'); return errors; }
+  let size;
+  try { size = gridSizeOf(target); }
+  catch (e) { errors.push(e.message); return errors; }
+  if (!SUPPORTED_SIZES.includes(size)) {
+    errors.push(`unsupported grid size ${size}; supported sizes are ${SUPPORTED_SIZES.join(', ')}`);
+  }
+  for (let i = 0; i < target.length; i++) {
+    const cell = target[i];
+    if (!cell) { errors.push(`cell ${i}: missing`); continue; }
+    if (!SHAPES.includes(cell.shape)) errors.push(`cell ${i}: bad shape '${cell.shape}'`);
+    if (typeof cell.rot !== 'number' || cell.rot < 0 || cell.rot >= ROT_COUNT[cell.shape]) {
+      errors.push(`cell ${i}: bad rot ${cell.rot} for shape ${cell.shape}`);
+    }
+    for (const part of partsOf(cell.shape)) {
+      const fab = cell.regions?.[part];
+      if (!FABRICS[fab]) errors.push(`cell ${i}: region '${part}' has bad fabric '${fab}'`);
+    }
+  }
+  return errors;
+}
+
+// ── Clue derivation ──────────────────────────────────────────────
+function clueForCells(target, cellIndices) {
+  const shape = Object.create(null);
+  const rotation = Object.create(null);
+  const fabric = Object.create(null);
+  for (const i of cellIndices) {
+    const cell = target[i];
+    if (!cell) continue;
+    shape[cell.shape] = (shape[cell.shape] || 0) + 1;
+    if (cell.rot !== DEFAULT_ROT[cell.shape]) {
+      rotation[cell.shape] = (rotation[cell.shape] || 0) + 1;
+    }
+    for (const part of partsOf(cell.shape)) {
+      const fab = cell.regions[part];
+      fabric[fab] = (fabric[fab] || 0) + 1;
+    }
+  }
+  return { shape, rotation, fabric };
+}
+
+function deriveClues(target) {
+  const size = gridSizeOf(target);
+  const rows = [];
+  const cols = [];
+  for (let r = 0; r < size; r++) rows.push(clueForCells(target, rowCells(r, size)));
+  for (let c = 0; c < size; c++) cols.push(clueForCells(target, colCells(c, size)));
+  return { rows, cols, size };
+}
+
+// ── Symmetry detection ───────────────────────────────────────────
+function isHalfTurnSymmetric(target) {
+  const size = gridSizeOf(target);
+  const N = size * size;
+  for (let i = 0; i < N; i++) {
+    const a = target[i];
+    const b = target[N - 1 - i];
+    if (!a || !b) return false;
+    if (a.shape !== b.shape) return false;
+    const expectedRot = a.shape === 'square'
+      ? 0
+      : (a.rot + 2) % ROT_COUNT[a.shape];
+    if (b.rot !== expectedRot) return false;
+    for (const part of partsOf(a.shape)) {
+      if (a.regions[part] !== b.regions[part]) return false;
+    }
+  }
+  return true;
+}
+
+// ── Density check ────────────────────────────────────────────────
+function maxBandChips(clues) {
+  let worst = 0;
+  const bands = [...clues.rows, ...clues.cols];
+  for (const b of bands) {
+    const shapeChips = Object.keys(b.shape).length;
+    const fabricChips = Object.keys(b.fabric).length;
+    worst = Math.max(worst, shapeChips, fabricChips);
+  }
+  return worst;
+}
+
+// ── Difficulty suggestion ───────────────────────────────────────
+// Heuristic: bigger grid, more shapes, more fabrics, more rotations push
+// difficulty up; more givens (from the generator) pull it back down. Returns
+// one of 'mon-tue' | 'wed-th' | 'fri-sat' | 'sun'. Author can override.
+const DIFFICULTIES = ['mon-tue', 'wed-th', 'fri-sat', 'sun'];
+
+function suggestedDifficulty(target, generated) {
+  const size = gridSizeOf(target);
+  const shapes = new Set();
+  const fabrics = new Set();
+  let rotated = 0;
+  for (const c of target) {
+    if (!c) continue;
+    shapes.add(c.shape);
+    for (const f of Object.values(c.regions || {})) if (f) fabrics.add(f);
+    if (c.rot !== 0) rotated++;
+  }
+  const givens = generated?.givenCount ?? 0;
+  let score = 0;
+  score += (size - 3) * 8;
+  score += (shapes.size - 1) * 20;
+  score += Math.max(0, fabrics.size - 2) * 8;
+  score += Math.min(rotated, 12) * 4;
+  score -= givens * 1;
+  if (score < 14) return 'mon-tue';
+  if (score < 30) return 'wed-th';
+  if (score < 50) return 'fri-sat';
+  return 'sun';
+}
+
+// ── Exports ──────────────────────────────────────────────────────
+const PicrossEngine = {
+  DIRS, SUPPORTED_SIZES,
+  SHAPES, DEFAULT_ROT, ROT_COUNT,
+  CURVE_PORTS, TRIANGLE_FACES,
+  FABRICS,
+  gridSizeOf,
+  rowOf, colOf, rowCells, colCells, partnerOf,
+  partsOf,
+  validateTarget,
+  clueForCells, deriveClues,
+  isHalfTurnSymmetric,
+  maxBandChips,
+  suggestedDifficulty, DIFFICULTIES,
+};
+
+if (typeof module !== 'undefined' && module.exports) module.exports = PicrossEngine;
+if (typeof window !== 'undefined') window.PicrossEngine = PicrossEngine;
+
+})();
+</script>
+<script>
+(function(){
+'use strict';
+// Sampler picross solver — constraint propagation over multiset clues.
+// Works on any supported grid size (3,4,5,6,8); size is taken from clues.size.
+
+const E =
+  typeof require !== 'undefined'
+    ? require('./sampler-picross.engine.js')
+    : (typeof window !== 'undefined' ? window.PicrossEngine : null);
+
+const { SHAPES, DEFAULT_ROT, ROT_COUNT, FABRICS,
+        rowOf, colOf, rowCells, colCells, partnerOf, partsOf } = E;
+
+// Generate every piece option a cell could hold: all (shape, rot) combinations.
+function allPieceOptions() {
+  const out = [];
+  for (const shape of SHAPES) {
+    for (let rot = 0; rot < ROT_COUNT[shape]; rot++) {
+      out.push({ shape, rot });
+    }
+  }
+  return out;
+}
+const PIECE_OPTIONS = allPieceOptions();
+
+function countShapeInCells(grid, cellIndices, shape) {
+  let n = 0;
+  for (const i of cellIndices) if (grid[i] && grid[i].shape === shape) n++;
+  return n;
+}
+function countNonDefaultRotInCells(grid, cellIndices, shape) {
+  let n = 0;
+  for (const i of cellIndices) {
+    const p = grid[i];
+    if (p && p.shape === shape && p.rot !== DEFAULT_ROT[shape]) n++;
+  }
+  return n;
+}
+
+function bandShapeFeasible(grid, cellIndices, bandClue) {
+  const requiredShapes = bandClue.shape || {};
+  for (const s of SHAPES) {
+    const have = countShapeInCells(grid, cellIndices, s);
+    const want = requiredShapes[s] || 0;
+    if (have > want) return false;
+  }
+  const empties = cellIndices.filter(i => !grid[i]).length;
+  let totalNeeded = 0;
+  for (const s of SHAPES) {
+    const have = countShapeInCells(grid, cellIndices, s);
+    const want = requiredShapes[s] || 0;
+    if (want < have) return false;
+    totalNeeded += (want - have);
+  }
+  if (totalNeeded > empties) return false;
+  return true;
+}
+
+function bandRotationFeasible(grid, cellIndices, bandClue) {
+  const reqRot = bandClue.rotation || {};
+  const reqShapes = bandClue.shape || {};
+  for (const s of SHAPES) {
+    if (!reqShapes[s]) continue;
+    const want = reqRot[s] || 0;
+    const haveRotated = countNonDefaultRotInCells(grid, cellIndices, s);
+    const haveShape   = countShapeInCells(grid, cellIndices, s);
+    const remainingShapeNeeded = reqShapes[s] - haveShape;
+    if (haveRotated > want) return false;
+    if (haveRotated + remainingShapeNeeded < want) return false;
+  }
+  return true;
+}
+
+function localCheck(grid, clues, i, size) {
+  const r = rowOf(i, size), c = colOf(i, size);
+  const rowI = rowCells(r, size), colI = colCells(c, size);
+  if (!bandShapeFeasible(grid, rowI, clues.rows[r])) return false;
+  if (!bandShapeFeasible(grid, colI, clues.cols[c])) return false;
+  if (!bandRotationFeasible(grid, rowI, clues.rows[r])) return false;
+  if (!bandRotationFeasible(grid, colI, clues.cols[c])) return false;
+  return true;
+}
+
+function finalCheck(grid, clues, size) {
+  for (let r = 0; r < size; r++) {
+    const cells = rowCells(r, size);
+    const want = clues.rows[r];
+    for (const s of SHAPES) {
+      const have = countShapeInCells(grid, cells, s);
+      const w = want.shape?.[s] || 0;
+      if (have !== w) return false;
+    }
+    for (const s of SHAPES) {
+      if (!(want.shape?.[s])) continue;
+      const haveRot = countNonDefaultRotInCells(grid, cells, s);
+      const wRot = want.rotation?.[s] || 0;
+      if (haveRot !== wRot) return false;
+    }
+  }
+  for (let c = 0; c < size; c++) {
+    const cells = colCells(c, size);
+    const want = clues.cols[c];
+    for (const s of SHAPES) {
+      const have = countShapeInCells(grid, cells, s);
+      const w = want.shape?.[s] || 0;
+      if (have !== w) return false;
+    }
+    for (const s of SHAPES) {
+      if (!(want.shape?.[s])) continue;
+      const haveRot = countNonDefaultRotInCells(grid, cells, s);
+      const wRot = want.rotation?.[s] || 0;
+      if (haveRot !== wRot) return false;
+    }
+  }
+  return true;
+}
+
+function partnerRot(piece) {
+  if (piece.shape === 'square') return 0;
+  return (piece.rot + 2) % 4;
+}
+
+function enumeratePieces(clues, givens, maxSolutions, opts) {
+  const size = clues.size;
+  const N = size * size;
+  const halfTurnSym = !!(opts && opts.halfTurnSymmetric);
+  const grid = new Array(N).fill(null);
+  if (givens) {
+    for (const [k, p] of Object.entries(givens)) {
+      grid[+k] = { shape: p.shape, rot: p.rot };
+    }
+  }
+  for (let r = 0; r < size; r++) {
+    if (!bandShapeFeasible(grid, rowCells(r, size), clues.rows[r])) return [];
+    if (!bandRotationFeasible(grid, rowCells(r, size), clues.rows[r])) return [];
+  }
+  for (let c = 0; c < size; c++) {
+    if (!bandShapeFeasible(grid, colCells(c, size), clues.cols[c])) return [];
+    if (!bandRotationFeasible(grid, colCells(c, size), clues.cols[c])) return [];
+  }
+
+  const results = [];
+  function recurse(idx) {
+    if (results.length >= maxSolutions) return;
+    while (idx < N && grid[idx]) idx++;
+    if (idx === N) {
+      if (finalCheck(grid, clues, size)) results.push(grid.slice());
+      return;
+    }
+    for (const opt of PIECE_OPTIONS) {
+      grid[idx] = opt;
+      const j = halfTurnSym ? partnerOf(idx, size) : -1;
+      let mirrored = false;
+      if (halfTurnSym && j !== idx) {
+        if (grid[j] && (grid[j].shape !== opt.shape || grid[j].rot !== partnerRot(opt))) {
+          grid[idx] = null;
+          continue;
+        }
+        if (!grid[j]) {
+          grid[j] = { shape: opt.shape, rot: partnerRot(opt) };
+          mirrored = true;
+        }
+      }
+      if (localCheck(grid, clues, idx, size) && (j === -1 || localCheck(grid, clues, j, size))) {
+        recurse(idx + 1);
+      }
+      if (mirrored) grid[j] = null;
+      if (results.length >= maxSolutions) { grid[idx] = null; return; }
+      grid[idx] = null;
+    }
+  }
+  recurse(0);
+  return results;
+}
+
+function enumerateFabrics(pieceGrid, clues, givenFabrics, maxSolutions, opts) {
+  const size = clues.size;
+  const N = size * size;
+  const halfTurnSym = !!(opts && opts.halfTurnSymmetric);
+  const regions = [];
+  for (let i = 0; i < N; i++) {
+    const p = pieceGrid[i];
+    for (const part of partsOf(p.shape)) {
+      regions.push({ key: `${i}:${part}`, cell: i, part, row: rowOf(i, size), col: colOf(i, size) });
+    }
+  }
+  const allFabrics = new Set();
+  for (const band of [...clues.rows, ...clues.cols]) {
+    for (const f of Object.keys(band.fabric || {})) allFabrics.add(f);
+  }
+  const fabricList = [...allFabrics];
+  if (fabricList.length === 0) return [{}];
+
+  const assign = Object.create(null);
+  if (givenFabrics) Object.assign(assign, givenFabrics);
+
+  const partnerForKey = Object.create(null);
+  if (halfTurnSym) {
+    for (const reg of regions) {
+      partnerForKey[reg.key] = `${partnerOf(reg.cell, size)}:${reg.part}`;
+    }
+  }
+
+  function countFabricInRow(r, f) {
+    let n = 0;
+    for (const reg of regions) if (reg.row === r && assign[reg.key] === f) n++;
+    return n;
+  }
+  function countFabricInCol(c, f) {
+    let n = 0;
+    for (const reg of regions) if (reg.col === c && assign[reg.key] === f) n++;
+    return n;
+  }
+  function feasibleAfter(reg, f) {
+    const want = clues.rows[reg.row].fabric || {};
+    if (countFabricInRow(reg.row, f) > (want[f] || 0)) return false;
+    const wantC = clues.cols[reg.col].fabric || {};
+    if (countFabricInCol(reg.col, f) > (wantC[f] || 0)) return false;
+    return true;
+  }
+  function finalFabricCheck() {
+    for (let r = 0; r < size; r++) {
+      const want = clues.rows[r].fabric || {};
+      for (const f of fabricList) {
+        if (countFabricInRow(r, f) !== (want[f] || 0)) return false;
+      }
+    }
+    for (let c = 0; c < size; c++) {
+      const want = clues.cols[c].fabric || {};
+      for (const f of fabricList) {
+        if (countFabricInCol(c, f) !== (want[f] || 0)) return false;
+      }
+    }
+    return true;
+  }
+
+  const out = [];
+  function recurse(idx) {
+    if (out.length >= maxSolutions) return;
+    while (idx < regions.length && assign[regions[idx].key] != null) idx++;
+    if (idx === regions.length) {
+      if (finalFabricCheck()) out.push({ ...assign });
+      return;
+    }
+    const reg = regions[idx];
+    for (const f of fabricList) {
+      assign[reg.key] = f;
+      let mirroredKey = null;
+      if (halfTurnSym) {
+        const pk = partnerForKey[reg.key];
+        if (pk && pk !== reg.key) {
+          if (assign[pk] != null && assign[pk] !== f) {
+            delete assign[reg.key];
+            continue;
+          }
+          if (assign[pk] == null) {
+            assign[pk] = f;
+            mirroredKey = pk;
+          }
+        }
+      }
+      if (feasibleAfter(reg, f)) recurse(idx + 1);
+      if (mirroredKey) delete assign[mirroredKey];
+      delete assign[reg.key];
+      if (out.length >= maxSolutions) return;
+    }
+  }
+  recurse(0);
+  return out;
+}
+
+function solve(clues, givens, opts) {
+  const size = clues.size;
+  const N = size * size;
+  const pieceGivens = {};
+  const fabricGivens = {};
+  if (givens) {
+    for (const [k, v] of Object.entries(givens)) {
+      if (v.shape != null && v.rot != null) pieceGivens[k] = { shape: v.shape, rot: v.rot };
+      if (v.regions) {
+        for (const [part, f] of Object.entries(v.regions)) {
+          fabricGivens[`${k}:${part}`] = f;
+        }
+      }
+    }
+  }
+  const pieceSolutions = enumeratePieces(clues, pieceGivens, 4, opts);
+  const targets = [];
+  for (const pg of pieceSolutions) {
+    const fabricAssignments = enumerateFabrics(pg, clues, fabricGivens, 2, opts);
+    for (const fa of fabricAssignments) {
+      const target = pg.map((p, i) => {
+        const regions = {};
+        for (const part of partsOf(p.shape)) regions[part] = fa[`${i}:${part}`];
+        return { shape: p.shape, rot: p.rot, regions };
+      });
+      targets.push(target);
+      if (targets.length >= 2) break;
+    }
+    if (targets.length >= 2) break;
+  }
+  return { unique: targets.length === 1, solutions: targets };
+}
+
+function nextHint(clues, partial) {
+  const size = clues.size;
+  const N = size * size;
+  const pieceGivens = {};
+  const fabricGivens = {};
+  for (let i = 0; i < N; i++) {
+    const p = partial?.[i];
+    if (!p) continue;
+    if (p.shape != null && p.rot != null) pieceGivens[i] = { shape: p.shape, rot: p.rot };
+    if (p.regions) {
+      for (const [part, f] of Object.entries(p.regions)) {
+        if (f != null) fabricGivens[`${i}:${part}`] = f;
+      }
+    }
+  }
+  const { solutions } = solve(clues, {
+    ...Object.fromEntries(Object.entries(pieceGivens).map(([k, v]) => [k, {
+      ...v,
+      regions: Object.fromEntries(
+        Object.entries(fabricGivens)
+          .filter(([rk]) => rk.startsWith(k + ':'))
+          .map(([rk, f]) => [rk.split(':')[1], f])
+      ),
+    }])),
+  });
+  if (solutions.length === 0) return null;
+  for (let i = 0; i < N; i++) {
+    const sol0 = solutions[0][i];
+    const knownPiece = pieceGivens[i] != null;
+    if (!knownPiece) {
+      const allSame = solutions.every(s => s[i].shape === sol0.shape && s[i].rot === sol0.rot);
+      if (allSame) return { cell: i, piece: { shape: sol0.shape, rot: sol0.rot } };
+    }
+    for (const part of partsOf(sol0.shape)) {
+      const k = `${i}:${part}`;
+      if (fabricGivens[k]) continue;
+      const f0 = sol0.regions[part];
+      const allSame = solutions.every(s => {
+        if (!s[i] || s[i].shape !== sol0.shape) return false;
+        return s[i].regions?.[part] === f0;
+      });
+      if (allSame) return { cell: i, regionPart: part, fabric: f0 };
+    }
+  }
+  return null;
+}
+
+const PicrossSolver = { enumeratePieces, enumerateFabrics, solve, nextHint };
+if (typeof module !== 'undefined' && module.exports) module.exports = PicrossSolver;
+if (typeof window !== 'undefined') window.PicrossSolver = PicrossSolver;
+
+})();
+</script>
+<script>
+(function(){
+'use strict';
+// Sampler picross generator — turns a target block into a playable puzzle.
+// Works on any supported grid size.
+
+const E =
+  typeof require !== 'undefined'
+    ? require('./sampler-picross.engine.js')
+    : (typeof window !== 'undefined' ? window.PicrossEngine : null);
+const S =
+  typeof require !== 'undefined'
+    ? require('./sampler-picross.solver.js')
+    : (typeof window !== 'undefined' ? window.PicrossSolver : null);
+
+const { partsOf, deriveClues, validateTarget, maxBandChips, isHalfTurnSymmetric, gridSizeOf } = E;
+
+function scoreCandidate(clues, givens, cell, target, opts) {
+  const trial = { ...givens, [cell]: target[cell] };
+  const r = S.solve(clues, trial, opts);
+  if (r.unique) return 0;
+  return r.solutions.length;
+}
+
+// Among cells tied for the best score, prefer the one farthest (Chebyshev
+// distance) from existing givens, with a random shuffle as the last tiebreak.
+// This produces a visually spread-out given layout instead of clumping every
+// given in the top-left corner of the board.
+function pickNextGiven(clues, givens, target, opts) {
+  const size = clues.size;
+  const N = size * size;
+  const givenIdx = Object.keys(givens).map(Number);
+  let bestScore = Infinity;
+  const tied = [];
+  for (let i = 0; i < N; i++) {
+    if (givens[i] != null) continue;
+    const score = scoreCandidate(clues, givens, i, target, opts);
+    if (score < bestScore) {
+      bestScore = score;
+      tied.length = 0;
+      tied.push(i);
+    } else if (score === bestScore) {
+      tied.push(i);
+    }
+  }
+  if (tied.length === 0) return { cell: null, score: Infinity };
+  if (tied.length === 1) return { cell: tied[0], score: bestScore };
+  function distToGivens(i) {
+    if (givenIdx.length === 0) return 0;
+    const r = Math.floor(i / size), c = i % size;
+    let min = Infinity;
+    for (const g of givenIdx) {
+      const d = Math.max(Math.abs(r - Math.floor(g / size)), Math.abs(c - (g % size)));
+      if (d < min) min = d;
+    }
+    return min;
+  }
+  tied.sort((a, b) => {
+    const dd = distToGivens(b) - distToGivens(a);
+    if (dd !== 0) return dd;
+    return Math.random() - 0.5;
+  });
+  return { cell: tied[0], score: bestScore };
+}
+
+function generate(target, opts) {
+  const options = Object.assign({ maxGivens: undefined, halfTurnSymmetric: undefined }, opts || {});
+  const errs = validateTarget(target);
+  if (errs.length) throw new Error('invalid target: ' + errs.join('; '));
+  const size = gridSizeOf(target);
+  const clues = deriveClues(target);
+  // Default maxGivens scales with grid size so generation has headroom on
+  // larger boards.
+  const maxGivens = options.maxGivens != null ? options.maxGivens : Math.max(8, size * 2);
+  const sym = options.halfTurnSymmetric != null
+    ? !!options.halfTurnSymmetric
+    : isHalfTurnSymmetric(target);
+  const solveOpts = { halfTurnSymmetric: sym };
+
+  const bandStats = {
+    maxChips: maxBandChips(clues),
+    perBand: {
+      rows: clues.rows.map(b => ({ shape: Object.keys(b.shape).length, fabric: Object.keys(b.fabric).length })),
+      cols: clues.cols.map(b => ({ shape: Object.keys(b.shape).length, fabric: Object.keys(b.fabric).length })),
+    },
+  };
+
+  const givens = {};
+  let result = S.solve(clues, givens, solveOpts);
+  while (!result.unique && Object.keys(givens).length < maxGivens) {
+    const { cell } = pickNextGiven(clues, givens, target, solveOpts);
+    if (cell == null) break;
+    givens[cell] = target[cell];
+    result = S.solve(clues, givens, solveOpts);
+  }
+
+  return {
+    target, clues, givens,
+    size,
+    unique: result.unique,
+    givenCount: Object.keys(givens).length,
+    bandStats,
+    halfTurnSymmetric: sym,
+  };
+}
+
+const PicrossGenerator = { generate, pickNextGiven };
+if (typeof module !== 'undefined' && module.exports) module.exports = PicrossGenerator;
+if (typeof window !== 'undefined') window.PicrossGenerator = PicrossGenerator;
+
+})();
+</script>
+<script>
+function bootAuthor() {
+  'use strict';
+  const E = window.PicrossEngine;
+  const G = window.PicrossGenerator;
+  if (!E || !G) return setTimeout(bootAuthor, 30);
+
+  const SHAPES = ['square', 'triangle', 'curve'];
+  const FABRICS = E.FABRICS;
+  const fabricKeys = Object.keys(FABRICS);
+  const ROT_COUNT = E.ROT_COUNT;
+  const partsOf = E.partsOf;
+  const LIBRARY_URL = 'http://127.0.0.1:4320/library';
+
+  // ── State ───────────────────────────────────────────────────
+  const state = {
+    size: 4,
+    board: [],
+    sel: { kind: null, value: null },
+    meta: {
+      id: null,                                   // set when editing an existing design
+      name: '',
+      author: localStorage.getItem('picross-author-name') || '',
+      difficulty: 'mon-tue',
+      date: '',
+    },
+  };
+
+  // Track drag-paint state so a mousedown→move→up sweep applies the current
+  // tool to every cell touched.
+  const drag = { active: false, lastCellIdx: null };
+
+  function newBoard(size) {
+    return new Array(size * size).fill(null);
+  }
+
+  // ── Cell SVG rendering (mirrors the puzzle page) ────────────
+  function regionEl(piece, cellIdx, ns, points, part) {
+    const fabKey = piece.regions?.[part];
+    const fill = fabKey ? FABRICS[fabKey].col : 'var(--cell-empty)';
+    const p = document.createElementNS(ns, 'polygon');
+    p.setAttribute('points', points);
+    p.setAttribute('fill', fill);
+    p.setAttribute('class', 'region');
+    p.setAttribute('data-cell', cellIdx);
+    p.setAttribute('data-part', part);
+    return p;
+  }
+  function pieceSvg(piece, cellIdx) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 64 64');
+    if (!piece) return svg;
+    const rot = piece.rot || 0;
+    if (piece.shape === 'square') {
+      const r = document.createElementNS(ns, 'rect');
+      r.setAttribute('width', '64');
+      r.setAttribute('height', '64');
+      r.setAttribute('fill', piece.regions?.W ? FABRICS[piece.regions.W].col : 'var(--cell-empty)');
+      r.setAttribute('class', 'region');
+      r.setAttribute('data-cell', cellIdx);
+      r.setAttribute('data-part', 'W');
+      svg.appendChild(r);
+    } else if (piece.shape === 'triangle') {
+      const g = document.createElementNS(ns, 'g');
+      g.setAttribute('transform', `rotate(${rot * 90} 32 32)`);
+      g.appendChild(regionEl(piece, cellIdx, ns, '0,0 64,0 64,64', 'A'));
+      g.appendChild(regionEl(piece, cellIdx, ns, '0,0 64,64 0,64', 'B'));
+      // Seam outline so the piece reads as a triangle even before fabric.
+      const seam = document.createElementNS(ns, 'line');
+      seam.setAttribute('x1', '0'); seam.setAttribute('y1', '0');
+      seam.setAttribute('x2', '64'); seam.setAttribute('y2', '64');
+      seam.setAttribute('stroke', 'var(--ink-soft)');
+      seam.setAttribute('stroke-width', '1.6');
+      seam.setAttribute('stroke-opacity', '0.55');
+      seam.setAttribute('pointer-events', 'none');
+      g.appendChild(seam);
+      svg.appendChild(g);
+    } else if (piece.shape === 'curve') {
+      const g = document.createElementNS(ns, 'g');
+      g.setAttribute('transform', `rotate(${rot * 90} 32 32)`);
+      const field = document.createElementNS(ns, 'rect');
+      field.setAttribute('width', '64'); field.setAttribute('height', '64');
+      field.setAttribute('fill', piece.regions?.B ? FABRICS[piece.regions.B].col : 'var(--cell-empty)');
+      field.setAttribute('class', 'region');
+      field.setAttribute('data-cell', cellIdx);
+      field.setAttribute('data-part', 'B');
+      g.appendChild(field);
+      const disc = document.createElementNS(ns, 'path');
+      disc.setAttribute('d', 'M 0 0 L 64 0 A 64 64 0 0 0 0 64 Z');
+      disc.setAttribute('fill', piece.regions?.A ? FABRICS[piece.regions.A].col : 'var(--cell-empty)');
+      disc.setAttribute('class', 'region');
+      disc.setAttribute('data-cell', cellIdx);
+      disc.setAttribute('data-part', 'A');
+      g.appendChild(disc);
+      // Quarter-arc seam outline.
+      const seam = document.createElementNS(ns, 'path');
+      seam.setAttribute('d', 'M 64 0 A 64 64 0 0 0 0 64');
+      seam.setAttribute('fill', 'none');
+      seam.setAttribute('stroke', 'var(--ink-soft)');
+      seam.setAttribute('stroke-width', '1.6');
+      seam.setAttribute('stroke-opacity', '0.55');
+      seam.setAttribute('pointer-events', 'none');
+      g.appendChild(seam);
+      svg.appendChild(g);
+    }
+    return svg;
+  }
+
+  // ── Render ──────────────────────────────────────────────────
+  function render() {
+    // Board
+    const board = document.getElementById('board');
+    const size = state.size;
+    const cellPx = size <= 4 ? 72 : size === 5 ? 64 : size === 6 ? 56 : 44;
+    board.style.gridTemplateColumns = `repeat(${size}, ${cellPx}px)`;
+    board.style.gridTemplateRows    = `repeat(${size}, ${cellPx}px)`;
+    board.innerHTML = '';
+    for (let i = 0; i < size * size; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.cell = i;
+      cell.style.width = cellPx + 'px';
+      cell.style.height = cellPx + 'px';
+      const piece = state.board[i];
+      if (piece) {
+        cell.classList.add('filled');
+        cell.appendChild(pieceSvg(piece, i));
+        if (piece.shape !== 'square' && piece.rot !== 0) {
+          const b = document.createElement('span');
+          b.className = 'rot-badge'; b.textContent = '⟲';
+          cell.appendChild(b);
+        }
+      }
+      board.appendChild(cell);
+    }
+
+    // Shape palette
+    const sp = document.getElementById('shapePalette');
+    sp.innerHTML = '';
+    for (const shape of SHAPES) {
+      const t = document.createElement('div');
+      t.className = 'tile' + (state.sel.kind === 'shape' && state.sel.value === shape ? ' sel' : '');
+      const sym = shape === 'square' ? 'g-square' : shape === 'triangle' ? 'g-triangle' : 'g-curve';
+      t.innerHTML = `<svg><use href="#${sym}"/></svg>`;
+      t.addEventListener('click', () => selectTool('shape', shape));
+      sp.appendChild(t);
+    }
+
+    // Tool palette (rotate, erase)
+    const tp = document.getElementById('toolPalette');
+    tp.innerHTML = '';
+    for (const tool of ['rotate', 'erase']) {
+      const t = document.createElement('div');
+      t.className = 'tile tool' + (state.sel.kind === 'tool' && state.sel.value === tool ? ' sel' : '');
+      t.dataset.tool = tool;
+      t.innerHTML = tool === 'rotate' ? '<svg><use href="#g-rotate"/></svg>' : '✕';
+      t.addEventListener('click', () => selectTool('tool', tool));
+      tp.appendChild(t);
+    }
+
+    // Fabric palette
+    const fp = document.getElementById('fabricPalette');
+    fp.innerHTML = '';
+    for (const fab of fabricKeys) {
+      const t = document.createElement('div');
+      t.className = 'tile swatch' + (state.sel.kind === 'fabric' && state.sel.value === fab ? ' sel' : '');
+      t.style.background = FABRICS[fab].col;
+      t.title = FABRICS[fab].name;
+      t.addEventListener('click', () => selectTool('fabric', fab));
+      fp.appendChild(t);
+    }
+
+    document.getElementById('status').textContent = stateSummary();
+  }
+
+  function stateSummary() {
+    const filled = state.board.filter(Boolean).length;
+    const total = state.size * state.size;
+    return `${filled}/${total} cells filled`;
+  }
+
+  function selectTool(kind, value) {
+    if (state.sel.kind === kind && state.sel.value === value) {
+      state.sel = { kind: null, value: null };
+    } else {
+      state.sel = { kind, value };
+    }
+    render();
+  }
+
+  // ── Interaction ─────────────────────────────────────────────
+  // Apply the current tool to one cell. `regionPart` is optional — when the
+  // pointer was over a specific A/B region of a multi-region piece we only
+  // recolour that region; otherwise (or for drag traversal) we recolour all
+  // parts of the cell.
+  function applyToolToCell(i, regionPart) {
+    const sel = state.sel;
+    if (sel.kind === 'tool' && sel.value === 'erase') {
+      state.board[i] = null;
+      return true;
+    }
+    if (sel.kind === 'tool' && sel.value === 'rotate') {
+      const p = state.board[i];
+      if (p && p.shape !== 'square') {
+        p.rot = (p.rot + 1) % ROT_COUNT[p.shape];
+        return true;
+      }
+      return false;
+    }
+    if (sel.kind === 'fabric') {
+      const p = state.board[i];
+      if (!p) return false;
+      if (regionPart && p.regions[regionPart] !== undefined) {
+        p.regions[regionPart] = sel.value;
+      } else {
+        for (const part of partsOf(p.shape)) p.regions[part] = sel.value;
+      }
+      return true;
+    }
+    if (sel.kind === 'shape') {
+      const regions = {};
+      for (const part of partsOf(sel.value)) regions[part] = null;
+      state.board[i] = { shape: sel.value, rot: 0, regions };
+      return true;
+    }
+    return false;
+  }
+
+  const boardEl = document.getElementById('board');
+
+  // mousedown: start a drag and apply the tool to the cell that was clicked.
+  boardEl.addEventListener('mousedown', (e) => {
+    const cellEl = e.target.closest('.cell');
+    if (!cellEl) return;
+    e.preventDefault();
+    const i = +cellEl.dataset.cell;
+    const regionPart = e.target.closest('.region')?.dataset.part || null;
+    drag.active = true;
+    drag.lastCellIdx = i;
+    if (applyToolToCell(i, regionPart)) render();
+  });
+
+  // mousemove while dragging: apply the tool to whatever cell the pointer
+  // entered, skipping repeated firings on the same cell.
+  document.addEventListener('mousemove', (e) => {
+    if (!drag.active) return;
+    const cellEl = document.elementFromPoint(e.clientX, e.clientY)?.closest('.cell');
+    if (!cellEl) return;
+    const i = +cellEl.dataset.cell;
+    if (i === drag.lastCellIdx) return;
+    drag.lastCellIdx = i;
+    // For drag-paint we always treat it as a whole-cell apply (no region
+    // targeting) — pointer precision on a small region during a drag is
+    // unreliable.
+    if (applyToolToCell(i, null)) render();
+  });
+
+  document.addEventListener('mouseup', () => {
+    drag.active = false;
+    drag.lastCellIdx = null;
+  });
+
+  function setStatus(text, cls) {
+    const el = document.getElementById('status');
+    el.textContent = text;
+    el.className = 'toolbar-label' + (cls ? ' status ' + cls : '');
+  }
+
+  // ── Suggested difficulty updates as the board changes ──────
+  function refreshSuggestedDifficulty() {
+    const hint = document.getElementById('diffSuggest');
+    const errs = E.validateTarget(state.board);
+    if (errs.length) { hint.textContent = ''; return; }
+    const r = G.generate(state.board, { maxGivens: 12 });
+    const suggested = E.suggestedDifficulty(state.board, r);
+    if (suggested === state.meta.difficulty) {
+      hint.textContent = '(matches)';
+    } else {
+      hint.textContent = `(engine suggests ${suggested})`;
+    }
+  }
+  // Re-suggest whenever the board changes via render(). We wrap render to
+  // also call this — minimal coupling.
+  const origRender = render;
+  render = function () {
+    origRender();
+    // Throttle: only suggest when the board is full (otherwise it's noise).
+    const filled = state.board.filter(Boolean).length;
+    const total = state.size * state.size;
+    if (filled === total) refreshSuggestedDifficulty();
+    else document.getElementById('diffSuggest').textContent = '';
+    // Hydrate meta inputs.
+    document.getElementById('nameInput').value = state.meta.name;
+    document.getElementById('authorInput').value = state.meta.author;
+    document.getElementById('dateInput').value = state.meta.date;
+    document.getElementById('diffPick').value = state.meta.difficulty;
+  };
+
+  // ── Meta input listeners ────────────────────────────────────
+  document.getElementById('nameInput').addEventListener('input', (e) => {
+    state.meta.name = e.target.value;
+  });
+  document.getElementById('authorInput').addEventListener('input', (e) => {
+    state.meta.author = e.target.value;
+    localStorage.setItem('picross-author-name', state.meta.author);
+  });
+  document.getElementById('dateInput').addEventListener('input', (e) => {
+    state.meta.date = e.target.value;
+  });
+  document.getElementById('diffPick').addEventListener('change', (e) => {
+    state.meta.difficulty = e.target.value;
+    refreshSuggestedDifficulty();
+  });
+
+  // ── Toolbar ─────────────────────────────────────────────────
+  document.getElementById('sizePick').addEventListener('change', (e) => {
+    state.size = +e.target.value;
+    state.board = newBoard(state.size);
+    render();
+  });
+  document.getElementById('btnClear').addEventListener('click', () => {
+    state.board = newBoard(state.size);
+    render();
+  });
+
+  // Play-test: open the puzzle page in a NEW TAB with the current draft
+  // staged via localStorage. Doesn't save to the library.
+  document.getElementById('btnPlayTest').addEventListener('click', () => {
+    const errs = E.validateTarget(state.board);
+    if (errs.length) {
+      setStatus('Cannot play-test — fill every cell first. (' + errs.length + ' issues)', 'err');
+      return;
+    }
+    try {
+      localStorage.setItem('picross-authored-target', JSON.stringify(state.board));
+      localStorage.setItem('picross-authored-stamp', String(Date.now()));
+      localStorage.setItem('picross-authored-name', state.meta.name || '(untitled draft)');
+      localStorage.setItem('picross-authored-author', state.meta.author || 'unknown');
+    } catch (err) {
+      setStatus('Could not stage draft: ' + err.message, 'err');
+      return;
+    }
+    window.open('./sampler-picross.html?authored=1', '_blank');
+  });
+
+  // Save to library via the local dev server.
+  document.getElementById('btnSave').addEventListener('click', async () => {
+    const errs = E.validateTarget(state.board);
+    if (errs.length) {
+      setStatus('Cannot save — fill every cell first. (' + errs.length + ' issues)', 'err');
+      return;
+    }
+    if (!state.meta.name.trim())   return setStatus('Name is required.', 'err');
+    if (!state.meta.author.trim()) return setStatus('Author is required.', 'err');
+    const payload = {
+      id: state.meta.id || undefined,
+      name: state.meta.name.trim(),
+      author: state.meta.author.trim(),
+      difficulty: state.meta.difficulty,
+      date: state.meta.date,
+      target: state.board,
+    };
+    try {
+      const res = await fetch(LIBRARY_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        setStatus(body.error || ('Save failed: ' + res.status), 'err');
+        return;
+      }
+      state.meta.id = body.design.id;
+      const where = body.design.date
+        ? `(${body.design.date})`
+        : '— backlog, assign a date later';
+      setStatus(body.replaced
+        ? `Updated "${body.design.name}" ${where}`
+        : `Saved "${body.design.name}" ${where}`, 'ok');
+    } catch (err) {
+      setStatus('Library server unreachable — run `npm run picross-library`.', 'err');
+    }
+  });
+
+  // ── Edit-existing handling ─────────────────────────────────
+  async function maybeLoadFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get('edit');
+    const dateParam = params.get('date');
+    if (editId) {
+      try {
+        const res = await fetch(`${LIBRARY_URL}/${encodeURIComponent(editId)}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        state.size = Math.round(Math.sqrt(d.target.length));
+        state.board = d.target.map(c => JSON.parse(JSON.stringify(c)));
+        state.meta = {
+          id: d.id, name: d.name, author: d.author,
+          difficulty: d.difficulty, date: d.date,
+        };
+        document.getElementById('sizePick').value = String(state.size);
+        render();
+        setStatus(`Editing "${d.name}"`, '');
+      } catch (e) {
+        // Server probably not running; leave defaults.
+      }
+    } else if (dateParam) {
+      state.meta.date = dateParam;
+      render();
+    }
+  }
+
+  state.board = newBoard(state.size);
+  render();
+  maybeLoadFromQuery();
+}
+bootAuthor();
+</script>
+
+</body>
+</html>
