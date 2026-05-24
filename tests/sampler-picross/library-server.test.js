@@ -108,3 +108,51 @@ test('a backlog design and a dated design with the same date as another are inde
     assert.strictEqual(b.status, 200);
   });
 });
+
+test('createdAt is set on first POST and preserved on update', async () => {
+  await withServer({ version: 2, designs: [] }, async ({ base, readDisk }) => {
+    const before = Date.now();
+    const a = await postDesign(base, validBaseDesign({ name: 'Alpha', date: '2026-10-01' }));
+    assert.strictEqual(a.status, 200);
+    const created1 = readDisk().designs[0].createdAt;
+    assert.match(created1, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+    assert.ok(Date.parse(created1) >= before);
+
+    // Re-POST same id, createdAt must not change.
+    await new Promise(r => setTimeout(r, 5));
+    const a2 = await postDesign(base, validBaseDesign({ name: 'Alpha', date: '2026-10-02' }));
+    assert.strictEqual(a2.status, 200);
+    assert.strictEqual(readDisk().designs[0].createdAt, created1);
+  });
+});
+
+test('GET backfills createdAt for legacy designs lacking it', async () => {
+  const legacy = {
+    version: 2,
+    designs: [
+      // No createdAt; dated.
+      { id: 'legacy-a', name: 'Legacy A', author: 'x', difficulty: 'mon-tue',
+        date: '2026-04-15', notes: '', target: validBaseDesign().target },
+    ],
+  };
+  await withServer(legacy, async ({ base }) => {
+    const res = await fetch(base);
+    const lib = await res.json();
+    assert.strictEqual(lib.designs[0].createdAt, '2026-04-15T00:00:00.000Z');
+  });
+});
+
+test('GET /library/:id also backfills createdAt', async () => {
+  const legacy = {
+    version: 2,
+    designs: [
+      { id: 'legacy-b', name: 'Legacy B', author: 'x', difficulty: 'mon-tue',
+        date: '2026-05-20', notes: '', target: validBaseDesign().target },
+    ],
+  };
+  await withServer(legacy, async ({ base }) => {
+    const res = await fetch(`${base}/legacy-b`);
+    const d = await res.json();
+    assert.strictEqual(d.createdAt, '2026-05-20T00:00:00.000Z');
+  });
+});

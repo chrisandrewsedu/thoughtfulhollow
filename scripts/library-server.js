@@ -25,8 +25,21 @@ let FILE = process.env.LIBRARY_FILE || DEFAULT_FILE;
 const SUPPORTED_DIFFICULTIES = ['mon-tue', 'wed-th', 'fri-sat', 'sun'];
 const SUPPORTED_SIZES = [3, 4, 5, 6, 8];
 
+function backfillCreatedAt(design) {
+  if (design.createdAt) return design;
+  // Legacy dated designs: synthesize from date so the sort key is stable.
+  // Undated legacy designs (shouldn't exist in v2 data, but defensive):
+  // pin to epoch so they sort to the start.
+  const synth = design.date && ISO_DATE.test(design.date)
+    ? `${design.date}T00:00:00.000Z`
+    : '1970-01-01T00:00:00.000Z';
+  return { ...design, createdAt: synth };
+}
+
 function readLibrary() {
-  return JSON.parse(fs.readFileSync(FILE, 'utf8'));
+  const raw = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+  raw.designs = (raw.designs || []).map(backfillCreatedAt);
+  return raw;
 }
 function writeLibrary(lib) {
   fs.writeFileSync(FILE, JSON.stringify(lib, null, 2) + '\n');
@@ -130,6 +143,7 @@ const server = http.createServer(async (req, res) => {
           });
         }
       }
+      const existing = existingIdx >= 0 ? lib.designs[existingIdx] : null;
       const stored = {
         id: designId,
         name: design.name,
@@ -137,6 +151,7 @@ const server = http.createServer(async (req, res) => {
         difficulty: design.difficulty,
         date: design.date,
         notes: design.notes || '',
+        createdAt: existing?.createdAt || new Date().toISOString(),
         target: design.target,
       };
       if (existingIdx >= 0) lib.designs[existingIdx] = stored;
@@ -182,6 +197,7 @@ if (require.main === module) {
 module.exports = {
   validateDesign,
   slugify,
+  backfillCreatedAt,
   start,
   server,
   ISO_DATE,
