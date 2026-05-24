@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sampler picross — archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fascinate&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:#faf6ec; --paper-deep:#f0e9d6; --ink:#2a2520; --ink-soft:#6a6258;
+    --accent:#c01818; --green:#3a5a3a; --gold:#8a6c18; --line:#c9bd9c;
+    --cell-empty:#f3ecd8; --cell-empty-edge:#cdc1a0;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Spectral', Georgia, serif;
+    min-height: 100vh;
+  }
+  body { padding: 1.4rem 1rem 2.5rem; }
+  .app { max-width: 880px; margin: 0 auto; }
+  .header { display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
+  h1 { font-family: 'Fascinate', serif; font-size: 1.7rem; font-weight: 400; line-height: 1; }
+  .sub { color: var(--ink-soft); font-size: 0.9rem; }
+  .nav-link {
+    margin-left: auto;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.86rem;
+    border: 1px solid var(--line);
+    padding: 0.3rem 0.7rem;
+    border-radius: 4px;
+  }
+  .nav-link:hover { background: var(--paper-deep); }
+
+  .list {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.7rem;
+  }
+  .entry {
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.8rem 0.95rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    transition: transform 0.06s, box-shadow 0.06s;
+  }
+  .entry:hover { background: var(--paper); box-shadow: 0 1px 4px rgba(0,0,0,0.06); transform: translateY(-1px); }
+  .entry .date { font-size: 0.82rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .entry .author { font-size: 0.72rem; color: var(--ink-soft); font-style: italic; margin-top: 0.4rem; }
+  .entry .thumb {
+    width: 100%; aspect-ratio: 1;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    display: grid;
+    margin: 0.3rem 0 0.4rem;
+  }
+  .entry .thumb svg { width: 100%; height: 100%; }
+
+  .empty {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    padding: 3rem 1rem;
+    text-align: center;
+    line-height: 1.55;
+  }
+
+  @media (max-width: 719px) {
+    body { padding: 0.9rem 0.75rem 2rem; }
+    h1 { font-size: 1.25rem; }
+    .nav-link { min-height: 40px; display: inline-flex; align-items: center; }
+    .list { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Dynamic fabric pattern defs — populated lazily by ensurePattern(). -->
+<svg id="fabric-defs" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs></defs>
+</svg>
+
+<div class="app">
+  <div class="header">
+    <h1>Archive</h1>
+    <span class="sub">Past quilt-block puzzles. Names reveal on solve.</span>
+    <a class="nav-link" href="./sampler-picross.html">← today</a>
+  </div>
+
+  <div id="list" class="list"></div>
+  <div id="empty" class="empty" style="display:none">No past puzzles yet — check back after the first daily.</div>
+</div>
+
+<script>window.__PICROSS_LIBRARY__ = {
+  "version": 2,
+  "designs": [
+    {
+      "id": "tetris",
+      "name": "Tetris",
+      "author": "Chris",
+      "difficulty": "mon-tue",
+      "date": "2026-05-25",
+      "notes": "",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        }
+      ],
+      "createdAt": "2026-05-25T00:00:00.000Z"
+    },
+    {
+      "id": "bold-x",
+      "name": "Bold X",
+      "author": "Chris",
+      "difficulty": "mon-tue",
+      "date": "2026-05-26",
+      "notes": "",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        }
+      ],
+      "createdAt": "2026-05-26T00:00:00.000Z"
+    },
+    {
+      "id": "wyld-whirl",
+      "name": "Wyld Whirl",
+      "author": "Wydlwood Creative",
+      "difficulty": "wed-th",
+      "date": "2026-05-27",
+      "notes": "",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "SLATE",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "SLATE",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "INDIGO",
+            "B": "SAGE"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "TEAL",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "INDIGO",
+            "B": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "TEAL",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        }
+      ],
+      "createdAt": "2026-05-27T00:00:00.000Z"
+    },
+    {
+      "id": "lake-garden",
+      "name": "Lake Garden",
+      "author": "Emma Jean Jansen",
+      "difficulty": "mon-tue",
+      "date": "2026-06-02",
+      "notes": "",
+      "target": [
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "INDIGO",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MADDER",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "SAGE",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "SAGE",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "SAGE",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "SAGE",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "MADDER",
+            "B": "SLATE"
+          }
+        }
+      ],
+      "createdAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "sawtooth-stardust",
+      "name": "Spin Cycle",
+      "author": "Moda Block-of-the-Week",
+      "difficulty": "mon-tue",
+      "date": "2026-06-08",
+      "notes": "",
+      "createdAt": "2026-05-24T15:38:07.324Z",
+      "target": [
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MADDER",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "MADDER",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MADDER",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "MADDER",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "MADDER"
+          }
+        }
+      ]
+    },
+    {
+      "id": "windmills",
+      "name": "Windmills",
+      "author": "Moda Block-of-the-Week",
+      "difficulty": "mon-tue",
+      "date": "2026-06-23",
+      "notes": "",
+      "createdAt": "2026-05-24T16:01:28.516Z",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MADDER",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "MADDER",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "INDIGO",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "INDIGO",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "SLATE",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "SLATE",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        }
+      ]
+    }
+  ]
+}
+;</script>
+<script>
+(function(){
+'use strict';
+// Sampler picross engine — geometry, fabrics, target validation, clue derivation.
+// Pure logic, no DOM. Loadable in browser (via script tag) and Node.
+//
+// Grid size is per-target: a target is an array of N*N cells where N ∈ {3,4,5,6,7,8,9}.
+// Helpers take `size` (the side length) where needed, OR derive it from
+// `target.length`. There is no global GRID constant any more.
+
+const DIRS = ['N', 'E', 'S', 'W'];
+const SUPPORTED_SIZES = [3, 4, 5, 6, 7, 8, 9];
+
+function gridSizeOf(target) {
+  const n = Math.round(Math.sqrt(target.length));
+  if (n * n !== target.length) throw new Error('target length must be a perfect square');
+  return n;
+}
+
+function rowOf(i, size) { return Math.floor(i / size); }
+function colOf(i, size) { return i % size; }
+function rowCells(r, size) {
+  const out = [];
+  for (let c = 0; c < size; c++) out.push(r * size + c);
+  return out;
+}
+function colCells(c, size) {
+  const out = [];
+  for (let r = 0; r < size; r++) out.push(r * size + c);
+  return out;
+}
+function partnerOf(i, size) { return size * size - 1 - i; }
+
+// ── Pieces ───────────────────────────────────────────────────────
+// shapes:
+//   square   — single fabric region W.
+//   triangle — half-square triangle, seam is a diagonal. 2 rotations:
+//              rot 0 = '\' seam (A=NE half, B=SW half),
+//              rot 1 = '/' seam (A=SE half, B=NW half).
+//              (Rotating 180° just swaps A/B labels — that's stored as the
+//              same rot with the regions swapped, not a separate rotation.)
+//   curve    — Drunkard's-Path quarter-circle (A=disc, B=field). 4 rotations,
+//              one per corner where the disc sits (rot 0 = disc in NW).
+//   bar      — two equal rectangles (a "rail" unit). 2 rotations:
+//              rot 0 = horizontal cut (A=top, B=bottom),
+//              rot 1 = vertical cut (A=right, B=left after a 90° rotation).
+//   qst      — quarter-square triangle / hourglass: 4 triangles meeting at
+//              centre, opposite pairs share fabric. 1 rotation: A=top+bottom,
+//              B=left+right. (90° rotation just swaps A/B.)
+const SHAPES = ['square', 'triangle', 'curve', 'bar', 'qst'];
+
+function partsOf(shape) {
+  return shape === 'square' ? ['W'] : ['A', 'B'];
+}
+
+// Default rotation per shape — a piece in this rotation does not count toward
+// the ⟲ rotation total.
+const DEFAULT_ROT = { square: 0, triangle: 0, curve: 0, bar: 0, qst: 0 };
+const ROT_COUNT   = { square: 1, triangle: 2, curve: 4, bar: 2, qst: 1 };
+
+// curve continuity ports by rotation (rot 0 = disc in the NW corner)
+const CURVE_PORTS = { 0: ['N', 'W'], 1: ['N', 'E'], 2: ['S', 'E'], 3: ['S', 'W'] };
+
+// Triangle region by rotation. rot 0 = '\' seam from NW to SE corner:
+// region A is the NE half, region B is the SW half. rot 1 = '/' seam.
+const TRIANGLE_FACES = {
+  0: { N: 'A', E: 'A', S: 'B', W: 'B' },
+  1: { N: 'B', E: 'A', S: 'A', W: 'B' },
+};
+
+// Partner-under-180° for half-turn symmetry. Returns the (rot, A↔B-swap) that
+// makes a cell's partner look identical after spinning the board 180°. For
+// triangle/bar a 180° rotation re-uses the same rot with the A/B labels
+// swapped; for curve it lands on (rot+2)%4 with no swap; qst and square are
+// fully symmetric under 180°.
+function partnerSymmetry(shape, rot) {
+  if (shape === 'square') return { rot: 0,             swap: false };
+  if (shape === 'curve')  return { rot: (rot + 2) % 4, swap: false };
+  if (shape === 'qst')    return { rot: 0,             swap: false };
+  return { rot, swap: true }; // triangle, bar
+}
+
+// ── Fabrics ──────────────────────────────────────────────────────
+const FABRICS = {
+  LINEN:    { name: 'Linen',    col: '#ece0c8', hue: 'neutral' },
+  FLAX:     { name: 'Flax',     col: '#d6c79b', hue: 'neutral' },
+  SAGE:     { name: 'Sage',     col: '#b3b89a', hue: 'neutral' },
+  MADDER:   { name: 'Madder',   col: '#a8392f', hue: 'warm' },
+  MARIGOLD: { name: 'Marigold', col: '#d99838', hue: 'warm' },
+  CLARET:   { name: 'Claret',   col: '#7d2933', hue: 'warm' },
+  INDIGO:   { name: 'Indigo',   col: '#2b3a5e', hue: 'cool' },
+  SLATE:    { name: 'Slate',    col: '#5f7b87', hue: 'cool' },
+  TEAL:     { name: 'Teal',     col: '#2f6d6a', hue: 'cool' },
+};
+
+// ── Patterns ─────────────────────────────────────────────────────
+// A fabric is a (color × pattern) combination. PATTERNS holds the pattern
+// templates — each has a tile size and a render(base, ink) function that
+// returns the inner SVG markup of an SVG <pattern> element. DOM injection
+// lives in the page-level renderer (engine stays DOM-free).
+const PATTERNS = {
+  weave: {
+    name: 'Plain weave',
+    tile: 6,
+    render: (base, ink) => `
+      <rect width="6" height="6" fill="${base}"/>
+      <rect x="0" y="0" width="6" height="3" fill="rgba(0,0,0,0.10)"/>
+      <rect x="0" y="0" width="3" height="6" fill="rgba(255,255,255,0.08)"/>
+      <rect x="1" y="4" width="1" height="1" fill="rgba(0,0,0,0.14)"/>
+      <rect x="4" y="1" width="1" height="1" fill="rgba(255,255,255,0.10)"/>
+    `,
+  },
+  trellis: {
+    name: 'Diamond trellis',
+    tile: 24,
+    render: (base, ink) => `
+      <rect width="24" height="24" fill="${base}"/>
+      <g>
+        <rect x="0" y="11" width="24" height="2" fill="rgba(0,0,0,0.09)"/>
+        <rect x="11" y="0" width="2" height="24" fill="rgba(255,255,255,0.07)"/>
+      </g>
+      <g fill="none" stroke="${ink}" stroke-width="0.9" opacity="0.9">
+        <path d="M 6 2 L 10 6 L 6 10 L 2 6 Z"/>
+        <path d="M 18 2 L 22 6 L 18 10 L 14 6 Z"/>
+        <path d="M 6 14 L 10 18 L 6 22 L 2 18 Z"/>
+        <path d="M 18 14 L 22 18 L 18 22 L 14 18 Z"/>
+      </g>
+      <g fill="${ink}" opacity="0.9">
+        <circle cx="6"  cy="6"  r="0.9"/>
+        <circle cx="18" cy="6"  r="0.9"/>
+        <circle cx="6"  cy="18" r="0.9"/>
+        <circle cx="18" cy="18" r="0.9"/>
+      </g>
+    `,
+  },
+  cross: {
+    name: 'Cross-stitch',
+    tile: 20,
+    render: (base, ink) => `
+      <rect width="20" height="20" fill="${base}"/>
+      <g>
+        <rect x="0" y="0" width="20" height="2" fill="rgba(0,0,0,0.09)"/>
+        <rect x="0" y="10" width="20" height="2" fill="rgba(0,0,0,0.09)"/>
+        <rect x="0" y="0" width="2" height="20" fill="rgba(255,255,255,0.07)"/>
+        <rect x="10" y="0" width="2" height="20" fill="rgba(255,255,255,0.07)"/>
+      </g>
+      <g stroke="${ink}" stroke-width="1.4" stroke-linecap="square" opacity="0.95">
+        <line x1="6" y1="6" x2="14" y2="14"/>
+        <line x1="14" y1="6" x2="6" y2="14"/>
+      </g>
+    `,
+  },
+  floret: {
+    name: 'Floret',
+    tile: 24,
+    render: (base, ink) => `
+      <rect width="24" height="24" fill="${base}"/>
+      <g>
+        <rect x="0" y="11" width="24" height="2" fill="rgba(0,0,0,0.09)"/>
+        <rect x="11" y="0" width="2" height="24" fill="rgba(255,255,255,0.07)"/>
+      </g>
+      <g fill="${ink}" opacity="0.92">
+        <circle cx="6"  cy="6"  r="1.1"/>
+        <circle cx="6"  cy="3"  r="0.9"/><circle cx="9"  cy="6"  r="0.9"/><circle cx="6"  cy="9"  r="0.9"/><circle cx="3"  cy="6"  r="0.9"/>
+        <circle cx="18" cy="6"  r="1.1"/>
+        <circle cx="18" cy="3"  r="0.9"/><circle cx="21" cy="6"  r="0.9"/><circle cx="18" cy="9"  r="0.9"/><circle cx="15" cy="6"  r="0.9"/>
+        <circle cx="6"  cy="18" r="1.1"/>
+        <circle cx="6"  cy="15" r="0.9"/><circle cx="9"  cy="18" r="0.9"/><circle cx="6"  cy="21" r="0.9"/><circle cx="3"  cy="18" r="0.9"/>
+        <circle cx="18" cy="18" r="1.1"/>
+        <circle cx="18" cy="15" r="0.9"/><circle cx="21" cy="18" r="0.9"/><circle cx="18" cy="21" r="0.9"/><circle cx="15" cy="18" r="0.9"/>
+      </g>
+    `,
+  },
+};
+const DEFAULT_PATTERN = 'weave';
+
+// ── Luminance & contrast ink (WCAG-style) ────────────────────────
+// Motif ink and shape-outline ink are computed from the base color's
+// luminance so dark fabrics get a cream ink and light fabrics get a dark
+// ink. Same ink drives both pattern motifs and shape outlines on top.
+const INK_DARK  = '#2b2418';
+const INK_LIGHT = '#ece0c8';
+function hexToRgb(hex) {
+  const h = hex.replace('#','');
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function relLuminance(hex) {
+  const [r,g,b] = hexToRgb(hex).map(v => {
+    v /= 255;
+    return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
+  });
+  return 0.2126*r + 0.7152*g + 0.0722*b;
+}
+function inkFor(colorIdOrHex) {
+  const hex = (colorIdOrHex && FABRICS[colorIdOrHex]?.col) || colorIdOrHex;
+  if (!hex) return INK_DARK;
+  return relLuminance(hex) > 0.45 ? INK_DARK : INK_LIGHT;
+}
+
+// ── Region value normalization ───────────────────────────────────
+// A cell.regions[part] value can be:
+//   string                → legacy: just a color ID, pattern defaults to weave.
+//   { color, pattern }    → new: explicit color × pattern combination.
+//   null / undefined      → blank region.
+// All engine code that reads region values goes through these helpers so the
+// two forms are interchangeable everywhere.
+function regionColor(value) {
+  if (!value) return null;
+  return typeof value === 'string' ? value : (value.color || null);
+}
+function regionPattern(value) {
+  // null = "solid color, no pattern" (the default for both legacy strings and
+  // {color}-only objects). Patterns are explicit, opt-in decoration.
+  if (!value || typeof value === 'string') return null;
+  return value.pattern || null;
+}
+function regionKey(value) {
+  const c = regionColor(value);
+  if (!c) return null;
+  const p = regionPattern(value);
+  return p ? `${c}:${p}` : c;
+}
+function patternIdFor(colorId, patternId) {
+  return patternId ? `fab-${colorId}-${patternId}` : null;
+}
+
+// ── Target validation ────────────────────────────────────────────
+function validateTarget(target) {
+  const errors = [];
+  if (!Array.isArray(target)) { errors.push('target must be an array'); return errors; }
+  let size;
+  try { size = gridSizeOf(target); }
+  catch (e) { errors.push(e.message); return errors; }
+  if (!SUPPORTED_SIZES.includes(size)) {
+    errors.push(`unsupported grid size ${size}; supported sizes are ${SUPPORTED_SIZES.join(', ')}`);
+  }
+  for (let i = 0; i < target.length; i++) {
+    const cell = target[i];
+    if (!cell) { errors.push(`cell ${i}: missing`); continue; }
+    if (!SHAPES.includes(cell.shape)) errors.push(`cell ${i}: bad shape '${cell.shape}'`);
+    if (typeof cell.rot !== 'number' || cell.rot < 0 || cell.rot >= ROT_COUNT[cell.shape]) {
+      errors.push(`cell ${i}: bad rot ${cell.rot} for shape ${cell.shape}`);
+    }
+    for (const part of partsOf(cell.shape)) {
+      const val = cell.regions?.[part];
+      const color = regionColor(val);
+      if (!color || !FABRICS[color]) {
+        errors.push(`cell ${i}: region '${part}' has bad color '${color}'`);
+      }
+      if (val && typeof val === 'object' && val.pattern && !PATTERNS[val.pattern]) {
+        errors.push(`cell ${i}: region '${part}' has bad pattern '${val.pattern}'`);
+      }
+    }
+  }
+  return errors;
+}
+
+// ── Clue derivation ──────────────────────────────────────────────
+function clueForCells(target, cellIndices) {
+  const shape = Object.create(null);
+  const rotation = Object.create(null);
+  const fabric = Object.create(null);
+  for (const i of cellIndices) {
+    const cell = target[i];
+    if (!cell) continue;
+    shape[cell.shape] = (shape[cell.shape] || 0) + 1;
+    if (cell.rot !== DEFAULT_ROT[cell.shape]) {
+      rotation[cell.shape] = (rotation[cell.shape] || 0) + 1;
+    }
+    for (const part of partsOf(cell.shape)) {
+      const fab = regionColor(cell.regions[part]);
+      if (fab) fabric[fab] = (fabric[fab] || 0) + 1;
+    }
+  }
+  return { shape, rotation, fabric };
+}
+
+function deriveClues(target) {
+  const size = gridSizeOf(target);
+  const rows = [];
+  const cols = [];
+  for (let r = 0; r < size; r++) rows.push(clueForCells(target, rowCells(r, size)));
+  for (let c = 0; c < size; c++) cols.push(clueForCells(target, colCells(c, size)));
+  return { rows, cols, size };
+}
+
+// ── Symmetry detection ───────────────────────────────────────────
+function isHalfTurnSymmetric(target) {
+  const size = gridSizeOf(target);
+  const N = size * size;
+  for (let i = 0; i < N; i++) {
+    const a = target[i];
+    const b = target[N - 1 - i];
+    if (!a || !b) return false;
+    if (a.shape !== b.shape) return false;
+    const sym = partnerSymmetry(a.shape, a.rot);
+    if (b.rot !== sym.rot) return false;
+    for (const part of partsOf(a.shape)) {
+      const partnerPart = sym.swap ? (part === 'A' ? 'B' : part === 'B' ? 'A' : part) : part;
+      // Compare normalized (color:pattern) keys so visual symmetry holds
+      // for both legacy string regions and new {color,pattern} regions.
+      if (regionKey(a.regions[part]) !== regionKey(b.regions[partnerPart])) return false;
+    }
+  }
+  return true;
+}
+
+// ── Density check ────────────────────────────────────────────────
+function maxBandChips(clues) {
+  let worst = 0;
+  const bands = [...clues.rows, ...clues.cols];
+  for (const b of bands) {
+    const shapeChips = Object.keys(b.shape).length;
+    const fabricChips = Object.keys(b.fabric).length;
+    worst = Math.max(worst, shapeChips, fabricChips);
+  }
+  return worst;
+}
+
+// ── Difficulty suggestion ───────────────────────────────────────
+// Heuristic: bigger grid, more shapes, more fabrics, more rotations push
+// difficulty up; more givens (from the generator) pull it back down. Returns
+// one of 'mon-tue' | 'wed-th' | 'fri-sat' | 'sun'. Author can override.
+const DIFFICULTIES = ['mon-tue', 'wed-th', 'fri-sat', 'sun'];
+
+function suggestedDifficulty(target, generated) {
+  const size = gridSizeOf(target);
+  const shapes = new Set();
+  const fabrics = new Set();
+  let rotated = 0;
+  for (const c of target) {
+    if (!c) continue;
+    shapes.add(c.shape);
+    for (const val of Object.values(c.regions || {})) {
+      const color = regionColor(val);
+      if (color) fabrics.add(color);
+    }
+    if (c.rot !== 0) rotated++;
+  }
+  const givens = generated?.givenCount ?? 0;
+  let score = 0;
+  score += (size - 3) * 8;
+  score += (shapes.size - 1) * 20;
+  score += Math.max(0, fabrics.size - 2) * 8;
+  score += Math.min(rotated, 12) * 4;
+  score -= givens * 1;
+  if (score < 14) return 'mon-tue';
+  if (score < 30) return 'wed-th';
+  if (score < 50) return 'fri-sat';
+  return 'sun';
+}
+
+// ── Exports ──────────────────────────────────────────────────────
+const PicrossEngine = {
+  DIRS, SUPPORTED_SIZES,
+  SHAPES, DEFAULT_ROT, ROT_COUNT,
+  CURVE_PORTS, TRIANGLE_FACES,
+  FABRICS,
+  PATTERNS, DEFAULT_PATTERN,
+  INK_DARK, INK_LIGHT,
+  relLuminance, inkFor,
+  regionColor, regionPattern, regionKey, patternIdFor,
+  gridSizeOf,
+  rowOf, colOf, rowCells, colCells, partnerOf,
+  partsOf,
+  partnerSymmetry,
+  validateTarget,
+  clueForCells, deriveClues,
+  isHalfTurnSymmetric,
+  maxBandChips,
+  suggestedDifficulty, DIFFICULTIES,
+};
+
+if (typeof module !== 'undefined' && module.exports) module.exports = PicrossEngine;
+if (typeof window !== 'undefined') window.PicrossEngine = PicrossEngine;
+
+})();
+</script>
+<script>
+(function(){
+'use strict';
+// Sampler picross templates — thin wrapper around the JSON library.
+//
+// The single source of truth is sampler-picross.templates.json. Authoring
+// happens through the local library server, which mutates that file; the
+// inliner script embeds the JSON into the HTML for production builds.
+//
+// In Node we read the JSON from disk. In the browser the inliner replaces
+// this whole block with a literal `__LIBRARY__` constant assigned from the
+// embedded JSON. See scripts/inline-picross.js.
+
+let LIBRARY;
+if (typeof require !== 'undefined') {
+  LIBRARY = require('./sampler-picross.templates.json');
+} else if (typeof window !== 'undefined' && window.__PICROSS_LIBRARY__) {
+  LIBRARY = window.__PICROSS_LIBRARY__;
+} else {
+  LIBRARY = { version: 1, designs: [] };
+}
+
+const TARGETS = LIBRARY.designs.map(d => ({
+  id: d.id,
+  name: d.name,
+  difficulty: d.difficulty,
+  notes: d.notes,
+  target: d.target,
+}));
+
+const PicrossTargets = { TARGETS, LIBRARY };
+
+if (typeof module !== 'undefined' && module.exports) module.exports = PicrossTargets;
+if (typeof window !== 'undefined') window.PicrossTargets = PicrossTargets;
+
+})();
+</script>
+<script>
+function bootArchive() {
+  'use strict';
+  if (!window.PicrossEngine || !window.__PICROSS_LIBRARY__) {
+    return setTimeout(bootArchive, 30);
+  }
+  const E = window.PicrossEngine;
+  const FABRICS = E.FABRICS;
+  const PATTERNS = E.PATTERNS;
+
+  // ── Fabric pattern injection ─────────────────────────────────
+  const _patternCache = new Set();
+  function ensurePattern(colorId, patternId) {
+    if (!colorId || !patternId) return null;
+    const id = E.patternIdFor(colorId, patternId);
+    if (!id) return null;
+    if (_patternCache.has(id)) return id;
+    const color = FABRICS[colorId];
+    const pat = PATTERNS[patternId];
+    if (!color || !pat) return null;
+    const ink = E.inkFor(colorId);
+    const defs = document.querySelector('#fabric-defs defs');
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'pattern');
+    el.setAttribute('id', id);
+    el.setAttribute('patternUnits', 'userSpaceOnUse');
+    el.setAttribute('width', pat.tile);
+    el.setAttribute('height', pat.tile);
+    el.innerHTML = pat.render(color.col, ink);
+    defs.appendChild(el);
+    _patternCache.add(id);
+    return id;
+  }
+  function fabricFill(value, blank) {
+    const color = E.regionColor(value);
+    if (!color) return blank || 'var(--cell-empty)';
+    const pattern = E.regionPattern(value);
+    if (!pattern) return FABRICS[color].col;
+    const id = ensurePattern(color, pattern);
+    return id ? `url(#${id})` : FABRICS[color].col;
+  }
+
+  function todayET() {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/New_York',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+    }).format(new Date());
+  }
+
+  function thumbSvg(target) {
+    const size = Math.round(Math.sqrt(target.length));
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${size * 20} ${size * 20}`);
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    const fab = value => fabricFill(value);
+    for (let i = 0; i < target.length; i++) {
+      const r = Math.floor(i / size), c = i % size;
+      const x = c * 20, y = r * 20;
+      const p = target[i];
+      const g = document.createElementNS(ns, 'g');
+      g.setAttribute('transform', `translate(${x} ${y}) rotate(${(p.rot || 0) * 90} 10 10)`);
+      if (p.shape === 'square') {
+        const rect = document.createElementNS(ns, 'rect');
+        rect.setAttribute('width', '20'); rect.setAttribute('height', '20');
+        rect.setAttribute('fill', fab(p.regions.W));
+        g.appendChild(rect);
+      } else if (p.shape === 'triangle') {
+        const a = document.createElementNS(ns, 'polygon');
+        a.setAttribute('points', '0,0 20,0 20,20');
+        a.setAttribute('fill', fab(p.regions.A));
+        const b = document.createElementNS(ns, 'polygon');
+        b.setAttribute('points', '0,0 20,20 0,20');
+        b.setAttribute('fill', fab(p.regions.B));
+        g.appendChild(a); g.appendChild(b);
+      } else if (p.shape === 'bar') {
+        const a = document.createElementNS(ns, 'rect');
+        a.setAttribute('x', '0'); a.setAttribute('y', '0');
+        a.setAttribute('width', '20'); a.setAttribute('height', '10');
+        a.setAttribute('fill', fab(p.regions.A));
+        const b = document.createElementNS(ns, 'rect');
+        b.setAttribute('x', '0'); b.setAttribute('y', '10');
+        b.setAttribute('width', '20'); b.setAttribute('height', '10');
+        b.setAttribute('fill', fab(p.regions.B));
+        g.appendChild(a); g.appendChild(b);
+      } else if (p.shape === 'qst') {
+        for (const [pts, part] of [
+          ['0,0 20,0 10,10', 'A'],
+          ['0,20 20,20 10,10', 'A'],
+          ['0,0 10,10 0,20', 'B'],
+          ['20,0 20,20 10,10', 'B'],
+        ]) {
+          const poly = document.createElementNS(ns, 'polygon');
+          poly.setAttribute('points', pts);
+          poly.setAttribute('fill', fab(p.regions[part]));
+          g.appendChild(poly);
+        }
+      } else {
+        const field = document.createElementNS(ns, 'rect');
+        field.setAttribute('width', '20'); field.setAttribute('height', '20');
+        field.setAttribute('fill', fab(p.regions.B));
+        const disc = document.createElementNS(ns, 'path');
+        disc.setAttribute('d', 'M 0 0 L 20 0 A 20 20 0 0 0 0 20 Z');
+        disc.setAttribute('fill', fab(p.regions.A));
+        g.appendChild(field); g.appendChild(disc);
+      }
+      svg.appendChild(g);
+    }
+    return svg;
+  }
+
+  const today = todayET();
+  const designs = (window.__PICROSS_LIBRARY__?.designs || [])
+    .filter(d => d.date < today)
+    .sort((a, b) => b.date.localeCompare(a.date)); // newest first
+
+  const list = document.getElementById('list');
+  if (designs.length === 0) {
+    document.getElementById('empty').style.display = '';
+    return;
+  }
+  for (const d of designs) {
+    const a = document.createElement('a');
+    a.className = 'entry';
+    a.href = `./sampler-picross.html#${d.date}`;
+    const dt = new Date(d.date + 'T12:00:00');
+    const dateText = dt.toLocaleDateString(undefined, {
+      weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+    });
+    const dateEl = document.createElement('div');
+    dateEl.className = 'date'; dateEl.textContent = dateText;
+    const thumb = document.createElement('div');
+    thumb.className = 'thumb';
+    thumb.appendChild(thumbSvg(d.target));
+    const author = document.createElement('div');
+    author.className = 'author'; author.textContent = d.author ? `designed by ${d.author}` : '';
+    a.appendChild(dateEl);
+    a.appendChild(thumb);
+    a.appendChild(author);
+    list.appendChild(a);
+  }
+}
+bootArchive();
+</script>
+
+</body>
+</html>

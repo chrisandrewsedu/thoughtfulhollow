@@ -230,6 +230,11 @@
   </defs>
 </svg>
 
+<!-- Dynamic fabric pattern defs — populated lazily by ensurePattern(). -->
+<svg id="fabric-defs" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs></defs>
+</svg>
+
 <div class="app">
   <div class="header">
     <h1>Sampler picross — admin</h1>
@@ -257,12 +262,12 @@
 // Sampler picross engine — geometry, fabrics, target validation, clue derivation.
 // Pure logic, no DOM. Loadable in browser (via script tag) and Node.
 //
-// Grid size is per-target: a target is an array of N*N cells where N ∈ {3,4,5,6,8}.
+// Grid size is per-target: a target is an array of N*N cells where N ∈ {3,4,5,6,7,8,9}.
 // Helpers take `size` (the side length) where needed, OR derive it from
 // `target.length`. There is no global GRID constant any more.
 
 const DIRS = ['N', 'E', 'S', 'W'];
-const SUPPORTED_SIZES = [3, 4, 5, 6, 8];
+const SUPPORTED_SIZES = [3, 4, 5, 6, 7, 8, 9];
 
 function gridSizeOf(target) {
   const n = Math.round(Math.sqrt(target.length));
@@ -285,10 +290,22 @@ function colCells(c, size) {
 function partnerOf(i, size) { return size * size - 1 - i; }
 
 // ── Pieces ───────────────────────────────────────────────────────
-// shapes: 'square' | 'triangle' | 'curve'. A curve is a Drunkard's-Path
-// quarter-circle: part A = the disc, part B = the field. A triangle is a
-// half-square triangle: parts A and B are its two halves.
-const SHAPES = ['square', 'triangle', 'curve'];
+// shapes:
+//   square   — single fabric region W.
+//   triangle — half-square triangle, seam is a diagonal. 2 rotations:
+//              rot 0 = '\' seam (A=NE half, B=SW half),
+//              rot 1 = '/' seam (A=SE half, B=NW half).
+//              (Rotating 180° just swaps A/B labels — that's stored as the
+//              same rot with the regions swapped, not a separate rotation.)
+//   curve    — Drunkard's-Path quarter-circle (A=disc, B=field). 4 rotations,
+//              one per corner where the disc sits (rot 0 = disc in NW).
+//   bar      — two equal rectangles (a "rail" unit). 2 rotations:
+//              rot 0 = horizontal cut (A=top, B=bottom),
+//              rot 1 = vertical cut (A=right, B=left after a 90° rotation).
+//   qst      — quarter-square triangle / hourglass: 4 triangles meeting at
+//              centre, opposite pairs share fabric. 1 rotation: A=top+bottom,
+//              B=left+right. (90° rotation just swaps A/B.)
+const SHAPES = ['square', 'triangle', 'curve', 'bar', 'qst'];
 
 function partsOf(shape) {
   return shape === 'square' ? ['W'] : ['A', 'B'];
@@ -296,20 +313,30 @@ function partsOf(shape) {
 
 // Default rotation per shape — a piece in this rotation does not count toward
 // the ⟲ rotation total.
-const DEFAULT_ROT = { square: 0, triangle: 0, curve: 0 };
-const ROT_COUNT   = { square: 1, triangle: 4, curve: 4 };
+const DEFAULT_ROT = { square: 0, triangle: 0, curve: 0, bar: 0, qst: 0 };
+const ROT_COUNT   = { square: 1, triangle: 2, curve: 4, bar: 2, qst: 1 };
 
 // curve continuity ports by rotation (rot 0 = disc in the NW corner)
 const CURVE_PORTS = { 0: ['N', 'W'], 1: ['N', 'E'], 2: ['S', 'E'], 3: ['S', 'W'] };
 
-// Triangle region by rotation. At rot 0 the right-angle sits at the NE corner:
-// region A is the NE half, region B is the SW half.
+// Triangle region by rotation. rot 0 = '\' seam from NW to SE corner:
+// region A is the NE half, region B is the SW half. rot 1 = '/' seam.
 const TRIANGLE_FACES = {
   0: { N: 'A', E: 'A', S: 'B', W: 'B' },
   1: { N: 'B', E: 'A', S: 'A', W: 'B' },
-  2: { N: 'B', E: 'B', S: 'A', W: 'A' },
-  3: { N: 'A', E: 'B', S: 'B', W: 'A' },
 };
+
+// Partner-under-180° for half-turn symmetry. Returns the (rot, A↔B-swap) that
+// makes a cell's partner look identical after spinning the board 180°. For
+// triangle/bar a 180° rotation re-uses the same rot with the A/B labels
+// swapped; for curve it lands on (rot+2)%4 with no swap; qst and square are
+// fully symmetric under 180°.
+function partnerSymmetry(shape, rot) {
+  if (shape === 'square') return { rot: 0,             swap: false };
+  if (shape === 'curve')  return { rot: (rot + 2) % 4, swap: false };
+  if (shape === 'qst')    return { rot: 0,             swap: false };
+  return { rot, swap: true }; // triangle, bar
+}
 
 // ── Fabrics ──────────────────────────────────────────────────────
 const FABRICS = {
@@ -323,6 +350,137 @@ const FABRICS = {
   SLATE:    { name: 'Slate',    col: '#5f7b87', hue: 'cool' },
   TEAL:     { name: 'Teal',     col: '#2f6d6a', hue: 'cool' },
 };
+
+// ── Patterns ─────────────────────────────────────────────────────
+// A fabric is a (color × pattern) combination. PATTERNS holds the pattern
+// templates — each has a tile size and a render(base, ink) function that
+// returns the inner SVG markup of an SVG <pattern> element. DOM injection
+// lives in the page-level renderer (engine stays DOM-free).
+const PATTERNS = {
+  weave: {
+    name: 'Plain weave',
+    tile: 6,
+    render: (base, ink) => `
+      <rect width="6" height="6" fill="${base}"/>
+      <rect x="0" y="0" width="6" height="3" fill="rgba(0,0,0,0.10)"/>
+      <rect x="0" y="0" width="3" height="6" fill="rgba(255,255,255,0.08)"/>
+      <rect x="1" y="4" width="1" height="1" fill="rgba(0,0,0,0.14)"/>
+      <rect x="4" y="1" width="1" height="1" fill="rgba(255,255,255,0.10)"/>
+    `,
+  },
+  trellis: {
+    name: 'Diamond trellis',
+    tile: 24,
+    render: (base, ink) => `
+      <rect width="24" height="24" fill="${base}"/>
+      <g>
+        <rect x="0" y="11" width="24" height="2" fill="rgba(0,0,0,0.09)"/>
+        <rect x="11" y="0" width="2" height="24" fill="rgba(255,255,255,0.07)"/>
+      </g>
+      <g fill="none" stroke="${ink}" stroke-width="0.9" opacity="0.9">
+        <path d="M 6 2 L 10 6 L 6 10 L 2 6 Z"/>
+        <path d="M 18 2 L 22 6 L 18 10 L 14 6 Z"/>
+        <path d="M 6 14 L 10 18 L 6 22 L 2 18 Z"/>
+        <path d="M 18 14 L 22 18 L 18 22 L 14 18 Z"/>
+      </g>
+      <g fill="${ink}" opacity="0.9">
+        <circle cx="6"  cy="6"  r="0.9"/>
+        <circle cx="18" cy="6"  r="0.9"/>
+        <circle cx="6"  cy="18" r="0.9"/>
+        <circle cx="18" cy="18" r="0.9"/>
+      </g>
+    `,
+  },
+  cross: {
+    name: 'Cross-stitch',
+    tile: 20,
+    render: (base, ink) => `
+      <rect width="20" height="20" fill="${base}"/>
+      <g>
+        <rect x="0" y="0" width="20" height="2" fill="rgba(0,0,0,0.09)"/>
+        <rect x="0" y="10" width="20" height="2" fill="rgba(0,0,0,0.09)"/>
+        <rect x="0" y="0" width="2" height="20" fill="rgba(255,255,255,0.07)"/>
+        <rect x="10" y="0" width="2" height="20" fill="rgba(255,255,255,0.07)"/>
+      </g>
+      <g stroke="${ink}" stroke-width="1.4" stroke-linecap="square" opacity="0.95">
+        <line x1="6" y1="6" x2="14" y2="14"/>
+        <line x1="14" y1="6" x2="6" y2="14"/>
+      </g>
+    `,
+  },
+  floret: {
+    name: 'Floret',
+    tile: 24,
+    render: (base, ink) => `
+      <rect width="24" height="24" fill="${base}"/>
+      <g>
+        <rect x="0" y="11" width="24" height="2" fill="rgba(0,0,0,0.09)"/>
+        <rect x="11" y="0" width="2" height="24" fill="rgba(255,255,255,0.07)"/>
+      </g>
+      <g fill="${ink}" opacity="0.92">
+        <circle cx="6"  cy="6"  r="1.1"/>
+        <circle cx="6"  cy="3"  r="0.9"/><circle cx="9"  cy="6"  r="0.9"/><circle cx="6"  cy="9"  r="0.9"/><circle cx="3"  cy="6"  r="0.9"/>
+        <circle cx="18" cy="6"  r="1.1"/>
+        <circle cx="18" cy="3"  r="0.9"/><circle cx="21" cy="6"  r="0.9"/><circle cx="18" cy="9"  r="0.9"/><circle cx="15" cy="6"  r="0.9"/>
+        <circle cx="6"  cy="18" r="1.1"/>
+        <circle cx="6"  cy="15" r="0.9"/><circle cx="9"  cy="18" r="0.9"/><circle cx="6"  cy="21" r="0.9"/><circle cx="3"  cy="18" r="0.9"/>
+        <circle cx="18" cy="18" r="1.1"/>
+        <circle cx="18" cy="15" r="0.9"/><circle cx="21" cy="18" r="0.9"/><circle cx="18" cy="21" r="0.9"/><circle cx="15" cy="18" r="0.9"/>
+      </g>
+    `,
+  },
+};
+const DEFAULT_PATTERN = 'weave';
+
+// ── Luminance & contrast ink (WCAG-style) ────────────────────────
+// Motif ink and shape-outline ink are computed from the base color's
+// luminance so dark fabrics get a cream ink and light fabrics get a dark
+// ink. Same ink drives both pattern motifs and shape outlines on top.
+const INK_DARK  = '#2b2418';
+const INK_LIGHT = '#ece0c8';
+function hexToRgb(hex) {
+  const h = hex.replace('#','');
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function relLuminance(hex) {
+  const [r,g,b] = hexToRgb(hex).map(v => {
+    v /= 255;
+    return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
+  });
+  return 0.2126*r + 0.7152*g + 0.0722*b;
+}
+function inkFor(colorIdOrHex) {
+  const hex = (colorIdOrHex && FABRICS[colorIdOrHex]?.col) || colorIdOrHex;
+  if (!hex) return INK_DARK;
+  return relLuminance(hex) > 0.45 ? INK_DARK : INK_LIGHT;
+}
+
+// ── Region value normalization ───────────────────────────────────
+// A cell.regions[part] value can be:
+//   string                → legacy: just a color ID, pattern defaults to weave.
+//   { color, pattern }    → new: explicit color × pattern combination.
+//   null / undefined      → blank region.
+// All engine code that reads region values goes through these helpers so the
+// two forms are interchangeable everywhere.
+function regionColor(value) {
+  if (!value) return null;
+  return typeof value === 'string' ? value : (value.color || null);
+}
+function regionPattern(value) {
+  // null = "solid color, no pattern" (the default for both legacy strings and
+  // {color}-only objects). Patterns are explicit, opt-in decoration.
+  if (!value || typeof value === 'string') return null;
+  return value.pattern || null;
+}
+function regionKey(value) {
+  const c = regionColor(value);
+  if (!c) return null;
+  const p = regionPattern(value);
+  return p ? `${c}:${p}` : c;
+}
+function patternIdFor(colorId, patternId) {
+  return patternId ? `fab-${colorId}-${patternId}` : null;
+}
 
 // ── Target validation ────────────────────────────────────────────
 function validateTarget(target) {
@@ -342,8 +500,14 @@ function validateTarget(target) {
       errors.push(`cell ${i}: bad rot ${cell.rot} for shape ${cell.shape}`);
     }
     for (const part of partsOf(cell.shape)) {
-      const fab = cell.regions?.[part];
-      if (!FABRICS[fab]) errors.push(`cell ${i}: region '${part}' has bad fabric '${fab}'`);
+      const val = cell.regions?.[part];
+      const color = regionColor(val);
+      if (!color || !FABRICS[color]) {
+        errors.push(`cell ${i}: region '${part}' has bad color '${color}'`);
+      }
+      if (val && typeof val === 'object' && val.pattern && !PATTERNS[val.pattern]) {
+        errors.push(`cell ${i}: region '${part}' has bad pattern '${val.pattern}'`);
+      }
     }
   }
   return errors;
@@ -362,8 +526,8 @@ function clueForCells(target, cellIndices) {
       rotation[cell.shape] = (rotation[cell.shape] || 0) + 1;
     }
     for (const part of partsOf(cell.shape)) {
-      const fab = cell.regions[part];
-      fabric[fab] = (fabric[fab] || 0) + 1;
+      const fab = regionColor(cell.regions[part]);
+      if (fab) fabric[fab] = (fabric[fab] || 0) + 1;
     }
   }
   return { shape, rotation, fabric };
@@ -387,12 +551,13 @@ function isHalfTurnSymmetric(target) {
     const b = target[N - 1 - i];
     if (!a || !b) return false;
     if (a.shape !== b.shape) return false;
-    const expectedRot = a.shape === 'square'
-      ? 0
-      : (a.rot + 2) % ROT_COUNT[a.shape];
-    if (b.rot !== expectedRot) return false;
+    const sym = partnerSymmetry(a.shape, a.rot);
+    if (b.rot !== sym.rot) return false;
     for (const part of partsOf(a.shape)) {
-      if (a.regions[part] !== b.regions[part]) return false;
+      const partnerPart = sym.swap ? (part === 'A' ? 'B' : part === 'B' ? 'A' : part) : part;
+      // Compare normalized (color:pattern) keys so visual symmetry holds
+      // for both legacy string regions and new {color,pattern} regions.
+      if (regionKey(a.regions[part]) !== regionKey(b.regions[partnerPart])) return false;
     }
   }
   return true;
@@ -424,7 +589,10 @@ function suggestedDifficulty(target, generated) {
   for (const c of target) {
     if (!c) continue;
     shapes.add(c.shape);
-    for (const f of Object.values(c.regions || {})) if (f) fabrics.add(f);
+    for (const val of Object.values(c.regions || {})) {
+      const color = regionColor(val);
+      if (color) fabrics.add(color);
+    }
     if (c.rot !== 0) rotated++;
   }
   const givens = generated?.givenCount ?? 0;
@@ -446,9 +614,14 @@ const PicrossEngine = {
   SHAPES, DEFAULT_ROT, ROT_COUNT,
   CURVE_PORTS, TRIANGLE_FACES,
   FABRICS,
+  PATTERNS, DEFAULT_PATTERN,
+  INK_DARK, INK_LIGHT,
+  relLuminance, inkFor,
+  regionColor, regionPattern, regionKey, patternIdFor,
   gridSizeOf,
   rowOf, colOf, rowCells, colCells, partnerOf,
   partsOf,
+  partnerSymmetry,
   validateTarget,
   clueForCells, deriveClues,
   isHalfTurnSymmetric,
@@ -472,6 +645,38 @@ function bootAdmin() {
   // files for everything else. Loading this page via file:// will not work.
   const LIBRARY_URL = '/library';
   const FABRICS = E.FABRICS;
+  const PATTERNS = E.PATTERNS;
+
+  // ── Fabric pattern injection ─────────────────────────────────
+  const _patternCache = new Set();
+  function ensurePattern(colorId, patternId) {
+    if (!colorId || !patternId) return null;
+    const id = E.patternIdFor(colorId, patternId);
+    if (!id) return null;
+    if (_patternCache.has(id)) return id;
+    const color = FABRICS[colorId];
+    const pat = PATTERNS[patternId];
+    if (!color || !pat) return null;
+    const ink = E.inkFor(colorId);
+    const defs = document.querySelector('#fabric-defs defs');
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'pattern');
+    el.setAttribute('id', id);
+    el.setAttribute('patternUnits', 'userSpaceOnUse');
+    el.setAttribute('width', pat.tile);
+    el.setAttribute('height', pat.tile);
+    el.innerHTML = pat.render(color.col, ink);
+    defs.appendChild(el);
+    _patternCache.add(id);
+    return id;
+  }
+  function fabricFill(value, blank) {
+    const color = E.regionColor(value);
+    if (!color) return blank || 'var(--cell-empty)';
+    const pattern = E.regionPattern(value);
+    if (!pattern) return FABRICS[color].col;
+    const id = ensurePattern(color, pattern);
+    return id ? `url(#${id})` : FABRICS[color].col;
+  }
   const state = {
     view: 'schedule',
     library: null,
@@ -515,7 +720,7 @@ function bootAdmin() {
     svg.setAttribute('viewBox', `0 0 ${size * 20} ${size * 20}`);
     svg.setAttribute('class', 'ttc');
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    const fab = key => key ? FABRICS[key].col : 'var(--cell-empty)';
+    const fab = value => fabricFill(value);
     for (let i = 0; i < target.length; i++) {
       const r = Math.floor(i / size), c = i % size;
       const x = c * 20, y = r * 20;
@@ -535,6 +740,28 @@ function bootAdmin() {
         b.setAttribute('points', '0,0 20,20 0,20');
         b.setAttribute('fill', fab(p.regions.B));
         g.appendChild(a); g.appendChild(b);
+      } else if (p.shape === 'bar') {
+        const a = document.createElementNS(ns, 'rect');
+        a.setAttribute('x', '0'); a.setAttribute('y', '0');
+        a.setAttribute('width', '20'); a.setAttribute('height', '10');
+        a.setAttribute('fill', fab(p.regions.A));
+        const b = document.createElementNS(ns, 'rect');
+        b.setAttribute('x', '0'); b.setAttribute('y', '10');
+        b.setAttribute('width', '20'); b.setAttribute('height', '10');
+        b.setAttribute('fill', fab(p.regions.B));
+        g.appendChild(a); g.appendChild(b);
+      } else if (p.shape === 'qst') {
+        for (const [pts, part] of [
+          ['0,0 20,0 10,10', 'A'],
+          ['0,20 20,20 10,10', 'A'],
+          ['0,0 10,10 0,20', 'B'],
+          ['20,0 20,20 10,10', 'B'],
+        ]) {
+          const poly = document.createElementNS(ns, 'polygon');
+          poly.setAttribute('points', pts);
+          poly.setAttribute('fill', fab(p.regions[part]));
+          g.appendChild(poly);
+        }
       } else {
         const field = document.createElementNS(ns, 'rect');
         field.setAttribute('width', '20'); field.setAttribute('height', '20');

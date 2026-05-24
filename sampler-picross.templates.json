@@ -1,0 +1,927 @@
+{
+  "version": 2,
+  "designs": [
+    {
+      "id": "tetris",
+      "name": "Tetris",
+      "author": "Chris",
+      "difficulty": "mon-tue",
+      "date": "2026-05-25",
+      "notes": "",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        }
+      ],
+      "createdAt": "2026-05-25T00:00:00.000Z"
+    },
+    {
+      "id": "bold-x",
+      "name": "Bold X",
+      "author": "Chris",
+      "difficulty": "mon-tue",
+      "date": "2026-05-26",
+      "notes": "",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        }
+      ],
+      "createdAt": "2026-05-26T00:00:00.000Z"
+    },
+    {
+      "id": "wyld-whirl",
+      "name": "Wyld Whirl",
+      "author": "Wydlwood Creative",
+      "difficulty": "wed-th",
+      "date": "2026-05-27",
+      "notes": "",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "SLATE",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "SLATE",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "INDIGO",
+            "B": "SAGE"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "TEAL",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "INDIGO",
+            "B": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "TEAL",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        }
+      ],
+      "createdAt": "2026-05-27T00:00:00.000Z"
+    },
+    {
+      "id": "lake-garden",
+      "name": "Lake Garden",
+      "author": "Emma Jean Jansen",
+      "difficulty": "mon-tue",
+      "date": "2026-06-02",
+      "notes": "",
+      "target": [
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "INDIGO",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MADDER",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "SAGE",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "SAGE",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "SAGE",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "SAGE",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "MADDER",
+            "B": "SLATE"
+          }
+        }
+      ],
+      "createdAt": "2026-06-02T00:00:00.000Z"
+    },
+    {
+      "id": "sawtooth-stardust",
+      "name": "Spin Cycle",
+      "author": "Moda Block-of-the-Week",
+      "difficulty": "mon-tue",
+      "date": "2026-06-08",
+      "notes": "",
+      "createdAt": "2026-05-24T15:38:07.324Z",
+      "target": [
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MADDER",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "MADDER",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MADDER",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "MADDER",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "MADDER"
+          }
+        }
+      ]
+    },
+    {
+      "id": "windmills",
+      "name": "Windmills",
+      "author": "Moda Block-of-the-Week",
+      "difficulty": "mon-tue",
+      "date": "2026-06-23",
+      "notes": "",
+      "createdAt": "2026-05-24T16:01:28.516Z",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "MADDER",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "MADDER",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "MADDER"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "INDIGO",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "INDIGO",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 1,
+          "regions": {
+            "A": "SLATE",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "triangle",
+          "rot": 0,
+          "regions": {
+            "A": "SLATE",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        }
+      ]
+    }
+  ]
+}
