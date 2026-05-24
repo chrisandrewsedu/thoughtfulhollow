@@ -214,6 +214,7 @@
   <div class="views">
     <button class="view-tab active" data-view="schedule">Schedule</button>
     <button class="view-tab" data-view="library">Library</button>
+    <button class="view-tab" data-view="backlog" id="backlogTab">Backlog</button>
   </div>
 
   <div id="viewBody"></div>
@@ -536,8 +537,17 @@ function bootAdmin() {
   // ── Render ──────────────────────────────────────────────────
   function render() {
     renderStatus();
-    if (state.view === 'schedule') renderSchedule();
-    else                            renderLibrary();
+    renderBacklogTabBadge();
+    if      (state.view === 'schedule') renderSchedule();
+    else if (state.view === 'backlog')  renderBacklog();
+    else                                 renderLibrary();
+  }
+
+  function renderBacklogTabBadge() {
+    const tab = document.getElementById('backlogTab');
+    if (!tab || !state.library?.designs) { if (tab) tab.textContent = 'Backlog'; return; }
+    const n = state.library.designs.filter(d => !d.date).length;
+    tab.textContent = n > 0 ? `Backlog (${n})` : 'Backlog';
   }
 
   function renderStatus() {
@@ -734,6 +744,27 @@ function bootAdmin() {
       return;
     }
     for (const d of filtered) grid.appendChild(dayCard(d.date, d));
+    body.appendChild(grid);
+  }
+
+  function renderBacklog() {
+    const body = document.getElementById('viewBody');
+    body.innerHTML = '';
+    if (state.library?.error) { body.innerHTML = '<div class="empty-msg">' + state.library.error + '</div>'; return; }
+    if (!state.library) return;
+    const backlog = state.library.designs
+      .filter(d => !d.date)
+      .slice()
+      .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')); // newest first
+    if (backlog.length === 0) {
+      body.appendChild(Object.assign(document.createElement('div'), {
+        className: 'empty-msg',
+        textContent: 'No backlog designs. Save one without a date from the author page.',
+      }));
+      return;
+    }
+    const grid = document.createElement('div'); grid.className = 'library';
+    for (const d of backlog) grid.appendChild(dayCard('', d, 'backlog'));
     body.appendChild(grid);
   }
 
