@@ -827,6 +827,7 @@ function bootAdmin() {
     });
     const grid = document.createElement('div'); grid.className = 'library';
     const filtered = designs
+      .filter(d => d.date !== '')
       .filter(d => state.filter === 'all' || d.difficulty === state.filter)
       .slice()
       .sort((a, b) => a.date.localeCompare(b.date));
