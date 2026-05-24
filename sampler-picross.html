@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fascinate&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./sampler-picross.css">
 <style>
   :root {
     --paper:#faf6ec; --paper-deep:#f0e9d6; --ink:#2a2520; --ink-soft:#6a6258;
@@ -28,44 +29,72 @@
 
   .app { max-width: 880px; margin: 0 auto; }
 
-  .header { margin-bottom: 0.8rem; display: flex; align-items: baseline; gap: 0.8rem; flex-wrap: wrap; }
-  h1 { font-family: 'Fascinate', serif; font-weight: 400; font-size: 1.7rem; line-height: 1; }
+  /* Two-row header: title + date on row 1, controls on row 2.
+     On wide screens, row 2 sits next to row 1 via auto wrap. */
+  .header {
+    margin-bottom: var(--sp-3);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: var(--sp-2) var(--sp-3);
+  }
+  .header-title { display: flex; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; min-width: 0; }
+  .header-controls { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; justify-content: flex-end; }
+  h1 { font-family: 'Fascinate', serif; font-weight: 400; font-size: var(--fs-display); line-height: 1; }
   .design-pick {
-    margin-left: auto;
     font-family: 'Spectral', serif;
-    font-size: 0.9rem;
+    font-size: var(--fs-sm);
     padding: 4px 8px;
     border: 1px solid var(--line);
-    border-radius: 4px;
+    border-radius: var(--r-sm);
     background: var(--paper-deep);
+    color: inherit;
+    text-decoration: none;
+    line-height: 1.4;
+    transition: background var(--dur-fast) var(--ease-quilt), border-color var(--dur-fast) var(--ease-quilt);
   }
+  .design-pick:hover { background: var(--paper); border-color: var(--ink-soft); }
   .sym-badge {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    font-size: 0.7rem;
+    font-size: var(--fs-xs);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--gold);
     background: #fff4d6;
     border: 1px solid var(--gold);
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     padding: 0.16rem 0.6rem;
   }
   .sym-badge.hidden { display: none; }
   .puzzle-date {
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     color: var(--ink-soft);
     font-variant-numeric: tabular-nums;
   }
   .puzzle-meta {
-    font-size: 0.86rem;
+    font-size: var(--fs-md);
     color: var(--ink-soft);
-    margin-bottom: 0.7rem;
-    min-height: 1.2em;
+    margin-bottom: var(--sp-3);
+    min-height: 1.3em;
+    line-height: 1.45;
   }
   .puzzle-meta .reveal { color: var(--green); font-weight: 500; }
   .puzzle-meta .name { color: var(--ink); font-weight: 600; font-style: italic; }
+  .puzzle-meta .streak {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: var(--sp-2);
+    font-size: var(--fs-sm);
+    color: var(--ink-soft);
+    padding: 0.06rem 0.5rem;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+  }
+  .puzzle-meta .streak strong { color: var(--ink); font-weight: 600; }
   .no-puzzle {
     background: var(--paper-deep);
     border: 1px solid var(--line);
@@ -235,53 +264,112 @@
     pointer-events: none;
   }
 
-  /* ── TRAY ── */
-  .tray {
-    margin-top: 14px;
+  /* ── STATUS BAND (promoted; full-width under the board) ── */
+  .status-band {
+    margin-top: var(--sp-3);
+    padding: var(--sp-2) var(--sp-3);
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 12px 16px;
+    border-radius: var(--r-md);
+    font-size: var(--fs-md);
+    color: var(--ink-soft);
+    font-style: italic;
+    text-align: center;
+    min-height: 2.2em;
     display: flex;
     align-items: center;
-    gap: 22px;
-    flex-wrap: wrap;
+    justify-content: center;
+    transition: background var(--dur-fast) var(--ease-quilt),
+                color var(--dur-fast) var(--ease-quilt),
+                border-color var(--dur-fast) var(--ease-quilt);
   }
-  .tray-label {
-    font-size: 0.66rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
+  .status-band:empty::before {
+    content: 'Tap a clue chip, then place the piece on the board.';
+    color: var(--ink-faint);
+    font-style: italic;
   }
-  .tray-group { display: flex; gap: 8px; align-items: center; }
+  .status-band.solved {
+    color: var(--green);
+    font-weight: 600;
+    font-style: normal;
+    background: #eef3e8;
+    border-color: #aebfa0;
+  }
+  .status-band.error {
+    color: var(--accent);
+    background: #fbeeee;
+    border-color: var(--accent-soft);
+  }
 
   /* ── CONTROLS ── */
   .actions {
-    margin-top: 12px;
+    margin-top: var(--sp-3);
     display: flex;
-    gap: 8px;
+    gap: var(--sp-2);
     align-items: center;
+    flex-wrap: wrap;
   }
-  .btn {
-    font-family: 'Spectral', serif;
-    font-size: 0.9rem;
-    color: var(--ink);
-    background: var(--paper);
-    border: 1.5px solid var(--ink-soft);
-    border-radius: 6px;
-    padding: 0.4rem 0.9rem;
-    cursor: pointer;
+  .actions .spacer { flex: 1 1 auto; }
+  .actions .btn { font-size: var(--fs-md); padding: 0.4rem 0.9rem; }
+  .actions .btn.sm { font-size: var(--fs-sm); padding: 0.32rem 0.7rem; }
+  .actions .btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+  /* legacy .status node kept for back-compat; visually hidden */
+  .status { display: none; }
+
+  /* ── MOTION: cell fill, error pulse, hint reveal, win cascade ── */
+  @keyframes sp-fill {
+    0%   { transform: scale(0.88); opacity: 0; }
+    60%  { transform: scale(1.04); opacity: 1; }
+    100% { transform: scale(1);    opacity: 1; }
   }
-  .btn:hover { background: var(--paper-deep); }
-  .btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .btn.primary:hover { background: #1a1612; }
-  .status {
-    margin-left: auto;
-    font-size: 0.85rem;
-    color: var(--ink-soft);
+  .cell.just-filled svg { transform-origin: center; animation: sp-fill var(--dur-fast) var(--ease-quilt); }
+
+  @keyframes sp-error-pulse {
+    0%, 100% { box-shadow: inset 0 0 0 2px var(--accent), 0 0 0 0 var(--accent-soft); }
+    50%      { box-shadow: inset 0 0 0 2px var(--accent), 0 0 0 6px rgba(192,24,24,0.18); }
   }
-  .status.solved { color: var(--green); font-weight: 500; }
-  .status.error  { color: var(--accent); }
+  .cell.error { animation: sp-error-pulse 0.46s var(--ease-quilt) 2; }
+
+  @keyframes sp-hint-ring {
+    0%   { box-shadow: inset 0 0 0 1.5px var(--cell-empty-edge), 0 0 0 0 var(--gold); }
+    40%  { box-shadow: inset 0 0 0 1.5px var(--cell-empty-edge), 0 0 0 6px rgba(138,108,24,0.32); }
+    100% { box-shadow: inset 0 0 0 1.5px var(--cell-empty-edge), 0 0 0 0 rgba(138,108,24,0); }
+  }
+  .cell.hinted { animation: sp-hint-ring 0.9s var(--ease-quilt); }
+
+  @keyframes sp-win-stitch {
+    0%   { transform: scale(0.86) rotate(-3deg); filter: brightness(1.1); }
+    60%  { transform: scale(1.06) rotate(1deg);  filter: brightness(1); }
+    100% { transform: scale(1) rotate(0);        filter: brightness(1); }
+  }
+  .cell.win-stitch svg { transform-origin: center; animation: sp-win-stitch 0.42s var(--ease-quilt) both; }
+
+  /* Keyboard-focused cell (board nav) */
+  .cell.kbd-focus {
+    box-shadow: inset 0 0 0 2px var(--accent), 0 0 0 2px rgba(192,24,24,0.2);
+    z-index: 1;
+  }
+  .cell.kbd-focus.filled { box-shadow: inset 0 0 0 2px var(--accent), 0 0 0 2px rgba(192,24,24,0.2); }
+
+  /* Keyboard cheatsheet overlay */
+  .kbd-overlay {
+    position: fixed; inset: 0; background: rgba(42,37,32,0.45);
+    display: none; align-items: center; justify-content: center; z-index: 100;
+  }
+  .kbd-overlay.open { display: flex; animation: sp-fade-in var(--dur-mid) var(--ease-quilt); }
+  @keyframes sp-fade-in { from { opacity: 0; } to { opacity: 1; } }
+  .kbd-card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg);
+    padding: var(--sp-5); max-width: 380px; box-shadow: var(--shadow-lift);
+  }
+  .kbd-card h2 { font-family: 'Fascinate', serif; font-weight: 400; font-size: var(--fs-xl); margin-bottom: var(--sp-3); }
+  .kbd-card dl { display: grid; grid-template-columns: auto 1fr; gap: 0.5rem var(--sp-3); font-size: var(--fs-md); }
+  .kbd-card dt { font-family: 'Spectral', serif; font-weight: 600; color: var(--ink); }
+  .kbd-card dd { color: var(--ink-soft); }
+  .kbd-card .close { margin-top: var(--sp-3); }
+  .kbd-key { font-family: ui-monospace, monospace; font-size: 0.85em; padding: 0.06rem 0.36rem;
+    background: var(--paper-deep); border: 1px solid var(--line); border-radius: var(--r-sm); }
 
   /* ── MOBILE OVERFLOW MENU ── */
   .mobile-menu-btn {
@@ -327,22 +415,19 @@
 
   /* ── MOBILE BREAKPOINT (< 720px) ── */
   @media (max-width: 719px) {
-    body { padding: 0.8rem 0.75rem 1.5rem; }
-    h1 { font-size: 1.25rem; }
-    .puzzle-date { font-size: 0.78rem; }
+    body { padding: 0.8rem 0.75rem 7rem; /* room for sticky action bar */ }
+    h1 { font-size: var(--fs-xl); }
+    .puzzle-date { font-size: var(--fs-sm); }
 
     /* Reduce chip size; cells stay ≥ 40px via cellPxFor() */
     :root { --tile-sm: 36px; }
 
-    /* Hide desktop controls, show mobile menu button */
-    .design-pick { display: none !important; }
-
-    /* Header layout: h1 + ⋯ on row 1, badge + date wrap to row 2 */
-    .header { align-items: center; }
-    h1 { order: 1; }
-    .mobile-menu-btn { order: 2; display: inline-block; margin-left: auto; }
-    #symBadge { order: 3; }
-    #dateLabel { order: 4; }
+    /* Two-row header collapses to single column */
+    .header { grid-template-columns: 1fr; }
+    .header-controls { justify-content: flex-start; }
+    .design-pick { font-size: var(--fs-sm); padding: 6px 10px; min-height: 36px; }
+    /* Hamburger no longer needed — keep panel hidden */
+    .mobile-menu-btn, .mobile-menu-panel { display: none !important; }
 
     /* Frame: block, horizontally scrollable for large grids */
     .frame {
@@ -353,17 +438,32 @@
       max-width: 100%;
     }
 
-    /* Tray and actions: compact */
-    .tray { padding: 10px 12px; gap: 14px; }
-    .actions { flex-wrap: wrap; }
-    .btn { min-height: 40px; }
+    /* Actions: sticky bottom bar so Reset/Hint/Check are always reachable */
+    .actions {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      margin-top: 0;
+      padding: var(--sp-2) var(--sp-3);
+      background: var(--paper);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -2px 12px rgba(48,40,28,0.08);
+      z-index: 20;
+      justify-content: space-between;
+      gap: var(--sp-2);
+    }
+    .actions .btn { min-height: 44px; flex: 1 1 0; min-width: 0; }
+    .actions .spacer { display: none; }
+    .status-band { font-size: var(--fs-sm); }
   }
 
-  /* Ensure mobile menu never shows on desktop */
+  /* Ensure desktop hides any lingering mobile-only elements */
   @media (min-width: 720px) {
     .mobile-menu-btn { display: none !important; }
     .mobile-menu-panel { display: none !important; }
   }
+
+  /* Larger tap targets for clue chips (works at any breakpoint) */
+  .tile.clue { min-width: 36px; min-height: 36px; }
 </style>
 </head>
 <body>
@@ -401,31 +501,53 @@
 
 <div class="app">
   <div class="header">
-    <h1>Sampler picross</h1>
-    <span id="symBadge" class="sym-badge hidden" title="This block has half-turn (180°) symmetry — partner cells mirror each other.">⤾ symmetric</span>
-    <span id="dateLabel" class="puzzle-date"></span>
-    <select id="cluePick" class="design-pick" title="Clue layout" style="margin-left:auto">
-      <option value="combined">Combined chips</option>
-      <option value="separate">Shape + colour bands</option>
-    </select>
-    <a href="./sampler-picross-archive.html" class="design-pick" style="text-decoration:none;color:inherit">archive</a>
-    <a href="./sampler-picross-author.html" class="design-pick author-link" style="text-decoration:none;color:inherit">✎ author</a>
-    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="More options">⋯</button>
-  </div>
-  <div class="mobile-menu-panel" id="mobileMenuPanel">
-    <button class="mobile-menu-item" id="mobClueToggle">Switch to shape+colour bands</button>
-    <a href="./sampler-picross-archive.html" class="mobile-menu-item" style="text-decoration:none;color:inherit">Archive →</a>
+    <div class="header-title">
+      <h1>Sampler picross</h1>
+      <span id="symBadge" class="sym-badge hidden" title="This block has half-turn (180°) symmetry — partner cells mirror each other.">⤾ symmetric</span>
+      <span id="dateLabel" class="puzzle-date"></span>
+    </div>
+    <div class="header-controls">
+      <select id="cluePick" class="design-pick" title="Clue layout" aria-label="Clue layout">
+        <option value="combined">Combined chips</option>
+        <option value="separate">Shape + colour bands</option>
+      </select>
+      <a href="./sampler-picross-archive.html" class="design-pick">archive</a>
+      <a href="./sampler-picross-author.html" class="design-pick author-link">✎ author</a>
+      <button id="btnKbdHelp" class="design-pick" type="button" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)">?</button>
+    </div>
   </div>
   <div id="puzzleMeta" class="puzzle-meta"></div>
 
   <div class="frame">
     <div id="puzzle" class="puzzle"></div>
+    <div id="statusBand" class="status-band" role="status" aria-live="polite"></div>
     <div class="actions">
+      <button class="btn sm" id="btnUndo" type="button" aria-label="Undo (Cmd/Ctrl-Z)" title="Undo (Cmd/Ctrl-Z)" disabled>↶ Undo</button>
+      <button class="btn sm" id="btnRedo" type="button" aria-label="Redo (Cmd/Ctrl-Shift-Z)" title="Redo (Cmd/Ctrl-Shift-Z)" disabled>↷ Redo</button>
+      <span class="spacer"></span>
       <button class="btn" id="btnReset">Reset</button>
       <button class="btn" id="btnHint">Hint</button>
       <button class="btn primary" id="btnCheck">Check</button>
       <a id="btnPlayAgain" href="#" class="btn" style="display:none;text-decoration:none">Play again</a>
       <span id="status" class="status"></span>
+    </div>
+  </div>
+
+  <!-- Keyboard shortcuts overlay -->
+  <div id="kbdOverlay" class="kbd-overlay" role="dialog" aria-modal="true" aria-labelledby="kbdTitle">
+    <div class="kbd-card">
+      <h2 id="kbdTitle">Keyboard shortcuts</h2>
+      <dl>
+        <dt><span class="kbd-key">↑↓←→</span></dt><dd>Move focus on the board</dd>
+        <dt><span class="kbd-key">Space</span></dt><dd>Place selected piece, or cycle rotation</dd>
+        <dt><span class="kbd-key">X</span> / <span class="kbd-key">Del</span></dt><dd>Erase the focused cell</dd>
+        <dt><span class="kbd-key">1</span>…<span class="kbd-key">9</span></dt><dd>Select fabric by index</dd>
+        <dt><span class="kbd-key">Q W E R T</span></dt><dd>Select shape (square / triangle / curve / bar / qst)</dd>
+        <dt><span class="kbd-key">Z</span></dt><dd>Undo &nbsp; <span class="kbd-key">⇧Z</span> Redo</dd>
+        <dt><span class="kbd-key">H</span></dt><dd>Hint &nbsp; <span class="kbd-key">Enter</span> Check</dd>
+        <dt><span class="kbd-key">?</span> / <span class="kbd-key">Esc</span></dt><dd>Toggle / close this overlay</dd>
+      </dl>
+      <button class="btn close" id="kbdClose" type="button">Got it</button>
     </div>
   </div>
 </div>
@@ -2251,6 +2373,200 @@ if (typeof window !== 'undefined') window.PicrossTargets = PicrossTargets;
 })();
 </script>
 <script>
+(function(){
+// sampler-picross.history.js — minimal undo/redo for the player + author boards.
+// Snapshots are caller-supplied JSON-safe objects; the module is agnostic about
+// shape. Exposes a single factory on window.PicrossHistory.
+
+(function () {
+  function create(opts) {
+    opts = opts || {};
+    const cap = Math.max(2, opts.cap || 50);
+    const onChange = typeof opts.onChange === 'function' ? opts.onChange : () => {};
+    const stack = [];
+    let cursor = -1; // points at the current state; -1 = empty
+
+    function clone(s) { return s == null ? null : JSON.parse(JSON.stringify(s)); }
+
+    function reset(initial) {
+      stack.length = 0;
+      cursor = -1;
+      if (initial !== undefined) push(initial);
+      else onChange(api);
+    }
+
+    function push(state) {
+      // Drop any redo branch.
+      if (cursor < stack.length - 1) stack.length = cursor + 1;
+      stack.push(clone(state));
+      // Cap.
+      if (stack.length > cap) stack.shift();
+      cursor = stack.length - 1;
+      onChange(api);
+    }
+
+    function undo() {
+      if (cursor <= 0) return null;
+      cursor -= 1;
+      onChange(api);
+      return clone(stack[cursor]);
+    }
+
+    function redo() {
+      if (cursor >= stack.length - 1) return null;
+      cursor += 1;
+      onChange(api);
+      return clone(stack[cursor]);
+    }
+
+    function canUndo() { return cursor > 0; }
+    function canRedo() { return cursor < stack.length - 1; }
+    function current() { return cursor < 0 ? null : clone(stack[cursor]); }
+    function size() { return stack.length; }
+
+    const api = { reset, push, undo, redo, canUndo, canRedo, current, size };
+    return api;
+  }
+
+  window.PicrossHistory = { create };
+})();
+
+})();
+</script>
+<script>
+(function(){
+// sampler-picross.stats.js — solve tracking + streaks, localStorage only.
+// Exposes window.PicrossStats. All dates are ISO YYYY-MM-DD strings.
+
+(function () {
+  const KEY = 'picross-stats-v1';
+  const SOLVED_KEY = 'picross-solved-ids-v1';
+
+  function read() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return { solves: [], totalMs: 0 };
+      const obj = JSON.parse(raw);
+      if (!obj || !Array.isArray(obj.solves)) return { solves: [], totalMs: 0 };
+      return obj;
+    } catch {
+      return { solves: [], totalMs: 0 };
+    }
+  }
+
+  function write(obj) {
+    try { localStorage.setItem(KEY, JSON.stringify(obj)); } catch {}
+  }
+
+  function readSolvedIds() {
+    try {
+      const raw = localStorage.getItem(SOLVED_KEY);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  }
+
+  function writeSolvedIds(ids) {
+    try { localStorage.setItem(SOLVED_KEY, JSON.stringify(ids)); } catch {}
+  }
+
+  // Date in YYYY-MM-DD → previous day in YYYY-MM-DD.
+  function prevDay(iso) {
+    const dt = new Date(iso + 'T12:00:00');
+    dt.setUTCDate(dt.getUTCDate() - 1);
+    return dt.toISOString().slice(0, 10);
+  }
+
+  function todayET() {
+    const fmt = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/New_York',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+    });
+    return fmt.format(new Date());
+  }
+
+  function recordSolve(opts) {
+    const { date, elapsedMs, designId } = opts || {};
+    if (!date) return getStats();
+    const data = read();
+    const exists = data.solves.find(s => s.date === date);
+    if (!exists) {
+      data.solves.push({ date, elapsedMs: elapsedMs || 0 });
+      data.totalMs = (data.totalMs || 0) + (elapsedMs || 0);
+      write(data);
+    }
+    if (designId) {
+      const ids = readSolvedIds();
+      if (!ids.includes(designId)) {
+        ids.push(designId);
+        writeSolvedIds(ids);
+      }
+    }
+    return getStats();
+  }
+
+  function getStreak(today) {
+    const data = read();
+    if (!data.solves.length) return 0;
+    const set = new Set(data.solves.map(s => s.date));
+    // Start from today (ET). If today not solved, start from yesterday.
+    let cursor = today || todayET();
+    if (!set.has(cursor)) cursor = prevDay(cursor);
+    let streak = 0;
+    while (set.has(cursor)) {
+      streak += 1;
+      cursor = prevDay(cursor);
+    }
+    return streak;
+  }
+
+  function getStats(today) {
+    const data = read();
+    const count = data.solves.length;
+    const avgMs = count > 0 ? Math.round((data.totalMs || 0) / count) : 0;
+    return {
+      streak: getStreak(today),
+      solveCount: count,
+      avgMs,
+      totalMs: data.totalMs || 0,
+    };
+  }
+
+  function getSolvedSet() {
+    return new Set(readSolvedIds());
+  }
+
+  function getSolvedDates() {
+    const data = read();
+    return new Set(data.solves.map(s => s.date));
+  }
+
+  function formatDuration(ms) {
+    if (!ms || ms < 1000) return '—';
+    const total = Math.floor(ms / 1000);
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  }
+
+  function clear() {
+    try {
+      localStorage.removeItem(KEY);
+      localStorage.removeItem(SOLVED_KEY);
+    } catch {}
+  }
+
+  window.PicrossStats = {
+    recordSolve, getStreak, getStats,
+    getSolvedSet, getSolvedDates,
+    formatDuration, clear,
+  };
+})();
+
+})();
+</script>
+<script>
 function bootSamplerPicross() {
   'use strict';
 
@@ -3272,8 +3588,373 @@ function bootSamplerPicross() {
   window.addEventListener('focus', checkDateRollover);
 
   loadDesign();
+
+  // Expose select internals so the augmentation script (undo/redo, keyboard
+  // nav, motion, stats) can hook into the same closure without forking the
+  // boot. Kept minimal — only what the augmenter actually needs.
+  window.__samplerPlayer__ = {
+    get state() { return state; },
+    render,
+    resetBoardToPuzzle,
+    partsOf,
+    setStatusBand(text, cls) {
+      const band = document.getElementById('statusBand');
+      if (!band) return;
+      band.textContent = text || '';
+      band.className = 'status-band' + (cls ? ' ' + cls : '');
+    },
+    renderHeader,
+    cellPxFor,
+    FABRICS: typeof E !== 'undefined' ? E.FABRICS : null,
+    SHAPES:  typeof E !== 'undefined' ? E.SHAPES  : null,
+    todayET,
+  };
+  // Notify augmenter that boot is ready (it may have been loaded after us).
+  try { document.dispatchEvent(new CustomEvent('sampler:ready')); } catch {}
 }
 bootSamplerPicross();
+</script>
+
+<!-- ── AUGMENTATION ─────────────────────────────────────────────────
+     Layered on top of the bootSamplerPicross() IIFE via the
+     window.__samplerPlayer__ surface. Adds:
+       • Undo / redo with snapshot history
+       • Keyboard navigation (arrows, space, 1-9, q-w-e-r-t, Z, H, Enter, ?)
+       • Cell-fill / hint / error / win animations
+       • Status mirror from legacy #status node into the new #statusBand
+       • Solve recording → PicrossStats (streak chip in puzzleMeta)
+-->
+<script>
+(function () {
+  'use strict';
+  const SP = window.__samplerPlayer__;
+  if (!SP) return;
+
+  const puzzleEl = document.getElementById('puzzle');
+  const bandEl   = document.getElementById('statusBand');
+  const statusEl = document.getElementById('status');
+  const undoBtn  = document.getElementById('btnUndo');
+  const redoBtn  = document.getElementById('btnRedo');
+  const kbdOverlay = document.getElementById('kbdOverlay');
+  const kbdCloseBtn = document.getElementById('kbdClose');
+  const kbdHelpBtn = document.getElementById('btnKbdHelp');
+  const metaEl = document.getElementById('puzzleMeta');
+
+  // ── Undo/redo ──────────────────────────────────────────────
+  const history = window.PicrossHistory.create({
+    cap: 50,
+    onChange(h) {
+      if (undoBtn) undoBtn.disabled = !h.canUndo();
+      if (redoBtn) redoBtn.disabled = !h.canRedo();
+    },
+  });
+
+  function snapshot() {
+    const board = SP.state.board || [];
+    return board.map(c => c ? JSON.parse(JSON.stringify(c)) : null);
+  }
+
+  function restore(snap) {
+    if (!snap) return;
+    const board = SP.state.board;
+    for (let i = 0; i < snap.length; i++) {
+      board[i] = snap[i] ? JSON.parse(JSON.stringify(snap[i])) : null;
+    }
+    SP.render();
+  }
+
+  // Debounced board-signature watcher: after any user action, compare and push.
+  let lastSig = '';
+  function captureIfChanged() {
+    const sig = JSON.stringify(snapshot());
+    if (sig !== lastSig) {
+      history.push(JSON.parse(sig));
+      lastSig = sig;
+    }
+  }
+  function resetHistoryFromCurrent() {
+    const snap = snapshot();
+    lastSig = JSON.stringify(snap);
+    history.reset(snap);
+  }
+
+  // Capture initial state once boot has rendered the board.
+  setTimeout(resetHistoryFromCurrent, 0);
+
+  if (undoBtn) undoBtn.addEventListener('click', () => {
+    const snap = history.undo();
+    if (snap) { restore(snap); lastSig = JSON.stringify(snap); }
+  });
+  if (redoBtn) redoBtn.addEventListener('click', () => {
+    const snap = history.redo();
+    if (snap) { restore(snap); lastSig = JSON.stringify(snap); }
+  });
+
+  // Capture snapshot after any click/contextmenu on the puzzle (bubbles after
+  // the boot handler runs). Also after Reset / Hint and after solve reveal.
+  puzzleEl.addEventListener('click', () => { setTimeout(captureIfChanged, 0); });
+  puzzleEl.addEventListener('contextmenu', () => { setTimeout(captureIfChanged, 0); });
+  document.getElementById('btnReset')?.addEventListener('click', () => { setTimeout(resetHistoryFromCurrent, 0); });
+  document.getElementById('btnHint')?.addEventListener('click', () => { setTimeout(captureIfChanged, 0); });
+  document.getElementById('btnPlayAgain')?.addEventListener('click', () => { setTimeout(resetHistoryFromCurrent, 0); });
+
+  // ── Status mirror: legacy #status → new #statusBand ────────
+  function mirrorStatus() {
+    const text = statusEl ? (statusEl.textContent || '') : '';
+    const cls  = statusEl ? statusEl.className.replace(/^status\s?/, '').trim() : '';
+    if (bandEl) {
+      bandEl.textContent = text;
+      bandEl.className = 'status-band' + (cls ? ' ' + cls : '');
+    }
+    if (cls.includes('solved')) onSolve();
+  }
+  if (statusEl) {
+    new MutationObserver(mirrorStatus)
+      .observe(statusEl, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+  }
+
+  // ── Keyboard focus on the board ────────────────────────────
+  let focusedIdx = null;
+  function applyFocusClass() {
+    puzzleEl.querySelectorAll('.cell.kbd-focus').forEach(el => el.classList.remove('kbd-focus'));
+    if (focusedIdx == null) return;
+    const cell = puzzleEl.querySelector('.cell[data-cell="' + focusedIdx + '"]');
+    if (cell) {
+      cell.classList.add('kbd-focus');
+      cell.setAttribute('tabindex', '0');
+      try { cell.focus({ preventScroll: true }); } catch {}
+      cell.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+  }
+  // Re-apply focus + .just-filled animation after every render.
+  let prevBoardSig = '';
+  function decorateAfterRender() {
+    applyFocusClass();
+    // Detect newly-filled cells vs previous render → add .just-filled briefly.
+    const board = SP.state.board || [];
+    const newlyFilled = [];
+    for (let i = 0; i < board.length; i++) {
+      if (board[i]) newlyFilled.push(i);
+    }
+    const sig = JSON.stringify(board.map(c => c ? (c.shape + ':' + c.rot + ':' + JSON.stringify(c.regions)) : null));
+    if (sig !== prevBoardSig) {
+      // Find which cells changed by comparing string parts
+      try {
+        const prev = prevBoardSig ? JSON.parse(prevBoardSig) : [];
+        for (let i = 0; i < board.length; i++) {
+          if (board[i] && prev[i] !== JSON.stringify({ shape: board[i].shape, rot: board[i].rot, regions: board[i].regions }).slice(1, -1)) {
+            // Lightweight check: if prev[i] differs and board[i] is filled, animate it
+            if (!prev[i] || prev[i] !== ((board[i].shape) + ':' + (board[i].rot) + ':' + JSON.stringify(board[i].regions))) {
+              const cell = puzzleEl.querySelector('.cell[data-cell="' + i + '"]');
+              if (cell && cell.classList.contains('filled')) {
+                cell.classList.add('just-filled');
+                setTimeout(((el) => () => el && el.classList.remove('just-filled'))(cell), 200);
+              }
+            }
+          }
+        }
+      } catch {}
+      prevBoardSig = sig;
+    }
+  }
+  new MutationObserver(decorateAfterRender).observe(puzzleEl, { childList: true, subtree: false });
+
+  // Number of cells in the current puzzle.
+  function gridSize() { return SP.state.puzzle ? SP.state.puzzle.size : 0; }
+
+  function moveFocus(dr, dc) {
+    const N = gridSize();
+    if (!N) return;
+    if (focusedIdx == null) { focusedIdx = 0; applyFocusClass(); return; }
+    const r = Math.floor(focusedIdx / N) + dr;
+    const c = (focusedIdx % N) + dc;
+    if (r < 0 || r >= N || c < 0 || c >= N) return;
+    focusedIdx = r * N + c;
+    applyFocusClass();
+  }
+
+  function activateFocusedCell() {
+    if (focusedIdx == null) return;
+    const cell = puzzleEl.querySelector('.cell[data-cell="' + focusedIdx + '"]');
+    if (!cell) return;
+    // Simulate a click — re-runs the boot's click handler with full logic.
+    cell.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+  }
+
+  function eraseFocusedCell() {
+    if (focusedIdx == null) return;
+    const cell = puzzleEl.querySelector('.cell[data-cell="' + focusedIdx + '"]');
+    if (!cell) return;
+    cell.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+  }
+
+  // Fabric / shape selection by key.
+  const FABRIC_ORDER = ['LINEN','FLAX','SAGE','MADDER','MARIGOLD','CLARET','INDIGO','SLATE','TEAL'];
+  const SHAPE_KEYS = { q: 'square', w: 'triangle', e: 'curve', r: 'bar', t: 'qst' };
+
+  function selectFabric(idx) {
+    const id = FABRIC_ORDER[idx];
+    if (!id) return;
+    SP.state.selectedFabric = id;
+    SP.state.selectedPiece = null;
+    SP.render();
+  }
+  function selectShape(shape) {
+    if (!shape) return;
+    SP.state.selectedShape = shape;
+    SP.state.selectedPiece = null;
+    SP.render();
+  }
+
+  // Buttons-by-keyboard.
+  function pressBtn(id) { document.getElementById(id)?.click(); }
+
+  document.addEventListener('keydown', (e) => {
+    // Skip if user is in an input/select.
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    // Overlay close
+    if (kbdOverlay.classList.contains('open') && e.key === 'Escape') {
+      kbdOverlay.classList.remove('open'); e.preventDefault(); return;
+    }
+    if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+      kbdOverlay.classList.toggle('open'); e.preventDefault(); return;
+    }
+    // Undo/redo
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'z' || e.key === 'Z')) {
+      if (e.shiftKey) { redoBtn?.click(); } else { undoBtn?.click(); }
+      e.preventDefault(); return;
+    }
+    if (!e.metaKey && !e.ctrlKey && (e.key === 'z' || e.key === 'Z')) {
+      // Plain Z: undo; Shift-Z: redo
+      if (e.shiftKey) redoBtn?.click(); else undoBtn?.click();
+      e.preventDefault(); return;
+    }
+    // Hint / Check
+    if (e.key === 'h' || e.key === 'H') { pressBtn('btnHint'); e.preventDefault(); return; }
+    if (e.key === 'Enter') { pressBtn('btnCheck'); e.preventDefault(); return; }
+    // Erase
+    if (e.key === 'x' || e.key === 'X' || e.key === 'Delete' || e.key === 'Backspace') {
+      eraseFocusedCell(); e.preventDefault(); return;
+    }
+    // Movement
+    if (e.key === 'ArrowUp')    { moveFocus(-1, 0); e.preventDefault(); return; }
+    if (e.key === 'ArrowDown')  { moveFocus( 1, 0); e.preventDefault(); return; }
+    if (e.key === 'ArrowLeft')  { moveFocus( 0,-1); e.preventDefault(); return; }
+    if (e.key === 'ArrowRight') { moveFocus( 0, 1); e.preventDefault(); return; }
+    if (e.key === ' ') { activateFocusedCell(); e.preventDefault(); return; }
+    // Shape / fabric selection
+    const lower = e.key.toLowerCase();
+    if (SHAPE_KEYS[lower]) { selectShape(SHAPE_KEYS[lower]); e.preventDefault(); return; }
+    if (/^[1-9]$/.test(e.key)) { selectFabric(parseInt(e.key, 10) - 1); e.preventDefault(); return; }
+  });
+
+  // Click the board → set focus to clicked cell (so keyboard works after mouse).
+  puzzleEl.addEventListener('click', (e) => {
+    const cell = e.target.closest('.cell');
+    if (cell && cell.dataset.cell != null) {
+      focusedIdx = +cell.dataset.cell;
+      // Defer until render() finishes so .kbd-focus survives.
+      setTimeout(applyFocusClass, 0);
+    }
+  });
+
+  // Keyboard help overlay close handlers
+  kbdCloseBtn?.addEventListener('click', () => kbdOverlay.classList.remove('open'));
+  kbdHelpBtn?.addEventListener('click', () => kbdOverlay.classList.toggle('open'));
+  kbdOverlay?.addEventListener('click', (e) => {
+    if (e.target === kbdOverlay) kbdOverlay.classList.remove('open');
+  });
+
+  // ── Hint visual: when status reads 'Hint placed' etc., add ring to the
+  // last-changed cell.
+  let lastHintSig = '';
+  function maybeAnimateHint() {
+    if (!statusEl) return;
+    const t = statusEl.textContent || '';
+    const m = t.match(/cell (\d+)/);
+    if (!m) return;
+    if (statusEl.classList.contains('error')) return;
+    const sig = t;
+    if (sig === lastHintSig) return;
+    lastHintSig = sig;
+    const i = +m[1];
+    const cell = puzzleEl.querySelector('.cell[data-cell="' + i + '"]');
+    if (cell) {
+      cell.classList.add('hinted');
+      setTimeout(((el) => () => el && el.classList.remove('hinted'))(cell), 1000);
+    }
+  }
+  if (statusEl) {
+    new MutationObserver(maybeAnimateHint)
+      .observe(statusEl, { childList: true, characterData: true, subtree: true });
+  }
+
+  // ── Win celebration + stats recording ──────────────────────
+  let solvedFor = null;
+  let startedAt = null;
+  // Track solve start time per design.
+  function noteDesignStart() {
+    const d = SP.state.currentDesign;
+    const key = d ? (d.id || d.date) : null;
+    if (!key) return;
+    if (startedAt && startedAt.key === key) return;
+    startedAt = { key, ts: Date.now() };
+  }
+  document.addEventListener('sampler:ready', noteDesignStart);
+  setTimeout(noteDesignStart, 50);
+
+  function onSolve() {
+    const d = SP.state.currentDesign;
+    if (!d) return;
+    const key = d.id || d.date;
+    if (solvedFor === key) return;
+    solvedFor = key;
+    runWinCascade();
+    // Record solve unless this is a draft / authored preview.
+    if (key && key !== '__authored__' && window.PicrossStats) {
+      const elapsed = startedAt && startedAt.key === key ? (Date.now() - startedAt.ts) : 0;
+      window.PicrossStats.recordSolve({
+        date: d.date || null,
+        elapsedMs: elapsed,
+        designId: d.id,
+      });
+      appendStreakChip();
+    }
+  }
+
+  function runWinCascade() {
+    const cells = Array.from(puzzleEl.querySelectorAll('.cell.filled'));
+    cells.sort((a, b) => +a.dataset.cell - +b.dataset.cell);
+    cells.forEach((el, i) => {
+      el.style.setProperty('animation-delay', (i * 30) + 'ms');
+      el.classList.add('win-stitch');
+      setTimeout(((cell) => () => {
+        if (!cell) return;
+        cell.classList.remove('win-stitch');
+        cell.style.removeProperty('animation-delay');
+      })(el), 600 + i * 30);
+    });
+  }
+
+  function appendStreakChip() {
+    if (!metaEl || !window.PicrossStats) return;
+    const stats = window.PicrossStats.getStats(SP.todayET ? SP.todayET() : undefined);
+    if (!stats.solveCount) return;
+    // Don't double-append on re-render of metaEl.
+    if (metaEl.querySelector('.streak')) return;
+    const span = document.createElement('span');
+    span.className = 'streak';
+    const avg = window.PicrossStats.formatDuration(stats.avgMs);
+    span.innerHTML = `<strong>Streak ${stats.streak}</strong> · ${stats.solveCount} solved · avg ${avg}`;
+    metaEl.appendChild(span);
+  }
+
+  // After every render, re-append streak chip if solved.
+  new MutationObserver(() => {
+    if (solvedFor) appendStreakChip();
+  }).observe(metaEl, { childList: true });
+})();
 </script>
 
 </body>

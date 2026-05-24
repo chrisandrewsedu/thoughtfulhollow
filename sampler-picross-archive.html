@@ -7,70 +7,98 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fascinate&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./sampler-picross.css">
 <style>
-  :root {
-    --paper:#faf6ec; --paper-deep:#f0e9d6; --ink:#2a2520; --ink-soft:#6a6258;
-    --accent:#c01818; --green:#3a5a3a; --gold:#8a6c18; --line:#c9bd9c;
-    --cell-empty:#f3ecd8; --cell-empty-edge:#cdc1a0;
-  }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  html, body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Spectral', Georgia, serif;
-    min-height: 100vh;
-  }
   body { padding: 1.4rem 1rem 2.5rem; }
-  .app { max-width: 880px; margin: 0 auto; }
-  .header { display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
-  h1 { font-family: 'Fascinate', serif; font-size: 1.7rem; font-weight: 400; line-height: 1; }
-  .sub { color: var(--ink-soft); font-size: 0.9rem; }
+  .app { max-width: 980px; margin: 0 auto; }
+
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: var(--sp-2) var(--sp-3);
+    margin-bottom: var(--sp-3);
+  }
+  .header-title { display: flex; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; min-width: 0; }
+  .header-controls { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; justify-content: flex-end; }
+  h1 { font-family: 'Fascinate', serif; font-size: var(--fs-display); font-weight: 400; line-height: 1; }
+  .sub { color: var(--ink-soft); font-size: var(--fs-sm); }
   .nav-link {
-    margin-left: auto;
     color: var(--ink-soft);
     text-decoration: none;
-    font-size: 0.86rem;
+    font-size: var(--fs-sm);
     border: 1px solid var(--line);
-    padding: 0.3rem 0.7rem;
-    border-radius: 4px;
+    background: var(--paper-deep);
+    padding: 0.32rem 0.7rem;
+    border-radius: var(--r-sm);
+    transition: background var(--dur-fast) var(--ease-quilt);
   }
-  .nav-link:hover { background: var(--paper-deep); }
+  .nav-link:hover { background: var(--paper); }
+
+  .streak-banner {
+    margin: var(--sp-3) 0 var(--sp-4);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: var(--sp-3) var(--sp-4);
+    box-shadow: var(--shadow-paper);
+    display: flex; gap: var(--sp-4); align-items: baseline; flex-wrap: wrap;
+  }
+  .streak-banner .lbl { font-size: var(--fs-xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .streak-banner .val { font-family: 'Fascinate', serif; font-size: var(--fs-xl); color: var(--ink); line-height: 1; }
+  .streak-banner .sub { color: var(--ink-soft); font-size: var(--fs-sm); }
+  .streak-banner.fresh .val { color: var(--green); }
+  .streak-banner.empty .val { color: var(--ink-faint); }
 
   .list {
-    margin-top: 1rem;
+    margin-top: var(--sp-3);
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-    gap: 0.7rem;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--sp-3);
   }
   .entry {
-    background: var(--paper-deep);
+    background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.8rem 0.95rem;
+    border-radius: var(--r-lg);
+    padding: var(--sp-3);
     text-decoration: none;
     color: inherit;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    transition: transform 0.06s, box-shadow 0.06s;
+    gap: 2px;
+    box-shadow: var(--shadow-paper);
+    transition: transform var(--dur-fast) var(--ease-quilt),
+                box-shadow var(--dur-fast) var(--ease-quilt),
+                border-color var(--dur-fast) var(--ease-quilt);
   }
-  .entry:hover { background: var(--paper); box-shadow: 0 1px 4px rgba(0,0,0,0.06); transform: translateY(-1px); }
-  .entry .date { font-size: 0.82rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-  .entry .author { font-size: 0.72rem; color: var(--ink-soft); font-style: italic; margin-top: 0.4rem; }
+  .entry:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: var(--ink-soft); }
+  .entry .date { font-size: var(--fs-sm); color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 500; }
+  .entry .rel { font-size: var(--fs-xs); color: var(--ink-soft); }
+  .entry .author { font-size: var(--fs-xs); color: var(--ink-soft); font-style: italic; margin-top: 0.4rem; }
+  .entry .name { font-size: var(--fs-md); color: var(--ink); font-weight: 600; font-style: italic; margin-top: var(--sp-1); }
+  .entry .name.locked { color: var(--ink-faint); font-style: normal; font-weight: 400; letter-spacing: 0.3em; }
   .entry .thumb {
     width: 100%; aspect-ratio: 1;
-    background: var(--paper);
+    background: var(--paper-deep);
     border: 1px solid var(--line);
-    border-radius: 4px;
+    border-radius: var(--r-sm);
     overflow: hidden;
     display: grid;
-    margin: 0.3rem 0 0.4rem;
+    margin: var(--sp-2) 0;
+    position: relative;
   }
   .entry .thumb svg { width: 100%; height: 100%; }
+  .entry.locked .thumb svg { filter: blur(3px) saturate(0.7); opacity: 0.7; }
+  .entry.solved .badge {
+    position: absolute; top: 6px; right: 6px;
+    background: var(--green); color: var(--paper);
+    font-size: var(--fs-xs); letter-spacing: 0.05em; text-transform: uppercase;
+    border-radius: var(--r-pill); padding: 2px 8px;
+  }
 
   .empty {
     color: var(--ink-soft);
-    font-size: 0.95rem;
+    font-size: var(--fs-md);
     padding: 3rem 1rem;
     text-align: center;
     line-height: 1.55;
@@ -78,9 +106,9 @@
 
   @media (max-width: 719px) {
     body { padding: 0.9rem 0.75rem 2rem; }
-    h1 { font-size: 1.25rem; }
+    h1 { font-size: var(--fs-xl); }
     .nav-link { min-height: 40px; display: inline-flex; align-items: center; }
-    .list { grid-template-columns: 1fr; }
+    .list { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
   }
 </style>
 </head>
@@ -93,9 +121,21 @@
 
 <div class="app">
   <div class="header">
-    <h1>Archive</h1>
-    <span class="sub">Past quilt-block puzzles. Names reveal on solve.</span>
-    <a class="nav-link" href="./sampler-picross.html">← today</a>
+    <div class="header-title">
+      <h1>Archive</h1>
+      <span class="sub">Past quilt-block puzzles. Names reveal on solve.</span>
+    </div>
+    <div class="header-controls">
+      <a class="nav-link" href="./sampler-picross-admin.html">⊞ admin</a>
+      <a class="nav-link" href="./sampler-picross.html">← today</a>
+    </div>
+  </div>
+
+  <div id="streakBanner" class="streak-banner empty">
+    <div><span class="lbl">Streak</span><br><span class="val" id="streakVal">0</span></div>
+    <div><span class="lbl">Solved</span><br><span class="val" id="solvedVal">0</span></div>
+    <div><span class="lbl">Avg time</span><br><span class="val" id="avgVal">—</span></div>
+    <span class="sub" id="streakSub" style="margin-left:auto">No solves yet. Pick any past puzzle below to stitch your first.</span>
   </div>
 
   <div id="list" class="list"></div>
@@ -1446,6 +1486,139 @@ if (typeof window !== 'undefined') window.PicrossTargets = PicrossTargets;
 })();
 </script>
 <script>
+(function(){
+// sampler-picross.stats.js — solve tracking + streaks, localStorage only.
+// Exposes window.PicrossStats. All dates are ISO YYYY-MM-DD strings.
+
+(function () {
+  const KEY = 'picross-stats-v1';
+  const SOLVED_KEY = 'picross-solved-ids-v1';
+
+  function read() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return { solves: [], totalMs: 0 };
+      const obj = JSON.parse(raw);
+      if (!obj || !Array.isArray(obj.solves)) return { solves: [], totalMs: 0 };
+      return obj;
+    } catch {
+      return { solves: [], totalMs: 0 };
+    }
+  }
+
+  function write(obj) {
+    try { localStorage.setItem(KEY, JSON.stringify(obj)); } catch {}
+  }
+
+  function readSolvedIds() {
+    try {
+      const raw = localStorage.getItem(SOLVED_KEY);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  }
+
+  function writeSolvedIds(ids) {
+    try { localStorage.setItem(SOLVED_KEY, JSON.stringify(ids)); } catch {}
+  }
+
+  // Date in YYYY-MM-DD → previous day in YYYY-MM-DD.
+  function prevDay(iso) {
+    const dt = new Date(iso + 'T12:00:00');
+    dt.setUTCDate(dt.getUTCDate() - 1);
+    return dt.toISOString().slice(0, 10);
+  }
+
+  function todayET() {
+    const fmt = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/New_York',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+    });
+    return fmt.format(new Date());
+  }
+
+  function recordSolve(opts) {
+    const { date, elapsedMs, designId } = opts || {};
+    if (!date) return getStats();
+    const data = read();
+    const exists = data.solves.find(s => s.date === date);
+    if (!exists) {
+      data.solves.push({ date, elapsedMs: elapsedMs || 0 });
+      data.totalMs = (data.totalMs || 0) + (elapsedMs || 0);
+      write(data);
+    }
+    if (designId) {
+      const ids = readSolvedIds();
+      if (!ids.includes(designId)) {
+        ids.push(designId);
+        writeSolvedIds(ids);
+      }
+    }
+    return getStats();
+  }
+
+  function getStreak(today) {
+    const data = read();
+    if (!data.solves.length) return 0;
+    const set = new Set(data.solves.map(s => s.date));
+    // Start from today (ET). If today not solved, start from yesterday.
+    let cursor = today || todayET();
+    if (!set.has(cursor)) cursor = prevDay(cursor);
+    let streak = 0;
+    while (set.has(cursor)) {
+      streak += 1;
+      cursor = prevDay(cursor);
+    }
+    return streak;
+  }
+
+  function getStats(today) {
+    const data = read();
+    const count = data.solves.length;
+    const avgMs = count > 0 ? Math.round((data.totalMs || 0) / count) : 0;
+    return {
+      streak: getStreak(today),
+      solveCount: count,
+      avgMs,
+      totalMs: data.totalMs || 0,
+    };
+  }
+
+  function getSolvedSet() {
+    return new Set(readSolvedIds());
+  }
+
+  function getSolvedDates() {
+    const data = read();
+    return new Set(data.solves.map(s => s.date));
+  }
+
+  function formatDuration(ms) {
+    if (!ms || ms < 1000) return '—';
+    const total = Math.floor(ms / 1000);
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  }
+
+  function clear() {
+    try {
+      localStorage.removeItem(KEY);
+      localStorage.removeItem(SOLVED_KEY);
+    } catch {}
+  }
+
+  window.PicrossStats = {
+    recordSolve, getStreak, getStats,
+    getSolvedSet, getSolvedDates,
+    formatDuration, clear,
+  };
+})();
+
+})();
+</script>
+<script>
 function bootArchive() {
   'use strict';
   if (!window.PicrossEngine || !window.__PICROSS_LIBRARY__) {
@@ -1560,28 +1733,81 @@ function bootArchive() {
     .filter(d => d.date < today)
     .sort((a, b) => b.date.localeCompare(a.date)); // newest first
 
+  // Pull solve history from PicrossStats (localStorage). Empty set if module
+  // missing or no solves yet.
+  const solvedIds   = window.PicrossStats ? window.PicrossStats.getSolvedSet()   : new Set();
+  const solvedDates = window.PicrossStats ? window.PicrossStats.getSolvedDates() : new Set();
+  const stats = window.PicrossStats ? window.PicrossStats.getStats(today) : { streak: 0, solveCount: 0, avgMs: 0 };
+
+  // ── Streak banner ─────────────────────────────────────────
+  const banner = document.getElementById('streakBanner');
+  document.getElementById('streakVal').textContent  = String(stats.streak);
+  document.getElementById('solvedVal').textContent  = String(stats.solveCount);
+  document.getElementById('avgVal').textContent     = window.PicrossStats ? window.PicrossStats.formatDuration(stats.avgMs) : '—';
+  const sub = document.getElementById('streakSub');
+  if (stats.solveCount > 0) {
+    banner.classList.remove('empty');
+    if (stats.streak >= 1) banner.classList.add('fresh');
+    sub.textContent = `You've stitched ${stats.solveCount} of ${designs.length} archived samplers.`;
+  }
+
+  // Relative date helper ("yesterday", "3 days ago", "last week").
+  function relativeDate(iso, todayIso) {
+    const a = new Date(iso + 'T12:00:00');
+    const b = new Date(todayIso + 'T12:00:00');
+    const days = Math.round((b - a) / 86400000);
+    if (days <= 0) return 'today';
+    if (days === 1) return 'yesterday';
+    if (days < 7) return `${days} days ago`;
+    if (days < 14) return 'last week';
+    if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
+    if (days < 60) return 'last month';
+    if (days < 365) return `${Math.floor(days / 30)} months ago`;
+    return `${Math.floor(days / 365)} year${days >= 730 ? 's' : ''} ago`;
+  }
+
   const list = document.getElementById('list');
   if (designs.length === 0) {
     document.getElementById('empty').style.display = '';
     return;
   }
   for (const d of designs) {
+    const solved = solvedIds.has(d.id) || solvedDates.has(d.date);
     const a = document.createElement('a');
-    a.className = 'entry';
+    a.className = 'entry' + (solved ? ' solved' : ' locked');
     a.href = `./sampler-picross.html#${d.date}`;
     const dt = new Date(d.date + 'T12:00:00');
     const dateText = dt.toLocaleDateString(undefined, {
       weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
     });
+
     const dateEl = document.createElement('div');
     dateEl.className = 'date'; dateEl.textContent = dateText;
+
+    const relEl = document.createElement('div');
+    relEl.className = 'rel'; relEl.textContent = relativeDate(d.date, today);
+
     const thumb = document.createElement('div');
     thumb.className = 'thumb';
     thumb.appendChild(thumbSvg(d.target));
+    if (solved) {
+      const badge = document.createElement('span');
+      badge.className = 'badge'; badge.textContent = 'solved';
+      thumb.appendChild(badge);
+    }
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'name' + (solved ? '' : ' locked');
+    nameEl.textContent = solved ? (d.name || '—') : '— — —';
+
     const author = document.createElement('div');
-    author.className = 'author'; author.textContent = d.author ? `designed by ${d.author}` : '';
+    author.className = 'author';
+    author.textContent = solved && d.author ? `designed by ${d.author}` : (solved ? '' : 'name reveals on solve');
+
     a.appendChild(dateEl);
+    a.appendChild(relEl);
     a.appendChild(thumb);
+    a.appendChild(nameEl);
     a.appendChild(author);
     list.appendChild(a);
   }

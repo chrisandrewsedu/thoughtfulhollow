@@ -62,9 +62,9 @@ function inlineInto(file, modules) {
 }
 
 console.log('Inlining picross modules into:');
-inlineInto('sampler-picross.html',        ['engine', 'solver', 'generator', 'templates']);
-inlineInto('sampler-picross-author.html', ['engine', 'solver', 'generator']);
+inlineInto('sampler-picross.html',        ['engine', 'solver', 'generator', 'templates', 'history', 'stats']);
+inlineInto('sampler-picross-author.html', ['engine', 'solver', 'generator', 'history']);
 inlineInto('sampler-picross-admin.html',  ['engine']);
 // Archive uses the embedded library directly (no live server fetch), so it
 // needs both the engine and the inlined templates JSON.
-inlineInto('sampler-picross-archive.html', ['engine', 'templates']);
+inlineInto('sampler-picross-archive.html', ['engine', 'templates', 'stats']);

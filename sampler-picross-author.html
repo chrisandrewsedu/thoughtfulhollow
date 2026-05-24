@@ -7,85 +7,138 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fascinate&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./sampler-picross.css">
 <style>
-  :root {
-    --paper:#faf6ec; --paper-deep:#f0e9d6; --ink:#2a2520; --ink-soft:#6a6258;
-    --accent:#c01818; --green:#3a5a3a; --gold:#8a6c18; --line:#c9bd9c;
-    --cell-empty:#f3ecd8; --cell-empty-edge:#cdc1a0;
-  }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  html, body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Spectral', Georgia, serif;
-    min-height: 100vh;
-  }
   body { padding: 1.2rem 1rem 2rem; }
-  .app { max-width: 900px; margin: 0 auto; }
+  .app { max-width: 980px; margin: 0 auto; }
 
-  .header { display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
-  h1 { font-family: 'Fascinate', serif; font-size: 1.6rem; font-weight: 400; line-height: 1; }
-  .header .sub { color: var(--ink-soft); font-size: 0.9rem; }
+  /* Two-row header matching the player. */
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: var(--sp-2) var(--sp-3);
+    margin-bottom: var(--sp-4);
+  }
+  .header-title { display: flex; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; min-width: 0; }
+  .header-controls { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; justify-content: flex-end; }
+  h1 { font-family: 'Fascinate', serif; font-size: var(--fs-display); font-weight: 400; line-height: 1; }
+  .header .sub { color: var(--ink-soft); font-size: var(--fs-sm); }
   .nav-link {
-    margin-left: auto;
     color: var(--ink-soft);
     text-decoration: none;
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     border: 1px solid var(--line);
+    background: var(--paper-deep);
     padding: 0.3rem 0.7rem;
-    border-radius: 4px;
+    border-radius: var(--r-sm);
+    transition: background var(--dur-fast) var(--ease-quilt);
   }
-  .nav-link:hover { background: var(--paper-deep); }
+  .nav-link:hover { background: var(--paper); }
 
+  /* Two-column workspace: meta on the left, sticky publish panel on the right. */
+  .workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: var(--sp-4);
+    align-items: start;
+  }
   .frame {
     background: var(--paper-deep);
     border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 1rem 1.2rem 1.4rem;
-    display: inline-block;
+    border-radius: var(--r-lg);
+    padding: var(--sp-4) var(--sp-5) var(--sp-5);
+    box-shadow: var(--shadow-paper);
   }
+  .publish {
+    position: sticky;
+    top: var(--sp-3);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: var(--sp-4);
+    box-shadow: var(--shadow-paper);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+  .publish .pub-label {
+    font-size: var(--fs-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .publish .diff-card {
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--r-md);
+    padding: var(--sp-3);
+    background: var(--paper-deep);
+  }
+  .publish .diff-card .score {
+    font-family: 'Fascinate', serif;
+    font-size: var(--fs-xl);
+    color: var(--ink);
+    line-height: 1;
+  }
+  .publish .diff-card .meta-line {
+    font-size: var(--fs-sm); color: var(--ink-soft); margin-top: var(--sp-1);
+  }
+  .publish .diff-card .use-suggestion {
+    display: none;
+    margin-top: var(--sp-2);
+  }
+  .publish .diff-card.has-suggestion .use-suggestion { display: inline-block; }
+  .publish-status {
+    font-size: var(--fs-sm); color: var(--ink-soft);
+    min-height: 1.2em;
+  }
+  .publish-status.ok { color: var(--green); font-weight: 500; }
+  .publish-status.err { color: var(--accent); }
 
   .toolbar {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 1rem;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-4);
     flex-wrap: wrap;
   }
   .toolbar-label {
-    font-size: 0.7rem;
+    font-size: var(--fs-xs);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     color: var(--ink-soft);
   }
   select, .btn {
     font-family: 'Spectral', serif;
-    font-size: 0.9rem;
+    font-size: var(--fs-md);
     color: var(--ink);
     background: var(--paper);
     border: 1.5px solid var(--ink-soft);
-    border-radius: 6px;
+    border-radius: var(--r-md);
     padding: 0.34rem 0.7rem;
     cursor: pointer;
   }
   .btn:hover { background: var(--paper-deep); }
   .btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
   .btn.primary:hover { background: #1a1612; }
+  .btn.sm { font-size: var(--fs-sm); padding: 0.28rem 0.6rem; }
+  .btn.block { width: 100%; justify-content: center; text-align: center; }
 
   .palette {
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.7rem 0.9rem;
-    margin-bottom: 1rem;
+    border-radius: var(--r-md);
+    padding: var(--sp-3) var(--sp-4);
+    margin-bottom: var(--sp-4);
     display: flex;
     align-items: center;
-    gap: 1.2rem;
+    gap: var(--sp-4);
     flex-wrap: wrap;
   }
-  .pal-group { display: flex; align-items: center; gap: 0.5rem; }
+  .pal-cluster { display: flex; flex-direction: column; gap: 6px; }
+  .pal-group { display: flex; align-items: center; gap: 6px; }
   .pal-label {
-    font-size: 0.66rem;
+    font-size: var(--fs-xs);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--ink-soft);
@@ -165,16 +218,16 @@
   .meta {
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 10px 14px;
-    margin-bottom: 1rem;
+    border-radius: var(--r-md);
+    padding: var(--sp-3) var(--sp-4);
+    margin-bottom: var(--sp-4);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 0.6rem 1rem;
+    gap: var(--sp-2) var(--sp-4);
   }
-  .meta-row { display: flex; align-items: center; gap: 0.5rem; }
+  .meta-row { display: flex; align-items: center; gap: var(--sp-2); }
   .meta-label {
-    font-size: 0.66rem;
+    font-size: var(--fs-xs);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--ink-soft);
@@ -183,21 +236,34 @@
   .meta-input {
     flex: 1;
     font-family: 'Spectral', serif;
-    font-size: 0.9rem;
+    font-size: var(--fs-md);
     color: var(--ink);
     background: var(--paper-deep);
     border: 1px solid var(--line);
-    border-radius: 5px;
+    border-radius: var(--r-sm);
     padding: 0.32rem 0.55rem;
+    transition: border-color var(--dur-fast) var(--ease-quilt),
+                background var(--dur-fast) var(--ease-quilt);
   }
-  .meta-input:focus { outline: 1.5px solid var(--accent); outline-offset: 1px; }
-  .hint {
-    font-size: 0.74rem;
-    color: var(--ink-soft);
-    font-style: italic;
-  }
+  .meta-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; background: var(--paper); }
+  .hint { font-size: var(--fs-xs); color: var(--ink-soft); font-style: italic; }
   .status.ok { color: var(--green); font-weight: 500; }
   .status.err { color: var(--accent); }
+  .draft-restored {
+    display: none;
+    font-size: var(--fs-xs);
+    color: var(--gold);
+    background: #fff4d6;
+    border: 1px solid var(--gold);
+    border-radius: var(--r-pill);
+    padding: 0.16rem 0.6rem;
+  }
+  .draft-restored.show { display: inline-block; }
+
+  @media (max-width: 860px) {
+    .workspace { grid-template-columns: 1fr; }
+    .publish { position: static; }
+  }
 </style>
 </head>
 <body>
@@ -239,72 +305,102 @@
 
 <div class="app">
   <div class="header">
-    <h1>Sampler picross — author</h1>
-    <span class="sub">Paint a target block, then generate the puzzle.</span>
-    <a class="nav-link" href="./sampler-picross.html">→ puzzle</a>
+    <div class="header-title">
+      <h1>Sampler picross — author</h1>
+      <span class="sub">Paint a target block, then generate the puzzle.</span>
+      <span id="draftRestored" class="draft-restored" title="An unsaved draft from your last session has been restored.">draft restored</span>
+    </div>
+    <div class="header-controls">
+      <a class="nav-link" href="./sampler-picross-admin.html">⊞ admin</a>
+      <a class="nav-link" href="./sampler-picross.html">→ puzzle</a>
+    </div>
   </div>
 
-  <div class="frame">
+  <div class="workspace">
+    <div class="frame">
 
-    <div class="meta">
-      <div class="meta-row">
-        <label class="meta-label" for="nameInput">Name</label>
-        <input id="nameInput" class="meta-input" type="text" placeholder="e.g. Ohio Star">
+      <div class="meta">
+        <div class="meta-row">
+          <label class="meta-label" for="nameInput">Name</label>
+          <input id="nameInput" class="meta-input" type="text" placeholder="e.g. Ohio Star">
+        </div>
+        <div class="meta-row">
+          <label class="meta-label" for="authorInput">Author</label>
+          <input id="authorInput" class="meta-input" type="text" placeholder="your name">
+        </div>
+        <div class="meta-row">
+          <label class="meta-label" for="dateInput">Date</label>
+          <input id="dateInput" class="meta-input" type="date">
+          <span class="hint">(blank → backlog)</span>
+        </div>
+        <div class="meta-row">
+          <label class="meta-label" for="diffPick">Difficulty</label>
+          <select id="diffPick" class="meta-input">
+            <option value="mon-tue">Mon-Tue (easiest)</option>
+            <option value="wed-th">Wed-Th</option>
+            <option value="fri-sat">Fri-Sat</option>
+            <option value="sun">Sun (hardest)</option>
+          </select>
+        </div>
       </div>
-      <div class="meta-row">
-        <label class="meta-label" for="authorInput">Author</label>
-        <input id="authorInput" class="meta-input" type="text" placeholder="your name">
-      </div>
-      <div class="meta-row">
-        <label class="meta-label" for="dateInput">Date</label>
-        <input id="dateInput" class="meta-input" type="date">
-        <span class="hint">(leave blank to save to backlog)</span>
-      </div>
-      <div class="meta-row">
-        <label class="meta-label" for="diffPick">Difficulty</label>
-        <select id="diffPick" class="meta-input">
-          <option value="mon-tue">Mon-Tue (easiest)</option>
-          <option value="wed-th">Wed-Th</option>
-          <option value="fri-sat">Fri-Sat</option>
-          <option value="sun">Sun (hardest)</option>
+
+      <div class="toolbar">
+        <label class="toolbar-label" for="sizePick">Grid</label>
+        <select id="sizePick">
+          <option value="3">3 × 3</option>
+          <option value="4" selected>4 × 4</option>
+          <option value="5">5 × 5</option>
+          <option value="6">6 × 6</option>
+          <option value="7">7 × 7</option>
+          <option value="8">8 × 8</option>
+          <option value="9">9 × 9</option>
         </select>
-        <span id="diffSuggest" class="hint"></span>
+        <button class="btn sm" id="btnUndo" type="button" aria-label="Undo (Cmd/Ctrl-Z)" disabled>↶ Undo</button>
+        <button class="btn sm" id="btnRedo" type="button" aria-label="Redo (Cmd/Ctrl-Shift-Z)" disabled>↷ Redo</button>
+        <button class="btn" id="btnClear">Clear</button>
+        <span id="status" class="toolbar-label" style="margin-left:auto"></span>
+      </div>
+
+      <div class="palette">
+        <div class="pal-cluster">
+          <span class="pal-label">Shape</span>
+          <div class="pal-group" id="shapePalette"></div>
+        </div>
+        <div class="pal-cluster">
+          <span class="pal-label">Rotate / erase</span>
+          <div class="pal-group" id="toolPalette"></div>
+        </div>
+        <div class="pal-cluster">
+          <span class="pal-label">Fabric</span>
+          <div class="pal-group" id="fabricPalette"></div>
+        </div>
+        <div class="pal-cluster">
+          <span class="pal-label">Pattern</span>
+          <div class="pal-group" id="patternPalette"></div>
+        </div>
+      </div>
+
+      <div id="board" class="board"></div>
+
+      <div class="help">
+        <strong>How to paint:</strong> select a <em>shape</em>, then click or drag across cells to place them. Select a <em>fabric</em> colour (and optionally a <em>pattern</em>) and click a region to paint it (drag to fill many cells). Pattern is purely decorative — the puzzle only tests colour. The rotate tool cycles a placed piece when clicked (triangles and bars have 2 orientations, curves have 4; squares and quarter-square triangles don't rotate). The eraser clears a cell. <code>Cmd/Ctrl-Z</code> to undo.
       </div>
     </div>
 
-    <div class="toolbar">
-      <label class="toolbar-label" for="sizePick">Grid</label>
-      <select id="sizePick">
-        <option value="3">3 × 3</option>
-        <option value="4" selected>4 × 4</option>
-        <option value="5">5 × 5</option>
-        <option value="6">6 × 6</option>
-        <option value="7">7 × 7</option>
-        <option value="8">8 × 8</option>
-        <option value="9">9 × 9</option>
-      </select>
-      <button class="btn" id="btnClear">Clear</button>
-      <button class="btn" id="btnPlayTest">Play test ↗</button>
-      <button class="btn primary" id="btnSave">Save to library</button>
-      <span id="status" class="toolbar-label" style="margin-left:auto"></span>
-    </div>
+    <aside class="publish">
+      <div class="pub-label">Publish</div>
+      <button class="btn primary block" id="btnSave">Save to library</button>
+      <button class="btn block" id="btnPlayTest">Play test ↗</button>
+      <div id="publishStatus" class="publish-status" role="status" aria-live="polite"></div>
 
-    <div class="palette">
-      <span class="pal-label">Shape</span>
-      <div class="pal-group" id="shapePalette"></div>
-      <span class="pal-label" style="margin-left:0.6rem">Rotate</span>
-      <div class="pal-group" id="toolPalette"></div>
-      <span class="pal-label" style="margin-left:0.6rem">Fabric</span>
-      <div class="pal-group" id="fabricPalette"></div>
-      <span class="pal-label" style="margin-left:0.6rem">Pattern</span>
-      <div class="pal-group" id="patternPalette"></div>
-    </div>
-
-    <div id="board" class="board"></div>
-
-    <div class="help">
-      <strong>How to paint:</strong> select a <em>shape</em>, then click or drag across cells to place them. Select a <em>fabric</em> colour (and optionally a <em>pattern</em>) and click a region to paint it (drag to fill many cells). Pattern is purely decorative — the puzzle only tests colour. The rotate tool cycles a placed piece when clicked (triangles and bars have 2 orientations, curves have 4; squares and quarter-square triangles don't rotate). The eraser clears a cell.
-    </div>
+      <div class="pub-label" style="margin-top: var(--sp-2);">Difficulty engine</div>
+      <div id="diffCard" class="diff-card">
+        <div class="score" id="diffScoreLine">—</div>
+        <div class="meta-line" id="diffScoreNote">Fill the board to see the engine's suggestion.</div>
+        <button class="btn sm use-suggestion" id="btnUseDiff" type="button">Use suggested</button>
+      </div>
+      <span id="diffSuggest" class="hint" style="display:none"></span>
+    </aside>
   </div>
 </div>
 
@@ -1164,6 +1260,67 @@ if (typeof window !== 'undefined') window.PicrossGenerator = PicrossGenerator;
 })();
 </script>
 <script>
+(function(){
+// sampler-picross.history.js — minimal undo/redo for the player + author boards.
+// Snapshots are caller-supplied JSON-safe objects; the module is agnostic about
+// shape. Exposes a single factory on window.PicrossHistory.
+
+(function () {
+  function create(opts) {
+    opts = opts || {};
+    const cap = Math.max(2, opts.cap || 50);
+    const onChange = typeof opts.onChange === 'function' ? opts.onChange : () => {};
+    const stack = [];
+    let cursor = -1; // points at the current state; -1 = empty
+
+    function clone(s) { return s == null ? null : JSON.parse(JSON.stringify(s)); }
+
+    function reset(initial) {
+      stack.length = 0;
+      cursor = -1;
+      if (initial !== undefined) push(initial);
+      else onChange(api);
+    }
+
+    function push(state) {
+      // Drop any redo branch.
+      if (cursor < stack.length - 1) stack.length = cursor + 1;
+      stack.push(clone(state));
+      // Cap.
+      if (stack.length > cap) stack.shift();
+      cursor = stack.length - 1;
+      onChange(api);
+    }
+
+    function undo() {
+      if (cursor <= 0) return null;
+      cursor -= 1;
+      onChange(api);
+      return clone(stack[cursor]);
+    }
+
+    function redo() {
+      if (cursor >= stack.length - 1) return null;
+      cursor += 1;
+      onChange(api);
+      return clone(stack[cursor]);
+    }
+
+    function canUndo() { return cursor > 0; }
+    function canRedo() { return cursor < stack.length - 1; }
+    function current() { return cursor < 0 ? null : clone(stack[cursor]); }
+    function size() { return stack.length; }
+
+    const api = { reset, push, undo, redo, canUndo, canRedo, current, size };
+    return api;
+  }
+
+  window.PicrossHistory = { create };
+})();
+
+})();
+</script>
+<script>
 function bootAuthor() {
   'use strict';
   const E = window.PicrossEngine;
@@ -1535,8 +1692,10 @@ function bootAuthor() {
     const hint = document.getElementById('diffSuggest');
     const errs = E.validateTarget(state.board);
     if (errs.length) { hint.textContent = ''; return; }
-    const r = G.generate(state.board, { maxGivens: Math.max(12, state.size * 2) });
-    const suggested = E.suggestedDifficulty(state.board, r);
+    // Estimate from structural properties only — skips the full solver/generator
+    // so the main thread doesn't block on board completion. givenCount is omitted
+    // (its contribution is ≤maxGivens points, at most a 1-tier shift).
+    const suggested = E.suggestedDifficulty(state.board, null);
     if (suggested === state.meta.difficulty) {
       hint.textContent = '(matches)';
     } else {
@@ -1684,8 +1843,223 @@ function bootAuthor() {
   state.board = newBoard(state.size);
   render();
   maybeLoadFromQuery();
+
+  // Expose for augmentation.
+  window.__samplerAuthor__ = {
+    get state() { return state; },
+    render,
+    newBoard,
+  };
+  try { document.dispatchEvent(new CustomEvent('sampler:author-ready')); } catch {}
 }
 bootAuthor();
+</script>
+
+<!-- ── AUGMENTATION ──────────────────────────────────────────
+     Adds:
+       • Draft persistence to localStorage (restore on reload)
+       • Undo / redo for board edits + Cmd/Ctrl-Z keys
+       • Mirrors status into the new sticky publish panel
+       • Drives the Difficulty engine card (score + Use suggested) -->
+<script>
+(function () {
+  'use strict';
+  const SA = window.__samplerAuthor__;
+  if (!SA) return;
+
+  const DRAFT_KEY = 'picross-author-draft-v1';
+  const nameInp   = document.getElementById('nameInput');
+  const authorInp = document.getElementById('authorInput');
+  const dateInp   = document.getElementById('dateInput');
+  const diffPick  = document.getElementById('diffPick');
+  const sizePick  = document.getElementById('sizePick');
+  const boardEl   = document.getElementById('board');
+  const statusEl  = document.getElementById('status');
+  const pubStatus = document.getElementById('publishStatus');
+  const diffOld   = document.getElementById('diffSuggest');
+  const diffCard  = document.getElementById('diffCard');
+  const diffScore = document.getElementById('diffScoreLine');
+  const diffNote  = document.getElementById('diffScoreNote');
+  const btnUseDiff = document.getElementById('btnUseDiff');
+  const btnUndo   = document.getElementById('btnUndo');
+  const btnRedo   = document.getElementById('btnRedo');
+  const draftBadge = document.getElementById('draftRestored');
+
+  // ── Draft persistence ─────────────────────────────────────
+  function saveDraft() {
+    const state = SA.state;
+    // Skip persistence while editing an existing library entry — the draft
+    // is meant for *new* unsaved work.
+    if (state.meta?.id) return;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        size:  state.size,
+        board: state.board,
+        meta:  state.meta,
+        savedAt: Date.now(),
+      }));
+    } catch {}
+  }
+  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch {} }
+  function readDraft() {
+    try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch { return null; }
+  }
+  function isBoardEmpty(board) { return !board || !board.some(Boolean); }
+
+  // Restore on load — only when no edit-id was supplied via query string,
+  // and only if the current board is empty (haven't started fresh work).
+  const params = new URLSearchParams(window.location.search);
+  if (!params.get('edit')) {
+    const draft = readDraft();
+    if (draft && draft.board && isBoardEmpty(SA.state.board)) {
+      SA.state.size = draft.size || SA.state.size;
+      SA.state.board = draft.board;
+      if (draft.meta) Object.assign(SA.state.meta, draft.meta);
+      sizePick.value = String(SA.state.size);
+      SA.render();
+      draftBadge?.classList.add('show');
+      setTimeout(() => draftBadge?.classList.remove('show'), 5000);
+    }
+  }
+
+  // Persist on any meta input change. saveDraft after the page's own listener
+  // has run.
+  [nameInp, authorInp, dateInp, diffPick].forEach(el => {
+    el?.addEventListener('input', () => setTimeout(saveDraft, 0));
+    el?.addEventListener('change', () => setTimeout(saveDraft, 0));
+  });
+
+  // ── Undo / redo on the board ──────────────────────────────
+  const history = window.PicrossHistory && window.PicrossHistory.create({
+    cap: 50,
+    onChange(h) {
+      if (btnUndo) btnUndo.disabled = !h.canUndo();
+      if (btnRedo) btnRedo.disabled = !h.canRedo();
+    },
+  });
+
+  function snapshot() {
+    return { size: SA.state.size, board: SA.state.board.map(c => c ? JSON.parse(JSON.stringify(c)) : null) };
+  }
+  function restore(snap) {
+    if (!snap) return;
+    if (snap.size !== SA.state.size) {
+      SA.state.size = snap.size;
+      sizePick.value = String(snap.size);
+    }
+    SA.state.board = snap.board.map(c => c ? JSON.parse(JSON.stringify(c)) : null);
+    SA.render();
+  }
+
+  let lastSig = '';
+  function captureIfChanged() {
+    if (!history) return;
+    const snap = snapshot();
+    const sig = JSON.stringify(snap);
+    if (sig !== lastSig) {
+      history.push(JSON.parse(sig));
+      lastSig = sig;
+      saveDraft();
+    }
+  }
+  // Initial snapshot
+  setTimeout(() => {
+    if (!history) return;
+    const snap = snapshot();
+    lastSig = JSON.stringify(snap);
+    history.reset(snap);
+  }, 0);
+
+  // After any user mutation on the board → snapshot
+  boardEl.addEventListener('click', () => setTimeout(captureIfChanged, 0));
+  boardEl.addEventListener('contextmenu', () => setTimeout(captureIfChanged, 0));
+  boardEl.addEventListener('mouseup', () => setTimeout(captureIfChanged, 0));
+  document.getElementById('btnClear')?.addEventListener('click', () => setTimeout(captureIfChanged, 0));
+  sizePick.addEventListener('change', () => setTimeout(() => {
+    // size change rebuilds board → reset history
+    if (!history) return;
+    const snap = snapshot();
+    lastSig = JSON.stringify(snap);
+    history.reset(snap);
+  }, 0));
+
+  btnUndo?.addEventListener('click', () => {
+    const s = history && history.undo();
+    if (s) { restore(s); lastSig = JSON.stringify(s); }
+  });
+  btnRedo?.addEventListener('click', () => {
+    const s = history && history.redo();
+    if (s) { restore(s); lastSig = JSON.stringify(s); }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'z' || e.key === 'Z')) {
+      if (e.shiftKey) btnRedo?.click(); else btnUndo?.click();
+      e.preventDefault();
+    }
+  });
+
+  // ── Status mirror + Save success → clear draft ────────────
+  let lastStatusText = '';
+  function mirrorStatus() {
+    const text = (statusEl?.textContent || '').trim();
+    const cls  = (statusEl?.className || '').replace(/^toolbar-label\s?/, '').replace(/^status\s?/, '').trim();
+    if (pubStatus) {
+      pubStatus.textContent = text;
+      pubStatus.className = 'publish-status' + (cls ? ' ' + cls.replace('status ', '') : '');
+    }
+    // Clear draft when the page reports a successful save.
+    if (text !== lastStatusText) {
+      lastStatusText = text;
+      if (/^Saved\b|^Updated\b|^Edited\b/i.test(text)) clearDraft();
+    }
+  }
+  if (statusEl) {
+    new MutationObserver(mirrorStatus)
+      .observe(statusEl, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+  }
+
+  // ── Difficulty engine card ────────────────────────────────
+  function mirrorDiff() {
+    const t = (diffOld?.textContent || '').trim();
+    if (!t) {
+      diffScore.textContent = '—';
+      diffNote.textContent = SA.state.board.every(Boolean) ? 'Engine could not compute.' : 'Fill the board to see the engine\'s suggestion.';
+      diffCard.classList.remove('has-suggestion');
+      return;
+    }
+    if (/matches/i.test(t)) {
+      diffScore.textContent = labelOf(diffPick.value);
+      diffNote.textContent = 'Matches your chosen difficulty ✓';
+      diffCard.classList.remove('has-suggestion');
+      return;
+    }
+    const m = t.match(/suggests\s+([a-z-]+)/i);
+    if (m) {
+      const sug = m[1];
+      diffScore.textContent = labelOf(sug);
+      diffNote.textContent = 'Engine suggests this. Yours: ' + labelOf(diffPick.value) + '.';
+      diffCard.classList.add('has-suggestion');
+      btnUseDiff.dataset.value = sug;
+    }
+  }
+  function labelOf(v) {
+    return ({ 'mon-tue': 'Mon-Tue', 'wed-th': 'Wed-Th', 'fri-sat': 'Fri-Sat', 'sun': 'Sun' })[v] || v;
+  }
+  if (diffOld) {
+    new MutationObserver(mirrorDiff).observe(diffOld, { childList: true, characterData: true, subtree: true });
+  }
+  btnUseDiff?.addEventListener('click', () => {
+    const v = btnUseDiff.dataset.value;
+    if (!v) return;
+    diffPick.value = v;
+    SA.state.meta.difficulty = v;
+    diffPick.dispatchEvent(new Event('change', { bubbles: true }));
+    saveDraft();
+  });
+})();
 </script>
 
 </body>

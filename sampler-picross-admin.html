@@ -7,72 +7,95 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fascinate&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./sampler-picross.css">
 <style>
-  :root {
-    --paper:#faf6ec; --paper-deep:#f0e9d6; --ink:#2a2520; --ink-soft:#6a6258;
-    --accent:#c01818; --green:#3a5a3a; --gold:#8a6c18; --line:#c9bd9c;
-    --cell-empty:#f3ecd8; --cell-empty-edge:#cdc1a0;
-  }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  html, body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Spectral', Georgia, serif;
-    min-height: 100vh;
-  }
   body { padding: 1.2rem 1rem 2rem; }
-  .app { max-width: 1100px; margin: 0 auto; }
+  .app { max-width: 1180px; margin: 0 auto; }
 
-  .header { display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
-  h1 { font-family: 'Fascinate', serif; font-size: 1.6rem; font-weight: 400; line-height: 1; }
-  .header .sub { color: var(--ink-soft); font-size: 0.88rem; }
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: var(--sp-2) var(--sp-3);
+    margin-bottom: var(--sp-4);
+  }
+  .header-title { display: flex; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; min-width: 0; }
+  .header-controls { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; justify-content: flex-end; }
+  h1 { font-family: 'Fascinate', serif; font-size: var(--fs-display); font-weight: 400; line-height: 1; }
+  .header .sub { color: var(--ink-soft); font-size: var(--fs-sm); }
   .nav-link {
     color: var(--ink-soft);
     text-decoration: none;
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     border: 1px solid var(--line);
-    padding: 0.3rem 0.7rem;
-    border-radius: 4px;
-  }
-  .nav-link:hover { background: var(--paper-deep); }
-  .header .right { margin-left: auto; display: flex; gap: 0.5rem; }
-
-  .status-bar {
     background: var(--paper-deep);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.7rem 1rem;
-    margin-bottom: 1rem;
-    font-size: 0.92rem;
-    color: var(--ink);
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    align-items: center;
+    padding: 0.32rem 0.7rem;
+    border-radius: var(--r-sm);
+    transition: background var(--dur-fast) var(--ease-quilt);
   }
+  .nav-link:hover { background: var(--paper); }
+
+  /* Stat tiles (replaces the inline status-bar text). */
+  .status-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-4);
+  }
+  .status-bar .stat-tile {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: var(--sp-3) var(--sp-4);
+    box-shadow: var(--shadow-paper);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .status-bar .stat-tile .lbl {
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+  }
+  .status-bar .stat-tile .val {
+    font-family: 'Fascinate', serif;
+    font-size: var(--fs-xl);
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .status-bar .stat-tile .sub { font-size: var(--fs-xs); color: var(--ink-soft); }
+  .status-bar .stat-tile.warn { background: #fbeeee; border-color: var(--accent-soft); }
+  .status-bar .stat-tile.warn .val { color: var(--accent); }
+  /* Fallback for legacy plain-text content slot used by the boot script. */
   .status-bar .stat { display: flex; align-items: baseline; gap: 0.4rem; }
-  .status-bar .stat .num { font-weight: 600; font-size: 1.05rem; }
+  .status-bar .stat .num { font-weight: 600; font-size: var(--fs-lg); }
   .status-bar .warn { color: var(--accent); }
 
   .views {
     display: flex;
     border-bottom: 1.5px solid var(--line);
-    margin-bottom: 1rem;
+    margin-bottom: var(--sp-4);
+    gap: 0.2rem;
   }
   .view-tab {
     background: transparent;
     border: 0;
     padding: 0.6rem 1.2rem;
     font-family: 'Spectral', serif;
-    font-size: 0.95rem;
+    font-size: var(--fs-md);
     color: var(--ink-soft);
     cursor: pointer;
     border-bottom: 2.5px solid transparent;
     margin-bottom: -1.5px;
+    transition: color var(--dur-fast) var(--ease-quilt),
+                border-color var(--dur-mid) var(--ease-quilt);
+    position: relative;
   }
+  .view-tab:hover { color: var(--ink); }
   .view-tab.active {
     color: var(--ink);
-    border-bottom-color: var(--ink);
+    border-bottom-color: var(--accent);
     font-weight: 500;
   }
 
@@ -80,21 +103,32 @@
   .schedule {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 6px;
-    margin-bottom: 1rem;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-4);
   }
   .day {
-    background: var(--paper-deep);
+    background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 0.6rem 0.7rem;
-    min-height: 110px;
+    border-radius: var(--r-md);
+    padding: var(--sp-2) var(--sp-3) var(--sp-3);
+    min-height: 130px;
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
+    gap: 4px;
     position: relative;
+    box-shadow: var(--shadow-paper);
+    transition: transform var(--dur-fast) var(--ease-quilt),
+                box-shadow var(--dur-fast) var(--ease-quilt),
+                border-color var(--dur-fast) var(--ease-quilt);
   }
-  .day.today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .day:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+    border-color: var(--ink-soft);
+  }
+  .day:hover .day-thumb { transform: scale(1.08); }
+  .day:hover .day-thumb { box-shadow: 0 2px 8px rgba(48,40,28,0.18); }
+  .day.today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow-paper); }
   .day.empty {
     background-image: repeating-linear-gradient(45deg, transparent 0 6px, rgba(0,0,0,0.04) 6px 8px);
   }
@@ -118,10 +152,13 @@
     width: 100%; aspect-ratio: 1;
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 3px;
+    border-radius: var(--r-sm);
     overflow: hidden;
     display: grid;
     margin: 0.2rem 0;
+    transition: transform var(--dur-mid) var(--ease-quilt),
+                box-shadow var(--dur-mid) var(--ease-quilt);
+    transform-origin: center;
   }
   .day-thumb .ttc { width: 100%; height: 100%; }
   .day-actions { display: flex; gap: 0.3rem; margin-top: auto; }
@@ -237,10 +274,13 @@
 
 <div class="app">
   <div class="header">
-    <h1>Sampler picross — admin</h1>
-    <span class="sub">Schedule, browse, edit.</span>
-    <div class="right">
+    <div class="header-title">
+      <h1>Sampler picross — admin</h1>
+      <span class="sub">Schedule, browse, edit.</span>
+    </div>
+    <div class="header-controls">
       <a class="nav-link" href="./sampler-picross-author.html">✎ new design</a>
+      <a class="nav-link" href="./sampler-picross-archive.html">archive</a>
       <a class="nav-link" href="./sampler-picross.html">→ play today</a>
     </div>
   </div>
@@ -814,9 +854,12 @@ function bootAdmin() {
   function renderStatus() {
     const bar = document.getElementById('statusBar');
     bar.innerHTML = '';
-    if (!state.library) { bar.textContent = 'Loading…'; return; }
+    if (!state.library) {
+      bar.innerHTML = `<div class="stat-tile"><span class="lbl">Library</span><span class="val">…</span><span class="sub">loading</span></div>`;
+      return;
+    }
     if (state.library.error) {
-      bar.innerHTML = `<span class="warn">${state.library.error}</span>`;
+      bar.innerHTML = `<div class="stat-tile warn"><span class="lbl">Library</span><span class="val">!</span><span class="sub">${state.library.error}</span></div>`;
       return;
     }
     const designs = state.library.designs;
@@ -825,11 +868,13 @@ function bootAdmin() {
     const upcoming14 = [];
     for (let i = 0; i < 14; i++) upcoming14.push(addDays(state.today, i));
     const missing = upcoming14.filter(dt => !designs.find(d => d.date === dt));
+    const backlogCount = designs.filter(d => !d.date).length;
     bar.innerHTML = `
-      <div class="stat"><span class="num">${designs.length}</span> design${designs.length !== 1 ? 's' : ''} total</div>
-      <div class="stat"><span class="num">${futureDates.length}</span> scheduled from today onward</div>
-      <div class="stat">${latest ? 'Latest: <span class="num">' + latest + '</span>' : '<span class="warn">No upcoming puzzles scheduled.</span>'}</div>
-      ${missing.length ? '<div class="stat warn">' + missing.length + ' gap' + (missing.length > 1 ? 's' : '') + ' in next 14 days</div>' : ''}
+      <div class="stat-tile"><span class="lbl">Designs</span><span class="val">${designs.length}</span><span class="sub">in library</span></div>
+      <div class="stat-tile"><span class="lbl">Scheduled</span><span class="val">${futureDates.length}</span><span class="sub">today onward</span></div>
+      <div class="stat-tile"><span class="lbl">Latest</span><span class="val">${latest ? latest.slice(5) : '—'}</span><span class="sub">${latest ? latest : 'nothing scheduled'}</span></div>
+      <div class="stat-tile${missing.length ? ' warn' : ''}"><span class="lbl">Gaps (14d)</span><span class="val">${missing.length}</span><span class="sub">${missing.length ? 'fix in backlog' : 'all covered'}</span></div>
+      <div class="stat-tile"><span class="lbl">Backlog</span><span class="val">${backlogCount}</span><span class="sub">unscheduled</span></div>
     `;
   }
 
