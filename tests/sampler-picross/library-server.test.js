@@ -41,7 +41,7 @@ test('validateDesign accepts valid YYYY-MM-DD date', () => {
 });
 
 test('validateDesign rejects malformed date strings', () => {
-  for (const bad of ['2026/06/01', '06-01-2026', 'tomorrow']) {
+  for (const bad of ['2026/06/01', '06-01-2026', 'tomorrow', '2026-13-40', '2026-02-30']) {
     const err = srv.validateDesign(validBaseDesign({ date: bad }));
     assert.match(err || '', /date/i, `expected error for ${bad}`);
   }

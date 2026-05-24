@@ -62,6 +62,12 @@ function validateDesign(d) {
   if (d.date !== '' && !ISO_DATE.test(d.date)) {
     return 'date must be YYYY-MM-DD or empty string for backlog';
   }
+  if (d.date !== '') {
+    const parsed = new Date(`${d.date}T00:00:00.000Z`);
+    if (isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== d.date) {
+      return 'date must be a valid calendar date';
+    }
+  }
   if (!SUPPORTED_DIFFICULTIES.includes(d.difficulty)) {
     return `difficulty must be one of ${SUPPORTED_DIFFICULTIES.join(', ')}`;
   }
