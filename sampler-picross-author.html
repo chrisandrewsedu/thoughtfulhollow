@@ -1345,12 +1345,18 @@ function bootAuthor() {
         return;
       }
       state.meta.id = body.design.id;
-      const where = body.design.date
-        ? `(${body.design.date})`
-        : '— backlog, assign a date later';
-      setStatus(body.replaced
-        ? `Updated "${body.design.name}" ${where}`
-        : `Saved "${body.design.name}" ${where}`, 'ok');
+      const isBacklog = !body.design.date;
+      let msg;
+      if (body.replaced) {
+        msg = isBacklog
+          ? `Updated "${body.design.name}" (backlog)`
+          : `Updated "${body.design.name}" (${body.design.date})`;
+      } else {
+        msg = isBacklog
+          ? `Saved "${body.design.name}" to backlog — assign a date later`
+          : `Saved "${body.design.name}" (${body.design.date})`;
+      }
+      setStatus(msg, 'ok');
     } catch (err) {
       setStatus('Library server unreachable — run `npm run picross-library`.', 'err');
     }
