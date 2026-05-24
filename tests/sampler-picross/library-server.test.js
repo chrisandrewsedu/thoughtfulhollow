@@ -156,3 +156,16 @@ test('GET /library/:id also backfills createdAt', async () => {
     assert.strictEqual(d.createdAt, '2026-05-20T00:00:00.000Z');
   });
 });
+
+test('on-disk order: dated by date asc, then backlog by createdAt asc', async () => {
+  await withServer({ version: 2, designs: [] }, async ({ base, readDisk }) => {
+    await postDesign(base, validBaseDesign({ name: 'B-dated',  date: '2026-12-01' }));
+    await postDesign(base, validBaseDesign({ name: 'A-dated',  date: '2026-11-01' }));
+    await postDesign(base, validBaseDesign({ name: 'X-backlog', date: '' }));
+    await new Promise(r => setTimeout(r, 5));
+    await postDesign(base, validBaseDesign({ name: 'Y-backlog', date: '' }));
+
+    const ids = readDisk().designs.map(d => d.id);
+    assert.deepStrictEqual(ids, ['a-dated', 'b-dated', 'x-backlog', 'y-backlog']);
+  });
+});

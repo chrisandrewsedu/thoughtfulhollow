@@ -157,7 +157,16 @@ const server = http.createServer(async (req, res) => {
       if (existingIdx >= 0) lib.designs[existingIdx] = stored;
       else                  lib.designs.push(stored);
       // Keep the file sorted by date for tidy diffs.
-      lib.designs.sort((a, b) => a.date.localeCompare(b.date));
+      // Dated designs come first (sorted by date asc), then backlog (by createdAt asc).
+      lib.designs.sort((a, b) => {
+        const aHas = a.date !== '';
+        const bHas = b.date !== '';
+        if (aHas && !bHas) return -1;
+        if (!aHas && bHas) return  1;
+        if (aHas && bHas)  return a.date.localeCompare(b.date);
+        // Both undated: sort by createdAt asc.
+        return (a.createdAt || '').localeCompare(b.createdAt || '');
+      });
       writeLibrary(lib);
       return json(res, 200, { ok: true, design: stored, replaced: existingIdx >= 0 });
     }
