@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "check-sizes": "node scripts/check-sizes.js",
-    "check-sizes-sampler": "node scripts/check-sizes-sampler.js",
-    "sampler-report": "node scripts/sampler-template-report.js"
+    "check-sizes": "node scripts/check-sizes.js"
   },
   "devDependencies": {
     "playwright": "^1.60.0"
