@@ -99,6 +99,16 @@ function readBody(req) {
   });
 }
 
+// Serialize all write operations so concurrent POSTs / DELETEs can't
+// read-mutate-write the same file in overlapping windows (the previous
+// behavior silently lost the earlier writer). Reads stay unsynchronized.
+let writeChain = Promise.resolve();
+function serializeWrites(fn) {
+  const next = writeChain.then(fn, fn);
+  writeChain = next.then(() => {}, () => {});
+  return next;
+}
+
 function json(res, status, body) {
   res.writeHead(status, {
     'content-type': 'application/json',
@@ -127,6 +137,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && !id) {
+      return serializeWrites(async () => {
       const raw = await readBody(req);
       let payload;
       try { payload = JSON.parse(raw); }
@@ -175,15 +186,18 @@ const server = http.createServer(async (req, res) => {
       });
       writeLibrary(lib);
       return json(res, 200, { ok: true, design: stored, replaced: existingIdx >= 0 });
+      });
     }
 
     if (req.method === 'DELETE' && id) {
-      const lib = readLibrary();
-      const idx = lib.designs.findIndex(x => x.id === id);
-      if (idx < 0) return json(res, 404, { error: 'design not found' });
-      const [removed] = lib.designs.splice(idx, 1);
-      writeLibrary(lib);
-      return json(res, 200, { ok: true, removed });
+      return serializeWrites(async () => {
+        const lib = readLibrary();
+        const idx = lib.designs.findIndex(x => x.id === id);
+        if (idx < 0) return json(res, 404, { error: 'design not found' });
+        const [removed] = lib.designs.splice(idx, 1);
+        writeLibrary(lib);
+        return json(res, 200, { ok: true, removed });
+      });
     }
 
     json(res, 405, { error: 'method not allowed' });

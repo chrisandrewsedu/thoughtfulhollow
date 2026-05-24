@@ -169,3 +169,32 @@ test('on-disk order: dated by date asc, then backlog by createdAt asc', async ()
     assert.deepStrictEqual(ids, ['a-dated', 'b-dated', 'x-backlog', 'y-backlog']);
   });
 });
+
+test('concurrent POSTs of distinct designs are all persisted (no lost writes)', async () => {
+  await withServer({ version: 2, designs: [] }, async ({ base, readDisk }) => {
+    const N = 20;
+    const posts = Array.from({ length: N }, (_, i) =>
+      postDesign(base, validBaseDesign({ name: `Concurrent ${i}`, date: '' }))
+    );
+    const results = await Promise.all(posts);
+    assert.strictEqual(results.filter(r => r.status === 200).length, N);
+    assert.strictEqual(readDisk().designs.length, N);
+  });
+});
+
+test('concurrent POSTs racing for the same date: exactly one wins', async () => {
+  await withServer({ version: 2, designs: [] }, async ({ base, readDisk }) => {
+    const N = 5;
+    const date = '2026-08-15';
+    const posts = Array.from({ length: N }, (_, i) =>
+      postDesign(base, validBaseDesign({ name: `Race ${i}`, date }))
+    );
+    const results = await Promise.all(posts);
+    const ok = results.filter(r => r.status === 200).length;
+    const conflict = results.filter(r => r.status === 409).length;
+    assert.strictEqual(ok, 1, `expected 1 success, got ${ok}`);
+    assert.strictEqual(conflict, N - 1, `expected ${N - 1} conflicts, got ${conflict}`);
+    // Only the winner persisted to disk.
+    assert.strictEqual(readDisk().designs.length, 1);
+  });
+});
