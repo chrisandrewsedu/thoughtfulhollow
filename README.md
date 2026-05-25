@@ -23,30 +23,6 @@ Glossari is a daily dictionary puzzle. Each puzzle contains four dictionary entr
 
 **Puzzle data:** `glossari.json` — a top-level object with two collections. `themes[]` is the daily rotation; each theme has up to three `tiers` (`easy`, `medium`, `hard`). `practice` is an object keyed by tier, each value a small array of sandbox puzzles never drawn from the daily catalog. Each puzzle in either collection has 4 entries with `parts` always of length 3, plus `pos`, `definition`, `etymology`, `example`, `synonyms`, `antonyms`.
 
-## Glossari admin
-
-The admin pages live in `admin/` (gitignored — local only).
-
-Start the dev server before opening either page:
-
-```sh
-npm run glossari-server
-# → http://localhost:4321
-```
-
-| URL | Purpose |
-|-----|---------|
-| `/admin/glossari-admin.html` | Read-only overview — theme previews, tier slots, practice puzzles |
-| `/admin/glossari-vet.html` | Editor — view all words in a theme, edit clue type/text, swap headwords |
-
-**Editor workflow:**
-- Navigate themes with ‹ › and switch tiers (Easy / Medium / Hard)
-- Click **Edit ✎** on any word row to change its clue type or clue text
-- Click **Swap word…** to search for a replacement via Datamuse (semantic search), select a candidate, fill in the three morphological parts, and confirm — the save writes directly to `glossari.json`
-- Switch to **Practice** tab to edit the sandbox puzzle pool the same way
-
-The server also proxies the Free Dictionary API (`/api/words/:word`) and Datamuse (`/api/words/search?q=…`) so lookups work without hitting CORS.
-
 ## Local development
 
 Plain static site, no build step.
