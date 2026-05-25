@@ -280,11 +280,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
     color: var(--ink);
-    font-weight: 500;
     pointer-events: none;
   }
+  .rot-badge svg { width: 12px; height: 12px; }
   .given-tag {
     position: absolute;
     top: 3px;
@@ -525,6 +524,10 @@
       <rect x="2" y="2" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"/>
       <line x1="2" y1="2" x2="18" y2="18" stroke="currentColor" stroke-width="1.6"/>
       <line x1="18" y1="2" x2="2" y2="18" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="g-rotate" viewBox="0 0 20 20">
+      <path d="M2.5 10a7.5 7.5 0 1 0 7.5-7.5 8.125 8.125 0 0 0-5.62 2.28L2.5 6.67" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M2.5 2.5v4.17h4.17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
   </defs>
 </svg>
@@ -2804,14 +2807,15 @@ function bootSamplerPicross() {
   // tracked separately, surfaced via the ⟲ pill on the chip.
   function pieceSig(cell) {
     if (!cell) return null;
-    // Signature is keyed on COLOR only — pattern is decorative and shouldn't
-    // split a clue's piece group across multiple chips.
-    const regs = Object.entries(cell.regions || {})
-      .filter(([_, f]) => f != null)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([p, f]) => p + '=' + (E.regionColor(f) || ''))
+    // Keyed on shape + sorted color values only — A/B region assignment and
+    // rotation are intentionally excluded so that pieces of the same shape
+    // and color set always land on the same chip regardless of orientation.
+    const colors = Object.values(cell.regions || {})
+      .filter(f => f != null)
+      .map(f => E.regionColor(f) || '')
+      .sort()
       .join(',');
-    return cell.shape + '|' + regs;
+    return cell.shape + '|' + colors;
   }
 
   // Group target cells of a band by piece signature.
@@ -2935,7 +2939,11 @@ function bootSamplerPicross() {
       const needed = info.count - placed.given;
       if (needed <= 0) continue; // entirely given-satisfied
       const remaining = needed - placed.player;
-      const isSpent = remaining <= 0;
+      const hasRotReq = info.rotated > 0 && info.shape !== 'square';
+      const neededRot = hasRotReq ? info.rotated - placed.rotGiven : 0;
+      const remRot = hasRotReq ? neededRot - placed.rotPlayer : 0;
+      const rotSatisfied = !hasRotReq || remRot <= 0;
+      const isSpent = remaining <= 0 && rotSatisfied;
       const isSel = state.selectedPiece?.sig === info.sig;
       const t = document.createElement('div');
       t.className = 'tile clue combined' + (isSpent ? ' spent' : '') + (isSel ? ' sel' : '');
@@ -2944,12 +2952,10 @@ function bootSamplerPicross() {
       badge.className = 'badge';
       badge.textContent = String(Math.max(remaining, 0));
       t.appendChild(badge);
-      if (info.rotated > 0 && info.shape !== 'square') {
-        const neededRot = info.rotated - placed.rotGiven;
-        const remRot = neededRot - placed.rotPlayer;
+      if (hasRotReq) {
         const pill = document.createElement('span');
         pill.className = 'rot-pill';
-        pill.innerHTML = `<span>⟲</span>${Math.max(remRot, 0)}`;
+        pill.innerHTML = `<svg viewBox="0 0 20 20" width="9" height="9" style="vertical-align:middle;flex-shrink:0"><use href="#g-rotate"/></svg>${Math.max(remRot, 0)}`;
         t.appendChild(pill);
       }
       if (!isSpent) {
@@ -3224,7 +3230,11 @@ function bootSamplerPicross() {
           cell.appendChild(pieceSvg(piece, i));
           if (piece.shape !== 'square' && piece.rot !== 0) {
             const b = document.createElement('span');
-            b.className = 'rot-badge'; b.textContent = '⟲';
+            b.className = 'rot-badge';
+            const rotSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            rotSvg.setAttribute('viewBox', '0 0 20 20');
+            rotSvg.innerHTML = '<use href="#g-rotate"/>';
+            b.appendChild(rotSvg);
             cell.appendChild(b);
           }
         }

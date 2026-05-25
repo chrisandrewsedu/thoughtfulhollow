@@ -194,11 +194,11 @@
     border: 1.2px solid var(--ink-soft);
     width: 16px; height: 16px;
     border-radius: 4px;
-    font-size: 10px;
     color: var(--ink);
     display: flex; align-items: center; justify-content: center;
     pointer-events: none;
   }
+  .rot-badge svg { width: 11px; height: 11px; }
 
   .help {
     color: var(--ink-soft);
@@ -292,8 +292,8 @@
       <line x1="18" y1="2" x2="2" y2="18" stroke="currentColor" stroke-width="1.6"/>
     </symbol>
     <symbol id="g-rotate" viewBox="0 0 20 20">
-      <path d="M 4 10 A 6 6 0 1 1 10 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-      <polyline points="10,12 10,16 6,16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M2.5 10a7.5 7.5 0 1 0 7.5-7.5 8.125 8.125 0 0 0-5.62 2.28L2.5 6.67" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M2.5 2.5v4.17h4.17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
   </defs>
 </svg>
@@ -1524,7 +1524,11 @@ function bootAuthor() {
         cell.appendChild(pieceSvg(piece, i));
         if (piece.shape !== 'square' && piece.rot !== 0) {
           const b = document.createElement('span');
-          b.className = 'rot-badge'; b.textContent = '⟲';
+          b.className = 'rot-badge';
+          const rotSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          rotSvg.setAttribute('viewBox', '0 0 20 20');
+          rotSvg.innerHTML = '<use href="#g-rotate"/>';
+          b.appendChild(rotSvg);
           cell.appendChild(b);
         }
       }
