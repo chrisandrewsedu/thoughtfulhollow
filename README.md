@@ -23,6 +23,22 @@ Glossari is a daily dictionary puzzle. Each puzzle contains four dictionary entr
 
 **Puzzle data:** `glossari.json` — a top-level object with two collections. `themes[]` is the daily rotation; each theme has up to three `tiers` (`easy`, `medium`, `hard`). `practice` is an object keyed by tier, each value a small array of sandbox puzzles never drawn from the daily catalog. Each puzzle in either collection has 4 entries with `parts` always of length 3, plus `pos`, `definition`, `etymology`, `example`, `synonyms`, `antonyms`.
 
+## Sampler
+
+Sampler is a family of daily puzzles sharing a typographic voice and a green/gold color palette.
+
+### Sampler (quilt block puzzle)
+
+Each day presents a real quilt block pattern (Nine-Patch, Bear Paw, etc.). Pick a fabric swatch, paint the slots, and satisfy every placement rule in the panel. Violations glow red. Each puzzle has multiple valid solutions — no submit button, it locks automatically when a solution is reached. Players can replay to find additional solutions.
+
+**Puzzle data:** puzzle templates are defined in `sampler-picross.templates.json`. The daily schedule and player state (streaks, history) are stored in `localStorage`.
+
+### Sampler Picross
+
+A daily nonogram puzzle. Clue numbers along rows and columns define which cells to fill. Features a built-in author tool for creating and scheduling new puzzles, and an archive of past puzzles.
+
+**Puzzle data:** `sampler-picross.templates.json` — puzzle grids and metadata. Daily assignment is managed by the library server.
+
 ## Local development
 
 Plain static site, no build step.
@@ -38,7 +54,10 @@ Or from the glossari worktree directory directly — the game fetches `glossari.
 
 - `/` — landing
 - `/glossari` — Glossari daily puzzle (`glossari.html` + `glossari.json`)
-- `/sampler` — coming soon
+- `/sampler` — Sampler quilt block puzzle (`sampler.html`)
+- `/sampler-picross` — Sampler Picross daily nonogram (`sampler-picross.html`)
+- `/sampler-picross-archive` — Picross puzzle archive
+- `/sampler-picross-author` — Picross authoring tool (local use)
 
 ## Deployment
 
