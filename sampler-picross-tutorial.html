@@ -501,7 +501,10 @@
       date: todayET,
       notes: '',
       target: TUTORIAL_TARGET,
-      given: { "1": { shape: 'square', rot: 0, regions: { W: 'MARIGOLD' } } },
+      given: {
+        "1": { shape: 'square', rot: 0, regions: { W: 'MARIGOLD' } },
+        "4": { shape: 'square', rot: 0, regions: { W: 'MADDER'   } },
+      },
       createdAt: new Date().toISOString(),
     }],
   };
@@ -2391,13 +2394,8 @@ bootSamplerPicross();
     const bannerP  = document.getElementById('tutorialText');
     const nextBtn  = document.getElementById('tutorialNext');
 
-    // Identify free cells in Row 0 (given cells are excluded).
-    // With cell [0,1]=MARIGOLD as a given: row0 free = [0, 2], both MADDER.
-    const target = SP.state.puzzle.target;
-    const row0 = [0, 1, 2].filter(i => !SP.state.board[i]?._given);
-    const madderCells = row0.filter(i => E.regionColor(target[i].regions.W) === 'MADDER');
-
-    const MADDER_SIG = 'square|MADDER';
+    const MADDER_SIG   = 'square|MADDER';
+    const MARIGOLD_SIG = 'square|MARIGOLD';
 
     function getCellColor(i) {
       const p = SP.state.board[i];
@@ -2405,37 +2403,82 @@ bootSamplerPicross();
       return E.regionColor(p.regions?.W);
     }
 
-    // First chip tile in a row-clue band (0-indexed by row).
-    function rowChip(rowIdx) {
+    // Find a chip tile by sig in a row-clue or col-clue band.
+    function rowChip(rowIdx, sig) {
       const band = document.querySelectorAll('.row-clue')[rowIdx];
-      return band?.querySelector('.tile.clue') || null;
+      if (!band) return null;
+      return sig
+        ? band.querySelector(`.tile.clue[data-sig="${sig}"]`)
+        : band.querySelector('.tile.clue');
+    }
+    function colChip(colIdx, sig) {
+      const band = document.querySelectorAll('.col-clue')[colIdx];
+      if (!band) return null;
+      return sig
+        ? band.querySelector(`.tile.clue[data-sig="${sig}"]`)
+        : band.querySelector('.tile.clue');
     }
 
     const STEPS = [
+      // 0 — intro
       {
-        // Intro: explain what chips mean and point at the given cell.
-        text: 'Clue chips show exactly what\'s left to place. The yellow square is already filled in — it doesn\'t count toward the chips.',
-        targetFn: null,
-        check: null,
-        hasButton: true,
+        text: "Two squares are already placed — yellow at the center of row 1, red at the center of the board. These 'givens' don't count toward the chips. The chips only show what you still need to place.",
+        targetFn: null, check: null, hasButton: true,
       },
+      // 1 — row 0: explain the forced deduction, select chip
       {
-        // Logic moment: the deduction before any action.
-        text: 'This chip says row 1 still needs 2 red squares. Count the empty cells in that row — there are exactly 2. Both must be red. Tap the chip to pick it up.',
-        targetFn: () => rowChip(0),
+        text: "Row 1's chip shows 2 red squares still needed. Count the empty cells in that row — exactly 2. Since both empties must be filled with red, they're forced. Tap the chip to pick it up.",
+        targetFn: () => rowChip(0, MADDER_SIG),
         check: () => SP.state.selectedPiece?.sig === MADDER_SIG,
         hasButton: false,
       },
+      // 2 — place [0,0]
       {
         text: 'Tap here to place a red square.',
-        targetFn: () => document.querySelector(`.cell[data-cell="${madderCells[0]}"]`),
-        check: () => getCellColor(madderCells[0]) === 'MADDER',
+        targetFn: () => document.querySelector('.cell[data-cell="0"]'),
+        check: () => getCellColor(0) === 'MADDER',
         hasButton: false,
       },
+      // 3 — place [0,2]
       {
         text: 'One more — tap here to finish row 1.',
-        targetFn: () => document.querySelector(`.cell[data-cell="${madderCells[1]}"]`),
-        check: () => getCellColor(madderCells[1]) === 'MADDER',
+        targetFn: () => document.querySelector('.cell[data-cell="2"]'),
+        check: () => getCellColor(2) === 'MADDER',
+        hasButton: false,
+      },
+      // 4 — col 1: explain "last cell left" deduction, select chip
+      {
+        text: "Now look at the middle column. Yellow and red are already placed there. The chip shows 1 yellow still needed — and there's only 1 empty cell left in the column. It must be yellow. Tap the chip.",
+        targetFn: () => colChip(1, MARIGOLD_SIG),
+        check: () => SP.state.selectedPiece?.sig === MARIGOLD_SIG,
+        hasButton: false,
+      },
+      // 5 — place [2,1]
+      {
+        text: "The only empty cell in the column — it must be yellow.",
+        targetFn: () => document.querySelector('.cell[data-cell="7"]'),
+        check: () => getCellColor(7) === 'MARIGOLD',
+        hasButton: false,
+      },
+      // 6 — row 2: same forced logic as row 0, select chip
+      {
+        text: "Same pattern as row 1 — row 3 has a yellow placed, the chip shows 2 reds needed, and there are exactly 2 empty cells. Both must be red. Tap the chip.",
+        targetFn: () => rowChip(2, MADDER_SIG),
+        check: () => SP.state.selectedPiece?.sig === MADDER_SIG,
+        hasButton: false,
+      },
+      // 7 — place [2,0]
+      {
+        text: 'Tap here to place a red square.',
+        targetFn: () => document.querySelector('.cell[data-cell="6"]'),
+        check: () => getCellColor(6) === 'MADDER',
+        hasButton: false,
+      },
+      // 8 — place [2,2]
+      {
+        text: 'One more — tap here to finish row 3.',
+        targetFn: () => document.querySelector('.cell[data-cell="8"]'),
+        check: () => getCellColor(8) === 'MADDER',
         hasButton: false,
       },
     ];
@@ -2465,7 +2508,7 @@ bootSamplerPicross();
       if (step >= STEPS.length) {
         // Free play mode
         banner.className = 'tutorial-banner free-play';
-        bannerP.textContent = "You've got it — finish the rest!";
+        bannerP.textContent = "You've got it! The last two cells follow the same column logic — finish up.";
         nextBtn.style.display = 'none';
         return;
       }
