@@ -2393,39 +2393,80 @@ bootSamplerPicross();
     const banner   = document.getElementById('tutorialBanner');
     const bannerP  = document.getElementById('tutorialText');
     const nextBtn  = document.getElementById('tutorialNext');
+    const statusBand = document.getElementById('statusBand');
 
+    // ── Sigs ─────────────────────────────────────────────────────
     const MADDER_SIG   = 'square|MADDER';
     const MARIGOLD_SIG = 'square|MARIGOLD';
+    const TRI_SIG      = 'triangle|MADDER,MARIGOLD';
 
+    // ── Puzzle 2 definition ───────────────────────────────────────
+    const TUTORIAL2_TARGET = [
+      { shape: 'triangle', rot: 0, regions: { A: 'MADDER',   B: 'MARIGOLD' } }, // [0,0]
+      { shape: 'square',   rot: 0, regions: { W: 'MARIGOLD' } },                // [0,1]
+      { shape: 'triangle', rot: 0, regions: { A: 'MADDER',   B: 'MARIGOLD' } }, // [0,2]
+      { shape: 'square',   rot: 0, regions: { W: 'MADDER'   } },                // [1,0] given
+      { shape: 'square',   rot: 0, regions: { W: 'MADDER'   } },                // [1,1] given
+      { shape: 'square',   rot: 0, regions: { W: 'MADDER'   } },                // [1,2] given
+      { shape: 'triangle', rot: 0, regions: { A: 'MARIGOLD', B: 'MADDER'   } }, // [2,0]
+      { shape: 'square',   rot: 0, regions: { W: 'MARIGOLD' } },                // [2,1]
+      { shape: 'triangle', rot: 0, regions: { A: 'MARIGOLD', B: 'MADDER'   } }, // [2,2]
+    ];
+    const TUTORIAL2_GIVEN = {
+      "3": { shape: 'square', rot: 0, regions: { W: 'MADDER' } },
+      "4": { shape: 'square', rot: 0, regions: { W: 'MADDER' } },
+      "5": { shape: 'square', rot: 0, regions: { W: 'MADDER' } },
+    };
+
+    // ── Region helpers ────────────────────────────────────────────
     function getCellColor(i) {
       const p = SP.state.board[i];
-      if (!p) return null;
-      return E.regionColor(p.regions?.W);
+      return p ? E.regionColor(p.regions?.W) : null;
+    }
+    function getCellA(i) {
+      const p = SP.state.board[i];
+      return p ? E.regionColor(p.regions?.A) : null;
+    }
+    function getCellW(i) {
+      const p = SP.state.board[i];
+      return p ? E.regionColor(p.regions?.W) : null;
     }
 
-    // Find a chip tile by sig in a row-clue or col-clue band.
+    // ── Chip selectors ────────────────────────────────────────────
     function rowChip(rowIdx, sig) {
-      const band = document.querySelectorAll('.row-clue')[rowIdx];
-      if (!band) return null;
-      return sig
-        ? band.querySelector(`.tile.clue[data-sig="${sig}"]`)
-        : band.querySelector('.tile.clue');
+      const b = document.querySelectorAll('.row-clue')[rowIdx];
+      return b ? b.querySelector(`.tile.clue[data-sig="${sig}"]`) : null;
     }
     function colChip(colIdx, sig) {
-      const band = document.querySelectorAll('.col-clue')[colIdx];
-      if (!band) return null;
-      return sig
-        ? band.querySelector(`.tile.clue[data-sig="${sig}"]`)
-        : band.querySelector('.tile.clue');
+      const b = document.querySelectorAll('.col-clue')[colIdx];
+      return b ? b.querySelector(`.tile.clue[data-sig="${sig}"]`) : null;
     }
 
-    const STEPS = [
+    // ── Load puzzle 2 ─────────────────────────────────────────────
+    function loadPuzzle2() {
+      const G = window.PicrossGenerator;
+      SP.state.puzzle = G.generate(TUTORIAL2_TARGET);
+      // Replace generator givens entirely — the tutorial guides every cell,
+      // so uniqueness isn't needed and we don't want surprise extra givens.
+      SP.state.puzzle.givens = JSON.parse(JSON.stringify(TUTORIAL2_GIVEN));
+      SP.state.solvedRevealed = false;
+      SP.state.solvedAt       = null;
+      SP.state.solvedHistory  = false;
+      SP.state.selectedPiece  = null;
+      SP.state.selectedShape  = null;
+      SP.state.selectedFabric = null;
+      SP.resetBoardToPuzzle();
+      SP.render();
+    }
+
+    // ── Step definitions ──────────────────────────────────────────
+    const STEPS1 = [
       // 0 — intro
       {
         text: "Two squares are already placed — yellow at the center of row 1, red at the center of the board. These 'givens' don't count toward the chips. The chips only show what you still need to place.",
         targetFn: null, check: null, hasButton: true,
       },
-      // 1 — row 0: explain the forced deduction, select chip
+      // 1 — row 0: forced deduction, select chip
       {
         text: "Row 1's chip shows 2 red squares still needed. Count the empty cells in that row — exactly 2. Since both empties must be filled with red, they're forced. Tap the chip to pick it up.",
         targetFn: () => rowChip(0, MADDER_SIG),
@@ -2446,7 +2487,7 @@ bootSamplerPicross();
         check: () => getCellColor(2) === 'MADDER',
         hasButton: false,
       },
-      // 4 — col 1: explain "last cell left" deduction, select chip
+      // 4 — col 1: last-cell deduction, select chip
       {
         text: "Now look at the middle column. Yellow and red are already placed there. The chip shows 1 yellow still needed — and there's only 1 empty cell left in the column. It must be yellow. Tap the chip.",
         targetFn: () => colChip(1, MARIGOLD_SIG),
@@ -2460,7 +2501,7 @@ bootSamplerPicross();
         check: () => getCellColor(7) === 'MARIGOLD',
         hasButton: false,
       },
-      // 6 — row 2: same forced logic as row 0, select chip
+      // 6 — row 2: same forced logic, select chip
       {
         text: "Same pattern as row 1 — row 3 has a yellow placed, the chip shows 2 reds needed, and there are exactly 2 empty cells. Both must be red. Tap the chip.",
         targetFn: () => rowChip(2, MADDER_SIG),
@@ -2483,21 +2524,101 @@ bootSamplerPicross();
       },
     ];
 
-    let step = 0;
-    let advanceTimer = null;
+    const STEPS2 = [
+      // 0 — intro
+      {
+        text: "Now meet the triangle. It has two colored regions: the large triangle (A) and the small corner (B). You'll use the same forcing logic to place them — let's step through it.",
+        targetFn: null, check: null, hasButton: true,
+      },
+      // 1 — col 1: 2 empties = 2 yellows, select chip
+      {
+        text: "The middle column already has a red square given. The chip shows 2 yellow squares still needed — and there are exactly 2 empty cells. Both must be yellow. Tap the chip.",
+        targetFn: () => colChip(1, MARIGOLD_SIG),
+        check: () => SP.state.selectedPiece?.sig === MARIGOLD_SIG,
+        hasButton: false,
+      },
+      // 2 — place [0,1]
+      {
+        text: 'Tap here to place a yellow square.',
+        targetFn: () => document.querySelector('.cell[data-cell="1"]'),
+        check: () => getCellW(1) === 'MARIGOLD',
+        hasButton: false,
+      },
+      // 3 — place [2,1]
+      {
+        text: 'Tap here — that finishes the middle column.',
+        targetFn: () => document.querySelector('.cell[data-cell="7"]'),
+        check: () => getCellW(7) === 'MARIGOLD',
+        hasButton: false,
+      },
+      // 4 — row 0: 2 empties = 2 triangles, select chip
+      {
+        text: "Row 1 has 2 empty cells and 2 triangle chips — both must be triangles. The chip shows the large region (A) in red. Tap the chip.",
+        targetFn: () => rowChip(0, TRI_SIG),
+        check: () => SP.state.selectedPiece?.sig === TRI_SIG && SP.state.selectedPiece?.regions?.A === 'MADDER',
+        hasButton: false,
+      },
+      // 5 — place [0,0]
+      {
+        text: 'Tap here to place it. Red fills the large region (A), yellow fills the corner (B).',
+        targetFn: () => document.querySelector('.cell[data-cell="0"]'),
+        check: () => getCellA(0) === 'MADDER',
+        hasButton: false,
+      },
+      // 6 — place [0,2]
+      {
+        text: 'One more to finish row 1.',
+        targetFn: () => document.querySelector('.cell[data-cell="2"]'),
+        check: () => getCellA(2) === 'MADDER',
+        hasButton: false,
+      },
+      // 7 — row 2: same piece, colors swapped, select chip
+      // onEnter clears selectedPiece so the chip renders with isSel=false.
+      // Without this, both row-0 and row-2 chips share TRI_SIG, so after
+      // placing row-0 the held piece makes the row-2 chip think it's already
+      // selected, causing a click to deselect instead of select.
+      {
+        text: "Row 3's chip also shows 2 triangles — but the colors are swapped: yellow is now the large region (A), red is the corner. Same piece sig, different coloring. Tap the chip.",
+        targetFn: () => rowChip(2, TRI_SIG),
+        check: () => SP.state.selectedPiece?.sig === TRI_SIG && SP.state.selectedPiece?.regions?.A === 'MARIGOLD',
+        hasButton: false,
+        onEnter: () => { SP.state.selectedPiece = null; SP.render(); },
+      },
+      // 8 — place [2,0]
+      {
+        text: 'Tap here to place it.',
+        targetFn: () => document.querySelector('.cell[data-cell="6"]'),
+        check: () => getCellA(6) === 'MARIGOLD',
+        hasButton: false,
+      },
+      // 9 — place [2,2]
+      {
+        text: 'Last one — finish row 3.',
+        targetFn: () => document.querySelector('.cell[data-cell="8"]'),
+        check: () => getCellA(8) === 'MARIGOLD',
+        hasButton: false,
+      },
+    ];
 
+    // ── State ─────────────────────────────────────────────────────
+    let phase          = 1;
+    let step           = 0;
+    let advanceTimer   = null;
+    let transitionReady = false;
+
+    function currentSteps() { return phase === 1 ? STEPS1 : STEPS2; }
+
+    // ── Core helpers ──────────────────────────────────────────────
     function scheduleAdvance() {
       if (advanceTimer !== null) return;
-      advanceTimer = setTimeout(() => {
-        advanceTimer = null;
-        advance();
-      }, 180);
+      advanceTimer = setTimeout(() => { advanceTimer = null; advance(); }, 180);
     }
 
     function applyHighlight() {
       document.querySelectorAll('.tutorial-target').forEach(el => el.classList.remove('tutorial-target'));
-      if (step < 0 || step >= STEPS.length) return;
-      const s = STEPS[step];
+      const steps = currentSteps();
+      if (step < 0 || step >= steps.length) return;
+      const s = steps[step];
       if (s.targetFn) {
         const el = s.targetFn();
         if (el) el.classList.add('tutorial-target');
@@ -2505,74 +2626,105 @@ bootSamplerPicross();
     }
 
     function updateBanner() {
-      if (step >= STEPS.length) {
-        // Free play mode
+      const steps = currentSteps();
+      nextBtn.textContent = 'Got it →';
+      if (step >= steps.length) {
         banner.className = 'tutorial-banner free-play';
-        bannerP.textContent = "You've got it! The last two cells follow the same column logic — finish up.";
+        bannerP.textContent = phase === 1
+          ? "You've got it! The last two cells follow the same column logic — finish up."
+          : 'Tap Check to see your result!';
         nextBtn.style.display = 'none';
         return;
       }
       banner.className = 'tutorial-banner';
-      bannerP.textContent = STEPS[step].text;
-      nextBtn.style.display = STEPS[step].hasButton ? '' : 'none';
+      bannerP.textContent = steps[step].text;
+      nextBtn.style.display = steps[step].hasButton ? '' : 'none';
+    }
+
+    function showTransition() {
+      transitionReady = true;
+      banner.className = 'tutorial-banner';
+      bannerP.textContent = "Well done! Ready to meet the triangle?";
+      nextBtn.textContent = 'Next puzzle →';
+      nextBtn.style.display = '';
+    }
+
+    function startPhase2() {
+      transitionReady = false;
+      loadPuzzle2();
+      phase = 2;
+      step  = 0;
+      updateBanner();
+      setTimeout(applyHighlight, 80);
     }
 
     function advance() {
       document.querySelectorAll('.tutorial-target').forEach(el => el.classList.remove('tutorial-target'));
       step++;
       updateBanner();
-      // Re-apply highlight after a short delay so DOM has settled post-render.
-      setTimeout(applyHighlight, 60);
+      setTimeout(() => {
+        const steps = currentSteps();
+        if (step < steps.length && typeof steps[step].onEnter === 'function') {
+          steps[step].onEnter();
+          setTimeout(applyHighlight, 30);
+        } else {
+          applyHighlight();
+        }
+      }, 60);
     }
 
-    // "Got it →" button advances intro step.
+    // ── Button handler ────────────────────────────────────────────
     nextBtn.addEventListener('click', () => {
-      if (step === 0 && STEPS[step].hasButton) advance();
+      if (transitionReady) {
+        startPhase2();
+      } else {
+        const steps = currentSteps();
+        if (step < steps.length && steps[step].hasButton) advance();
+      }
     });
 
     // Override "Today's puzzle →" button to navigate rather than reset.
     document.getElementById('btnPlayAgain')?.addEventListener('click', (e) => {
       e.stopImmediatePropagation();
       window.location.href = './sampler-picross.html';
-    }, true /* capture — runs before boot's bubbling handler */);
+    }, true);
 
-    // Watch for step completion after each puzzle re-render.
+    // ── Observers ─────────────────────────────────────────────────
     new MutationObserver(() => {
-      // Re-apply highlight (DOM was rebuilt by render()).
-      if (step > 0 && step < STEPS.length) applyHighlight();
+      const steps = currentSteps();
+      const inGuided = step > 0 && step < steps.length;
 
-      // Check if current step's goal is now met.
-      if (step > 0 && step < STEPS.length) {
-        const s = STEPS[step];
-        if (s.check && s.check()) {
-          scheduleAdvance();
-        }
+      if (inGuided) applyHighlight();
+
+      if (inGuided) {
+        const s = steps[step];
+        if (s.check && s.check()) scheduleAdvance();
       }
     }).observe(puzzleEl, { childList: true });
 
-
-    // Suppress the default status-band placeholder during guided steps.
-    // Once we're in free play the band can show game status messages normally.
-    const band = document.getElementById('statusBand');
+    // Detect puzzle 1 solve via #status (setStatus writes here, not #statusBand).
     new MutationObserver(() => {
-      if (step < STEPS.length && band && !band.textContent) {
-        band.classList.remove('solved', 'error');
+      if (phase === 1 && step >= STEPS1.length && SP.state.solvedRevealed && !transitionReady) {
+        showTransition();
       }
-    }).observe(band, { childList: true, characterData: true, subtree: true });
+    }).observe(document.getElementById('status'), { childList: true, characterData: true, subtree: true });
 
-    // Initialize.
+    new MutationObserver(() => {
+      const steps = currentSteps();
+      if (step < steps.length && statusBand && !statusBand.textContent) {
+        statusBand.classList.remove('solved', 'error');
+      }
+    }).observe(statusBand, { childList: true, characterData: true, subtree: true });
+
+    // ── Initialize ────────────────────────────────────────────────
     updateBanner();
-    // Slight delay so the puzzle DOM is fully rendered before we try to highlight.
     setTimeout(applyHighlight, 80);
   }
 
-  // If sampler:ready already fired (synchronous boot), init immediately.
-  // Otherwise wait for the event.
   if (window.__samplerPlayer__?.state?.puzzle) {
     init();
   } else {
     document.addEventListener('sampler:ready', init, { once: true });
-    // Also try after a short delay in case the event already fired.
     setTimeout(() => {
       if (window.__samplerPlayer__?.state?.puzzle) init();
     }, 100);
