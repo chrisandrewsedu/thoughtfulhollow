@@ -1,0 +1,179 @@
+/* sampler-picross.css — shared design system for the four-page Sampler Picross app.
+ * Linked by the player, author, admin, and archive pages.
+ * Page-specific styles still live in each page's own <style> block. */
+
+:root {
+  /* Paper + ink */
+  --paper:        #faf6ec;
+  --paper-deep:   #f0e9d6;
+  --paper-warm:   #fff9eb;
+  --ink:          #2a2520;
+  --ink-soft:     #6a6258;
+  --ink-faint:    #9a9082;
+
+  /* Marks */
+  --accent:       #c01818;
+  --accent-soft:  #e8a8a8;
+  --green:        #3a5a3a;
+  --gold:         #8a6c18;
+
+  /* Stitching + edges */
+  --line:         #c9bd9c;
+  --line-strong:  #b3a585;
+  --cell-empty:        #f3ecd8;
+  --cell-empty-edge:   #cdc1a0;
+  --region-blank:      #e8e3d5;
+  --region-edge:       #b3a585;
+
+  /* Fabric palette (same nine fabrics as the engine) */
+  --fab-linen:    #ece0c8;
+  --fab-flax:     #d6c79b;
+  --fab-sage:     #b3b89a;
+  --fab-madder:   #a8392f;
+  --fab-marigold: #d99838;
+  --fab-claret:   #7d2933;
+  --fab-indigo:   #2b3a5e;
+  --fab-slate:    #5f7b87;
+  --fab-teal:     #2f6d6a;
+
+  /* Type scale (relative to root 16px) */
+  --fs-xs:       0.66rem;
+  --fs-sm:       0.78rem;
+  --fs-md:       0.92rem;
+  --fs-lg:       1.05rem;
+  --fs-xl:       1.32rem;
+  --fs-display:  1.7rem;
+
+  /* Spacing scale (4px ramp) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+
+  /* Radii */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+  --r-pill: 999px;
+
+  /* Elevation */
+  --shadow-paper: 0 1px 2px rgba(48,40,28,0.06), 0 1px 0 rgba(48,40,28,0.03);
+  --shadow-lift:  0 4px 14px rgba(48,40,28,0.12), 0 2px 4px rgba(48,40,28,0.06);
+  --shadow-press: inset 0 1px 2px rgba(48,40,28,0.10);
+
+  /* Motion */
+  --ease-quilt: cubic-bezier(.2,.7,.3,1);
+  --dur-fast:   120ms;
+  --dur-mid:    220ms;
+  --dur-slow:   420ms;
+
+  /* Cell size — pages can override locally */
+  --cell:    72px;
+  --tile-sm: 40px;
+}
+
+/* ── Reset + base ───────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 16px;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Focus ring (shared) ───────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* ── Type utilities ────────────────────────────────────────── */
+.smallcaps {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.h-display {
+  font-family: 'Fascinate', serif;
+  font-weight: 400;
+  font-size: var(--fs-display);
+  line-height: 1;
+}
+
+/* ── Shared button ─────────────────────────────────────────── */
+.btn {
+  font-family: 'Spectral', serif;
+  font-size: var(--fs-md);
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--ink-soft);
+  border-radius: var(--r-md);
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-quilt),
+              transform var(--dur-fast) var(--ease-quilt),
+              box-shadow var(--dur-fast) var(--ease-quilt);
+}
+.btn:hover { background: var(--paper-deep); }
+.btn:active { transform: translateY(1px); box-shadow: var(--shadow-press); }
+.btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.btn.primary:hover { background: #1a1612; }
+.btn.ghost { border-color: var(--line); color: var(--ink-soft); }
+.btn.ghost:hover { color: var(--ink); border-color: var(--ink-soft); }
+.btn.sm { font-size: var(--fs-sm); padding: 0.28rem 0.6rem; }
+.btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Shared card ───────────────────────────────────────────── */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+  box-shadow: var(--shadow-paper);
+}
+.card.deep { background: var(--paper-deep); }
+.card.lift { transition: transform var(--dur-fast) var(--ease-quilt),
+                         box-shadow var(--dur-fast) var(--ease-quilt); }
+.card.lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+
+/* ── Stitched border ───────────────────────────────────────── */
+.stitched {
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--r-md);
+  outline: 1px solid var(--paper);
+  outline-offset: -3px;
+}
+
+/* ── Tags / pills ──────────────────────────────────────────── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 0.16rem 0.6rem;
+}
+.pill.accent { color: var(--accent); border-color: var(--accent-soft); background: #fbeeee; }
+.pill.gold   { color: var(--gold);   border-color: var(--gold);        background: #fff4d6; }
+.pill.green  { color: var(--green);  border-color: #aebfa0;            background: #eef3e8; }
+
+/* ── Link reset ────────────────────────────────────────────── */
+.linklike { color: inherit; text-decoration: none; }
+.linklike:hover { color: var(--ink); }
+
+/* ── Motion gating ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important; }
+}

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Sampler picross</title>
+<title>How to play — Sampler picross</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fascinate&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -29,8 +29,6 @@
 
   .app { max-width: 880px; margin: 0 auto; }
 
-  /* Two-row header: title + date on row 1, controls on row 2.
-     On wide screens, row 2 sits next to row 1 via auto wrap. */
   .header {
     margin-bottom: var(--sp-3);
     display: grid;
@@ -54,95 +52,8 @@
     transition: background var(--dur-fast) var(--ease-quilt), border-color var(--dur-fast) var(--ease-quilt);
   }
   .design-pick:hover { background: var(--paper); border-color: var(--ink-soft); }
-  /* ── LANDING OVERLAY ── */
-  .landing-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--paper);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-    padding: 1.5rem;
-  }
-  .landing-overlay.gone { display: none; }
-  .landing-card {
-    max-width: 340px;
-    width: 100%;
-    text-align: center;
-  }
-  .landing-logo {
-    font-family: 'Fascinate', serif;
-    font-weight: 400;
-    font-size: var(--fs-display);
-    line-height: 1;
-    margin-bottom: var(--sp-5);
-  }
-  .landing-date {
-    font-size: var(--fs-md);
-    color: var(--ink-soft);
-    margin-bottom: var(--sp-2);
-  }
-  .landing-streak {
-    font-size: var(--fs-sm);
-    color: var(--ink-soft);
-    margin-bottom: var(--sp-5);
-    min-height: 1.2em;
-  }
-  .landing-play {
-    width: 100%;
-    padding: 0.7rem 1rem;
-    font-size: var(--fs-md);
-    margin-bottom: var(--sp-4);
-  }
-  .landing-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--sp-3);
-  }
-  .landing-practice { cursor: not-allowed; }
-  .coming-soon-label { color: var(--ink-soft); }
-  .puzzle-date {
-    font-size: var(--fs-sm);
-    color: var(--ink-soft);
-    font-variant-numeric: tabular-nums;
-  }
-  .puzzle-meta {
-    font-size: var(--fs-md);
-    color: var(--ink-soft);
-    margin-bottom: var(--sp-3);
-    min-height: 1.3em;
-    line-height: 1.45;
-  }
-  .puzzle-meta .reveal { color: var(--green); font-weight: 500; }
-  .puzzle-meta .name { color: var(--ink); font-weight: 600; font-style: italic; }
-  .puzzle-meta .streak {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-left: var(--sp-2);
-    font-size: var(--fs-sm);
-    color: var(--ink-soft);
-    padding: 0.06rem 0.5rem;
-    background: var(--paper-deep);
-    border: 1px solid var(--line);
-    border-radius: var(--r-pill);
-  }
-  .puzzle-meta .streak strong { color: var(--ink); font-weight: 600; }
-  .no-puzzle {
-    background: var(--paper-deep);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 2rem 1.4rem;
-    color: var(--ink-soft);
-    font-size: 0.95rem;
-    line-height: 1.5;
-    max-width: 480px;
-  }
-  .no-puzzle strong { color: var(--ink); }
 
-  /* ── TILE (shared with mockup) ── */
+  /* ── TILE (shared) ── */
   .tile {
     width: var(--tile-sm);
     height: var(--tile-sm);
@@ -188,7 +99,6 @@
   .tile.clue { cursor: pointer; }
   .tile.clue:hover { background: var(--paper-deep); }
   .tile.clue.sel { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); }
-  /* Combined chip = the chip IS the piece. SVG fills the tile, no inner outline. */
   .tile.clue.combined { padding: 0; }
   .tile.clue.combined svg { width: 100%; height: 100%; }
   .tile.spent { cursor: default; opacity: 0.42; }
@@ -210,8 +120,8 @@
   }
   .puzzle {
     display: grid;
-    grid-template-columns: auto repeat(4, var(--cell));
-    grid-template-rows:    auto repeat(4, var(--cell));
+    grid-template-columns: auto repeat(3, var(--cell));
+    grid-template-rows:    auto repeat(3, var(--cell));
     gap: 4px;
   }
   .col-clue {
@@ -263,19 +173,15 @@
   }
   .cell.error { box-shadow: inset 0 0 0 2px var(--accent); }
   .cell svg { display: block; width: 100%; height: 100%; }
-  .region {
-    cursor: pointer;
-  }
+  .region { cursor: pointer; }
   .region:hover { opacity: 0.85; }
 
   .rot-badge {
     position: absolute;
-    top: 3px;
-    left: 3px;
+    top: 3px; left: 3px;
     background: var(--paper);
     border: 1.2px solid var(--ink-soft);
-    width: 18px;
-    height: 18px;
+    width: 18px; height: 18px;
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -284,21 +190,8 @@
     pointer-events: none;
   }
   .rot-badge svg { width: 12px; height: 12px; }
-  .given-tag {
-    position: absolute;
-    top: 3px;
-    left: 4px;
-    font-size: 0.55rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    background: var(--paper);
-    padding: 0 3px;
-    border-radius: 2px;
-    pointer-events: none;
-  }
 
-  /* ── STATUS BAND (promoted; full-width under the board) ── */
+  /* ── STATUS BAND ── */
   .status-band {
     margin-top: var(--sp-3);
     padding: var(--sp-2) var(--sp-3);
@@ -317,11 +210,6 @@
                 color var(--dur-fast) var(--ease-quilt),
                 border-color var(--dur-fast) var(--ease-quilt);
   }
-  .status-band:empty::before {
-    content: 'Tap a clue chip, then place the piece on the board.';
-    color: var(--ink-faint);
-    font-style: italic;
-  }
   .status-band.solved {
     color: var(--green);
     font-weight: 600;
@@ -334,6 +222,7 @@
     background: #fbeeee;
     border-color: var(--accent-soft);
   }
+  .status { display: none; }
 
   /* ── CONTROLS ── */
   .actions {
@@ -348,10 +237,7 @@
   .actions .btn.sm { font-size: var(--fs-sm); padding: 0.32rem 0.7rem; }
   .actions .btn[disabled] { opacity: 0.4; cursor: not-allowed; }
 
-  /* legacy .status node kept for back-compat; visually hidden */
-  .status { display: none; }
-
-  /* ── MOTION: cell fill, error pulse, hint reveal, win cascade ── */
+  /* ── ANIMATIONS ── */
   @keyframes sp-fill {
     0%   { transform: scale(0.88); opacity: 0; }
     60%  { transform: scale(1.04); opacity: 1; }
@@ -379,14 +265,13 @@
   }
   .cell.win-stitch svg { transform-origin: center; animation: sp-win-stitch 0.42s var(--ease-quilt) both; }
 
-  /* Keyboard-focused cell (board nav) */
   .cell.kbd-focus {
     box-shadow: inset 0 0 0 2px var(--accent), 0 0 0 2px rgba(192,24,24,0.2);
     z-index: 1;
   }
   .cell.kbd-focus.filled { box-shadow: inset 0 0 0 2px var(--accent), 0 0 0 2px rgba(192,24,24,0.2); }
 
-  /* Keyboard cheatsheet overlay */
+  /* Keyboard overlay */
   .kbd-overlay {
     position: fixed; inset: 0; background: rgba(42,37,32,0.45);
     display: none; align-items: center; justify-content: center; z-index: 100;
@@ -405,65 +290,14 @@
   .kbd-key { font-family: ui-monospace, monospace; font-size: 0.85em; padding: 0.06rem 0.36rem;
     background: var(--paper-deep); border: 1px solid var(--line); border-radius: var(--r-sm); }
 
-  /* ── MOBILE OVERFLOW MENU ── */
-  .mobile-menu-btn {
-    display: none;
-    font-family: 'Spectral', serif;
-    font-size: 0.9rem;
-    color: var(--ink);
-    background: var(--paper-deep);
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    padding: 4px 10px;
-    cursor: pointer;
-    line-height: 1.4;
-  }
-  .mobile-menu-btn:hover { background: var(--paper); }
-
-  .mobile-menu-panel {
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 0.7rem;
-    display: none;
-    flex-direction: column;
-  }
-  .mobile-menu-item {
-    font-family: 'Spectral', serif;
-    font-size: 0.92rem;
-    color: var(--ink);
-    background: none;
-    border: none;
-    border-bottom: 1px solid var(--line);
-    padding: 0.65rem 0.9rem;
-    cursor: pointer;
-    text-align: left;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-  }
-  .mobile-menu-item:last-child { border-bottom: none; }
-  .mobile-menu-item:hover { background: var(--paper-deep); }
-
-  /* ── MOBILE BREAKPOINT (< 720px) ── */
+  /* Mobile */
   @media (max-width: 719px) {
-    body { padding: 0.8rem 0.75rem 7rem; /* room for sticky action bar */ }
+    body { padding: 0.8rem 0.75rem 7rem; }
     h1 { font-size: var(--fs-xl); }
-    .puzzle-date { font-size: var(--fs-sm); }
-
-    /* Reduce chip size; cells stay ≥ 40px via cellPxFor() */
     :root { --tile-sm: 36px; }
-
-    /* Two-row header collapses to single column */
     .header { grid-template-columns: 1fr; }
     .header-controls { justify-content: flex-start; }
     .design-pick { font-size: var(--fs-sm); padding: 6px 10px; min-height: 36px; }
-    /* Hamburger no longer needed — keep panel hidden */
-    .mobile-menu-btn, .mobile-menu-panel { display: none !important; }
-
-    /* Frame: block, horizontally scrollable for large grids */
     .frame {
       display: block;
       padding: 0.65rem 0.75rem 0.9rem;
@@ -471,8 +305,6 @@
       -webkit-overflow-scrolling: touch;
       max-width: 100%;
     }
-
-    /* Actions: sticky bottom bar so Reset/Hint/Check are always reachable */
     .actions {
       position: fixed;
       left: 0; right: 0; bottom: 0;
@@ -489,15 +321,60 @@
     .actions .spacer { display: none; }
     .status-band { font-size: var(--fs-sm); }
   }
+  .tile.clue { min-width: 36px; min-height: 36px; }
 
-  /* Ensure desktop hides any lingering mobile-only elements */
-  @media (min-width: 720px) {
-    .mobile-menu-btn { display: none !important; }
-    .mobile-menu-panel { display: none !important; }
+  /* ── TUTORIAL BANNER ── */
+  .tutorial-banner {
+    margin-bottom: var(--sp-3);
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--paper-warm, #fff9eb);
+    border: 1.5px solid var(--gold);
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    flex-wrap: wrap;
+    transition: opacity var(--dur-mid) var(--ease-quilt), border-color var(--dur-mid) var(--ease-quilt);
+  }
+  .tutorial-banner p {
+    flex: 1 1 200px;
+    font-size: var(--fs-md);
+    color: var(--ink);
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .tutorial-banner.free-play {
+    border-color: var(--green);
+    background: #eef3e8;
+  }
+  .tutorial-banner.free-play p { color: var(--green); font-style: normal; font-weight: 600; }
+  .tutorial-banner.done {
+    border-color: var(--line);
+    background: var(--paper-deep);
+    opacity: 0.7;
   }
 
-  /* Larger tap targets for clue chips (works at any breakpoint) */
-  .tile.clue { min-width: 36px; min-height: 36px; }
+  /* ── TUTORIAL HIGHLIGHT ── */
+  @keyframes tut-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(138,108,24,0.0), inset 0 0 0 2.5px var(--gold); }
+    50%       { box-shadow: 0 0 0 6px rgba(138,108,24,0.25), inset 0 0 0 2.5px var(--gold); }
+  }
+  @keyframes tut-pulse-tile {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(138,108,24,0.0), 0 0 0 2px var(--gold); outline: 2.5px solid var(--gold); }
+    50%       { box-shadow: 0 0 0 6px rgba(138,108,24,0.25), 0 0 0 2px var(--gold); outline: 2.5px solid var(--gold); }
+  }
+  .cell.tutorial-target {
+    animation: tut-pulse 1.1s ease-in-out infinite;
+    z-index: 1;
+  }
+  .tile.tutorial-target {
+    animation: tut-pulse-tile 1.1s ease-in-out infinite;
+    outline: 2.5px solid var(--gold);
+    outline-offset: 1px;
+    border-radius: 6px;
+    z-index: 1;
+    position: relative;
+  }
 </style>
 </head>
 <body>
@@ -532,49 +409,42 @@
   </defs>
 </svg>
 
-<!-- Dynamic fabric pattern defs — populated lazily by ensurePattern(). -->
 <svg id="fabric-defs" width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs></defs>
 </svg>
 
-<div id="landingOverlay" class="landing-overlay">
-  <div class="landing-card">
-    <h1 class="landing-logo">Sampler</h1>
-    <p class="landing-date" id="landingDate"></p>
-    <p class="landing-streak" id="landingStreak"></p>
-    <button id="btnLandingPlay" class="btn primary landing-play">Play</button>
-    <div class="landing-nav">
-      <a href="./sampler-picross-archive.html" class="design-pick landing-archive">Archive</a>
-      <a href="./sampler-picross-tutorial.html" class="design-pick">How to play</a>
-      <button class="btn sm landing-practice" disabled>Practice <span class="coming-soon-label">· coming soon</span></button>
-    </div>
-  </div>
-</div>
-
 <div class="app">
   <div class="header">
     <div class="header-title">
-      <h1>Sampler picross</h1>
-      <span id="dateLabel" class="puzzle-date"></span>
+      <h1>How to play</h1>
     </div>
     <div class="header-controls">
-      <a href="./sampler-picross-archive.html" class="design-pick">archive</a>
+      <a href="./sampler-picross.html" class="design-pick">← Today's puzzle</a>
       <button id="btnKbdHelp" class="design-pick" type="button" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)">?</button>
     </div>
   </div>
-  <div id="puzzleMeta" class="puzzle-meta"></div>
+
+  <!-- Tutorial instruction banner -->
+  <div id="tutorialBanner" class="tutorial-banner">
+    <p id="tutorialText">Loading…</p>
+    <button id="tutorialNext" class="btn sm" style="display:none">Got it →</button>
+  </div>
+
+  <!-- Hidden date/meta elements used by the boot's renderHeader() -->
+  <span id="dateLabel" style="display:none"></span>
+  <div id="puzzleMeta" style="display:none"></div>
 
   <div class="frame">
     <div id="puzzle" class="puzzle"></div>
     <div id="statusBand" class="status-band" role="status" aria-live="polite"></div>
     <div class="actions">
-      <button class="btn sm" id="btnUndo" type="button" aria-label="Undo (Cmd/Ctrl-Z)" title="Undo (Cmd/Ctrl-Z)" disabled>↶ Undo</button>
-      <button class="btn sm" id="btnRedo" type="button" aria-label="Redo (Cmd/Ctrl-Shift-Z)" title="Redo (Cmd/Ctrl-Shift-Z)" disabled>↷ Redo</button>
+      <button class="btn sm" id="btnUndo" type="button" aria-label="Undo" title="Undo (Cmd/Ctrl-Z)" disabled>↶ Undo</button>
+      <button class="btn sm" id="btnRedo" type="button" aria-label="Redo" title="Redo (Cmd/Ctrl-Shift-Z)" disabled>↷ Redo</button>
       <span class="spacer"></span>
       <button class="btn" id="btnReset">Reset</button>
       <button class="btn" id="btnHint">Hint</button>
       <button class="btn primary" id="btnCheck">Check</button>
-      <a id="btnPlayAgain" href="#" class="btn" style="display:none;text-decoration:none">Play again</a>
+      <button id="btnPlayAgain" class="btn" style="display:none">Today's puzzle →</button>
       <span id="status" class="status"></span>
     </div>
   </div>
@@ -598,934 +468,47 @@
   </div>
 </div>
 
-<script>window.__PICROSS_LIBRARY__ = {
-  "version": 2,
-  "designs": [
-    {
-      "id": "tetris",
-      "name": "Tetris",
-      "author": "Chris",
-      "difficulty": "mon-tue",
-      "date": "2026-05-25",
-      "notes": "",
-      "target": [
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "INDIGO"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "INDIGO"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "INDIGO"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        }
-      ],
-      "createdAt": "2026-05-25T00:00:00.000Z"
-    },
-    {
-      "id": "bold-x",
-      "name": "Bold X",
-      "author": "Chris",
-      "difficulty": "mon-tue",
-      "date": "2026-05-26",
-      "notes": "",
-      "target": [
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "CLARET",
-            "B": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "MARIGOLD",
-            "B": "CLARET"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "MARIGOLD",
-            "B": "CLARET"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "CLARET",
-            "B": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "MARIGOLD",
-            "B": "CLARET"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "CLARET",
-            "B": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "CLARET",
-            "B": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "MARIGOLD",
-            "B": "CLARET"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        }
-      ],
-      "createdAt": "2026-05-26T00:00:00.000Z"
-    },
-    {
-      "id": "wyld-whirl",
-      "name": "Wyld Whirl",
-      "author": "Wydlwood Creative",
-      "difficulty": "wed-th",
-      "date": "2026-05-27",
-      "notes": "",
-      "target": [
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "SLATE",
-            "B": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "FLAX",
-            "B": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "SLATE",
-            "B": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "FLAX",
-            "B": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "FLAX"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SAGE"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "INDIGO",
-            "B": "SAGE"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "TEAL",
-            "B": "CLARET"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "TEAL"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "INDIGO",
-            "B": "SAGE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "INDIGO"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "CLARET"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "TEAL",
-            "B": "CLARET"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        }
-      ],
-      "createdAt": "2026-05-27T00:00:00.000Z"
-    },
-    {
-      "id": "lake-garden",
-      "name": "Lake Garden",
-      "author": "Emma Jean Jansen",
-      "difficulty": "mon-tue",
-      "date": "2026-06-02",
-      "notes": "",
-      "target": [
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "INDIGO",
-            "B": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SAGE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "TEAL"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "MADDER",
-            "B": "TEAL"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "INDIGO"
-          }
-        },
-        {
-          "shape": "curve",
-          "rot": 1,
-          "regions": {
-            "A": "SAGE",
-            "B": "FLAX"
-          }
-        },
-        {
-          "shape": "curve",
-          "rot": 2,
-          "regions": {
-            "A": "SAGE",
-            "B": "FLAX"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SAGE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SAGE"
-          }
-        },
-        {
-          "shape": "curve",
-          "rot": 0,
-          "regions": {
-            "A": "SAGE",
-            "B": "FLAX"
-          }
-        },
-        {
-          "shape": "curve",
-          "rot": 3,
-          "regions": {
-            "A": "SAGE",
-            "B": "FLAX"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "MARIGOLD",
-            "B": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MARIGOLD"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SAGE"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "MADDER",
-            "B": "SLATE"
-          }
-        }
-      ],
-      "createdAt": "2026-06-02T00:00:00.000Z"
-    },
-    {
-      "id": "sawtooth-stardust",
-      "name": "Spin Cycle",
-      "author": "Moda Block-of-the-Week",
-      "difficulty": "mon-tue",
-      "date": "2026-06-08",
-      "notes": "",
-      "createdAt": "2026-05-24T15:38:07.324Z",
-      "target": [
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "MADDER",
-            "B": "FLAX"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "FLAX",
-            "B": "CLARET"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "MADDER",
-            "B": "FLAX"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "CLARET",
-            "B": "FLAX"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "MADDER",
-            "B": "CLARET"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "MADDER",
-            "B": "CLARET"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "CLARET",
-            "B": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "CLARET",
-            "B": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "FLAX",
-            "B": "CLARET"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "FLAX",
-            "B": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "CLARET",
-            "B": "FLAX"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "FLAX",
-            "B": "MADDER"
-          }
-        }
-      ]
-    },
-    {
-      "id": "windmills",
-      "name": "Windmills",
-      "author": "Moda Block-of-the-Week",
-      "difficulty": "mon-tue",
-      "date": "2026-06-23",
-      "notes": "",
-      "createdAt": "2026-05-24T16:01:28.516Z",
-      "target": [
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "CLARET"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "CLARET"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "MADDER",
-            "B": "CLARET"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "MADDER",
-            "B": "CLARET"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "CLARET",
-            "B": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "CLARET",
-            "B": "MADDER"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "INDIGO",
-            "B": "SLATE"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "INDIGO",
-            "B": "SLATE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "INDIGO"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "INDIGO"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 1,
-          "regions": {
-            "A": "SLATE",
-            "B": "INDIGO"
-          }
-        },
-        {
-          "shape": "triangle",
-          "rot": 0,
-          "regions": {
-            "A": "SLATE",
-            "B": "INDIGO"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        },
-        {
-          "shape": "square",
-          "rot": 0,
-          "regions": {
-            "W": "SLATE"
-          }
-        }
-      ]
-    }
-  ]
-}
-;</script>
+<!-- ── TUTORIAL LIBRARY ─────────────────────────────────────────────
+     Must run before sampler-picross.templates.js reads __PICROSS_LIBRARY__.
+     The date is set to today (ET) so resolveDesign() always finds it.
+-->
+<script>
+(function () {
+  var todayET = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+
+  var TUTORIAL_TARGET = [
+    { shape: 'square', rot: 0, regions: { W: 'MADDER'   } },
+    { shape: 'square', rot: 0, regions: { W: 'MARIGOLD' } },
+    { shape: 'square', rot: 0, regions: { W: 'MADDER'   } },
+    { shape: 'square', rot: 0, regions: { W: 'MARIGOLD' } },
+    { shape: 'square', rot: 0, regions: { W: 'MADDER'   } },
+    { shape: 'square', rot: 0, regions: { W: 'MARIGOLD' } },
+    { shape: 'square', rot: 0, regions: { W: 'MADDER'   } },
+    { shape: 'square', rot: 0, regions: { W: 'MARIGOLD' } },
+    { shape: 'square', rot: 0, regions: { W: 'MADDER'   } },
+  ];
+
+  window.__PICROSS_LIBRARY__ = {
+    version: 2,
+    designs: [{
+      id: 'tutorial',
+      name: 'Nine-Patch',
+      author: '',
+      difficulty: 'mon-tue',
+      date: todayET,
+      notes: '',
+      target: TUTORIAL_TARGET,
+      given: { "1": { shape: 'square', rot: 0, regions: { W: 'MARIGOLD' } } },
+      createdAt: new Date().toISOString(),
+    }],
+  };
+})();
+</script>
+
+<!-- Engine modules (inlined as IIFEs to avoid const-scoping conflicts) -->
 <script>
 (function(){
 'use strict';
@@ -1559,56 +542,29 @@ function colCells(c, size) {
 }
 function partnerOf(i, size) { return size * size - 1 - i; }
 
-// ── Pieces ───────────────────────────────────────────────────────
-// shapes:
-//   square   — single fabric region W.
-//   triangle — half-square triangle, seam is a diagonal. 2 rotations:
-//              rot 0 = '\' seam (A=NE half, B=SW half),
-//              rot 1 = '/' seam (A=SE half, B=NW half).
-//              (Rotating 180° just swaps A/B labels — that's stored as the
-//              same rot with the regions swapped, not a separate rotation.)
-//   curve    — Drunkard's-Path quarter-circle (A=disc, B=field). 4 rotations,
-//              one per corner where the disc sits (rot 0 = disc in NW).
-//   bar      — two equal rectangles (a "rail" unit). 2 rotations:
-//              rot 0 = horizontal cut (A=top, B=bottom),
-//              rot 1 = vertical cut (A=right, B=left after a 90° rotation).
-//   qst      — quarter-square triangle / hourglass: 4 triangles meeting at
-//              centre, opposite pairs share fabric. 1 rotation: A=top+bottom,
-//              B=left+right. (90° rotation just swaps A/B.)
 const SHAPES = ['square', 'triangle', 'curve', 'bar', 'qst'];
 
 function partsOf(shape) {
   return shape === 'square' ? ['W'] : ['A', 'B'];
 }
 
-// Default rotation per shape — a piece in this rotation does not count toward
-// the ⟲ rotation total.
 const DEFAULT_ROT = { square: 0, triangle: 0, curve: 0, bar: 0, qst: 0 };
 const ROT_COUNT   = { square: 1, triangle: 2, curve: 4, bar: 2, qst: 1 };
 
-// curve continuity ports by rotation (rot 0 = disc in the NW corner)
 const CURVE_PORTS = { 0: ['N', 'W'], 1: ['N', 'E'], 2: ['S', 'E'], 3: ['S', 'W'] };
 
-// Triangle region by rotation. rot 0 = '\' seam from NW to SE corner:
-// region A is the NE half, region B is the SW half. rot 1 = '/' seam.
 const TRIANGLE_FACES = {
   0: { N: 'A', E: 'A', S: 'B', W: 'B' },
   1: { N: 'B', E: 'A', S: 'A', W: 'B' },
 };
 
-// Partner-under-180° for half-turn symmetry. Returns the (rot, A↔B-swap) that
-// makes a cell's partner look identical after spinning the board 180°. For
-// triangle/bar a 180° rotation re-uses the same rot with the A/B labels
-// swapped; for curve it lands on (rot+2)%4 with no swap; qst and square are
-// fully symmetric under 180°.
 function partnerSymmetry(shape, rot) {
   if (shape === 'square') return { rot: 0,             swap: false };
   if (shape === 'curve')  return { rot: (rot + 2) % 4, swap: false };
   if (shape === 'qst')    return { rot: 0,             swap: false };
-  return { rot, swap: true }; // triangle, bar
+  return { rot, swap: true };
 }
 
-// ── Fabrics ──────────────────────────────────────────────────────
 const FABRICS = {
   LINEN:    { name: 'Linen',    col: '#ece0c8', hue: 'neutral' },
   FLAX:     { name: 'Flax',     col: '#d6c79b', hue: 'neutral' },
@@ -1621,11 +577,6 @@ const FABRICS = {
   TEAL:     { name: 'Teal',     col: '#2f6d6a', hue: 'cool' },
 };
 
-// ── Patterns ─────────────────────────────────────────────────────
-// A fabric is a (color × pattern) combination. PATTERNS holds the pattern
-// templates — each has a tile size and a render(base, ink) function that
-// returns the inner SVG markup of an SVG <pattern> element. DOM injection
-// lives in the page-level renderer (engine stays DOM-free).
 const PATTERNS = {
   weave: {
     name: 'Plain weave',
@@ -1702,10 +653,6 @@ const PATTERNS = {
 };
 const DEFAULT_PATTERN = 'weave';
 
-// ── Luminance & contrast ink (WCAG-style) ────────────────────────
-// Motif ink and shape-outline ink are computed from the base color's
-// luminance so dark fabrics get a cream ink and light fabrics get a dark
-// ink. Same ink drives both pattern motifs and shape outlines on top.
 const INK_DARK  = '#2b2418';
 const INK_LIGHT = '#ece0c8';
 function hexToRgb(hex) {
@@ -1725,20 +672,11 @@ function inkFor(colorIdOrHex) {
   return relLuminance(hex) > 0.45 ? INK_DARK : INK_LIGHT;
 }
 
-// ── Region value normalization ───────────────────────────────────
-// A cell.regions[part] value can be:
-//   string                → legacy: just a color ID, pattern defaults to weave.
-//   { color, pattern }    → new: explicit color × pattern combination.
-//   null / undefined      → blank region.
-// All engine code that reads region values goes through these helpers so the
-// two forms are interchangeable everywhere.
 function regionColor(value) {
   if (!value) return null;
   return typeof value === 'string' ? value : (value.color || null);
 }
 function regionPattern(value) {
-  // null = "solid color, no pattern" (the default for both legacy strings and
-  // {color}-only objects). Patterns are explicit, opt-in decoration.
   if (!value || typeof value === 'string') return null;
   return value.pattern || null;
 }
@@ -1752,7 +690,6 @@ function patternIdFor(colorId, patternId) {
   return patternId ? `fab-${colorId}-${patternId}` : null;
 }
 
-// ── Target validation ────────────────────────────────────────────
 function validateTarget(target) {
   const errors = [];
   if (!Array.isArray(target)) { errors.push('target must be an array'); return errors; }
@@ -1783,7 +720,6 @@ function validateTarget(target) {
   return errors;
 }
 
-// ── Clue derivation ──────────────────────────────────────────────
 function clueForCells(target, cellIndices) {
   const shape = Object.create(null);
   const rotation = Object.create(null);
@@ -1812,7 +748,6 @@ function deriveClues(target) {
   return { rows, cols, size };
 }
 
-// ── Symmetry detection ───────────────────────────────────────────
 function isHalfTurnSymmetric(target) {
   const size = gridSizeOf(target);
   const N = size * size;
@@ -1825,15 +760,12 @@ function isHalfTurnSymmetric(target) {
     if (b.rot !== sym.rot) return false;
     for (const part of partsOf(a.shape)) {
       const partnerPart = sym.swap ? (part === 'A' ? 'B' : part === 'B' ? 'A' : part) : part;
-      // Compare normalized (color:pattern) keys so visual symmetry holds
-      // for both legacy string regions and new {color,pattern} regions.
       if (regionKey(a.regions[part]) !== regionKey(b.regions[partnerPart])) return false;
     }
   }
   return true;
 }
 
-// ── Density check ────────────────────────────────────────────────
 function maxBandChips(clues) {
   let worst = 0;
   const bands = [...clues.rows, ...clues.cols];
@@ -1845,10 +777,6 @@ function maxBandChips(clues) {
   return worst;
 }
 
-// ── Difficulty suggestion ───────────────────────────────────────
-// Heuristic: bigger grid, more shapes, more fabrics, more rotations push
-// difficulty up; more givens (from the generator) pull it back down. Returns
-// one of 'mon-tue' | 'wed-th' | 'fri-sat' | 'sun'. Author can override.
 const DIFFICULTIES = ['mon-tue', 'wed-th', 'fri-sat', 'sun'];
 
 function suggestedDifficulty(target, generated) {
@@ -1878,7 +806,6 @@ function suggestedDifficulty(target, generated) {
   return 'sun';
 }
 
-// ── Exports ──────────────────────────────────────────────────────
 const PicrossEngine = {
   DIRS, SUPPORTED_SIZES,
   SHAPES, DEFAULT_ROT, ROT_COUNT,
@@ -1899,27 +826,19 @@ const PicrossEngine = {
   suggestedDifficulty, DIFFICULTIES,
 };
 
-if (typeof module !== 'undefined' && module.exports) module.exports = PicrossEngine;
 if (typeof window !== 'undefined') window.PicrossEngine = PicrossEngine;
-
 })();
 </script>
 <script>
 (function(){
 'use strict';
 // Sampler picross solver — constraint propagation over multiset clues.
-// Works on any supported grid size (3,4,5,6,7,8,9); size is taken from clues.size.
 
-const E =
-  typeof require !== 'undefined'
-    ? require('./sampler-picross.engine.js')
-    : (typeof window !== 'undefined' ? window.PicrossEngine : null);
-
+const E = window.PicrossEngine;
 const { SHAPES, DEFAULT_ROT, ROT_COUNT, FABRICS,
         rowOf, colOf, rowCells, colCells, partnerOf, partsOf,
         partnerSymmetry, regionColor } = E;
 
-// Generate every piece option a cell could hold: all (shape, rot) combinations.
 function allPieceOptions() {
   const out = [];
   for (const shape of SHAPES) {
@@ -2191,7 +1110,6 @@ function solve(clues, givens, opts) {
       if (v.shape != null && v.rot != null) pieceGivens[k] = { shape: v.shape, rot: v.rot };
       if (v.regions) {
         for (const [part, f] of Object.entries(v.regions)) {
-          // Pattern is decorative; solver works at the color level only.
           fabricGivens[`${k}:${part}`] = regionColor(f);
         }
       }
@@ -2264,26 +1182,16 @@ function nextHint(clues, partial) {
 }
 
 const PicrossSolver = { enumeratePieces, enumerateFabrics, solve, nextHint };
-if (typeof module !== 'undefined' && module.exports) module.exports = PicrossSolver;
 if (typeof window !== 'undefined') window.PicrossSolver = PicrossSolver;
-
 })();
 </script>
 <script>
 (function(){
 'use strict';
 // Sampler picross generator — turns a target block into a playable puzzle.
-// Works on any supported grid size.
 
-const E =
-  typeof require !== 'undefined'
-    ? require('./sampler-picross.engine.js')
-    : (typeof window !== 'undefined' ? window.PicrossEngine : null);
-const S =
-  typeof require !== 'undefined'
-    ? require('./sampler-picross.solver.js')
-    : (typeof window !== 'undefined' ? window.PicrossSolver : null);
-
+const E = window.PicrossEngine;
+const S = window.PicrossSolver;
 const { partsOf, deriveClues, validateTarget, maxBandChips, isHalfTurnSymmetric, gridSizeOf } = E;
 
 function scoreCandidate(clues, givens, cell, target, opts) {
@@ -2293,10 +1201,6 @@ function scoreCandidate(clues, givens, cell, target, opts) {
   return r.solutions.length;
 }
 
-// Among cells tied for the best score, prefer the one farthest (Chebyshev
-// distance) from existing givens, with a random shuffle as the last tiebreak.
-// This produces a visually spread-out given layout instead of clumping every
-// given in the top-left corner of the board.
 function pickNextGiven(clues, givens, target, opts) {
   const size = clues.size;
   const N = size * size;
@@ -2340,8 +1244,6 @@ function generate(target, opts) {
   if (errs.length) throw new Error('invalid target: ' + errs.join('; '));
   const size = gridSizeOf(target);
   const clues = deriveClues(target);
-  // Default maxGivens scales with grid size so generation has headroom on
-  // larger boards.
   const maxGivens = options.maxGivens != null ? options.maxGivens : Math.max(8, size * 2);
   const sym = options.halfTurnSymmetric != null
     ? !!options.halfTurnSymmetric
@@ -2376,32 +1278,17 @@ function generate(target, opts) {
 }
 
 const PicrossGenerator = { generate, pickNextGiven };
-if (typeof module !== 'undefined' && module.exports) module.exports = PicrossGenerator;
 if (typeof window !== 'undefined') window.PicrossGenerator = PicrossGenerator;
-
 })();
 </script>
 <script>
 (function(){
 'use strict';
-// Sampler picross templates — thin wrapper around the JSON library.
-//
-// The single source of truth is sampler-picross.templates.json. Authoring
-// happens through the local library server, which mutates that file; the
-// inliner script embeds the JSON into the HTML for production builds.
-//
-// In Node we read the JSON from disk. In the browser the inliner replaces
-// this whole block with a literal `__LIBRARY__` constant assigned from the
-// embedded JSON. See scripts/inline-picross.js.
+// Sampler picross templates — thin wrapper around window.__PICROSS_LIBRARY__.
 
-let LIBRARY;
-if (typeof require !== 'undefined') {
-  LIBRARY = require('./sampler-picross.templates.json');
-} else if (typeof window !== 'undefined' && window.__PICROSS_LIBRARY__) {
-  LIBRARY = window.__PICROSS_LIBRARY__;
-} else {
-  LIBRARY = { version: 1, designs: [] };
-}
+const LIBRARY = (typeof window !== 'undefined' && window.__PICROSS_LIBRARY__)
+  ? window.__PICROSS_LIBRARY__
+  : { version: 1, designs: [] };
 
 const TARGETS = LIBRARY.designs.map(d => ({
   id: d.id,
@@ -2412,59 +1299,44 @@ const TARGETS = LIBRARY.designs.map(d => ({
 }));
 
 const PicrossTargets = { TARGETS, LIBRARY };
-
-if (typeof module !== 'undefined' && module.exports) module.exports = PicrossTargets;
 if (typeof window !== 'undefined') window.PicrossTargets = PicrossTargets;
-
 })();
 </script>
 <script>
-(function(){
-// sampler-picross.history.js — minimal undo/redo for the player + author boards.
-// Snapshots are caller-supplied JSON-safe objects; the module is agnostic about
-// shape. Exposes a single factory on window.PicrossHistory.
-
 (function () {
   function create(opts) {
     opts = opts || {};
     const cap = Math.max(2, opts.cap || 50);
     const onChange = typeof opts.onChange === 'function' ? opts.onChange : () => {};
     const stack = [];
-    let cursor = -1; // points at the current state; -1 = empty
+    let cursor = -1;
 
     function clone(s) { return s == null ? null : JSON.parse(JSON.stringify(s)); }
-
     function reset(initial) {
       stack.length = 0;
       cursor = -1;
       if (initial !== undefined) push(initial);
       else onChange(api);
     }
-
     function push(state) {
-      // Drop any redo branch.
       if (cursor < stack.length - 1) stack.length = cursor + 1;
       stack.push(clone(state));
-      // Cap.
       if (stack.length > cap) stack.shift();
       cursor = stack.length - 1;
       onChange(api);
     }
-
     function undo() {
       if (cursor <= 0) return null;
       cursor -= 1;
       onChange(api);
       return clone(stack[cursor]);
     }
-
     function redo() {
       if (cursor >= stack.length - 1) return null;
       cursor += 1;
       onChange(api);
       return clone(stack[cursor]);
     }
-
     function canUndo() { return cursor > 0; }
     function canRedo() { return cursor < stack.length - 1; }
     function current() { return cursor < 0 ? null : clone(stack[cursor]); }
@@ -2473,145 +1345,12 @@ if (typeof window !== 'undefined') window.PicrossTargets = PicrossTargets;
     const api = { reset, push, undo, redo, canUndo, canRedo, current, size };
     return api;
   }
-
   window.PicrossHistory = { create };
 })();
-
-})();
 </script>
-<script>
-(function(){
-// sampler-picross.stats.js — solve tracking + streaks, localStorage only.
-// Exposes window.PicrossStats. All dates are ISO YYYY-MM-DD strings.
+<!-- PicrossStats intentionally omitted: tutorial solves don't count toward streaks -->
 
-(function () {
-  const KEY = 'picross-stats-v1';
-  const SOLVED_KEY = 'picross-solved-ids-v1';
-
-  function read() {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (!raw) return { solves: [], totalMs: 0 };
-      const obj = JSON.parse(raw);
-      if (!obj || !Array.isArray(obj.solves)) return { solves: [], totalMs: 0 };
-      return obj;
-    } catch {
-      return { solves: [], totalMs: 0 };
-    }
-  }
-
-  function write(obj) {
-    try { localStorage.setItem(KEY, JSON.stringify(obj)); } catch {}
-  }
-
-  function readSolvedIds() {
-    try {
-      const raw = localStorage.getItem(SOLVED_KEY);
-      if (!raw) return [];
-      const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr : [];
-    } catch { return []; }
-  }
-
-  function writeSolvedIds(ids) {
-    try { localStorage.setItem(SOLVED_KEY, JSON.stringify(ids)); } catch {}
-  }
-
-  // Date in YYYY-MM-DD → previous day in YYYY-MM-DD.
-  function prevDay(iso) {
-    const dt = new Date(iso + 'T12:00:00');
-    dt.setUTCDate(dt.getUTCDate() - 1);
-    return dt.toISOString().slice(0, 10);
-  }
-
-  function todayET() {
-    const fmt = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/New_York',
-      year: 'numeric', month: '2-digit', day: '2-digit',
-    });
-    return fmt.format(new Date());
-  }
-
-  function recordSolve(opts) {
-    const { date, elapsedMs, designId } = opts || {};
-    if (!date) return getStats();
-    const data = read();
-    const exists = data.solves.find(s => s.date === date);
-    if (!exists) {
-      data.solves.push({ date, elapsedMs: elapsedMs || 0 });
-      data.totalMs = (data.totalMs || 0) + (elapsedMs || 0);
-      write(data);
-    }
-    if (designId) {
-      const ids = readSolvedIds();
-      if (!ids.includes(designId)) {
-        ids.push(designId);
-        writeSolvedIds(ids);
-      }
-    }
-    return getStats();
-  }
-
-  function getStreak(today) {
-    const data = read();
-    if (!data.solves.length) return 0;
-    const set = new Set(data.solves.map(s => s.date));
-    // Start from today (ET). If today not solved, start from yesterday.
-    let cursor = today || todayET();
-    if (!set.has(cursor)) cursor = prevDay(cursor);
-    let streak = 0;
-    while (set.has(cursor)) {
-      streak += 1;
-      cursor = prevDay(cursor);
-    }
-    return streak;
-  }
-
-  function getStats(today) {
-    const data = read();
-    const count = data.solves.length;
-    const avgMs = count > 0 ? Math.round((data.totalMs || 0) / count) : 0;
-    return {
-      streak: getStreak(today),
-      solveCount: count,
-      avgMs,
-      totalMs: data.totalMs || 0,
-    };
-  }
-
-  function getSolvedSet() {
-    return new Set(readSolvedIds());
-  }
-
-  function getSolvedDates() {
-    const data = read();
-    return new Set(data.solves.map(s => s.date));
-  }
-
-  function formatDuration(ms) {
-    if (!ms || ms < 1000) return '—';
-    const total = Math.floor(ms / 1000);
-    const m = Math.floor(total / 60);
-    const s = total % 60;
-    return `${m}:${String(s).padStart(2, '0')}`;
-  }
-
-  function clear() {
-    try {
-      localStorage.removeItem(KEY);
-      localStorage.removeItem(SOLVED_KEY);
-    } catch {}
-  }
-
-  window.PicrossStats = {
-    recordSolve, getStreak, getStats,
-    getSolvedSet, getSolvedDates,
-    formatDuration, clear,
-  };
-})();
-
-})();
-</script>
+<!-- ── GAME BOOT ─────────────────────────────────────────────────── -->
 <script>
 function bootSamplerPicross() {
   'use strict';
@@ -2621,17 +1360,11 @@ function bootSamplerPicross() {
   const G = window.PicrossGenerator;
   const T = window.PicrossTargets;
   if (!E || !S || !G || !T) {
-    // One of the dependency scripts hasn't finished loading yet — try again.
     return setTimeout(bootSamplerPicross, 30);
   }
 
   const partsOf = E.partsOf;
 
-  // ── Fabric pattern injection ─────────────────────────────────
-  // Lazily mints an SVG <pattern> element per (color, pattern) combination
-  // and appends it to #fabric-defs. Returns the pattern's element id for use
-  // as fill="url(#...)". Patterns are cached after first injection so each
-  // (color, pattern) combo is built at most once per page.
   const _patternCache = new Set();
   function ensurePattern(colorId, patternId) {
     if (!colorId || !patternId) return null;
@@ -2653,9 +1386,6 @@ function bootSamplerPicross() {
     _patternCache.add(id);
     return id;
   }
-  // Resolve any region value (string or {color,pattern} or null) into a CSS
-  // `fill` value. Null pattern = solid color (the default). `blank` is the
-  // fallback for an empty region.
   function fabricFill(value, blank) {
     const color = E.regionColor(value);
     if (!color) return blank || 'var(--region-blank)';
@@ -2664,23 +1394,15 @@ function bootSamplerPicross() {
     const id = ensurePattern(color, pattern);
     return id ? `url(#${id})` : E.FABRICS[color].col;
   }
-  // Desktop cell size by grid dimension.
   const DESKTOP_CELL = { 3: 72, 4: 72, 5: 64, 6: 56, 7: 48, 8: 44, 9: 42, 10: 40 };
-  // Compute the cell px for the current viewport. On desktop (≥720px) returns
-  // the standard desktop size. On mobile, fits cells into available screen
-  // width; clamps to 40px minimum so large grids overflow-scroll rather than
-  // becoming unplayably tiny.
   function cellPxFor(size) {
     const desktop = DESKTOP_CELL[size] ?? Math.max(40, Math.floor(400 / size));
     if (window.innerWidth >= 720) return desktop;
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-    // Available = viewport − body padding (0.75rem×2) − frame padding (0.65rem×2)
-    //             − row-clue column (≈44px) − gaps (auto col + size cell cols = size gaps)
     const available = window.innerWidth - 2.8 * rem - 44 - 4 * size;
     return Math.min(desktop, Math.max(40, Math.floor(available / size)));
   }
 
-  // ── App state ────────────────────────────────────────────────
   const state = {
     designId: null,
     puzzle: null,
@@ -2690,10 +1412,6 @@ function bootSamplerPicross() {
     selectedPiece: null,
   };
 
-  // ── Rendering helpers ────────────────────────────────────────
-  // Build the SVG content for a piece in a cell, given (shape, rot, regions).
-  // We draw two region polygons (A/B) for triangles/curves, or a single fill
-  // for squares. Region elements expose data attributes for click handling.
   function pieceSvg(piece, cellIdx) {
     const ns = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(ns, 'svg');
@@ -2721,13 +1439,10 @@ function bootSamplerPicross() {
       r.setAttribute('data-part', 'W');
       svg.appendChild(r);
     } else if (shape === 'triangle') {
-      // rot 0: A=NE (TL-TR-BR), B=SW (TL-BR-BL)
-      // we rotate by drawing rot=0 then applying SVG rotate(rot*90)
       const g = document.createElementNS(ns, 'g');
       g.setAttribute('transform', `rotate(${rot * 90} 32 32)`);
       g.appendChild(mkPoly('0,0 64,0 64,64', 'A'));
       g.appendChild(mkPoly('0,0 64,64 0,64', 'B'));
-      // Seam outline so the piece reads as a triangle even before fabric.
       const seam = document.createElementNS(ns, 'line');
       seam.setAttribute('x1', '0'); seam.setAttribute('y1', '0');
       seam.setAttribute('x2', '64'); seam.setAttribute('y2', '64');
@@ -2738,7 +1453,6 @@ function bootSamplerPicross() {
       g.appendChild(seam);
       svg.appendChild(g);
     } else if (shape === 'bar') {
-      // rot 0: A=top half, B=bottom half (horizontal seam). rot 1 rotates 90°.
       const g = document.createElementNS(ns, 'g');
       g.setAttribute('transform', `rotate(${rot * 90} 32 32)`);
       g.appendChild(mkPoly('0,0 64,0 64,32 0,32', 'A'));
@@ -2753,7 +1467,6 @@ function bootSamplerPicross() {
       g.appendChild(seam);
       svg.appendChild(g);
     } else if (shape === 'qst') {
-      // 4 triangles meeting at centre. A = top+bottom, B = left+right.
       const g = document.createElementNS(ns, 'g');
       g.appendChild(mkPoly('0,0 64,0 32,32', 'A'));
       g.appendChild(mkPoly('0,64 64,64 32,32', 'A'));
@@ -2771,7 +1484,6 @@ function bootSamplerPicross() {
       }
       svg.appendChild(g);
     } else if (shape === 'curve') {
-      // rot 0: A = disc in NW quarter; B = field (rest of cell)
       const g = document.createElementNS(ns, 'g');
       g.setAttribute('transform', `rotate(${rot * 90} 32 32)`);
       const field = document.createElementNS(ns, 'rect');
@@ -2782,14 +1494,12 @@ function bootSamplerPicross() {
       field.setAttribute('data-part', 'B');
       g.appendChild(field);
       const disc = document.createElementNS(ns, 'path');
-      disc.setAttribute('d', 'M 0 0 H 64 A 64 64 0 0 1 0 64 Z'); // disc in NW: arc from NE-corner to SW-corner via interior
       disc.setAttribute('d', 'M 0 0 L 64 0 A 64 64 0 0 0 0 64 Z');
       disc.setAttribute('fill', fabricFill(fab('A')));
       disc.setAttribute('class', 'region');
       disc.setAttribute('data-cell', cellIdx);
       disc.setAttribute('data-part', 'A');
       g.appendChild(disc);
-      // Quarter-arc seam outline so the curve reads even before fabric.
       const seam = document.createElementNS(ns, 'path');
       seam.setAttribute('d', 'M 64 0 A 64 64 0 0 0 0 64');
       seam.setAttribute('fill', 'none');
@@ -2803,14 +1513,8 @@ function bootSamplerPicross() {
     return svg;
   }
 
-  // ── Combined-chip helpers ────────────────────────────────────
-  // Each piece is identified by (shape, sorted region fabrics). Rotation is
-  // tracked separately, surfaced via the ⟲ pill on the chip.
   function pieceSig(cell) {
     if (!cell) return null;
-    // Keyed on shape + sorted color values only — A/B region assignment and
-    // rotation are intentionally excluded so that pieces of the same shape
-    // and color set always land on the same chip regardless of orientation.
     const colors = Object.values(cell.regions || {})
       .filter(f => f != null)
       .map(f => E.regionColor(f) || '')
@@ -2819,7 +1523,6 @@ function bootSamplerPicross() {
     return cell.shape + '|' + colors;
   }
 
-  // Group target cells of a band by piece signature.
   function piecesInBand(kind, idx) {
     const map = new Map();
     for (const i of bandCells(kind, idx)) {
@@ -2836,7 +1539,6 @@ function bootSamplerPicross() {
     return map;
   }
 
-  // Player-board counts for one signature in a band.
   function placedPieceInBand(kind, idx, sig) {
     let given = 0, player = 0, rotGiven = 0, rotPlayer = 0;
     for (const i of bandCells(kind, idx)) {
@@ -2851,9 +1553,6 @@ function bootSamplerPicross() {
     return { given, player, rotGiven, rotPlayer };
   }
 
-  // Combined-chip piece SVG. The chip's own border is the outline — we draw
-  // the fabric fills edge-to-edge inside it and add just the seam line for
-  // triangles/curves so the shape reads.
   function pieceMiniSvg(shape, regions) {
     const ns = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(ns, 'svg');
@@ -2931,14 +1630,13 @@ function bootSamplerPicross() {
     return svg;
   }
 
-  // Build a combined-chip band for the given row/col.
   function combinedBand(bandKind, bandIdx) {
     const frag = document.createDocumentFragment();
     const pieces = piecesInBand(bandKind, bandIdx);
     for (const info of pieces.values()) {
       const placed = placedPieceInBand(bandKind, bandIdx, info.sig);
       const needed = info.count - placed.given;
-      if (needed <= 0) continue; // entirely given-satisfied
+      if (needed <= 0) continue;
       const remaining = needed - placed.player;
       const hasRotReq = info.rotated > 0 && info.shape !== 'square';
       const neededRot = hasRotReq ? info.rotated - placed.rotGiven : 0;
@@ -2948,6 +1646,7 @@ function bootSamplerPicross() {
       const isSel = state.selectedPiece?.sig === info.sig;
       const t = document.createElement('div');
       t.className = 'tile clue combined' + (isSpent ? ' spent' : '') + (isSel ? ' sel' : '');
+      t.dataset.sig = info.sig;
       t.appendChild(pieceMiniSvg(info.shape, info.regions));
       const badge = document.createElement('span');
       badge.className = 'badge';
@@ -2973,14 +1672,11 @@ function bootSamplerPicross() {
     return frag;
   }
 
-  // Build a clue band: array of tile elements based on a clue object.
-  // Cell indices belonging to band (kind='row'|'col', idx=0..3).
   function bandCells(kind, idx) {
     const size = state.puzzle.size;
     return kind === 'row' ? E.rowCells(idx, size) : E.colCells(idx, size);
   }
-  // Rebuild the player board from state.puzzle.givens — keeps the puzzle
-  // (target, clues, givens) intact and clears all player placements.
+
   function resetBoardToPuzzle() {
     const N = state.puzzle.size * state.puzzle.size;
     state.board = new Array(N).fill(null);
@@ -2988,8 +1684,6 @@ function bootSamplerPicross() {
       state.board[+k] = JSON.parse(JSON.stringify(v));
       state.board[+k]._given = true;
     }
-    // Single-shape auto-fill: every non-given cell gets the shape pre-placed
-    // so the player can paint fabric immediately.
     const shapeSet = new Set(state.puzzle.target.map(c => c.shape));
     if (shapeSet.size === 1) {
       const only = [...shapeSet][0];
@@ -3002,22 +1696,8 @@ function bootSamplerPicross() {
     }
   }
 
-  // Force a brand-new generation (different givens) — wired to a future
-  // "new puzzle" button if desired. Reset alone reuses the current puzzle.
-  function regenerate() {
-    const target = state.puzzle?.target;
-    if (!target) return;
-    state.puzzle = G.generate(target);
-    state.puzzle._designId = state.designId;
-    resetBoardToPuzzle();
-    render();
-  }
-
-  // ── Persistence ──────────────────────────────────────────────
   function storageKey() {
-    const id = state.currentDesign?.id;
-    if (!id || id === '__authored__') return null;
-    return 'picross-state-' + id;
+    return null; // tutorial never persists state
   }
 
   function loadState() {
@@ -3048,37 +1728,22 @@ function bootSamplerPicross() {
     } catch {}
   }
 
-  // ── Build a fresh puzzle for the current design ──────────────
-  // Today's date in America/New_York as YYYY-MM-DD. Used for picking the
-  // scheduled puzzle. Computing client-side via Intl avoids any server clock.
   function todayET() {
     const fmt = new Intl.DateTimeFormat('en-CA', {
       timeZone: 'America/New_York',
       year: 'numeric', month: '2-digit', day: '2-digit',
     });
-    return fmt.format(new Date()); // en-CA returns YYYY-MM-DD
+    return fmt.format(new Date());
   }
 
-  // Resolve which design to load for the current page visit. URL `?date=`
-  // or `#YYYY-MM-DD` hash overrides; otherwise we use today's ET date.
-  // Ephemeral `?authored=1` loads from localStorage for play-testing.
-  //
-  // We support hash-based dates (#YYYY-MM-DD) because static servers such as
-  // `npx serve` strip query strings during clean-URL redirects — the hash is
-  // never sent to the server and therefore survives intact.
   function resolveDesign() {
     const params = new URLSearchParams(window.location.search);
-    // Static servers (npx serve) often strip query strings during clean-URL
-    // redirects, so we also honour a fresh authored-stamp from the author
-    // page as evidence that this tab was opened via Play test.
     const stamp = +(localStorage.getItem('picross-authored-stamp') || 0);
     const fresh = stamp && (Date.now() - stamp < 60_000);
     if (params.get('authored') === '1' || fresh) {
       try {
         const target = JSON.parse(localStorage.getItem('picross-authored-target'));
         if (target) {
-          // Consume the stamp so a later visit/refresh doesn't keep showing
-          // the stale draft after the play-test moment.
           localStorage.removeItem('picross-authored-stamp');
           return {
             id: '__authored__',
@@ -3115,6 +1780,7 @@ function bootSamplerPicross() {
     }
     if (!state.puzzle || state.puzzle._designId !== design.id) {
       state.puzzle = G.generate(design.target);
+      if (design.given) Object.assign(state.puzzle.givens, design.given);
       state.puzzle._designId = design.id;
     }
     resetBoardToPuzzle();
@@ -3144,40 +1810,37 @@ function bootSamplerPicross() {
     render();
   }
 
-  // Render the date strip + author byline / name reveal.
   function renderHeader() {
     const dateEl = document.getElementById('dateLabel');
     const metaEl = document.getElementById('puzzleMeta');
     const d = state.currentDesign;
-    if (d?.date) {
-      const dt = new Date(d.date + 'T12:00:00');
-      dateEl.textContent = dt.toLocaleDateString(undefined, {
-        weekday: 'long', month: 'long', day: 'numeric',
-      });
-    } else dateEl.textContent = '';
-    if (!d || !d.target) {
-      metaEl.textContent = '';
-    } else if (state.solvedRevealed && d.name) {
-      metaEl.innerHTML = `<span class="reveal">Solved!</span> Today's quilt block was <span class="name">${d.name}</span>${d.author ? ', designed by ' + d.author : ''}.`;
-    } else {
-      metaEl.textContent = d.author ? `Today's quilt block was designed by ${d.author}.` : '';
+    if (dateEl) {
+      if (d?.date) {
+        const dt = new Date(d.date + 'T12:00:00');
+        dateEl.textContent = dt.toLocaleDateString(undefined, {
+          weekday: 'long', month: 'long', day: 'numeric',
+        });
+      } else dateEl.textContent = '';
+    }
+    if (metaEl) {
+      if (!d || !d.target) {
+        metaEl.textContent = '';
+      } else if (state.solvedRevealed && d.name) {
+        metaEl.innerHTML = `<span class="reveal">Solved!</span> This is the <span class="name">${d.name}</span> quilt block.`;
+      } else {
+        metaEl.textContent = '';
+      }
     }
   }
 
-  // Render everything from state.
   function render() {
     renderHeader();
     const puzzle = document.getElementById('puzzle');
     puzzle.innerHTML = '';
     if (!state.puzzle) {
-      // No puzzle scheduled for the resolved date.
       const wrap = document.createElement('div');
       wrap.className = 'no-puzzle';
-      const d = state.currentDesign;
-      const dt = d?.date ? new Date(d.date + 'T12:00:00').toLocaleDateString(undefined, {
-        weekday: 'long', month: 'long', day: 'numeric',
-      }) : '';
-      wrap.innerHTML = `<strong>No puzzle for ${dt}.</strong><br>Check back tomorrow, or visit the <a href="./sampler-picross-archive.html">archive</a> for past puzzles.`;
+      wrap.innerHTML = '<strong>No puzzle found.</strong>';
       puzzle.appendChild(wrap);
       document.querySelector('.actions').style.display = 'none';
       return;
@@ -3191,17 +1854,12 @@ function bootSamplerPicross() {
     const clues = state.puzzle.clues;
     const size = state.puzzle.size;
     const cellPx = cellPxFor(size);
-    // Push computed cell size into a CSS var so .cell { width/height: var(--cell) }
-    // picks it up without per-element inline styles.
     document.documentElement.style.setProperty('--cell', cellPx + 'px');
-    // Dynamically size the puzzle grid for the current target size.
     puzzle.style.gridTemplateColumns = `auto repeat(${size}, var(--cell))`;
     puzzle.style.gridTemplateRows    = `auto repeat(${size}, var(--cell))`;
 
-    // top-left corner
     puzzle.appendChild(document.createElement('div'));
 
-    // Column headers
     for (let c = 0; c < size; c++) {
       const wrap = document.createElement('div');
       wrap.className = 'col-clue';
@@ -3211,7 +1869,6 @@ function bootSamplerPicross() {
       puzzle.appendChild(wrap);
     }
 
-    // Rows
     for (let r = 0; r < size; r++) {
       const wrap = document.createElement('div');
       wrap.className = 'row-clue';
@@ -3246,9 +1903,6 @@ function bootSamplerPicross() {
     setStatus('');
     saveState();
 
-    // On mobile: after the browser has laid out the grid, check whether the
-    // puzzle overflows the frame (row-clue column is wider than our estimate).
-    // If so, shrink --cell to exactly fit. Uses rAF so the measurement is live.
     if (window.innerWidth < 720 && state.puzzle) {
       requestAnimationFrame(() => {
         const frame = document.querySelector('.frame');
@@ -3257,19 +1911,14 @@ function bootSamplerPicross() {
         const clueEl = puzz.querySelector('.row-clue');
         const clueW  = clueEl ? clueEl.offsetWidth : 80;
         const sz  = state.puzzle.size;
-        // Available width is the puzzle div's own offsetWidth (frame inner minus padding).
         const px  = Math.max(40, Math.floor((puzz.offsetWidth - clueW - 4 * sz) / sz));
         document.documentElement.style.setProperty('--cell', px + 'px');
       });
     }
   }
 
-  // ── Interaction ──────────────────────────────────────────────
   document.getElementById('puzzle').addEventListener('click', (e) => {
     if (state.solvedRevealed) return;
-    // Combined-mode piece placement.
-    //   • Empty cell or different piece → stamp the selected piece at rot 0.
-    //   • Same piece already in cell → cycle its rotation.
     if (state.selectedPiece) {
       const cellEl = e.target.closest('.cell');
       if (!cellEl) return;
@@ -3297,7 +1946,6 @@ function bootSamplerPicross() {
       const i = +regionEl.dataset.cell;
       const part = regionEl.dataset.part;
       if (state.board[i]?._given) return;
-      // If a fabric is selected, assign it to this region.
       if (state.selectedFabric && state.board[i]) {
         state.board[i].regions[part] = state.selectedFabric;
         render();
@@ -3308,7 +1956,6 @@ function bootSamplerPicross() {
     if (!cellEl) return;
     const i = +cellEl.dataset.cell;
     if (state.board[i]?._given) return;
-    // Empty cell: place selected shape with default rotation; no fabrics yet.
     if (!state.board[i]) {
       if (state.selectedShape) {
         const regions = {};
@@ -3318,9 +1965,6 @@ function bootSamplerPicross() {
       }
       return;
     }
-    // Cell already has a shape and a fabric is selected — paint all regions
-    // of this cell. (Squares have one region; the catch-all keeps the click
-    // useful even when the user clicked outside a specific region SVG node.)
     if (state.selectedFabric) {
       for (const part of partsOf(state.board[i].shape)) {
         state.board[i].regions[part] = state.selectedFabric;
@@ -3328,13 +1972,11 @@ function bootSamplerPicross() {
       render();
       return;
     }
-    // Cell already has a shape — cycle rotation (for non-squares) on click.
     const p = state.board[i];
     if (p.shape !== 'square') {
       p.rot = (p.rot + 1) % E.ROT_COUNT[p.shape];
       render();
     } else {
-      // Square click without selection: erase
       if (!state.selectedShape && !state.selectedFabric) {
         state.board[i] = null;
         render();
@@ -3342,7 +1984,6 @@ function bootSamplerPicross() {
     }
   });
 
-  // Right-click to erase a non-given cell
   document.getElementById('puzzle').addEventListener('contextmenu', (e) => {
     if (state.solvedRevealed) return;
     const cellEl = e.target.closest('.cell');
@@ -3354,7 +1995,6 @@ function bootSamplerPicross() {
     render();
   });
 
-  // ── Controls ─────────────────────────────────────────────────
   function setStatus(text, cls) {
     const el = document.getElementById('status');
     el.textContent = text;
@@ -3362,7 +2002,6 @@ function bootSamplerPicross() {
   }
 
   document.getElementById('btnReset').addEventListener('click', () => {
-    // Reset clears player placements but reuses the same puzzle (same givens).
     state.selectedShape = null;
     state.selectedFabric = null;
     state.selectedPiece = null;
@@ -3380,8 +2019,7 @@ function bootSamplerPicross() {
     if (hint.piece) {
       const regions = {};
       for (const part of partsOf(hint.piece.shape)) regions[part] = null;
-      // Don't overwrite givens.
-      if (state.board[i]?._given) { setStatus('Hint suggested a given cell already filled.', 'error'); return; }
+      if (state.board[i]?._given) { setStatus('Hint suggested a given cell.', 'error'); return; }
       state.board[i] = { shape: hint.piece.shape, rot: hint.piece.rot, regions };
       setStatus(`Hint placed at cell ${i}: ${hint.piece.shape}.`);
     } else if (hint.fabric) {
@@ -3392,7 +2030,6 @@ function bootSamplerPicross() {
     render();
   });
   document.getElementById('btnCheck').addEventListener('click', () => {
-    // Full check: compare to the canonical solution.
     const target = state.puzzle.target;
     let allMatch = true, complete = true;
     const errors = new Set();
@@ -3401,13 +2038,11 @@ function bootSamplerPicross() {
       if (!b) { complete = false; continue; }
       if (a.shape !== b.shape || a.rot !== b.rot) { allMatch = false; errors.add(i); continue; }
       for (const part of partsOf(a.shape)) {
-        // Color-only equality — pattern is decorative, not part of the win condition.
         if (E.regionColor(a.regions[part]) !== E.regionColor(b.regions[part])) {
           allMatch = false; errors.add(i); break;
         }
       }
     }
-    // Highlight errors
     document.querySelectorAll('.cell').forEach(el => {
       el.classList.toggle('error', errors.has(+el.dataset.cell));
     });
@@ -3432,21 +2067,18 @@ function bootSamplerPicross() {
     render();
   });
 
-  // Recompute cell sizes on resize (handles orientation changes, browser zoom).
   let _resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(_resizeTimer);
     _resizeTimer = setTimeout(() => { if (state.puzzle) render(); }, 200);
   });
 
-  // Re-resolve today's puzzle if the user crosses midnight ET in an open tab,
-  // or returns to the tab after midnight.
   let lastDateSeen = todayET();
   function checkDateRollover() {
     const now = todayET();
     if (now !== lastDateSeen) {
       lastDateSeen = now;
-      state.puzzle = null; // force re-generate for new design
+      state.puzzle = null;
       loadDesign();
     }
   }
@@ -3457,9 +2089,6 @@ function bootSamplerPicross() {
 
   loadDesign();
 
-  // Expose select internals so the augmentation script (undo/redo, keyboard
-  // nav, motion, stats) can hook into the same closure without forking the
-  // boot. Kept minimal — only what the augmenter actually needs.
   window.__samplerPlayer__ = {
     get state() { return state; },
     render,
@@ -3477,21 +2106,12 @@ function bootSamplerPicross() {
     SHAPES:  typeof E !== 'undefined' ? E.SHAPES  : null,
     todayET,
   };
-  // Notify augmenter that boot is ready (it may have been loaded after us).
   try { document.dispatchEvent(new CustomEvent('sampler:ready')); } catch {}
 }
 bootSamplerPicross();
 </script>
 
-<!-- ── AUGMENTATION ─────────────────────────────────────────────────
-     Layered on top of the bootSamplerPicross() IIFE via the
-     window.__samplerPlayer__ surface. Adds:
-       • Undo / redo with snapshot history
-       • Keyboard navigation (arrows, space, 1-9, q-w-e-r-t, Z, H, Enter, ?)
-       • Cell-fill / hint / error / win animations
-       • Status mirror from legacy #status node into the new #statusBand
-       • Solve recording → PicrossStats (streak chip in puzzleMeta)
--->
+<!-- ── AUGMENTATION (undo/redo, keyboard, animations) ──────────── -->
 <script>
 (function () {
   'use strict';
@@ -3508,7 +2128,6 @@ bootSamplerPicross();
   const kbdHelpBtn = document.getElementById('btnKbdHelp');
   const metaEl = document.getElementById('puzzleMeta');
 
-  // ── Undo/redo ──────────────────────────────────────────────
   const history = window.PicrossHistory.create({
     cap: 50,
     onChange(h) {
@@ -3531,7 +2150,6 @@ bootSamplerPicross();
     SP.render();
   }
 
-  // Debounced board-signature watcher: after any user action, compare and push.
   let lastSig = '';
   function captureIfChanged() {
     const sig = JSON.stringify(snapshot());
@@ -3546,7 +2164,6 @@ bootSamplerPicross();
     history.reset(snap);
   }
 
-  // Capture initial state once boot has rendered the board.
   setTimeout(resetHistoryFromCurrent, 0);
 
   if (undoBtn) undoBtn.addEventListener('click', () => {
@@ -3558,15 +2175,12 @@ bootSamplerPicross();
     if (snap) { restore(snap); lastSig = JSON.stringify(snap); }
   });
 
-  // Capture snapshot after any click/contextmenu on the puzzle (bubbles after
-  // the boot handler runs). Also after Reset / Hint and after solve reveal.
   puzzleEl.addEventListener('click', () => { setTimeout(captureIfChanged, 0); });
   puzzleEl.addEventListener('contextmenu', () => { setTimeout(captureIfChanged, 0); });
   document.getElementById('btnReset')?.addEventListener('click', () => { setTimeout(resetHistoryFromCurrent, 0); });
   document.getElementById('btnHint')?.addEventListener('click', () => { setTimeout(captureIfChanged, 0); });
   document.getElementById('btnPlayAgain')?.addEventListener('click', () => { setTimeout(resetHistoryFromCurrent, 0); });
 
-  // ── Status mirror: legacy #status → new #statusBand ────────
   function mirrorStatus() {
     const text = statusEl ? (statusEl.textContent || '') : '';
     const cls  = statusEl ? statusEl.className.replace(/^status\s?/, '').trim() : '';
@@ -3581,7 +2195,6 @@ bootSamplerPicross();
       .observe(statusEl, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   }
 
-  // ── Keyboard focus on the board ────────────────────────────
   let focusedIdx = null;
   function applyFocusClass() {
     puzzleEl.querySelectorAll('.cell.kbd-focus').forEach(el => el.classList.remove('kbd-focus'));
@@ -3594,30 +2207,20 @@ bootSamplerPicross();
       cell.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     }
   }
-  // Re-apply focus + .just-filled animation after every render.
   let prevBoardSig = '';
   function decorateAfterRender() {
     applyFocusClass();
-    // Detect newly-filled cells vs previous render → add .just-filled briefly.
     const board = SP.state.board || [];
-    const newlyFilled = [];
-    for (let i = 0; i < board.length; i++) {
-      if (board[i]) newlyFilled.push(i);
-    }
     const sig = JSON.stringify(board.map(c => c ? (c.shape + ':' + c.rot + ':' + JSON.stringify(c.regions)) : null));
     if (sig !== prevBoardSig) {
-      // Find which cells changed by comparing string parts
       try {
         const prev = prevBoardSig ? JSON.parse(prevBoardSig) : [];
         for (let i = 0; i < board.length; i++) {
-          if (board[i] && prev[i] !== JSON.stringify({ shape: board[i].shape, rot: board[i].rot, regions: board[i].regions }).slice(1, -1)) {
-            // Lightweight check: if prev[i] differs and board[i] is filled, animate it
-            if (!prev[i] || prev[i] !== ((board[i].shape) + ':' + (board[i].rot) + ':' + JSON.stringify(board[i].regions))) {
-              const cell = puzzleEl.querySelector('.cell[data-cell="' + i + '"]');
-              if (cell && cell.classList.contains('filled')) {
-                cell.classList.add('just-filled');
-                setTimeout(((el) => () => el && el.classList.remove('just-filled'))(cell), 200);
-              }
+          if (board[i] && prev[i] !== ((board[i].shape) + ':' + (board[i].rot) + ':' + JSON.stringify(board[i].regions))) {
+            const cell = puzzleEl.querySelector('.cell[data-cell="' + i + '"]');
+            if (cell && cell.classList.contains('filled')) {
+              cell.classList.add('just-filled');
+              setTimeout(((el) => () => el && el.classList.remove('just-filled'))(cell), 200);
             }
           }
         }
@@ -3627,7 +2230,6 @@ bootSamplerPicross();
   }
   new MutationObserver(decorateAfterRender).observe(puzzleEl, { childList: true, subtree: false });
 
-  // Number of cells in the current puzzle.
   function gridSize() { return SP.state.puzzle ? SP.state.puzzle.size : 0; }
 
   function moveFocus(dr, dc) {
@@ -3645,7 +2247,6 @@ bootSamplerPicross();
     if (focusedIdx == null) return;
     const cell = puzzleEl.querySelector('.cell[data-cell="' + focusedIdx + '"]');
     if (!cell) return;
-    // Simulate a click — re-runs the boot's click handler with full logic.
     cell.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
   }
 
@@ -3656,7 +2257,6 @@ bootSamplerPicross();
     cell.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
   }
 
-  // Fabric / shape selection by key.
   const FABRIC_ORDER = ['LINEN','FLAX','SAGE','MADDER','MARIGOLD','CLARET','INDIGO','SLATE','TEAL'];
   const SHAPE_KEYS = { q: 'square', w: 'triangle', e: 'curve', r: 'bar', t: 'qst' };
 
@@ -3674,68 +2274,54 @@ bootSamplerPicross();
     SP.render();
   }
 
-  // Buttons-by-keyboard.
   function pressBtn(id) { document.getElementById(id)?.click(); }
 
   document.addEventListener('keydown', (e) => {
-    // Skip if user is in an input/select.
     const tag = (e.target && e.target.tagName) || '';
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    // Overlay close
     if (kbdOverlay.classList.contains('open') && e.key === 'Escape') {
       kbdOverlay.classList.remove('open'); e.preventDefault(); return;
     }
     if (e.key === '?' || (e.shiftKey && e.key === '/')) {
       kbdOverlay.classList.toggle('open'); e.preventDefault(); return;
     }
-    // Undo/redo
     if ((e.metaKey || e.ctrlKey) && (e.key === 'z' || e.key === 'Z')) {
       if (e.shiftKey) { redoBtn?.click(); } else { undoBtn?.click(); }
       e.preventDefault(); return;
     }
     if (!e.metaKey && !e.ctrlKey && (e.key === 'z' || e.key === 'Z')) {
-      // Plain Z: undo; Shift-Z: redo
       if (e.shiftKey) redoBtn?.click(); else undoBtn?.click();
       e.preventDefault(); return;
     }
-    // Hint / Check
     if (e.key === 'h' || e.key === 'H') { pressBtn('btnHint'); e.preventDefault(); return; }
     if (e.key === 'Enter') { pressBtn('btnCheck'); e.preventDefault(); return; }
-    // Erase
     if (e.key === 'x' || e.key === 'X' || e.key === 'Delete' || e.key === 'Backspace') {
       eraseFocusedCell(); e.preventDefault(); return;
     }
-    // Movement
     if (e.key === 'ArrowUp')    { moveFocus(-1, 0); e.preventDefault(); return; }
     if (e.key === 'ArrowDown')  { moveFocus( 1, 0); e.preventDefault(); return; }
     if (e.key === 'ArrowLeft')  { moveFocus( 0,-1); e.preventDefault(); return; }
     if (e.key === 'ArrowRight') { moveFocus( 0, 1); e.preventDefault(); return; }
     if (e.key === ' ') { activateFocusedCell(); e.preventDefault(); return; }
-    // Shape / fabric selection
     const lower = e.key.toLowerCase();
     if (SHAPE_KEYS[lower]) { selectShape(SHAPE_KEYS[lower]); e.preventDefault(); return; }
     if (/^[1-9]$/.test(e.key)) { selectFabric(parseInt(e.key, 10) - 1); e.preventDefault(); return; }
   });
 
-  // Click the board → set focus to clicked cell (so keyboard works after mouse).
   puzzleEl.addEventListener('click', (e) => {
     const cell = e.target.closest('.cell');
     if (cell && cell.dataset.cell != null) {
       focusedIdx = +cell.dataset.cell;
-      // Defer until render() finishes so .kbd-focus survives.
       setTimeout(applyFocusClass, 0);
     }
   });
 
-  // Keyboard help overlay close handlers
   kbdCloseBtn?.addEventListener('click', () => kbdOverlay.classList.remove('open'));
   kbdHelpBtn?.addEventListener('click', () => kbdOverlay.classList.toggle('open'));
   kbdOverlay?.addEventListener('click', (e) => {
     if (e.target === kbdOverlay) kbdOverlay.classList.remove('open');
   });
 
-  // ── Hint visual: when status reads 'Hint placed' etc., add ring to the
-  // last-changed cell.
   let lastHintSig = '';
   function maybeAnimateHint() {
     if (!statusEl) return;
@@ -3758,20 +2344,7 @@ bootSamplerPicross();
       .observe(statusEl, { childList: true, characterData: true, subtree: true });
   }
 
-  // ── Win celebration + stats recording ──────────────────────
   let solvedFor = null;
-  let startedAt = null;
-  // Track solve start time per design.
-  function noteDesignStart() {
-    const d = SP.state.currentDesign;
-    const key = d ? (d.id || d.date) : null;
-    if (!key) return;
-    if (startedAt && startedAt.key === key) return;
-    startedAt = { key, ts: Date.now() };
-  }
-  document.addEventListener('sampler:ready', noteDesignStart);
-  setTimeout(noteDesignStart, 50);
-
   function onSolve() {
     const d = SP.state.currentDesign;
     if (!d) return;
@@ -3779,16 +2352,7 @@ bootSamplerPicross();
     if (solvedFor === key) return;
     solvedFor = key;
     runWinCascade();
-    // Record solve unless this is a draft / authored preview.
-    if (key && key !== '__authored__' && window.PicrossStats) {
-      const elapsed = startedAt && startedAt.key === key ? (Date.now() - startedAt.ts) : 0;
-      window.PicrossStats.recordSolve({
-        date: d.date || null,
-        elapsedMs: elapsed,
-        designId: d.id,
-      });
-      appendStreakChip();
-    }
+    // PicrossStats omitted intentionally — tutorial solves don't count.
   }
 
   function runWinCascade() {
@@ -3804,66 +2368,172 @@ bootSamplerPicross();
       })(el), 600 + i * 30);
     });
   }
-
-  function appendStreakChip() {
-    if (!metaEl || !window.PicrossStats) return;
-    const stats = window.PicrossStats.getStats(SP.todayET ? SP.todayET() : undefined);
-    if (!stats.solveCount) return;
-    // Don't double-append on re-render of metaEl.
-    if (metaEl.querySelector('.streak')) return;
-    const span = document.createElement('span');
-    span.className = 'streak';
-    const avg = window.PicrossStats.formatDuration(stats.avgMs);
-    span.innerHTML = `<strong>Streak ${stats.streak}</strong> · ${stats.solveCount} solved · avg ${avg}`;
-    metaEl.appendChild(span);
-  }
-
-  // After every render, re-append streak chip if solved.
-  new MutationObserver(() => {
-    if (solvedFor) appendStreakChip();
-  }).observe(metaEl, { childList: true });
 })();
 </script>
 
+<!-- ── TUTORIAL CONTROLLER ─────────────────────────────────────────
+     Player-driven guided walk through Row 0 (cells 0–2), then free play.
+     Hooks into __samplerPlayer__ via sampler:ready event.
+-->
 <script>
-(function initLanding() {
+(function () {
   'use strict';
-  const overlay  = document.getElementById('landingOverlay');
-  const dateEl   = document.getElementById('landingDate');
-  const streakEl = document.getElementById('landingStreak');
-  const playBtn  = document.getElementById('btnLandingPlay');
-  if (!overlay) return;
 
-  // Today in ET, matching puzzle date logic
-  const todayET = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/New_York',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-  }).format(new Date());
-
-  dateEl.textContent = new Date(todayET + 'T12:00:00').toLocaleDateString(undefined, {
-    weekday: 'long', month: 'long', day: 'numeric',
-  });
-
-  if (window.PicrossStats) {
-    const stats = window.PicrossStats.getStats();
-    if (stats.streak > 0) {
-      streakEl.textContent = stats.streak === 1 ? '1-day streak' : `${stats.streak}-day streak`;
+  function init() {
+    const SP = window.__samplerPlayer__;
+    if (!SP || !SP.state.puzzle) {
+      return setTimeout(init, 30);
     }
-    const solvedDates = window.PicrossStats.getSolvedDates();
-    if (solvedDates.has(todayET)) {
-      playBtn.textContent = 'Review ✓';
+
+    const E = window.PicrossEngine;
+    const puzzleEl = document.getElementById('puzzle');
+    const banner   = document.getElementById('tutorialBanner');
+    const bannerP  = document.getElementById('tutorialText');
+    const nextBtn  = document.getElementById('tutorialNext');
+
+    // Identify free cells in Row 0 (given cells are excluded).
+    // With cell [0,1]=MARIGOLD as a given: row0 free = [0, 2], both MADDER.
+    const target = SP.state.puzzle.target;
+    const row0 = [0, 1, 2].filter(i => !SP.state.board[i]?._given);
+    const madderCells = row0.filter(i => E.regionColor(target[i].regions.W) === 'MADDER');
+
+    const MADDER_SIG = 'square|MADDER';
+
+    function getCellColor(i) {
+      const p = SP.state.board[i];
+      if (!p) return null;
+      return E.regionColor(p.regions?.W);
     }
+
+    // First chip tile in a row-clue band (0-indexed by row).
+    function rowChip(rowIdx) {
+      const band = document.querySelectorAll('.row-clue')[rowIdx];
+      return band?.querySelector('.tile.clue') || null;
+    }
+
+    const STEPS = [
+      {
+        // Intro: explain what chips mean and point at the given cell.
+        text: 'Clue chips show exactly what\'s left to place. The yellow square is already filled in — it doesn\'t count toward the chips.',
+        targetFn: null,
+        check: null,
+        hasButton: true,
+      },
+      {
+        // Logic moment: the deduction before any action.
+        text: 'This chip says row 1 still needs 2 red squares. Count the empty cells in that row — there are exactly 2. Both must be red. Tap the chip to pick it up.',
+        targetFn: () => rowChip(0),
+        check: () => SP.state.selectedPiece?.sig === MADDER_SIG,
+        hasButton: false,
+      },
+      {
+        text: 'Tap here to place a red square.',
+        targetFn: () => document.querySelector(`.cell[data-cell="${madderCells[0]}"]`),
+        check: () => getCellColor(madderCells[0]) === 'MADDER',
+        hasButton: false,
+      },
+      {
+        text: 'One more — tap here to finish row 1.',
+        targetFn: () => document.querySelector(`.cell[data-cell="${madderCells[1]}"]`),
+        check: () => getCellColor(madderCells[1]) === 'MADDER',
+        hasButton: false,
+      },
+    ];
+
+    let step = 0;
+    let advanceTimer = null;
+
+    function scheduleAdvance() {
+      if (advanceTimer !== null) return;
+      advanceTimer = setTimeout(() => {
+        advanceTimer = null;
+        advance();
+      }, 180);
+    }
+
+    function applyHighlight() {
+      document.querySelectorAll('.tutorial-target').forEach(el => el.classList.remove('tutorial-target'));
+      if (step < 0 || step >= STEPS.length) return;
+      const s = STEPS[step];
+      if (s.targetFn) {
+        const el = s.targetFn();
+        if (el) el.classList.add('tutorial-target');
+      }
+    }
+
+    function updateBanner() {
+      if (step >= STEPS.length) {
+        // Free play mode
+        banner.className = 'tutorial-banner free-play';
+        bannerP.textContent = "You've got it — finish the rest!";
+        nextBtn.style.display = 'none';
+        return;
+      }
+      banner.className = 'tutorial-banner';
+      bannerP.textContent = STEPS[step].text;
+      nextBtn.style.display = STEPS[step].hasButton ? '' : 'none';
+    }
+
+    function advance() {
+      document.querySelectorAll('.tutorial-target').forEach(el => el.classList.remove('tutorial-target'));
+      step++;
+      updateBanner();
+      // Re-apply highlight after a short delay so DOM has settled post-render.
+      setTimeout(applyHighlight, 60);
+    }
+
+    // "Got it →" button advances intro step.
+    nextBtn.addEventListener('click', () => {
+      if (step === 0 && STEPS[step].hasButton) advance();
+    });
+
+    // Override "Today's puzzle →" button to navigate rather than reset.
+    document.getElementById('btnPlayAgain')?.addEventListener('click', (e) => {
+      e.stopImmediatePropagation();
+      window.location.href = './sampler-picross.html';
+    }, true /* capture — runs before boot's bubbling handler */);
+
+    // Watch for step completion after each puzzle re-render.
+    new MutationObserver(() => {
+      // Re-apply highlight (DOM was rebuilt by render()).
+      if (step > 0 && step < STEPS.length) applyHighlight();
+
+      // Check if current step's goal is now met.
+      if (step > 0 && step < STEPS.length) {
+        const s = STEPS[step];
+        if (s.check && s.check()) {
+          scheduleAdvance();
+        }
+      }
+    }).observe(puzzleEl, { childList: true });
+
+
+    // Suppress the default status-band placeholder during guided steps.
+    // Once we're in free play the band can show game status messages normally.
+    const band = document.getElementById('statusBand');
+    new MutationObserver(() => {
+      if (step < STEPS.length && band && !band.textContent) {
+        band.classList.remove('solved', 'error');
+      }
+    }).observe(band, { childList: true, characterData: true, subtree: true });
+
+    // Initialize.
+    updateBanner();
+    // Slight delay so the puzzle DOM is fully rendered before we try to highlight.
+    setTimeout(applyHighlight, 80);
   }
 
-  // Skip the overlay when play-testing an authored draft.
-  if (new URLSearchParams(window.location.search).get('authored') === '1') {
-    overlay.classList.add('gone');
-    return;
+  // If sampler:ready already fired (synchronous boot), init immediately.
+  // Otherwise wait for the event.
+  if (window.__samplerPlayer__?.state?.puzzle) {
+    init();
+  } else {
+    document.addEventListener('sampler:ready', init, { once: true });
+    // Also try after a short delay in case the event already fired.
+    setTimeout(() => {
+      if (window.__samplerPlayer__?.state?.puzzle) init();
+    }, 100);
   }
-
-  playBtn.addEventListener('click', () => {
-    overlay.classList.add('gone');
-  });
 })();
 </script>
 
