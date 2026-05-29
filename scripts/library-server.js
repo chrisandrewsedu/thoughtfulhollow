@@ -15,10 +15,11 @@
 // Usage:  npm run picross-library
 //         (defaults to port 4320 / host 0.0.0.0; override via PORT / HOST env)
 
-const http = require('http');
-const fs   = require('fs');
-const os   = require('os');
-const path = require('path');
+const http   = require('http');
+const fs     = require('fs');
+const os     = require('os');
+const path   = require('path');
+const { spawn } = require('child_process');
 
 const HOST = process.env.HOST || '0.0.0.0';
 const PORT = parseInt(process.env.PORT || '4320', 10);
@@ -47,6 +48,13 @@ function readLibrary() {
 }
 function writeLibrary(lib) {
   fs.writeFileSync(FILE, JSON.stringify(lib, null, 2) + '\n');
+}
+
+function runInline() {
+  const script = path.join(ROOT, 'scripts', 'inline-picross.js');
+  const proc = spawn(process.execPath, [script], { cwd: ROOT });
+  proc.stderr.on('data', d => process.stderr.write('[inline] ' + d));
+  proc.on('error', e => console.error('[inline] failed to start:', e.message));
 }
 
 function slugify(name) {
@@ -243,6 +251,7 @@ const server = http.createServer(async (req, res) => {
         return (a.createdAt || '').localeCompare(b.createdAt || '');
       });
       writeLibrary(lib);
+      runInline();
       return json(res, 200, { ok: true, design: stored, replaced: existingIdx >= 0 });
       });
     }
@@ -254,6 +263,7 @@ const server = http.createServer(async (req, res) => {
         if (idx < 0) return json(res, 404, { error: 'design not found' });
         const [removed] = lib.designs.splice(idx, 1);
         writeLibrary(lib);
+        runInline();
         return json(res, 200, { ok: true, removed });
       });
     }

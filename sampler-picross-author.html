@@ -321,26 +321,26 @@
 
       <div class="meta">
         <div class="meta-row">
-          <label class="meta-label" for="nameInput">Name</label>
-          <input id="nameInput" class="meta-input" type="text" placeholder="e.g. Ohio Star">
-        </div>
-        <div class="meta-row">
-          <label class="meta-label" for="authorInput">Author</label>
+          <label class="meta-label" for="authorInput">Your name</label>
           <input id="authorInput" class="meta-input" type="text" placeholder="your name">
         </div>
         <div class="meta-row">
-          <label class="meta-label" for="dateInput">Date</label>
-          <input id="dateInput" class="meta-input" type="date">
-          <span class="hint">(blank → backlog)</span>
+          <label class="meta-label" for="nameInput">Design name <span class="hint">(optional)</span></label>
+          <input id="nameInput" class="meta-input" type="text" placeholder="e.g. Ohio Star — fill in later">
         </div>
         <div class="meta-row">
-          <label class="meta-label" for="diffPick">Difficulty</label>
+          <label class="meta-label" for="diffPick">Difficulty <span class="hint">(optional)</span></label>
           <select id="diffPick" class="meta-input">
             <option value="mon-tue">Mon-Tue (easiest)</option>
             <option value="wed-th">Wed-Th</option>
             <option value="fri-sat">Fri-Sat</option>
             <option value="sun">Sun (hardest)</option>
           </select>
+        </div>
+        <div class="meta-row">
+          <label class="meta-label" for="dateInput">Date <span class="hint">(optional)</span></label>
+          <input id="dateInput" class="meta-input" type="date">
+          <span class="hint">blank or missing name → backlog</span>
         </div>
       </div>
 
@@ -1777,14 +1777,15 @@ function bootAuthor() {
       setStatus('Cannot save — fill every cell first. (' + errs.length + ' issues)', 'err');
       return;
     }
-    if (!state.meta.name.trim())   return setStatus('Name is required.', 'err');
-    if (!state.meta.author.trim()) return setStatus('Author is required.', 'err');
+    if (!state.meta.author.trim()) return setStatus('Your name is required.', 'err');
+    const nameVal = state.meta.name.trim();
+    const toBacklog = !nameVal;
     const payload = {
       id: state.meta.id || undefined,
-      name: state.meta.name.trim(),
+      name: nameVal || '(untitled)',
       author: state.meta.author.trim(),
       difficulty: state.meta.difficulty,
-      date: state.meta.date,
+      date: toBacklog ? '' : state.meta.date,
       target: state.board,
     };
     try {
