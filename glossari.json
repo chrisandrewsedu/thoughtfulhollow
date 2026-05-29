@@ -1977,7 +1977,7 @@
           "sets": [
             {
               "type": "synonym",
-              "clue": "diligent, persevering, painstaking, sedulous",
+              "clue": "diligent, painstaking, sedulous",
               "parts": [
                 "as",
                 "sid",
@@ -2041,7 +2041,7 @@
           "sets": [
             {
               "type": "definition",
-              "clue": "The quality of never getting tired; great energy.",
+              "clue": "The quality of never getting exhausted; great energy.",
               "parts": [
                 "tire",
                 "less",
@@ -2056,7 +2056,7 @@
             },
             {
               "type": "synonym",
-              "clue": "hardworking, diligent, busy",
+              "clue": "diligent, busy",
               "parts": [
                 "hard",
                 "work",
@@ -2071,7 +2071,7 @@
             },
             {
               "type": "antonym",
-              "clue": "active, energetic, lively",
+              "clue": "buoyant, animated, vivacious",
               "parts": [
                 "list",
                 "less",
@@ -2086,7 +2086,7 @@
             },
             {
               "type": "example",
-              "clue": "His <em>____</em> approach to chores left every job half-done.",
+              "clue": "His <em>____</em> approach to chores left every job partially-done.",
               "parts": [
                 "half",
                 "heart",
@@ -2135,7 +2135,7 @@
             },
             {
               "type": "antonym",
-              "clue": "energetic, active, vigorous",
+              "clue": "impassioned, fervent, ardent",
               "parts": [
                 "apath",
                 "et",
@@ -2150,7 +2150,7 @@
             },
             {
               "type": "example",
-              "clue": "The author's <em>____</em> brought the long book to a close after years of work.",
+              "clue": "She pledged her ____ to the cause and never wavered, even when others walked away.",
               "parts": [
                 "dedic",
                 "a",
@@ -2189,7 +2189,7 @@
             },
             {
               "type": "example",
-              "clue": "The cathedral was built upon a <span class=\"blank-mark\">_____</span> stone the villagers called the World-Anchor.",
+              "clue": "She sensed a ____ fear — not learned but inherited from something ancient in the blood.",
               "parts": [
                 "prim",
                 "ord",
@@ -2219,7 +2219,7 @@
             },
             {
               "type": "synonym",
-              "clue": "indigenous, native, original, autochthonous",
+              "clue": "indigenous, native, autochthonous",
               "parts": [
                 "ab",
                 "orig",
@@ -2253,18 +2253,18 @@
             },
             {
               "type": "synonym",
-              "clue": "first, earliest, one-of-a-kind",
+              "clue": "onset, launch, founding",
               "parts": [
-                "un",
-                "match",
-                "ed"
+                "in",
+                "cep",
+                "tion"
               ],
-              "pos": "adj.",
-              "definition": "Without equal; unparalleled.",
-              "etymology": "<em>un-</em> (not) + <em>match</em> + <em>-ed</em>",
-              "example": "The chef's <em>unmatched</em> skill with pastry drew customers from across the city.",
-              "synonyms": "unequaled, peerless, unique",
-              "antonyms": "ordinary, common, equaled"
+              "pos": "n.",
+              "definition": "The beginning or establishment of something.",
+              "etymology": "Latin <em>inceptio</em>, from <em>incipere</em> (to begin): <em>in-</em> (in) + <em>capere</em> (to take)",
+              "example": "From its <em>inception</em> as a small café to a landmark restaurant, the place had always felt welcoming.",
+              "synonyms": "onset, launch, commencement, establishment",
+              "antonyms": "conclusion, termination, dissolution, end"
             },
             {
               "type": "antonym",
@@ -2283,18 +2283,18 @@
             },
             {
               "type": "example",
-              "clue": "Last summer's <em>____</em> garden produced more vegetables than anyone expected.",
+              "clue": "Her ____ years in the village shaped who she became.",
               "parts": [
-                "un",
-                "tend",
-                "ed"
+                "form",
+                "a",
+                "tive"
               ],
               "pos": "adj.",
-              "definition": "Not looked after or cared for.",
-              "etymology": "<em>un-</em> (not) + <em>tend</em> (look after) + <em>-ed</em>",
-              "example": "Last summer's <em>untended</em> garden produced more vegetables than anyone expected.",
-              "synonyms": "neglected, uncared-for, wild",
-              "antonyms": "cultivated, cared-for, tended"
+              "definition": "Serving to form or shape; relating to an early, decisive stage of development.",
+              "etymology": "Latin <em>formare</em> (to form) + <em>-ative</em>",
+              "example": "Her <em>formative</em> years in the village shaped who she became.",
+              "synonyms": "developmental, foundational, shaping, early",
+              "antonyms": "mature, established, late-stage, terminal"
             }
           ]
         },
@@ -2370,8 +2370,8 @@
         "hard": {
           "sets": [
             {
-              "type": "antonym",
-              "clue": "settle, remain, abide, stay",
+              "type": "example",
+              "clue": "She had been known to ____ across three countries on little more than a train pass and a worn notebook.",
               "parts": [
                 "per",
                 "egrin",
@@ -2386,7 +2386,7 @@
             },
             {
               "type": "definition",
-              "clue": "A person who moves from place to place without a fixed home",
+              "clue": "One who wanders without steady employment or fixed home; a rootless drifter.",
               "parts": [
                 "vag",
                 "a",
@@ -2401,7 +2401,7 @@
             },
             {
               "type": "synonym",
-              "clue": "traveling, peripatetic, roving, transient",
+              "clue": "peripatetic, ambulatory, circuit-traveling, mobile",
               "parts": [
                 "itin",
                 "er",
@@ -2415,8 +2415,8 @@
               "antonyms": "stationary, sedentary, fixed, resident"
             },
             {
-              "type": "example",
-              "clue": "His <span class=\"blank-mark\">_____</span> attendance made it impossible to plan the rehearsals.",
+              "type": "antonym",
+              "clue": "consistent, regular, steady, predictable",
               "parts": [
                 "err",
                 "at",
@@ -2465,7 +2465,7 @@
             },
             {
               "type": "antonym",
-              "clue": "moving, traveling, restless",
+              "clue": "traveling, restless",
               "parts": [
                 "un",
                 "mov",
@@ -2613,18 +2613,18 @@
             },
             {
               "type": "example",
-              "clue": "She declined the offer on <span class=\"blank-mark\">_____</span> grounds; it was never about the work.",
+              "clue": "He spent his days cataloguing every coin, an ____ man who kept the house unheated to save on fuel.",
               "parts": [
-                "pec",
-                "un",
-                "iary"
+                "av",
+                "ar",
+                "icious"
               ],
               "pos": "adj.",
-              "definition": "Relating to or consisting of money.",
-              "etymology": "Latin <em>pecus</em> (cattle, used as early currency) + <em>-unius</em> + <em>-ary</em>",
-              "example": "She declined the offer on <em>pecuniary</em> grounds; it was never about the work.",
-              "synonyms": "monetary, financial, fiscal, economic",
-              "antonyms": "nonmonetary, spiritual, sentimental, immaterial"
+              "definition": "Having an insatiable desire to acquire money or possessions; excessively covetous.",
+              "etymology": "Latin <em>avarus</em> (greedy): <em>avere</em> (to crave) + <em>-ious</em>",
+              "example": "He spent his days cataloguing every coin, an <em>avaricious</em> man who kept the house unheated to save on fuel.",
+              "synonyms": "covetous, grasping, greedy, acquisitive, venal",
+              "antonyms": "generous, giving, munificent, altruistic"
             }
           ]
         },
@@ -2632,18 +2632,18 @@
           "sets": [
             {
               "type": "definition",
-              "clue": "Fully committed; given with the whole heart.",
+              "clue": "Free with money or time; giving without holding back.",
               "parts": [
-                "whole",
-                "heart",
+                "open",
+                "hand",
                 "ed"
               ],
               "pos": "adj.",
-              "definition": "Showing full enthusiasm, commitment, or sincerity.",
-              "etymology": "<em>whole</em> + <em>heart</em> + <em>-ed</em>",
-              "example": "The teacher gave her <em>wholehearted</em> support to every student who tried.",
-              "synonyms": "earnest, unreserved, sincere",
-              "antonyms": "halfhearted, reluctant, lukewarm"
+              "definition": "Giving freely and without reservation; generous.",
+              "etymology": "<em>open</em> + <em>hand</em> + <em>-ed</em>",
+              "example": "The <em>openhanded</em> host refilled every plate before anyone had to ask.",
+              "synonyms": "generous, freehanded, liberal, giving",
+              "antonyms": "stingy, tightfisted, miserly, closefisted"
             },
             {
               "type": "synonym",
@@ -2696,18 +2696,18 @@
           "sets": [
             {
               "type": "definition",
-              "clue": "The quality of giving freely and abundantly.",
+              "clue": "Driven by a desire to gather and own; inclined to accumulate beyond need.",
               "parts": [
-                "gen",
-                "er",
-                "osity"
+                "ac",
+                "quis",
+                "itive"
               ],
-              "pos": "n.",
-              "definition": "Readiness to give more of something than is strictly necessary.",
-              "etymology": "Latin <em>generosus</em> (noble, magnanimous) + <em>-er-</em> + <em>-osity</em>",
-              "example": "The town remembered her <em>generosity</em> long after she had moved away.",
-              "synonyms": "munificence, liberality, openhandedness",
-              "antonyms": "stinginess, miserliness, greed"
+              "pos": "adj.",
+              "definition": "Tending to acquire things; motivated by the desire for gain and possession.",
+              "etymology": "Latin <em>acquirere</em> (to gain): <em>ad-</em> (to) + <em>quaerere</em> (to seek) + <em>-itive</em>",
+              "example": "Her <em>acquisitive</em> nature had filled every shelf and drawer before the movers arrived.",
+              "synonyms": "grasping, covetous, avaricious, materialistic",
+              "antonyms": "generous, giving, altruistic, selfless"
             },
             {
               "type": "synonym",
@@ -2843,8 +2843,8 @@
               "antonyms": "forgetting, overlooking, ignoring"
             },
             {
-              "type": "synonym",
-              "clue": "forgetful, distracted, absent-minded",
+              "type": "antonym",
+              "clue": "mindful, alert, attentive, heedful",
               "parts": [
                 "un",
                 "mind",
@@ -2858,23 +2858,23 @@
               "antonyms": "mindful, attentive, aware"
             },
             {
-              "type": "antonym",
-              "clue": "forgotten, unknown, faded",
+              "type": "synonym",
+              "clue": "wistfulness, longing, sentimentality",
               "parts": [
-                "un",
-                "forgett",
-                "able"
+                "nos",
+                "tal",
+                "gia"
               ],
-              "pos": "adj.",
-              "definition": "Impossible to forget; deeply memorable.",
-              "etymology": "<em>un-</em> (not) + <em>forget</em> (with doubled consonant) + <em>-able</em>",
-              "example": "The view from the summit at sunrise was <em>unforgettable</em>.",
-              "synonyms": "memorable, indelible, lasting",
-              "antonyms": "forgotten, unknown, faded"
+              "pos": "n.",
+              "definition": "A sentimental longing for the past; pleasure mixed with sadness when remembering earlier times.",
+              "etymology": "Greek <em>nostos</em> (homecoming) + <em>algos</em> (pain)",
+              "example": "Whenever she heard that song, a wave of <em>nostalgia</em> swept over her.",
+              "synonyms": "wistfulness, longing, sentimentality, reminiscence",
+              "antonyms": "anticipation, forward-looking, indifference, amnesia"
             },
             {
               "type": "example",
-              "clue": "Her <em>____</em> of the old neighborhood made everyone laugh and cry.",
+              "clue": "His gift for ____ could turn even a dull trip to market into an hour-long adventure.",
               "parts": [
                 "story",
                 "tell",
@@ -2907,8 +2907,8 @@
               "antonyms": "forgetfulness, amnesia, oblivion"
             },
             {
-              "type": "synonym",
-              "clue": "memorable, unforgettable, lasting",
+              "type": "antonym",
+              "clue": "erasable, fading, transient",
               "parts": [
                 "in",
                 "del",
@@ -2922,8 +2922,8 @@
               "antonyms": "erasable, fading, transient"
             },
             {
-              "type": "antonym",
-              "clue": "memorable, vivid, unforgettable",
+              "type": "synonym",
+              "clue": "undistinguished, ordinary, forgettable",
               "parts": [
                 "un",
                 "memor",
@@ -2962,18 +2962,18 @@
           "sets": [
             {
               "type": "example",
-              "clue": "The high pass in winter is <span class=\"blank-mark\">_____</span> to anything but goats.",
+              "clue": "The two colleagues were so <em>_____</em> to each other that their manager had to assign them to separate teams.",
               "parts": [
-                "in",
-                "hospit",
-                "able"
+                "anti",
+                "path",
+                "etic"
               ],
-              "pos": "adj.",
-              "definition": "Harsh or unwelcoming to visitors; offering no shelter or sustenance.",
+              "pos": "adjective",
+              "definition": "Having or showing a strong aversion or repugnance",
               "etymology": "Latin <em>in-</em> (not) + <em>hospes</em> (guest, host) + <em>-able</em>",
-              "example": "The high pass in winter is <em>inhospitable</em> to anything but goats.",
-              "synonyms": "unwelcoming, forbidding, harsh, bleak",
-              "antonyms": "welcoming, hospitable, gracious, accommodating"
+              "example": "",
+              "synonyms": "hostile, averse, opposed, antagonistic, disinclined",
+              "antonyms": "sympathetic, favorable, drawn, compatible, congenial"
             },
             {
               "type": "synonym",
@@ -3007,7 +3007,7 @@
             },
             {
               "type": "antonym",
-              "clue": "favorable, beneficial, conducive, amicable",
+              "clue": "favorable, beneficial, conducive, congenial",
               "parts": [
                 "in",
                 "imic",
@@ -3040,8 +3040,8 @@
               "antonyms": "coldness, formality, unfriendliness"
             },
             {
-              "type": "synonym",
-              "clue": "warm, generous, welcoming",
+              "type": "antonym",
+              "clue": "selfish, mean, closefisted",
               "parts": [
                 "big",
                 "heart",
@@ -3055,8 +3055,8 @@
               "antonyms": "selfish, mean, coldhearted"
             },
             {
-              "type": "antonym",
-              "clue": "kind, hospitable, welcoming",
+              "type": "synonym",
+              "clue": "hostile, cold, distant",
               "parts": [
                 "un",
                 "friend",
@@ -3071,7 +3071,7 @@
             },
             {
               "type": "example",
-              "clue": "The <em>____</em> stranger refused even a glass of water from the locals.",
+              "clue": "She was not rude, merely ____, and guests learned not to expect warmth or conversation from her corner of the room.",
               "parts": [
                 "stand",
                 "off",
@@ -3089,8 +3089,8 @@
         "medium": {
           "sets": [
             {
-              "type": "definition",
-              "clue": "The quality of being friendly and easy to get along with.",
+              "type": "antonym",
+              "clue": "aloofness, coldness, reserve",
               "parts": [
                 "con",
                 "viv",
@@ -3105,22 +3105,22 @@
             },
             {
               "type": "synonym",
-              "clue": "warm, gracious, welcoming",
+              "clue": "obliging, cooperative, flexible, helpful",
               "parts": [
-                "hos",
-                "pit",
-                "able"
+                "acc",
+                "ommod",
+                "ating"
               ],
               "pos": "adj.",
-              "definition": "Friendly and welcoming to strangers or guests.",
+              "definition": "To render fit, suitable, or correspondent; to adapt.",
               "etymology": "Latin <em>hospes</em> (host, guest) + <em>-pit-</em> + <em>-able</em>",
-              "example": "Their <em>hospitable</em> household welcomed travelers from every passing caravan.",
-              "synonyms": "welcoming, gracious, accommodating",
-              "antonyms": "inhospitable, unwelcoming, cold"
+              "example": "to accommodate ourselves to circumstances",
+              "synonyms": "adapt, adjust, arrange, conform, suit, reconcile, oblige",
+              "antonyms": "discommodate"
             },
             {
-              "type": "antonym",
-              "clue": "warm, friendly, welcoming",
+              "type": "example",
+              "clue": "His <em>_____</em> style made every meeting tense and unproductive.",
               "parts": [
                 "con",
                 "front",
@@ -3134,8 +3134,8 @@
               "antonyms": "agreeable, conciliatory, peaceable"
             },
             {
-              "type": "example",
-              "clue": "The host's <em>____</em> manner put every guest immediately at ease.",
+              "type": "definition",
+              "clue": "Well-meaning and kindly disposed toward others.",
               "parts": [
                 "bene",
                 "vol",
@@ -3147,6 +3147,1385 @@
               "example": "The host's <em>benevolent</em> manner put every guest immediately at ease.",
               "synonyms": "kind, kindhearted, well-meaning",
               "antonyms": "malevolent, hostile, cruel"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Pride & Shame",
+      "tiers": {
+        "easy": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Deserving or causing a feeling of shame or embarrassment.",
+              "parts": [
+                "shame",
+                "ful",
+                ""
+              ],
+              "pos": "adj.",
+              "definition": "Deserving or causing a feeling of shame or embarrassment.",
+              "etymology": "Old English <em>scamu</em> (shame) + <em>-ful</em> (full of)",
+              "example": "It was <em>shameful</em> that no one stopped to help the injured animal by the road.",
+              "synonyms": "disgraceful, embarrassing, dishonourable, humiliating",
+              "antonyms": "honourable, admirable, worthy, praiseworthy"
+            },
+            {
+              "type": "synonym",
+              "clue": "bragging, big-headed, swaggering, show-off",
+              "parts": [
+                "boast",
+                "ful",
+                ""
+              ],
+              "pos": "adj.",
+              "definition": "Showing excessive pride in one's achievements or possessions.",
+              "etymology": "Middle English <em>bost</em> (boast) + <em>-ful</em> (full of)",
+              "example": "His <em>boastful</em> talk about his exam scores made the rest of the class uncomfortable.",
+              "synonyms": "bragging, conceited, vain, swaggering",
+              "antonyms": "modest, humble, self-effacing, understated"
+            },
+            {
+              "type": "antonym",
+              "clue": "embarrassed, bashful, self-conscious",
+              "parts": [
+                "un",
+                "asham",
+                "ed"
+              ],
+              "pos": "adj.",
+              "definition": "Feeling no guilt or embarrassment about something others might consider wrong.",
+              "etymology": "<em>un-</em> (not) + Old English <em>ascamian</em> (to feel shame) + <em>-ed</em>",
+              "example": "She was completely <em>unashamed</em> of her unconventional hobby and spoke about it freely.",
+              "synonyms": "brazen, unapologetic, shameless, bold",
+              "antonyms": "embarrassed, bashful, mortified, red-faced"
+            },
+            {
+              "type": "example",
+              "clue": "She was ____ when the teacher read her private poem aloud to the whole class.",
+              "parts": [
+                "",
+                "blush",
+                "ing"
+              ],
+              "pos": "adj.",
+              "definition": "Showing redness of the face from embarrassment or shame.",
+              "etymology": "Old English <em>blyscan</em> (to redden with shame) + <em>-ing</em>",
+              "example": "She was <em>blushing</em> when the teacher read her private poem aloud to the whole class.",
+              "synonyms": "flushed, red-faced, rosy, embarrassed",
+              "antonyms": "pale, composed, brazen, unfazed"
+            }
+          ]
+        },
+        "medium": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Excessive pride in one's appearance, abilities, or achievements; an inflated, self-admiring regard.",
+              "parts": [
+                "",
+                "van",
+                "ity"
+              ],
+              "pos": "n.",
+              "definition": "Excessive pride in one's own appearance, abilities, or achievements.",
+              "etymology": "Latin <em>vanitas</em> (emptiness, futility) from <em>vanus</em> (empty) + <em>-ity</em>",
+              "example": "His <em>vanity</em> was such that he paused at every reflective surface he passed.",
+              "synonyms": "conceit, self-importance, narcissism, egotism",
+              "antonyms": "humility, modesty, self-deprecation, unpretentiousness"
+            },
+            {
+              "type": "synonym",
+              "clue": "haughty, imperious, supercilious, overbearing",
+              "parts": [
+                "ar",
+                "rog",
+                "ant"
+              ],
+              "pos": "adj.",
+              "definition": "Having an exaggerated sense of one's own importance or abilities.",
+              "etymology": "Latin <em>arrogare</em> (to claim for oneself) — <em>ad-</em> + <em>rogare</em> (to ask) + <em>-ant</em>",
+              "example": "The <em>arrogant</em> manager dismissed every team suggestion without a moment's consideration.",
+              "synonyms": "haughty, imperious, supercilious, presumptuous",
+              "antonyms": "humble, modest, deferential, self-effacing"
+            },
+            {
+              "type": "antonym",
+              "clue": "unperturbed, brazen, unabashed, composed",
+              "parts": [
+                "",
+                "mort",
+                "ified"
+              ],
+              "pos": "adj.",
+              "definition": "Extremely embarrassed or ashamed, especially in a public or social situation.",
+              "etymology": "Latin <em>mortificare</em> (to subdue the body) — <em>mors</em> (death) + <em>-ficare</em> (to make) + <em>-ified</em>",
+              "example": "He was <em>mortified</em> when his mother used his childhood nickname in front of his new colleagues.",
+              "synonyms": "humiliated, chagrined, ashamed, chastened",
+              "antonyms": "unperturbed, brazen, unabashed, composed"
+            },
+            {
+              "type": "example",
+              "clue": "Full of ____, he tracked down every person he had wronged and apologised in person.",
+              "parts": [
+                "con",
+                "trit",
+                "ion"
+              ],
+              "pos": "n.",
+              "definition": "A feeling of deep remorse and regret for wrongdoing.",
+              "etymology": "Latin <em>contritus</em> (worn down, crushed) — <em>com-</em> + <em>terere</em> (to rub, grind) + <em>-ion</em>",
+              "example": "Full of <em>contrition</em>, he tracked down every person he had wronged and apologised in person.",
+              "synonyms": "remorse, penitence, regret, compunction",
+              "antonyms": "defiance, impenitence, shamelessness, self-satisfaction"
+            }
+          ]
+        },
+        "hard": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Excessive pride or self-confidence, especially the kind seen as an affront to the gods and an invitation to retribution.",
+              "parts": [
+                "",
+                "hub",
+                "ris"
+              ],
+              "pos": "n.",
+              "definition": "Excessive pride or self-confidence, especially when seen as provoking retributive punishment.",
+              "etymology": "Greek <em>hybris</em> (wanton insolence, violence) — denoting defiant transgression of divine limits",
+              "example": "His <em>hubris</em> in assuming he could outmanoeuvre the whole market led to spectacular losses.",
+              "synonyms": "arrogance, presumption, overconfidence, self-importance",
+              "antonyms": "humility, modesty, deference, diffidence"
+            },
+            {
+              "type": "synonym",
+              "clue": "self-glorification, braggadocio, hollow boasting, ostentation",
+              "parts": [
+                "vain",
+                "glor",
+                "y"
+              ],
+              "pos": "n.",
+              "definition": "Excessive pride in one's own achievements, typically expressed through empty boasting.",
+              "etymology": "Latin <em>vana gloria</em> — <em>vanus</em> (empty) + <em>gloria</em> (glory, renown)",
+              "example": "The general's speech was marred by its <em>vainglory</em> — every sentence circled back to his own heroism.",
+              "synonyms": "self-glorification, braggadocio, pomposity, ostentation",
+              "antonyms": "modesty, humility, self-effacement, restraint"
+            },
+            {
+              "type": "antonym",
+              "clue": "honour, renown, distinction, glory",
+              "parts": [
+                "ig",
+                "nom",
+                "iny"
+              ],
+              "pos": "n.",
+              "definition": "Public shame and loss of honour; great disgrace.",
+              "etymology": "Latin <em>ignominia</em> — <em>in-</em> (not) + <em>nomen</em> (name, reputation) + <em>-ia</em>",
+              "example": "Caught cheating, the athlete faced the <em>ignominy</em> of a public hearing and a stripped medal.",
+              "synonyms": "disgrace, dishonour, infamy, opprobrium",
+              "antonyms": "honour, renown, distinction, glory"
+            },
+            {
+              "type": "example",
+              "clue": "Despite winning the argument, she felt _____ when she saw how deeply her words had wounded him.",
+              "parts": [
+                "con",
+                "trit",
+                "e"
+              ],
+              "pos": "adj.",
+              "definition": "Feeling or expressing genuine remorse and regret for wrongdoing.",
+              "etymology": "Latin <em>contritus</em> (worn down by grief) — <em>com-</em> + <em>terere</em> (to grind)",
+              "example": "Despite winning the argument, she felt <em>contrite</em> when she saw how deeply her words had wounded him.",
+              "synonyms": "remorseful, penitent, regretful, guilt-ridden",
+              "antonyms": "unrepentant, impenitent, defiant, shameless"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Fear & Courage",
+      "tiers": {
+        "easy": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Feeling or showing extreme fear, especially as a sudden reaction.",
+              "parts": [
+                "fright",
+                "en",
+                "ed"
+              ],
+              "pos": "adj.",
+              "definition": "Feeling or showing extreme fear, especially as a sudden reaction.",
+              "etymology": "Old English <em>fyrhtu</em> (fear, dread) + <em>-en</em> + <em>-ed</em>",
+              "example": "The <em>frightened</em> puppy hid under the bed during the thunderstorm.",
+              "synonyms": "scared, terrified, startled, alarmed",
+              "antonyms": "calm, brave, unafraid, composed"
+            },
+            {
+              "type": "synonym",
+              "clue": "brave, daring, bold, gutsy",
+              "parts": [
+                "cour",
+                "age",
+                "ous"
+              ],
+              "pos": "adj.",
+              "definition": "Not deterred by danger or pain; showing courage.",
+              "etymology": "Old French <em>corage</em> (heart, spirit) — Latin <em>cor</em> (heart) + <em>-age</em> + <em>-ous</em>",
+              "example": "It was <em>courageous</em> of her to speak up about the bullying when everyone else stayed quiet.",
+              "synonyms": "brave, daring, bold, heroic",
+              "antonyms": "cowardly, timid, fearful, spineless"
+            },
+            {
+              "type": "antonym",
+              "clue": "calm, steady, emboldened, reassured",
+              "parts": [
+                "un",
+                "nerv",
+                "ed"
+              ],
+              "pos": "adj.",
+              "definition": "Made anxious or agitated; having lost confidence or composure.",
+              "etymology": "<em>un-</em> (reversal) + <em>nerve</em> (strength, steadiness) + <em>-ed</em>",
+              "example": "The unexpected question left him completely <em>unnerved</em>, and he forgot everything he had rehearsed.",
+              "synonyms": "rattled, shaken, unsettled, disconcerted",
+              "antonyms": "calm, steady, emboldened, reassured"
+            },
+            {
+              "type": "example",
+              "clue": "The ____ of the rescue worker, who climbed into the unstable tunnel without hesitating, was remarkable.",
+              "parts": [
+                "",
+                "bold",
+                "ness"
+              ],
+              "pos": "n.",
+              "definition": "The quality of being daring and willing to face danger with confidence.",
+              "etymology": "Old English <em>bald</em> (bold, daring) + <em>-ness</em>",
+              "example": "The <em>boldness</em> of the rescue worker, who climbed into the unstable tunnel without hesitating, was remarkable.",
+              "synonyms": "daring, audacity, nerve, confidence",
+              "antonyms": "timidity, cowardice, hesitance, fearfulness"
+            }
+          ]
+        },
+        "medium": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Anxious or uneasy about a possible future event or uncertain outcome.",
+              "parts": [
+                "ap",
+                "prehen",
+                "sive"
+              ],
+              "pos": "adj.",
+              "definition": "Anxious or uneasy about a possible future event.",
+              "etymology": "Latin <em>apprehendere</em> (to seize, grasp mentally) — <em>ad-</em> + <em>prehendere</em> + <em>-ive</em>",
+              "example": "She felt <em>apprehensive</em> about starting a new school where she knew nobody.",
+              "synonyms": "anxious, uneasy, worried, nervous",
+              "antonyms": "confident, assured, unworried, composed"
+            },
+            {
+              "type": "synonym",
+              "clue": "gallant, stouthearted, heroic, lionhearted",
+              "parts": [
+                "",
+                "val",
+                "iant"
+              ],
+              "pos": "adj.",
+              "definition": "Possessing or showing courage, especially in the face of hardship.",
+              "etymology": "Old French <em>vaillant</em> — Latin <em>valere</em> (to be strong) + <em>-ant</em>",
+              "example": "The <em>valiant</em> firefighters worked through the night to contain the blaze.",
+              "synonyms": "gallant, heroic, stouthearted, intrepid",
+              "antonyms": "cowardly, craven, faint-hearted, pusillanimous"
+            },
+            {
+              "type": "antonym",
+              "clue": "relief, calm, serenity, assurance",
+              "parts": [
+                "",
+                "dread",
+                ""
+              ],
+              "pos": "n.",
+              "definition": "Great fear or apprehension, especially about something that is to come.",
+              "etymology": "Old English <em>drǣdan</em> (to fear greatly) — related to Gothic <em>us-þriutan</em> (to oppress)",
+              "example": "She faced the exam with a mixture of <em>dread</em> and grim determination.",
+              "synonyms": "terror, apprehension, foreboding, trepidation",
+              "antonyms": "relief, calm, serenity, assurance"
+            },
+            {
+              "type": "example",
+              "clue": "His ____ in confronting the entire board alone, without a single ally in the room, was striking.",
+              "parts": [
+                "au",
+                "dac",
+                "ity"
+              ],
+              "pos": "n.",
+              "definition": "The willingness to take bold risks; confident, sometimes reckless daring.",
+              "etymology": "Latin <em>audax</em> (bold, daring) — <em>audere</em> (to dare) + <em>-ity</em>",
+              "example": "His <em>audacity</em> in confronting the entire board alone, without a single ally in the room, was striking.",
+              "synonyms": "boldness, daring, nerve, temerity",
+              "antonyms": "timidity, cowardice, hesitance, caution"
+            }
+          ]
+        },
+        "hard": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Showing a shameful lack of courage; contemptibly cowardly.",
+              "parts": [
+                "pus",
+                "illan",
+                "imous"
+              ],
+              "pos": "adj.",
+              "definition": "Showing a contemptible lack of courage; cowardly.",
+              "etymology": "Latin <em>pusillanimis</em> — <em>pusillus</em> (very small) + <em>animus</em> (spirit, soul) + <em>-ous</em>",
+              "example": "The <em>pusillanimous</em> official refused to sign the report, citing vague personal concerns.",
+              "synonyms": "cowardly, craven, faint-hearted, spineless",
+              "antonyms": "brave, courageous, intrepid, dauntless"
+            },
+            {
+              "type": "synonym",
+              "clue": "fearless, undaunted, dauntless, unflinching",
+              "parts": [
+                "in",
+                "trep",
+                "id"
+              ],
+              "pos": "adj.",
+              "definition": "Fearless and adventurous; resolutely bold.",
+              "etymology": "Latin <em>intrepidus</em> — <em>in-</em> (not) + <em>trepidus</em> (alarmed, trembling)",
+              "example": "The <em>intrepid</em> correspondent filed dispatches from five conflict zones that year.",
+              "synonyms": "fearless, undaunted, dauntless, audacious",
+              "antonyms": "fearful, timorous, craven, pusillanimous"
+            },
+            {
+              "type": "antonym",
+              "clue": "composure, boldness, calm, steadiness",
+              "parts": [
+                "trep",
+                "id",
+                "ation"
+              ],
+              "pos": "n.",
+              "definition": "A feeling of fear or agitation about something that may happen; trembling anxiety.",
+              "etymology": "Latin <em>trepidatio</em> — <em>trepidare</em> (to hurry, tremble with alarm) + <em>-tion</em>",
+              "example": "She approached the microphone with some <em>trepidation</em>, having never addressed so large a crowd.",
+              "synonyms": "apprehension, anxiety, nervousness, unease",
+              "antonyms": "composure, boldness, calm, assurance"
+            },
+            {
+              "type": "example",
+              "clue": "It was her _____ that kept her training through injury, loss, and two failed attempts.",
+              "parts": [
+                "for",
+                "ti",
+                "tude"
+              ],
+              "pos": "n.",
+              "definition": "Courage and resilience in enduring pain or adversity without complaint.",
+              "etymology": "Latin <em>fortitudo</em> — <em>fortis</em> (strong, brave) + <em>-tude</em> (quality of)",
+              "example": "It was her <em>fortitude</em> that kept her training through injury, loss, and two failed attempts.",
+              "synonyms": "resilience, courage, endurance, backbone",
+              "antonyms": "weakness, timidity, faint-heartedness, cowardice"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Wisdom & Folly",
+      "tiers": {
+        "easy": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Lacking good sense or judgment; unwise.",
+              "parts": [
+                "fool",
+                "ish",
+                ""
+              ],
+              "pos": "adj.",
+              "definition": "Lacking good sense or judgment; unwise.",
+              "etymology": "Old French <em>fol</em> (foolish, mad) + <em>-ish</em>",
+              "example": "It was <em>foolish</em> to leave the house without an umbrella when the clouds were so dark.",
+              "synonyms": "unwise, silly, senseless, reckless",
+              "antonyms": "wise, sensible, prudent, judicious"
+            },
+            {
+              "type": "synonym",
+              "clue": "reflective, wise, deliberate, careful",
+              "parts": [
+                "thought",
+                "ful",
+                ""
+              ],
+              "pos": "adj.",
+              "definition": "Showing careful consideration; absorbed in thought.",
+              "etymology": "Old English <em>þōht</em> (thought) + <em>-ful</em> (full of)",
+              "example": "The <em>thoughtful</em> student read the question twice before picking up her pen.",
+              "synonyms": "reflective, deliberate, careful, considered",
+              "antonyms": "careless, hasty, impulsive, unthinking"
+            },
+            {
+              "type": "antonym",
+              "clue": "thorough, painstaking, precise, attentive",
+              "parts": [
+                "care",
+                "less",
+                ""
+              ],
+              "pos": "adj.",
+              "definition": "Not giving enough attention or thought to what one does.",
+              "etymology": "Old English <em>caru</em> (care, sorrow) + <em>-less</em> (without)",
+              "example": "A <em>careless</em> reading of the instructions caused him to assemble the whole shelf backwards.",
+              "synonyms": "negligent, inattentive, hasty, slapdash",
+              "antonyms": "thorough, painstaking, attentive, meticulous"
+            },
+            {
+              "type": "example",
+              "clue": "The ____ professor could speak knowledgeably on any subject from astronomy to zoology.",
+              "parts": [
+                "",
+                "learn",
+                "ed"
+              ],
+              "pos": "adj.",
+              "definition": "Having acquired much knowledge through study and experience.",
+              "etymology": "Old English <em>leornian</em> (to learn) + <em>-ed</em>",
+              "example": "The <em>learned</em> professor could speak knowledgeably on any subject from astronomy to zoology.",
+              "synonyms": "scholarly, erudite, knowledgeable, educated",
+              "antonyms": "ignorant, uneducated, uninformed, unlettered"
+            }
+          ]
+        },
+        "medium": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Wisdom and sound judgment, especially in practical and everyday matters.",
+              "parts": [
+                "sag",
+                "ac",
+                "ity"
+              ],
+              "pos": "n.",
+              "definition": "Wisdom and sound judgment, especially in practical matters.",
+              "etymology": "Latin <em>sagacitas</em> — <em>sagax</em> (keen, shrewd) + <em>-ity</em>",
+              "example": "The village elder's <em>sagacity</em> was sought by neighbours from miles around.",
+              "synonyms": "wisdom, shrewdness, discernment, perspicacity",
+              "antonyms": "foolishness, ignorance, stupidity, imprudence"
+            },
+            {
+              "type": "synonym",
+              "clue": "rash, headstrong, precipitate, hasty",
+              "parts": [
+                "im",
+                "petu",
+                "ous"
+              ],
+              "pos": "adj.",
+              "definition": "Acting or done quickly without thought or care; rashly impulsive.",
+              "etymology": "Latin <em>impetuosus</em> — <em>impetus</em> (force, onset) + <em>-ous</em>",
+              "example": "Her <em>impetuous</em> decision to quit without a plan left her regretting it for months.",
+              "synonyms": "rash, headstrong, precipitate, incautious",
+              "antonyms": "cautious, deliberate, measured, prudent"
+            },
+            {
+              "type": "antonym",
+              "clue": "rational, reasonable, logical, sensible",
+              "parts": [
+                "ab",
+                "surd",
+                ""
+              ],
+              "pos": "adj.",
+              "definition": "Wildly unreasonable, illogical, or inappropriate.",
+              "etymology": "Latin <em>absurdus</em> — <em>ab-</em> (away from) + <em>surdus</em> (dull, deaf) — 'out of tune'",
+              "example": "The committee found the proposal so <em>absurd</em> that several members laughed aloud.",
+              "synonyms": "ridiculous, ludicrous, preposterous, nonsensical",
+              "antonyms": "rational, reasonable, logical, sensible"
+            },
+            {
+              "type": "example",
+              "clue": "It was ____ of her to save three months of expenses before handing in her notice.",
+              "parts": [
+                "",
+                "prud",
+                "ent"
+              ],
+              "pos": "adj.",
+              "definition": "Acting with care and thought for the future; showing good judgment.",
+              "etymology": "Latin <em>prudens</em> (foreseeing, skilled) — contracted from <em>providens</em> (provident)",
+              "example": "It was <em>prudent</em> of her to save three months of expenses before handing in her notice.",
+              "synonyms": "wise, judicious, careful, sensible",
+              "antonyms": "rash, imprudent, reckless, shortsighted"
+            }
+          ]
+        },
+        "hard": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Having a ready insight into things; shrewd and discerning in perception and judgment.",
+              "parts": [
+                "per",
+                "spic",
+                "acious"
+              ],
+              "pos": "adj.",
+              "definition": "Having a ready insight into things; shrewd and discerning.",
+              "etymology": "Latin <em>perspicax</em> — <em>per-</em> (thoroughly) + <em>specere</em> (to look) + <em>-acious</em>",
+              "example": "The <em>perspicacious</em> reviewer spotted the structural flaw that had eluded three editors.",
+              "synonyms": "astute, shrewd, insightful, discerning",
+              "antonyms": "obtuse, dim, unperceptive, dull-witted"
+            },
+            {
+              "type": "synonym",
+              "clue": "wise, sage, erudite, enlightened",
+              "parts": [
+                "",
+                "sapi",
+                "ent"
+              ],
+              "pos": "adj.",
+              "definition": "Possessing great wisdom and sound judgment.",
+              "etymology": "Latin <em>sapiens</em> — <em>sapere</em> (to be wise, to taste) + <em>-ent</em>",
+              "example": "The <em>sapient</em> counsellor had guided three generations of the family through their disputes.",
+              "synonyms": "wise, sage, learned, erudite",
+              "antonyms": "foolish, ignorant, obtuse, unwise"
+            },
+            {
+              "type": "antonym",
+              "clue": "wisdom, good sense, profundity, acuity",
+              "parts": [
+                "fat",
+                "u",
+                "ity"
+              ],
+              "pos": "n.",
+              "definition": "Pointless foolishness; stupid or senseless behaviour.",
+              "etymology": "Latin <em>fatuitas</em> — <em>fatuus</em> (foolish, insipid) + <em>-ity</em>",
+              "example": "The plan was dismissed as sheer <em>fatuity</em> — expensive, unworkable, and based on no evidence.",
+              "synonyms": "foolishness, absurdity, stupidity, inanity",
+              "antonyms": "wisdom, acuity, profundity, good sense"
+            },
+            {
+              "type": "example",
+              "clue": "The senator dismissed the amendment as _____, saying it belonged in a playground, not a legislature.",
+              "parts": [
+                "",
+                "puer",
+                "ile"
+              ],
+              "pos": "adj.",
+              "definition": "Childishly silly and trivial; immature.",
+              "etymology": "Latin <em>puerilis</em> — <em>puer</em> (boy, child) + <em>-ile</em>",
+              "example": "The senator dismissed the amendment as <em>puerile</em>, saying it belonged in a playground, not a legislature.",
+              "synonyms": "childish, immature, juvenile, infantile",
+              "antonyms": "mature, sophisticated, adult, serious"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Wealth & Poverty",
+      "tiers": {
+        "easy": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Having a great amount of money or valuable possessions; rich.",
+              "parts": [
+                "",
+                "wealth",
+                "y"
+              ],
+              "pos": "adj.",
+              "definition": "Having a great amount of money or valuable possessions; rich.",
+              "etymology": "Middle English <em>welthe</em> (well-being, prosperity) + <em>-y</em>",
+              "example": "The <em>wealthy</em> family donated a new wing to the local library.",
+              "synonyms": "rich, prosperous, affluent, well-off",
+              "antonyms": "poor, penniless, destitute, impoverished"
+            },
+            {
+              "type": "synonym",
+              "clue": "frugal, economical, careful, penny-wise",
+              "parts": [
+                "",
+                "thrift",
+                "y"
+              ],
+              "pos": "adj.",
+              "definition": "Careful and economical in the use of money and resources.",
+              "etymology": "Old Norse <em>þrift</em> (prosperity, thriving) + <em>-y</em>",
+              "example": "Her <em>thrifty</em> habits meant she had enough savings to travel every summer.",
+              "synonyms": "frugal, economical, careful, sparing",
+              "antonyms": "wasteful, extravagant, spendthrift, profligate"
+            },
+            {
+              "type": "antonym",
+              "clue": "prosperous, flush, well-off, affluent",
+              "parts": [
+                "",
+                "penny",
+                "less"
+              ],
+              "pos": "adj.",
+              "definition": "Having no money at all; utterly without funds.",
+              "etymology": "Old English <em>pening</em> (penny) + <em>-less</em> (without)",
+              "example": "He arrived in the city <em>penniless</em>, with nothing but a suitcase and a phone number.",
+              "synonyms": "broke, destitute, impoverished, insolvent",
+              "antonyms": "prosperous, flush, well-off, affluent"
+            },
+            {
+              "type": "example",
+              "clue": "It seemed ____ to throw away half the banquet food just because the event was over.",
+              "parts": [
+                "waste",
+                "ful",
+                ""
+              ],
+              "pos": "adj.",
+              "definition": "Using or expending something carelessly or in excess; extravagant.",
+              "etymology": "Old Norman French <em>waster</em> (to waste, devastate) + <em>-ful</em>",
+              "example": "It seemed <em>wasteful</em> to throw away half the banquet food just because the event was over.",
+              "synonyms": "extravagant, profligate, squandering, prodigal",
+              "antonyms": "frugal, economical, thrifty, careful"
+            }
+          ]
+        },
+        "medium": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Without the basic necessities of life; extremely poor.",
+              "parts": [
+                "des",
+                "tit",
+                "ute"
+              ],
+              "pos": "adj.",
+              "definition": "Without the basic necessities of life; extremely poor.",
+              "etymology": "Latin <em>destitutus</em> — <em>de-</em> (away) + <em>statuere</em> (to set, place) + <em>-ute</em>; 'abandoned'",
+              "example": "The earthquake left thousands of families <em>destitute</em>, without shelter or clean water.",
+              "synonyms": "impoverished, penniless, indigent, bankrupt",
+              "antonyms": "wealthy, affluent, prosperous, comfortable"
+            },
+            {
+              "type": "synonym",
+              "clue": "extravagant, sumptuous, opulent, profuse",
+              "parts": [
+                "",
+                "lav",
+                "ish"
+              ],
+              "pos": "adj.",
+              "definition": "Using or giving in generous, abundant, or extravagant amounts.",
+              "etymology": "Old French <em>lavasse</em> (deluge, heavy rain) + <em>-ish</em>",
+              "example": "The <em>lavish</em> ceremony cost more than the couple earned in a year.",
+              "synonyms": "extravagant, sumptuous, opulent, profuse",
+              "antonyms": "frugal, spare, modest, austere"
+            },
+            {
+              "type": "antonym",
+              "clue": "extravagance, wastefulness, prodigality, excess",
+              "parts": [
+                "frug",
+                "al",
+                "ity"
+              ],
+              "pos": "n.",
+              "definition": "The quality of being careful and economical with resources; avoidance of waste.",
+              "etymology": "Latin <em>frugalitas</em> — <em>frugalis</em> (useful, frugal) — from <em>frux</em> (fruit, produce) + <em>-ity</em>",
+              "example": "Years of <em>frugality</em> allowed her to retire a full decade earlier than her peers.",
+              "synonyms": "thrift, economy, restraint, parsimony",
+              "antonyms": "extravagance, wastefulness, prodigality, excess"
+            },
+            {
+              "type": "example",
+              "clue": "Coming from an ____ family, she had attended the finest schools and travelled every summer.",
+              "parts": [
+                "af",
+                "flu",
+                "ent"
+              ],
+              "pos": "adj.",
+              "definition": "Having a great deal of money; wealthy.",
+              "etymology": "Latin <em>affluens</em> — <em>ad-</em> (to) + <em>fluere</em> (to flow) + <em>-ent</em>; 'flowing toward'",
+              "example": "Coming from an <em>affluent</em> family, she had attended the finest schools and travelled every summer.",
+              "synonyms": "wealthy, prosperous, well-heeled, rich",
+              "antonyms": "poor, impoverished, destitute, indigent"
+            }
+          ]
+        },
+        "hard": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Extreme poverty; the state of having insufficient money to live on.",
+              "parts": [
+                "",
+                "pen",
+                "ury"
+              ],
+              "pos": "n.",
+              "definition": "Extreme poverty; the state of having insufficient money to live on.",
+              "etymology": "Latin <em>penuria</em> (scarcity, want) — possibly from <em>paene</em> (almost) + <em>nusquam</em> (nowhere)",
+              "example": "She had grown up in <em>penury</em>, sharing one room with four siblings and surviving on scraps.",
+              "synonyms": "destitution, indigence, impoverishment, privation",
+              "antonyms": "wealth, abundance, affluence, prosperity"
+            },
+            {
+              "type": "synonym",
+              "clue": "sumptuous, luxurious, lavish, splendid",
+              "parts": [
+                "",
+                "opul",
+                "ent"
+              ],
+              "pos": "adj.",
+              "definition": "Ostentatiously rich and luxurious.",
+              "etymology": "Latin <em>opulentus</em> (wealthy, powerful) — from <em>opes</em> (wealth, resources) + <em>-ent</em>",
+              "example": "The <em>opulent</em> ballroom, lined with gold leaf and crystal chandeliers, stunned every visitor.",
+              "synonyms": "sumptuous, luxurious, lavish, splendid",
+              "antonyms": "austere, sparse, modest, plain"
+            },
+            {
+              "type": "antonym",
+              "clue": "generosity, openhandedness, liberality, extravagance",
+              "parts": [
+                "pars",
+                "im",
+                "ony"
+              ],
+              "pos": "n.",
+              "definition": "Extreme unwillingness to spend money or use resources; stinginess.",
+              "etymology": "Latin <em>parsimonia</em> — <em>parcere</em> (to spare, be sparing) + <em>-mony</em>",
+              "example": "His <em>parsimony</em> was legendary: he reused tea bags and rationed his own heating.",
+              "synonyms": "stinginess, miserliness, niggardliness, penny-pinching",
+              "antonyms": "generosity, openhandedness, liberality, extravagance"
+            },
+            {
+              "type": "example",
+              "clue": "The _____ patron funded an entire hospital wing without seeking recognition or a naming right.",
+              "parts": [
+                "mun",
+                "ific",
+                "ent"
+              ],
+              "pos": "adj.",
+              "definition": "More generous than is usual or necessary; lavishly giving.",
+              "etymology": "Latin <em>munificus</em> — <em>munus</em> (gift, service) + <em>-ficus</em> (making) + <em>-ent</em>",
+              "example": "The <em>munificent</em> patron funded an entire hospital wing without seeking recognition or a naming right.",
+              "synonyms": "generous, bountiful, liberal, open-handed",
+              "antonyms": "miserly, stingy, parsimonious, tight-fisted"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Order & Chaos",
+      "tiers": {
+        "easy": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "The quality or state of being clean, tidy, and systematically arranged.",
+              "parts": [
+                "",
+                "neat",
+                "ness"
+              ],
+              "pos": "n.",
+              "definition": "The quality or state of being clean, tidy, and systematically arranged.",
+              "etymology": "Middle Dutch <em>net</em> (clean, tidy) + <em>-ness</em>",
+              "example": "The inspector praised the <em>neatness</em> of the workroom, where every tool had its own hook.",
+              "synonyms": "tidiness, orderliness, cleanliness, precision",
+              "antonyms": "messiness, disorder, clutter, disarray"
+            },
+            {
+              "type": "synonym",
+              "clue": "cluttered, unkempt, dishevelled, disordered",
+              "parts": [
+                "",
+                "mess",
+                "y"
+              ],
+              "pos": "adj.",
+              "definition": "Untidy or dirty; lacking organisation.",
+              "etymology": "Middle English <em>mes</em> (dish, portion) — later 'confused mixture' + <em>-y</em>",
+              "example": "After the party, the kitchen was so <em>messy</em> that it took two hours to restore it.",
+              "synonyms": "cluttered, unkempt, dishevelled, chaotic",
+              "antonyms": "neat, tidy, orderly, immaculate"
+            },
+            {
+              "type": "antonym",
+              "clue": "obedient, disciplined, manageable, controlled",
+              "parts": [
+                "un",
+                "rul",
+                "y"
+              ],
+              "pos": "adj.",
+              "definition": "Difficult to control or discipline; not submitting to order.",
+              "etymology": "<em>un-</em> (not) + Middle English <em>ruly</em> (orderly) from <em>rule</em> + <em>-y</em>",
+              "example": "The substitute teacher struggled to manage the <em>unruly</em> class all afternoon.",
+              "synonyms": "wild, disruptive, ungovernable, rowdy",
+              "antonyms": "obedient, disciplined, manageable, controlled"
+            },
+            {
+              "type": "example",
+              "clue": "The new librarian kept everything ____: every book returned to its exact position on the shelf.",
+              "parts": [
+                "order",
+                "ly",
+                ""
+              ],
+              "pos": "adj.",
+              "definition": "Neatly and methodically arranged; well-organised.",
+              "etymology": "Latin <em>ordo</em> (row, rank, arrangement) + <em>-ly</em>",
+              "example": "The new librarian kept everything <em>orderly</em>: every book returned to its exact position on the shelf.",
+              "synonyms": "neat, tidy, systematic, well-organised",
+              "antonyms": "chaotic, messy, disorganised, haphazard"
+            }
+          ]
+        },
+        "medium": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "An official system of rules governing formal procedures or conduct.",
+              "parts": [
+                "pro",
+                "to",
+                "col"
+              ],
+              "pos": "n.",
+              "definition": "An official system of rules governing formal procedures or conduct.",
+              "etymology": "Greek <em>protokollon</em> (first sheet glued to a manuscript) — <em>protos</em> (first) + <em>kolla</em> (glue) + <em>-col</em>",
+              "example": "Staff were reminded that the safety <em>protocol</em> required two signatures before any valve was opened.",
+              "synonyms": "procedure, convention, code, rulebook",
+              "antonyms": "chaos, improvisation, disorder, lawlessness"
+            },
+            {
+              "type": "synonym",
+              "clue": "chaos, disorder, lawlessness, mayhem",
+              "parts": [
+                "an",
+                "arch",
+                "y"
+              ],
+              "pos": "n.",
+              "definition": "A state of disorder resulting from the absence of authority or governing rules.",
+              "etymology": "Greek <em>anarkhia</em> — <em>an-</em> (without) + <em>arkhos</em> (ruler) + <em>-y</em>",
+              "example": "When the last official fled, the city descended into <em>anarchy</em> for three weeks.",
+              "synonyms": "chaos, disorder, lawlessness, mayhem",
+              "antonyms": "order, governance, rule, structure"
+            },
+            {
+              "type": "antonym",
+              "clue": "planned, deliberate, systematic, calculated",
+              "parts": [
+                "hap",
+                "haz",
+                "ard"
+              ],
+              "pos": "adj.",
+              "definition": "Lacking any plan, order, or direction; random.",
+              "etymology": "Middle English <em>hap</em> (luck, chance) + Old French <em>hasard</em> (game of dice)",
+              "example": "The investigation was so <em>haphazard</em> that key witnesses were never interviewed.",
+              "synonyms": "random, arbitrary, unsystematic, disorganised",
+              "antonyms": "planned, deliberate, systematic, calculated"
+            },
+            {
+              "type": "example",
+              "clue": "The detective was ____: she interviewed every witness twice and catalogued each piece of evidence.",
+              "parts": [
+                "meth",
+                "od",
+                "ical"
+              ],
+              "pos": "adj.",
+              "definition": "Done according to a careful and orderly plan; systematic.",
+              "etymology": "Greek <em>methodos</em> (pursuit of knowledge) — <em>meta-</em> + <em>hodos</em> (way) + <em>-ical</em>",
+              "example": "The detective was <em>methodical</em>: she interviewed every witness twice and catalogued each piece of evidence.",
+              "synonyms": "systematic, orderly, rigorous, painstaking",
+              "antonyms": "haphazard, disorganised, erratic, chaotic"
+            }
+          ]
+        },
+        "hard": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Wild and noisy disorder or confusion; a scene of complete uproar.",
+              "parts": [
+                "pan",
+                "demon",
+                "ium"
+              ],
+              "pos": "n.",
+              "definition": "Wild and noisy disorder or confusion; complete uproar.",
+              "etymology": "Coined by Milton — Greek <em>pan</em> (all) + <em>daimon</em> (demon) + <em>-ium</em>; originally the capital of Hell",
+              "example": "<em>Pandemonium</em> broke out in the stands when the referee reversed the final-second call.",
+              "synonyms": "uproar, bedlam, tumult, mayhem",
+              "antonyms": "calm, order, peace, tranquillity"
+            },
+            {
+              "type": "synonym",
+              "clue": "dissolution, disintegration, decay, deterioration",
+              "parts": [
+                "en",
+                "trop",
+                "y"
+              ],
+              "pos": "n.",
+              "definition": "The tendency of a system to move toward disorder and degradation over time.",
+              "etymology": "Greek <em>entropia</em> — <em>en-</em> (in) + <em>tropē</em> (a turning, transformation) + <em>-y</em>",
+              "example": "Left unmaintained, the garden showed the slow <em>entropy</em> that claims any structure without care.",
+              "synonyms": "dissolution, disintegration, decay, deterioration",
+              "antonyms": "order, organisation, structure, cohesion"
+            },
+            {
+              "type": "antonym",
+              "clue": "careless, sloppy, approximate, hasty",
+              "parts": [
+                "met",
+                "icul",
+                "ous"
+              ],
+              "pos": "adj.",
+              "definition": "Showing great attention to detail; very careful and precise.",
+              "etymology": "Latin <em>meticulosus</em> (fearful, timid) — <em>metus</em> (fear) + <em>-ulous</em>; later 'overly careful'",
+              "example": "The restorer's <em>meticulous</em> work took three years but returned the painting to its original state.",
+              "synonyms": "precise, thorough, painstaking, scrupulous",
+              "antonyms": "careless, sloppy, hasty, approximate"
+            },
+            {
+              "type": "example",
+              "clue": "The elders gathered to _____ the community's unwritten customs into a formal charter.",
+              "parts": [
+                "cod",
+                "i",
+                "fy"
+              ],
+              "pos": "v.",
+              "definition": "To arrange rules, laws, or principles into a systematic code.",
+              "etymology": "Latin <em>codex</em> (book of laws, tablet) + <em>-ify</em> (to make)",
+              "example": "The elders gathered to <em>codify</em> the community's unwritten customs into a formal charter.",
+              "synonyms": "systematise, formalise, catalogue, standardise",
+              "antonyms": "disorganise, scramble, muddle, disrupt"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Joy & Sorrow",
+      "tiers": {
+        "easy": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Having or casting a dark, hopeless, or melancholy mood.",
+              "parts": [
+                "",
+                "gloom",
+                "y"
+              ],
+              "pos": "adj.",
+              "definition": "Having or casting a dark, hopeless, or melancholy mood.",
+              "etymology": "Middle English <em>gloumen</em> (to look sullen) + <em>-y</em>",
+              "example": "He sat alone by the window, too <em>gloomy</em> to join the celebrations downstairs.",
+              "synonyms": "melancholy, downcast, dismal, despondent",
+              "antonyms": "cheerful, bright, sunny, joyful"
+            },
+            {
+              "type": "synonym",
+              "clue": "bright, merry, buoyant, upbeat",
+              "parts": [
+                "cheer",
+                "ful",
+                ""
+              ],
+              "pos": "adj.",
+              "definition": "Noticeably happy and optimistic; pleasantly bright.",
+              "etymology": "Old French <em>chere</em> (face, expression) + <em>-ful</em>",
+              "example": "A <em>cheerful</em> greeting from the receptionist put every visitor at ease.",
+              "synonyms": "bright, merry, buoyant, lighthearted",
+              "antonyms": "gloomy, sullen, melancholy, downcast"
+            },
+            {
+              "type": "antonym",
+              "clue": "celebrating, comforted, consoled, at peace",
+              "parts": [
+                "",
+                "grieve",
+                "ing"
+              ],
+              "pos": "adj.",
+              "definition": "Feeling or expressing intense sorrow, especially over a loss or death.",
+              "etymology": "Old French <em>grever</em> (to burden, harm) — Latin <em>gravare</em> (to weigh down) + <em>-ing</em>",
+              "example": "The <em>grieving</em> family sat together through the long night after the funeral.",
+              "synonyms": "mourning, sorrowful, bereft, heartbroken",
+              "antonyms": "celebrating, comforted, consoled, rejoicing"
+            },
+            {
+              "type": "example",
+              "clue": "The ____ kitten batted at the dangling string and rolled across the floor in pursuit.",
+              "parts": [
+                "play",
+                "ful",
+                ""
+              ],
+              "pos": "adj.",
+              "definition": "Fond of games and amusement; light-heartedly fun.",
+              "etymology": "Old English <em>plega</em> (play, sport) + <em>-ful</em>",
+              "example": "The <em>playful</em> kitten batted at the dangling string and rolled across the floor in pursuit.",
+              "synonyms": "frolicsome, spirited, mischievous, lighthearted",
+              "antonyms": "serious, sullen, grave, solemn"
+            }
+          ]
+        },
+        "medium": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "In low spirits from loss of hope or courage; deeply dejected.",
+              "parts": [
+                "de",
+                "spond",
+                "ent"
+              ],
+              "pos": "adj.",
+              "definition": "In low spirits from loss of hope or courage; deeply dejected.",
+              "etymology": "Latin <em>despondere</em> (to give up, lose heart) — <em>de-</em> + <em>spondere</em> (to promise) + <em>-ent</em>",
+              "example": "After months of rejection letters, she grew <em>despondent</em> and nearly abandoned her novel.",
+              "synonyms": "dejected, hopeless, disheartened, downcast",
+              "antonyms": "hopeful, cheerful, buoyant, elated"
+            },
+            {
+              "type": "synonym",
+              "clue": "ecstasy, rapture, paradise, delight",
+              "parts": [
+                "",
+                "bliss",
+                ""
+              ],
+              "pos": "n.",
+              "definition": "Perfect happiness or great joy.",
+              "etymology": "Old English <em>blīths</em> (joy, kindness) — from <em>blīthe</em> (glad, joyful)",
+              "example": "The week on the island, free of all obligations, was pure <em>bliss</em>.",
+              "synonyms": "ecstasy, rapture, joy, delight",
+              "antonyms": "misery, anguish, despair, wretchedness"
+            },
+            {
+              "type": "antonym",
+              "clue": "celebrate, rejoice, exult, revel",
+              "parts": [
+                "",
+                "lam",
+                "ent"
+              ],
+              "pos": "v.",
+              "definition": "To express passionate grief or regret; to mourn.",
+              "etymology": "Latin <em>lamentum</em> (cry of grief, wailing) + <em>-ent</em>",
+              "example": "She continued to <em>lament</em> the demolished building decades after it was torn down.",
+              "synonyms": "mourn, grieve, bewail, deplore",
+              "antonyms": "celebrate, rejoice, exult, revel"
+            },
+            {
+              "type": "example",
+              "clue": "She was ____ when she opened the letter — she ran straight out to tell her neighbours.",
+              "parts": [
+                "e",
+                "lat",
+                "ed"
+              ],
+              "pos": "adj.",
+              "definition": "Ecstatically happy; in high spirits.",
+              "etymology": "Latin <em>elatus</em> (raised up, elevated) — <em>e-</em> + <em>latus</em> (carried) + <em>-ed</em>",
+              "example": "She was <em>elated</em> when she opened the letter — she ran straight out to tell her neighbours.",
+              "synonyms": "overjoyed, euphoric, exhilarated, jubilant",
+              "antonyms": "dejected, despondent, downcast, crestfallen"
+            }
+          ]
+        },
+        "hard": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "A slow, mournful piece of music or song composed as a lament for the dead.",
+              "parts": [
+                "",
+                "dirge",
+                ""
+              ],
+              "pos": "n.",
+              "definition": "A slow, mournful piece of music or song composed as a lament for the dead.",
+              "etymology": "Latin <em>dirige</em> (direct! — imperative of <em>dirigere</em>), opening word of a funeral psalm",
+              "example": "The bagpipers played a <em>dirge</em> as the coffin was carried slowly down the hillside.",
+              "synonyms": "elegy, lament, threnody, requiem",
+              "antonyms": "fanfare, anthem, paean, celebration"
+            },
+            {
+              "type": "synonym",
+              "clue": "exhilaration, rapture, transport, exaltation",
+              "parts": [
+                "eu",
+                "phor",
+                "ia"
+              ],
+              "pos": "n.",
+              "definition": "An intense feeling of happiness and excitement, often overwhelming.",
+              "etymology": "Greek <em>euphoria</em> — <em>eu-</em> (well) + <em>pherein</em> (to bear) + <em>-ia</em>",
+              "example": "The <em>euphoria</em> of the final whistle gave way to tears when the reality sank in.",
+              "synonyms": "exhilaration, rapture, transport, exaltation",
+              "antonyms": "misery, despair, depression, anguish"
+            },
+            {
+              "type": "antonym",
+              "clue": "jubilant, celebratory, exuberant, triumphant",
+              "parts": [
+                "eleg",
+                "i",
+                "ac"
+              ],
+              "pos": "adj.",
+              "definition": "Having a mournful quality, like that of an elegy; expressing sorrow for the past.",
+              "etymology": "Greek <em>elegeia</em> (lament) — <em>elegos</em> (song of mourning) + <em>-iac</em>",
+              "example": "The film's closing sequence had an <em>elegiac</em> mood, dwelling on loss and the passage of time.",
+              "synonyms": "mournful, plaintive, melancholy, valedictory",
+              "antonyms": "jubilant, celebratory, exuberant, triumphant"
+            },
+            {
+              "type": "example",
+              "clue": "The translator admired the poem's _____ — every phrase was perfectly fitted to its moment.",
+              "parts": [
+                "fe",
+                "lic",
+                "ity"
+              ],
+              "pos": "n.",
+              "definition": "Intense happiness; also, the pleasing aptness of a phrase or style.",
+              "etymology": "Latin <em>felicitas</em> — <em>felix</em> (happy, fertile) + <em>-ity</em>",
+              "example": "The translator admired the poem's <em>felicity</em> — every phrase was perfectly fitted to its moment.",
+              "synonyms": "happiness, bliss, delight, aptness",
+              "antonyms": "misery, infelicity, wretchedness, inaptness"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Nature & Artifice",
+      "tiers": {
+        "easy": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Made by chemical processes rather than obtained from natural sources; not genuine.",
+              "parts": [
+                "syn",
+                "thet",
+                "ic"
+              ],
+              "pos": "adj.",
+              "definition": "Made by chemical synthesis rather than found in nature; not genuine.",
+              "etymology": "Greek <em>synthetikos</em> — <em>syn-</em> (together) + <em>tithenai</em> (to place) + <em>-ic</em>",
+              "example": "The jacket was filled with <em>synthetic</em> down, which performed well but felt slightly stiff.",
+              "synonyms": "artificial, manufactured, man-made, chemically produced",
+              "antonyms": "natural, organic, genuine, real"
+            },
+            {
+              "type": "synonym",
+              "clue": "wild, feral, unrestrained, undomesticated",
+              "parts": [
+                "un",
+                "tame",
+                "d"
+              ],
+              "pos": "adj.",
+              "definition": "Not domesticated or controlled; wild.",
+              "etymology": "<em>un-</em> (not) + Old English <em>tam</em> (tame, gentle) + <em>-ed</em>",
+              "example": "The <em>untamed</em> marshland was home to dozens of species found nowhere else in the region.",
+              "synonyms": "wild, feral, unrestrained, undomesticated",
+              "antonyms": "tame, cultivated, domesticated, controlled"
+            },
+            {
+              "type": "antonym",
+              "clue": "processed, refined, chemical, artificial",
+              "parts": [
+                "",
+                "organ",
+                "ic"
+              ],
+              "pos": "adj.",
+              "definition": "Produced or involving production without artificial chemicals; relating to nature.",
+              "etymology": "Greek <em>organikos</em> — <em>organon</em> (instrument, organ) + <em>-ic</em>",
+              "example": "She switched to an <em>organic</em> diet after learning how much pesticide remained on shop produce.",
+              "synonyms": "natural, unprocessed, chemical-free, wholesome",
+              "antonyms": "processed, refined, artificial, synthetic"
+            },
+            {
+              "type": "example",
+              "clue": "The jeweller had ____ each ring by hand, bending and soldering with complete precision.",
+              "parts": [
+                "",
+                "craft",
+                "ed"
+              ],
+              "pos": "adj.",
+              "definition": "Made with skill and care, especially by hand.",
+              "etymology": "Old English <em>cræft</em> (skill, strength) + <em>-ed</em>",
+              "example": "The jeweller had <em>crafted</em> each ring by hand, bending and soldering with complete precision.",
+              "synonyms": "handmade, fashioned, wrought, constructed",
+              "antonyms": "mass-produced, factory-made, automated, machined"
+            }
+          ]
+        },
+        "medium": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "Relating to or evoking rural life, especially in an idealised way.",
+              "parts": [
+                "past",
+                "or",
+                "al"
+              ],
+              "pos": "adj.",
+              "definition": "Relating to or depicting rural life, especially in a gentle or idealised way.",
+              "etymology": "Latin <em>pastoralis</em> — <em>pastor</em> (shepherd) + <em>-al</em>",
+              "example": "The painter specialised in <em>pastoral</em> scenes of rolling hills, farmhouses, and grazing cattle.",
+              "synonyms": "rural, bucolic, rustic, idyllic",
+              "antonyms": "urban, industrial, metropolitan, artificial"
+            },
+            {
+              "type": "synonym",
+              "clue": "forced, laboured, artificial, calculated",
+              "parts": [
+                "con",
+                "triv",
+                "ed"
+              ],
+              "pos": "adj.",
+              "definition": "Deliberately created rather than arising naturally; lacking spontaneity.",
+              "etymology": "Old French <em>controver</em> (to devise, find out) — Latin <em>con-</em> + <em>tropare</em> (to compose) + <em>-ed</em>",
+              "example": "The film's happy ending felt <em>contrived</em>, as though the screenwriter had forced it into shape.",
+              "synonyms": "forced, laboured, artificial, calculated",
+              "antonyms": "spontaneous, natural, effortless, unaffected"
+            },
+            {
+              "type": "antonym",
+              "clue": "genuine, real, actual, factual",
+              "parts": [
+                "fab",
+                "ric",
+                "ated"
+              ],
+              "pos": "adj.",
+              "definition": "Invented or falsified; also, produced by manufacturing.",
+              "etymology": "Latin <em>fabricatus</em> — <em>faber</em> (craftsman) + <em>-ated</em>",
+              "example": "The alibi was entirely <em>fabricated</em>; the timestamps on the photos proved he was elsewhere.",
+              "synonyms": "invented, falsified, manufactured, concocted",
+              "antonyms": "genuine, real, authentic, factual"
+            },
+            {
+              "type": "example",
+              "clue": "The ____ trees had thrived in this valley for centuries before any settlers arrived.",
+              "parts": [
+                "in",
+                "digen",
+                "ous"
+              ],
+              "pos": "adj.",
+              "definition": "Originating or occurring naturally in a particular place; native.",
+              "etymology": "Latin <em>indigena</em> (native) — <em>indi-</em> (within) + <em>gignere</em> (to beget) + <em>-ous</em>",
+              "example": "The <em>indigenous</em> trees had thrived in this valley for centuries before any settlers arrived.",
+              "synonyms": "native, endemic, aboriginal, local",
+              "antonyms": "foreign, introduced, imported, alien"
+            }
+          ]
+        },
+        "hard": {
+          "sets": [
+            {
+              "type": "definition",
+              "clue": "An image or representation that resembles the real thing but lacks its true substance or authenticity.",
+              "parts": [
+                "sim",
+                "ul",
+                "acrum"
+              ],
+              "pos": "n.",
+              "definition": "An image or representation of something, especially one that looks real but lacks the substance or qualities of the original.",
+              "etymology": "Latin <em>simulacrum</em> — <em>simulare</em> (to copy, imitate) + <em>-acrum</em> (instrument suffix)",
+              "example": "The resort was a glossy <em>simulacrum</em> of paradise — pristine on the surface, hollow beneath.",
+              "synonyms": "copy, facsimile, imitation, effigy",
+              "antonyms": "original, archetype, prototype, the genuine article"
+            },
+            {
+              "type": "synonym",
+              "clue": "unspoiled, immaculate, untouched, uncontaminated",
+              "parts": [
+                "",
+                "prist",
+                "ine"
+              ],
+              "pos": "adj.",
+              "definition": "In its original condition; unspoiled and pure.",
+              "etymology": "Latin <em>pristinus</em> (former, original, early) + <em>-ine</em>",
+              "example": "The beach had been closed for decades, leaving it <em>pristine</em> — white sand and clear water, untouched.",
+              "synonyms": "unspoiled, immaculate, untouched, uncontaminated",
+              "antonyms": "spoiled, polluted, degraded, tarnished"
+            },
+            {
+              "type": "antonym",
+              "clue": "verified, documented, authenticated, historical",
+              "parts": [
+                "apo",
+                "cryph",
+                "al"
+              ],
+              "pos": "adj.",
+              "definition": "Of doubtful authenticity, especially of a story or statement claimed to be true.",
+              "etymology": "Greek <em>apokryphos</em> (hidden away) — <em>apo-</em> (away) + <em>kryptein</em> (to hide) + <em>-al</em>",
+              "example": "The tale of the founder's dramatic escape is almost certainly <em>apocryphal</em>, invented long after his death.",
+              "synonyms": "dubious, spurious, legendary, unverified",
+              "antonyms": "verified, documented, authenticated, historical"
+            },
+            {
+              "type": "example",
+              "clue": "The delta's _____ soil had fed farming communities for more than ten thousand years.",
+              "parts": [
+                "",
+                "fec",
+                "und"
+              ],
+              "pos": "adj.",
+              "definition": "Producing or capable of producing an abundance of offspring or new growth; fertile.",
+              "etymology": "Latin <em>fecundus</em> (fruitful, fertile) — from <em>fetus</em> (offspring) + <em>-und</em>",
+              "example": "The delta's <em>fecund</em> soil had fed farming communities for more than ten thousand years.",
+              "synonyms": "fertile, prolific, productive, fruitful",
+              "antonyms": "barren, infertile, sterile, unproductive"
             }
           ]
         }
