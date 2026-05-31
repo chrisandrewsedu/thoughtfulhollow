@@ -11638,6 +11638,4641 @@
           }
         }
       ]
+    },
+    {
+      "id": "the-b-of-b",
+      "name": "The B of B",
+      "author": "OLIVER",
+      "difficulty": "mon-tue",
+      "date": "",
+      "notes": "",
+      "createdAt": "2026-05-29T14:01:37.173Z",
+      "target": [
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "SLATE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-b-of-b-of-b",
+      "name": "The B of B of B",
+      "author": "OLIVER",
+      "difficulty": "mon-tue",
+      "date": "",
+      "notes": "",
+      "createdAt": "2026-05-29T14:08:29.477Z",
+      "target": [
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": "SAGE",
+            "B": {
+              "color": "SAGE",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": {
+              "color": "SAGE",
+              "pattern": "floret"
+            },
+            "B": "SAGE"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": {
+              "color": "SAGE",
+              "pattern": "floret"
+            },
+            "B": "SAGE"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": "SAGE",
+            "B": {
+              "color": "SAGE",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": {
+              "color": "CLARET",
+              "pattern": "floret"
+            },
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": {
+              "color": "CLARET",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": {
+              "color": "FLAX",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": {
+              "color": "FLAX",
+              "pattern": "floret"
+            },
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": {
+              "color": "CLARET",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": {
+              "color": "CLARET",
+              "pattern": "floret"
+            },
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": {
+              "color": "FLAX",
+              "pattern": "floret"
+            },
+            "B": "FLAX"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": {
+              "color": "FLAX",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": {
+              "color": "MARIGOLD",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": {
+              "color": "MARIGOLD",
+              "pattern": "floret"
+            },
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "CLARET",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": {
+              "color": "MARIGOLD",
+              "pattern": "floret"
+            },
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": {
+              "color": "MARIGOLD",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "CLARET",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-b-of-b-of-b-of-b",
+      "name": "The B of B of B of B",
+      "author": "OLIVER",
+      "difficulty": "mon-tue",
+      "date": "",
+      "notes": "",
+      "createdAt": "2026-05-29T14:20:41.763Z",
+      "target": [
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "TEAL",
+            "B": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "TEAL",
+            "B": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 0,
+          "regions": {
+            "A": "INDIGO",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 0,
+          "regions": {
+            "A": "INDIGO",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 0,
+          "regions": {
+            "A": "TEAL",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 1,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 1,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "qst",
+          "rot": 0,
+          "regions": {
+            "A": "INDIGO",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 1,
+          "regions": {
+            "A": "INDIGO",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 1,
+          "regions": {
+            "A": "INDIGO",
+            "B": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 0,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 0,
+          "regions": {
+            "A": "TEAL",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 0,
+          "regions": {
+            "A": "CLARET",
+            "B": "TEAL"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 0,
+          "regions": {
+            "A": "MARIGOLD",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "bar",
+          "rot": 0,
+          "regions": {
+            "A": "TEAL",
+            "B": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "TEAL",
+            "B": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "TEAL",
+            "B": "LINEN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-b-of-b-of-b-of-b-of-b",
+      "name": "The B of B of B of B of B",
+      "author": "OLIVER",
+      "difficulty": "mon-tue",
+      "date": "",
+      "notes": "",
+      "createdAt": "2026-05-29T14:29:15.967Z",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-b-of-b-of-b-of-b-of-b-of-b",
+      "name": "The B of B of B of B of B of B",
+      "author": "OLIVER",
+      "difficulty": "mon-tue",
+      "date": "",
+      "notes": "",
+      "createdAt": "2026-05-29T14:37:22.665Z",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-b-of-b-of-b-of-b-of-b-of-b-of-b",
+      "name": "The B of B of B of B of B of B of B",
+      "author": "OLIVER",
+      "difficulty": "mon-tue",
+      "date": "",
+      "notes": "",
+      "createdAt": "2026-05-29T14:56:26.299Z",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "LINEN"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-good-oliver",
+      "name": "The good OLIVER",
+      "author": "OLIVER",
+      "difficulty": "mon-tue",
+      "date": "",
+      "notes": "",
+      "createdAt": "2026-05-29T15:09:55.780Z",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-best-oliver",
+      "name": "The best OLIVER",
+      "author": "OLIVER",
+      "difficulty": "mon-tue",
+      "date": "",
+      "notes": "",
+      "createdAt": "2026-05-29T15:24:36.965Z",
+      "target": [
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 2,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 3,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 1,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        },
+        {
+          "shape": "curve",
+          "rot": 0,
+          "regions": {
+            "A": "FLAX",
+            "B": "INDIGO"
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-most-good",
+      "name": "The most good $",
+      "author": "OLIVER",
+      "difficulty": "mon-tue",
+      "date": "",
+      "notes": "",
+      "createdAt": "2026-05-29T15:46:21.990Z",
+      "target": [
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "TEAL",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "FLAX"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SAGE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MADDER"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "MARIGOLD"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "CLARET"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "INDIGO"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "SLATE"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "SLATE",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "SAGE",
+              "pattern": "weave"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "MADDER",
+              "pattern": "weave"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "MARIGOLD",
+              "pattern": "weave"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "CLARET",
+              "pattern": "weave"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "INDIGO",
+              "pattern": "weave"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "SLATE",
+              "pattern": "weave"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "TEAL",
+              "pattern": "weave"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "FLAX",
+              "pattern": "trellis"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "INDIGO",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "FLAX",
+              "pattern": "weave"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "SAGE",
+              "pattern": "trellis"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "CLARET",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "MADDER",
+              "pattern": "trellis"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "MARIGOLD",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "MARIGOLD",
+              "pattern": "trellis"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "MADDER",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "CLARET",
+              "pattern": "trellis"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "SAGE",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "INDIGO",
+              "pattern": "trellis"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "FLAX",
+              "pattern": "floret"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": "TEAL"
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "SLATE",
+              "pattern": "trellis"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "TEAL",
+              "pattern": "cross"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "SLATE",
+              "pattern": "cross"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "INDIGO",
+              "pattern": "cross"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "CLARET",
+              "pattern": "cross"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "MARIGOLD",
+              "pattern": "cross"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "MADDER",
+              "pattern": "cross"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "SAGE",
+              "pattern": "cross"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "FLAX",
+              "pattern": "cross"
+            }
+          }
+        },
+        {
+          "shape": "square",
+          "rot": 0,
+          "regions": {
+            "W": {
+              "color": "TEAL",
+              "pattern": "trellis"
+            }
+          }
+        }
+      ]
     }
   ]
 }
